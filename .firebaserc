@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "web-app-admin-33b9a"
+  },
+  "targets": {
+    "web-app-admin-33b9a": {
+      "hosting": {
+        "admin": [
+          "web-app-admin-33b9a"
+        ],
+        "dashboard": [
+          "dashboard-app-33b"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
