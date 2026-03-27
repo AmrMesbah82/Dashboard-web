@@ -6,7 +6,8 @@
 // UPDATED: Uses AppSearchTextField, customButtonWithImage, SVG assets
 // FIXED: BlocListener handles JobListingSaved — pops edit page + reloads list
 // FIXED: initState reloads on JobListingSaved state too
-// FIXED: Card tap navigates to JobListingEditPage with jobId for editing
+// FIXED: Card tap navigates to JobListingDetailPage with jobId
+// FIXED: Filter button opens showJobListingFilterDialog + applies result
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,7 @@ import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 import 'package:web_app_admin/pages/home_page.dart';
+import 'package:web_app_admin/widgets/job_listing_filter_dialog.dart';
 
 import '../../department/department_main_page.dart';
 import 'job_listing_detail_page.dart';
@@ -74,11 +76,13 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
     'All', 'Active', 'Inactive', 'Ended', 'Scheduled', 'Drafted', 'Removed',
   ];
 
+  // ── Track advanced filter state ────────────────────────────────────────────
+  JobListingFilterData? _advancedFilter;
+
   @override
   void initState() {
     super.initState();
     final cubit = context.read<JobListingCubit>();
-    // ── FIX: also reload when returning from a save ──────────────
     if (cubit.state is JobListingInitial || cubit.state is JobListingSaved) {
       cubit.loadJobs();
     }
@@ -99,12 +103,22 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
     return '';
   }
 
+  // ── Open filter dialog ─────────────────────────────────────────────────────
+  Future<void> _openFilterDialog() async {
+    final result = await showJobListingFilterDialog(
+      context,
+      initial: _advancedFilter,
+    );
+    if (result != null) {
+      setState(() => _advancedFilter = result);
+      context.read<JobListingCubit>().applyAdvancedFilter(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ── FIX: BlocListener wraps BlocBuilder to handle post-save navigation ──
     return BlocListener<JobListingCubit, JobListingState>(
       listener: (context, state) {
-        // ── After publish/draft save: pop edit page + reload ─────
         if (state is JobListingSaved) {
           if (Navigator.of(context).canPop()) {
             Navigator.of(context).pop();
@@ -269,9 +283,10 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                   hintText: 'Search',
                                 ),
                                 SizedBox(width: 12.w),
+                                // ── FIXED: Filter button now opens the dialog ──
                                 customButton(
                                   title: 'Filter',
-                                  function: () {},
+                                  function: _openFilterDialog,
                                   width: 100.w,
                                   height: 36.h,
                                   radius: 6,
@@ -281,6 +296,14 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                 ),
                               ],
                             ),
+
+                            // ── Active advanced-filter chips ──────────
+                            if (_advancedFilter != null && !_advancedFilter!.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(top: 12.h),
+                                child: _buildActiveFilterChips(),
+                              ),
+
                             SizedBox(height: 20.h),
 
                             // ── Error banner ──────────────────────────
@@ -349,6 +372,125 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
     );
   }
 
+  // ── Active filter chips (shows what's applied + clear all) ────────────────
+
+  Widget _buildActiveFilterChips() {
+    final chips = <Widget>[];
+    final f = _advancedFilter!;
+
+    if (f.department != null) {
+      chips.add(_filterChip('Dept: ${f.department!}', () {
+        setState(() => _advancedFilter = JobListingFilterData(
+          location: f.location,
+          employmentType: f.employmentType,
+          yearsOfExperience: f.yearsOfExperience,
+          date: f.date,
+        ));
+        context.read<JobListingCubit>().applyAdvancedFilter(_advancedFilter!);
+      }));
+    }
+    if (f.location != null) {
+      chips.add(_filterChip('Loc: ${f.location!}', () {
+        setState(() => _advancedFilter = JobListingFilterData(
+          department: f.department,
+          employmentType: f.employmentType,
+          yearsOfExperience: f.yearsOfExperience,
+          date: f.date,
+        ));
+        context.read<JobListingCubit>().applyAdvancedFilter(_advancedFilter!);
+      }));
+    }
+    if (f.employmentType != null) {
+      chips.add(_filterChip('Type: ${f.employmentType!}', () {
+        setState(() => _advancedFilter = JobListingFilterData(
+          department: f.department,
+          location: f.location,
+          yearsOfExperience: f.yearsOfExperience,
+          date: f.date,
+        ));
+        context.read<JobListingCubit>().applyAdvancedFilter(_advancedFilter!);
+      }));
+    }
+    if (f.yearsOfExperience != null) {
+      chips.add(_filterChip('Exp: ${f.yearsOfExperience!}', () {
+        setState(() => _advancedFilter = JobListingFilterData(
+          department: f.department,
+          location: f.location,
+          employmentType: f.employmentType,
+          date: f.date,
+        ));
+        context.read<JobListingCubit>().applyAdvancedFilter(_advancedFilter!);
+      }));
+    }
+    if (f.date != null) {
+      final m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      chips.add(_filterChip('Date: ${f.date!.day} ${m[f.date!.month - 1]} ${f.date!.year}', () {
+        setState(() => _advancedFilter = JobListingFilterData(
+          department: f.department,
+          location: f.location,
+          employmentType: f.employmentType,
+          yearsOfExperience: f.yearsOfExperience,
+        ));
+        context.read<JobListingCubit>().applyAdvancedFilter(_advancedFilter!);
+      }));
+    }
+
+    // Clear All chip
+    chips.add(
+      GestureDetector(
+        onTap: () {
+          setState(() => _advancedFilter = null);
+          context.read<JobListingCubit>().clearAdvancedFilter();
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFEBEE),
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Text(
+            'Clear All',
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFD32F2F),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return Wrap(spacing: 8.w, runSpacing: 6.h, children: chips);
+  }
+
+  Widget _filterChip(String label, VoidCallback onRemove) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: _C.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w500,
+              color: _C.primary,
+            ),
+          ),
+          SizedBox(width: 6.w),
+          GestureDetector(
+            onTap: onRemove,
+            child: Icon(Icons.close, size: 14.sp, color: _C.primary),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Hero Section ──────────────────────────────────────────────────────────
 
   Widget _buildHeroSection() {
@@ -375,7 +517,6 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
         final start = rowIndex * 3;
         return Padding(
           padding: EdgeInsets.only(bottom: 16.h),
-          // ── IntrinsicHeight forces all cards in the row to the same height ──
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -489,7 +630,6 @@ class _JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      // ── height: double.infinity lets IntrinsicHeight in the grid drive height ──
       child: Container(
         height: double.infinity,
         decoration: BoxDecoration(
@@ -498,7 +638,6 @@ class _JobCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // ── Column fills the full card height; Spacer pushes bar to bottom ──
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -575,7 +714,6 @@ class _JobCard extends StatelessWidget {
                   ),
                 ),
 
-                // ── Spacer pushes bottom bar to the bottom always ─
                 const Spacer(),
 
                 // ── Bottom bar with SVG icon ──────────────────────

@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_cubit.dart';
@@ -556,13 +557,18 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                                 SizedBox(width: 10.w),
                                 Transform.scale(
                                   scale: 0.85,
-                                  child: Switch(
+                                  child: FlutterSwitch(
                                     value: _isActive,
-                                    activeColor: Colors.white,
-                                    activeTrackColor: _C.primary,
-                                    inactiveThumbColor: Colors.white,
-                                    inactiveTrackColor: Colors.grey.shade400,
-                                    onChanged: (val) => _toggleStatus(val),
+                                    activeColor: _C.primary,
+                                    activeToggleColor: Colors.white,
+                                    inactiveColor: Colors.grey.shade400,
+                                    inactiveToggleColor: Colors.white,
+                                    width: 46.0,
+                                    height: 27.0,
+                                    toggleSize: 21.0,
+                                    borderRadius: 13.5,
+                                    padding: 3.0,
+                                    onToggle: (val) => _toggleStatus(val),
                                   ),
                                 ),
                               ],

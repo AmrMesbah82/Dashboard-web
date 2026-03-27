@@ -19,6 +19,7 @@ import 'package:web_app_admin/pages/dashboard/job_list/job_listing_main_page.dar
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/app_admin_navbar.dart';
+import 'package:web_app_admin/widgets/application_filter_dialog.dart';
 
 import 'application_detail_page.dart';
 
@@ -41,6 +42,7 @@ class ApplicationMainPage extends StatefulWidget {
 class _ApplicationMainPageState extends State<ApplicationMainPage> {
   final _searchController = TextEditingController();
   bool _isGridView = true;
+  ApplicationFilterData? _activeFilter;
 
   @override
   void initState() {
@@ -168,11 +170,22 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                 SizedBox(width: 8.w),
                                 customButton(
                                   title: 'Filter',
-                                  function: () {},
+                                  function: () async {
+                                    final result = await showApplicationFilterDialog(
+                                      context,
+                                      initial: _activeFilter,
+                                    );
+                                    if (result != null) {
+                                      setState(() => _activeFilter = result);
+                                      cubit.setFilter(result);   // 👇 add this method to cubit (Step 3)
+                                    }
+                                  },
                                   width: 100.w,
                                   height: 36.h,
                                   radius: 6,
-                                  color: _C.primary,
+                                  color: _activeFilter != null && !_activeFilter!.isEmpty
+                                      ? _C.primary.withOpacity(0.85)   // tinted when filter is active
+                                      : _C.primary,
                                   textColor: Colors.white,
                                   textStyle: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
                                 ),
@@ -232,7 +245,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   image: 'assets/images/grid.svg',
                                   widthImage: 16.sp,
                                   heightImage: 16.sp,
-                                  colorBorder: _isGridView ? _C.primary : _C.border,
+                                  colorBorder: Colors.transparent,
                                   svgColor: _isGridView ? Colors.white : _C.hintText,
                                 ),
                                 SizedBox(width: 4.w),
@@ -250,7 +263,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   image: 'assets/images/table.svg',
                                   widthImage: 16.sp,
                                   heightImage: 16.sp,
-                                  colorBorder: !_isGridView ? _C.primary : _C.border,
+                                  colorBorder: Colors.transparent,
                                   svgColor: !_isGridView ? Colors.white : _C.hintText,
                                 ),
                               ],
@@ -385,45 +398,145 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
   }
 
   // ── Table View ─────────────────────────────────────────────────────────────
+// ── Table View ─────────────────────────────────────────────────────────────
   Widget _buildTable(List<ApplicationModel> apps) {
-    final columns = [
-      'Job Title', 'Department', 'Work Type', 'Job Location', 'Employment Type',
-      'Employment Duration', 'Experience Level', 'Currency', 'Salary Range',
-      'Required Qualification', 'Required Skills', 'Application Date', 'Status',
-      'Candidate Name', 'Email',
+    final headers = [
+      'No', 'Candidate', 'Email', 'Phone', 'Department',
+      'Job Title', 'Work Type', 'Location', 'Employment Type',
+      'Experience Level', 'Salary Range', 'Application Date', 'Status',
     ];
+
+    final columnWidths = <int, TableColumnWidth>{
+      0:  FixedColumnWidth(50.sp),
+      1:  FixedColumnWidth(140.sp),
+      2:  FixedColumnWidth(180.sp),
+      3:  FixedColumnWidth(120.sp),
+      4:  FixedColumnWidth(120.sp),
+      5:  FixedColumnWidth(150.sp),
+      6:  FixedColumnWidth(100.sp),
+      7:  FixedColumnWidth(120.sp),
+      8:  FixedColumnWidth(130.sp),
+      9:  FixedColumnWidth(120.sp),
+      10: FixedColumnWidth(120.sp),
+      11: FixedColumnWidth(110.sp),
+      12: FixedColumnWidth(110.sp),
+    };
+
+    TextStyle cellStyle = TextStyle(
+      fontSize: 11.sp,
+      color: _C.labelText,
+    );
+
+    Widget cell(Widget child) => Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 8.sp),
+      child: DefaultTextStyle.merge(style: cellStyle, child: child),
+    );
+
+    Widget textCell(String text) => cell(
+      Text(
+        text.isEmpty ? '-' : text,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
+    Color statusColor(ApplicationStatus status) {
+      switch (status) {
+        case ApplicationStatus.hired:
+          return Colors.green.shade600;
+        case ApplicationStatus.unqualified:
+        case ApplicationStatus.interviewFailed:
+        case ApplicationStatus.offerRejected:
+          return Colors.red.shade600;
+        case ApplicationStatus.interviewPassed:
+        case ApplicationStatus.interviewWithdrew:
+          return Colors.blue.shade600;
+        case ApplicationStatus.offerApproved:
+        case ApplicationStatus.offerPending:
+          return Colors.orange.shade600;
+        case ApplicationStatus.qualified:
+          return Colors.teal.shade600;
+        case ApplicationStatus.applied:
+        default:
+          return _C.primary;
+      }
+    }
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: DataTable(
-        headingRowColor: WidgetStateProperty.all(_C.primary),
-        headingTextStyle: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.white),
-        dataTextStyle: TextStyle(fontSize: 11.sp, color: _C.labelText),
-        columns: columns.map((c) => DataColumn(label: Text(c))).toList(),
-        rows: apps.map((a) {
-          final date = a.applicationDate != null
-              ? '${a.applicationDate!.day}/${a.applicationDate!.month}/${a.applicationDate!.year}'
-              : '';
-          return DataRow(
-            cells: [
-              DataCell(Text(a.jobTitle)),
-              DataCell(Text(a.department)),
-              DataCell(Text(a.workType)),
-              DataCell(Text(a.jobLocation)),
-              DataCell(Text(a.employmentType)),
-              DataCell(Text(a.employmentDuration)),
-              DataCell(Text(a.experienceLevel)),
-              DataCell(Text(a.currency)),
-              DataCell(Text(a.salaryRange)),
-              DataCell(Text(a.requiredQualification)),
-              DataCell(Text(a.requiredSkills)),
-              DataCell(Text(date)),
-              DataCell(Text(a.status.label)),
-              DataCell(Text(a.fullName)),
-              DataCell(Text(a.email)),
-            ],
-          );
-        }).toList(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10.sp),
+        child: Table(
+          border: TableBorder.all(color: Colors.transparent),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: columnWidths,
+          children: [
+
+            // ── Header Row ──
+            TableRow(
+              decoration: const BoxDecoration(color: _C.primary),
+              children: headers.map((h) => Padding(
+                padding: EdgeInsets.all(10.sp),
+                child: Text(
+                  h,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              )).toList(),
+            ),
+
+            // ── Data Rows ──
+            ...List.generate(apps.length, (index) {
+              final a = apps[index];
+              final isEven = index.isEven;
+              final rowColor = isEven ? const Color(0xFFF7F8FA) : Colors.white;
+
+              final dateStr = a.applicationDate != null
+                  ? '${a.applicationDate!.day}/${a.applicationDate!.month}/${a.applicationDate!.year}'
+                  : '-';
+
+              final cells = [
+                textCell('${index + 1}'),
+                textCell(a.fullName),
+                textCell(a.email),
+                textCell('${a.countryCode}${a.phone}'),
+                textCell(a.department),
+                textCell(a.jobTitle),
+                textCell(a.workType),
+                textCell(a.jobLocation),
+                textCell(a.employmentType),
+                textCell(a.experienceLevel),
+                textCell(a.salaryRange),
+                textCell(dateStr),
+
+                // ── Status cell (colored) ──
+                cell(
+                  Text(
+                    a.status.label,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor(a.status),
+                    ),
+                  ),
+                ),
+              ];
+
+              return TableRow(
+                decoration: BoxDecoration(color: rowColor),
+                children: cells.map((c) => InkWell(
+                  onTap: () => navigateTo(context, ApplicationDetailPage(jobId: a.jobId, appId: a.id)),
+                  child: c,
+                )).toList(),
+              );
+            }),
+
+          ],
+        ),
       ),
     );
   }

@@ -37,6 +37,9 @@ class ApplicationModel {
 
   // Meta
   final DateTime? applicationDate;
+  final DateTime? interviewDate;
+  final DateTime? lastUpdate;
+  final String source;
   final String workType;
   final String employmentType;
   final String experienceLevel;
@@ -71,6 +74,9 @@ class ApplicationModel {
     this.leadershipPotential = 0,
     this.comments = '',
     this.applicationDate,
+    this.interviewDate,
+    this.lastUpdate,
+    this.source = '',
     this.workType = '',
     this.employmentType = '',
     this.experienceLevel = '',
@@ -111,6 +117,13 @@ class ApplicationModel {
       applicationDate: map['applicationDate'] != null
           ? DateTime.tryParse(map['applicationDate'] as String)
           : null,
+      interviewDate: map['interviewDate'] != null
+          ? DateTime.tryParse(map['interviewDate'] as String)
+          : null,
+      lastUpdate: map['lastUpdate'] != null
+          ? DateTime.tryParse(map['lastUpdate'] as String)
+          : null,
+      source: map['source'] as String? ?? '',
       workType: map['workType'] as String? ?? '',
       employmentType: map['employmentType'] as String? ?? '',
       experienceLevel: map['experienceLevel'] as String? ?? '',
@@ -146,6 +159,9 @@ class ApplicationModel {
     'leadershipPotential': leadershipPotential,
     'comments': comments,
     'applicationDate': (applicationDate ?? DateTime.now()).toIso8601String(),
+    'interviewDate': interviewDate?.toIso8601String(),
+    'lastUpdate': lastUpdate?.toIso8601String(),
+    'source': source,
     'workType': workType,
     'employmentType': employmentType,
     'experienceLevel': experienceLevel,
@@ -181,6 +197,9 @@ class ApplicationModel {
     int? leadershipPotential,
     String? comments,
     DateTime? applicationDate,
+    DateTime? interviewDate,
+    DateTime? lastUpdate,
+    String? source,
     String? workType,
     String? employmentType,
     String? experienceLevel,
@@ -215,6 +234,9 @@ class ApplicationModel {
         leadershipPotential: leadershipPotential ?? this.leadershipPotential,
         comments: comments ?? this.comments,
         applicationDate: applicationDate ?? this.applicationDate,
+        interviewDate: interviewDate ?? this.interviewDate,
+        lastUpdate: lastUpdate ?? this.lastUpdate,
+        source: source ?? this.source,
         workType: workType ?? this.workType,
         employmentType: employmentType ?? this.employmentType,
         experienceLevel: experienceLevel ?? this.experienceLevel,

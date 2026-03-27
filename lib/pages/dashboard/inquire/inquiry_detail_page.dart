@@ -16,6 +16,7 @@ import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 
+import '../../../core/widget/custom_dropdwon.dart';
 import '../../careers_main_dashboard.dart';
 import '../main_page/home_main_page.dart';
 import '../job_list/job_listing_main_page.dart';
@@ -223,36 +224,47 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                           SizedBox(height: 12.h),
 
                           // ── Date + Status dropdown ──
-                          Row(children: [
-                            Text('Submission Date: $dateStr',
-                                style: TextStyle(fontSize: 13.sp, color: _C.labelText)),
-                            const Spacer(),
-                            Container(
-                              height: 36.h,
-                              padding: EdgeInsets.symmetric(horizontal: 10.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4.r),
-                                border: Border.all(color: _C.border),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<InquiryStatus>(
-                                  value: inq.status,
-                                  items: statusOptions
-                                      .map((s) => DropdownMenuItem(
-                                      value: s,
-                                      child: Text(s.label, style: TextStyle(fontSize: 12.sp))))
-                                      .toList(),
-                                  onChanged: (val) {
-                                    if (val != null && val != inq?.status) {
-                                      _onStatusChange(inq!, val);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ]),
-                          SizedBox(height: 24.h),
+                      // Replace the status dropdown section in inquiry_detail_page.dart
+
+// First, add this import at the top:
+
+// ── Date + Status dropdown ──
+                    Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Submission Date: $dateStr',
+                            style: TextStyle(fontSize: 13.sp, color: _C.labelText)),
+                        const Spacer(),
+                        SizedBox(
+                          width: 160.w,
+                          child: CustomDropdownFormFieldInvMaster(
+                            selectedValue: inq.status.name, // use the enum name as key
+                            widthIcon: 18,
+                            heightIcon: 18,
+                            height: 36,
+                            borderRadius: 4,
+                            showColorDots: true,
+                            itemColors: {
+                              InquiryStatus.newInquiry.name : const Color(0xFF008037),
+                              InquiryStatus.replied.name    : const Color(0xFFFF9800),
+                              InquiryStatus.closed.name     : const Color(0xFFE53935),
+                            },
+                            items: statusOptions
+                                .map((s) => {'key': s.name, 'value': s.label})
+                                .toList(),
+                            onChanged: (val) {
+                              if (val == null) return;
+                              final newStatus = InquiryStatus.values
+                                  .firstWhere((s) => s.name == val);
+                              if (newStatus != inq?.status) {
+                                _onStatusChange(inq!, newStatus);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                          SizedBox(height: 10.h),
 
                           // ── Form fields ──
                           Container(
@@ -261,7 +273,6 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                             decoration: BoxDecoration(
                               color: _C.cardBg,
                               borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(color: _C.border),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,7 +401,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
           height: multiLine ? 80.h : 36.h,
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: multiLine ? 8.h : 0),
           decoration: BoxDecoration(
-            color: AppColors.card,
+            color: Color(0xFFF1F2ED),
             borderRadius: BorderRadius.circular(4.r),
           ),
           alignment: multiLine ? Alignment.topLeft : Alignment.centerLeft,

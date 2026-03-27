@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:web_app_admin/model/application_model.dart';
+import 'package:web_app_admin/widgets/application_filter_dialog.dart';
 
 abstract class ApplicationState {}
 
@@ -15,22 +16,26 @@ class ApplicationLoaded extends ApplicationState {
   final List<ApplicationModel> applications;
   final String activeDeptFilter;
   final String searchQuery;
+  final ApplicationFilterData? filterData;
 
   ApplicationLoaded({
     required this.applications,
     this.activeDeptFilter = 'All',
     this.searchQuery = '',
+    this.filterData,
   });
 
   List<ApplicationModel> get filteredApps {
     var result = List<ApplicationModel>.from(applications);
 
+    // ── 1. Department filter ──────────────────────────────────────────────
     if (activeDeptFilter != 'All') {
       result = result
           .where((a) => a.department.toLowerCase() == activeDeptFilter.toLowerCase())
           .toList();
     }
 
+    // ── 2. Search query ───────────────────────────────────────────────────
     if (searchQuery.isNotEmpty) {
       final q = searchQuery.toLowerCase();
       result = result.where((a) {
@@ -41,10 +46,74 @@ class ApplicationLoaded extends ApplicationState {
       }).toList();
     }
 
+    // ── 3. Dialog filter ──────────────────────────────────────────────────
+    if (filterData != null && !filterData!.isEmpty) {
+
+      // Employment Type
+      if (filterData!.employmentType != null) {
+        result = result
+            .where((a) => a.employmentType.toLowerCase() ==
+            filterData!.employmentType!.toLowerCase())
+            .toList();
+      }
+
+      // Years of Experience
+      if (filterData!.yearsOfExperience != null) {
+        result = result
+            .where((a) => a.experienceLevel.toLowerCase() ==
+            filterData!.yearsOfExperience!.toLowerCase())
+            .toList();
+      }
+
+      // Status (matches enum label e.g. "Offer: Approved")
+      if (filterData!.status != null) {
+        result = result
+            .where((a) => a.status.label == filterData!.status)
+            .toList();
+      }
+
+      // Stage (matches enum stage e.g. "Interview")
+      if (filterData!.stage != null) {
+        result = result
+            .where((a) => a.status.stage == filterData!.stage)
+            .toList();
+      }
+
+      // Score / Tag (e.g. "Strong", "Adequate", "Weak")
+      if (filterData!.score != null) {
+        result = result
+            .where((a) =>
+        a.tag.toLowerCase() == filterData!.score!.toLowerCase())
+            .toList();
+      }
+
+      // Sort By
+      if (filterData!.sortBy != null) {
+        switch (filterData!.sortBy) {
+          case 'date_desc':
+            result.sort((a, b) =>
+                (b.applicationDate ?? DateTime(0))
+                    .compareTo(a.applicationDate ?? DateTime(0)));
+            break;
+          case 'date_asc':
+            result.sort((a, b) =>
+                (a.applicationDate ?? DateTime(0))
+                    .compareTo(b.applicationDate ?? DateTime(0)));
+            break;
+          case 'name_asc':
+            result.sort((a, b) => a.fullName.compareTo(b.fullName));
+            break;
+          case 'name_desc':
+            result.sort((a, b) => b.fullName.compareTo(a.fullName));
+            break;
+        }
+      }
+    }
+
     return result;
   }
 
-  // ── Summary counts ──
+  // ── Summary counts ────────────────────────────────────────────────────────
   int get totalCount => filteredApps.length;
 
   int get appliedQualified =>
@@ -69,7 +138,7 @@ class ApplicationLoaded extends ApplicationState {
   int get hiredCompleted =>
       filteredApps.where((a) => a.status == ApplicationStatus.hired).length;
 
-  /// Unique departments with counts for filter tabs
+  // ── Department counts for filter tabs ────────────────────────────────────
   Map<String, int> get departmentCounts {
     final map = <String, int>{};
     for (final a in applications) {

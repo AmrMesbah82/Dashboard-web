@@ -333,6 +333,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
   }
 
   // ── Data table ───────────────────────────────────────────────────────────
+  // ── Data table ───────────────────────────────────────────────────────────
   Widget _buildTable(List<InquiryModel> inquiries) {
     final columns = [
       'Submission Date', 'Preferred Language', 'First Name', 'Last Name',
@@ -352,30 +353,41 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           final date = i.submissionDate != null
               ? '${i.submissionDate!.day}/${i.submissionDate!.month}/${i.submissionDate!.year}'
               : '';
-          return DataRow(cells: [
-            DataCell(Text(date)),
-            DataCell(Text(i.preferredLanguage)),
-            DataCell(Text(i.firstName)),
-            DataCell(Text(i.lastName)),
-            DataCell(Text(i.email)),
-            DataCell(Text(i.countryCode)),
-            DataCell(Text(i.phone)),
-            DataCell(Text(i.location)),
-            DataCell(Text(i.entityName)),
-            DataCell(Text(i.entityType)),
-            DataCell(Text(i.entitySize)),
-            DataCell(Text(i.subject)),
-            DataCell(Text(i.message, maxLines: 1, overflow: TextOverflow.ellipsis)),
-            DataCell(Text(i.note,    maxLines: 1, overflow: TextOverflow.ellipsis)),
-            DataCell(GestureDetector(
-              onTap: () => navigateTo(context, InquiryDetailPage(inquiryId: i.id)),
-              child: Text(i.status.label,
+          return DataRow(
+            // ✅ Make the entire row tappable
+            onSelectChanged: (_) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<InquiryCubit>(),
+                    child: InquiryDetailPage(inquiryId: i.id),
+                  ),
+                ),
+              );
+            },
+            cells: [
+              DataCell(Text(date)),
+              DataCell(Text(i.preferredLanguage)),
+              DataCell(Text(i.firstName)),
+              DataCell(Text(i.lastName)),
+              DataCell(Text(i.email)),
+              DataCell(Text(i.countryCode)),
+              DataCell(Text(i.phone)),
+              DataCell(Text(i.location)),
+              DataCell(Text(i.entityName)),
+              DataCell(Text(i.entityType)),
+              DataCell(Text(i.entitySize)),
+              DataCell(Text(i.subject)),
+              DataCell(Text(i.message, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              DataCell(Text(i.note,    maxLines: 1, overflow: TextOverflow.ellipsis)),
+              DataCell(Text(i.status.label,
                   style: TextStyle(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w600,
-                      color: i.status.color)),
-            )),
-          ]);
+                      color: i.status.color))),
+            ],
+          );
         }).toList(),
       ),
     );

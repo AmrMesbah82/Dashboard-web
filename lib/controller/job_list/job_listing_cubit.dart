@@ -4,12 +4,14 @@
 // Purpose: Cubit for Job Listing — Firebase Firestore via repository pattern
 // FIXED: saveJob() no longer forces JobStatus.active on every publish —
 //        it now respects the status passed in the model (active OR inactive)
+// FIXED: Added applyAdvancedFilter() + clearAdvancedFilter() for filter dialog
 
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_state.dart';
 import 'package:web_app_admin/model/job_listing_model.dart';
 import 'package:web_app_admin/repo/job_list/job_listing_repo.dart';
+import 'package:web_app_admin/widgets/job_listing_filter_dialog.dart';
 
 class JobListingCubit extends Cubit<JobListingState> {
   final JobListingRepo _repo;
@@ -22,6 +24,9 @@ class JobListingCubit extends Cubit<JobListingState> {
   String _activeFilter = 'All';
   String _searchQuery = '';
   StreamSubscription? _streamSub;
+
+  // ── Advanced filter from dialog ────────────────────────────────────────────
+  JobListingFilterData? _advancedFilter;
 
   List<JobPostModel> get allJobs => _allJobs;
 
@@ -74,6 +79,25 @@ class JobListingCubit extends Cubit<JobListingState> {
 
   void setSearch(String query) {
     _searchQuery = query;
+    _emitLoaded();
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  ADVANCED FILTER (from dialog)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  void applyAdvancedFilter(JobListingFilterData filter) {
+    print('🟡 [JobListingCubit] applyAdvancedFilter() — '
+        'dept: ${filter.department}, loc: ${filter.location}, '
+        'emp: ${filter.employmentType}, yoe: ${filter.yearsOfExperience}, '
+        'date: ${filter.date}');
+    _advancedFilter = filter;
+    _emitLoaded();
+  }
+
+  void clearAdvancedFilter() {
+    print('🟡 [JobListingCubit] clearAdvancedFilter()');
+    _advancedFilter = null;
     _emitLoaded();
   }
 
@@ -187,32 +211,17 @@ class JobListingCubit extends Cubit<JobListingState> {
 
   // ══════════════════════════════════════════════════════════════════════════
   //  SAVE JOB (create or update)
-  //
-  //  KEY FIX: We no longer force status = JobStatus.active on publish.
-  //  The edit page sets status via the toggle BEFORE calling saveJob(),
-  //  so we respect whatever status is already on the model.
-  //
-  //  Rules:
-  //    publishStatus == 'draft'     → status always = drafted
-  //    publishStatus == 'published' → use job.status as-is (active OR inactive)
-  //
-  //  This means:
-  //    toggle ON  + Publish → saves as Active
-  //    toggle OFF + Publish → saves as Inactive
   // ══════════════════════════════════════════════════════════════════════════
 
   Future<void> saveJob(JobPostModel job, {String? publishStatus}) async {
     try {
       final ps = publishStatus ?? job.publishStatus;
 
-      // Draft always forces drafted status.
-      // Published keeps the status that was set by the toggle in the edit page.
       final resolvedStatus = ps == 'draft' ? JobStatus.drafted : job.status;
 
       final updated = job.copyWith(
         publishStatus: ps,
         status: resolvedStatus,
-        // Only stamp a new postedDate when first publishing as active
         postedDate: (ps == 'published' && resolvedStatus == JobStatus.active)
             ? DateTime.now()
             : job.postedDate,
@@ -233,7 +242,6 @@ class JobListingCubit extends Cubit<JobListingState> {
 
       emit(JobListingSaved(updated));
 
-      // Re-emit loaded state after brief delay so UI can react
       Future.delayed(const Duration(milliseconds: 100), () {
         if (!isClosed) _emitLoaded();
       });
@@ -252,11 +260,13 @@ class JobListingCubit extends Cubit<JobListingState> {
   //  HELPER
   // ══════════════════════════════════════════════════════════════════════════
 
+
   void _emitLoaded() {
     emit(JobListingLoaded(
       jobs: _allJobs,
       activeFilter: _activeFilter,
       searchQuery: _searchQuery,
+      advancedFilter: _advancedFilter,
     ));
   }
 

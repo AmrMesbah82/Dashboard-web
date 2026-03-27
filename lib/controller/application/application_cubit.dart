@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_app_admin/controller/application/application_state.dart';
 import 'package:web_app_admin/model/application_model.dart';
 import 'package:web_app_admin/repo/application/application_repo.dart';
+import 'package:web_app_admin/widgets/application_filter_dialog.dart';
 
 class ApplicationCubit extends Cubit<ApplicationState> {
   final ApplicationRepo _repo;
@@ -18,6 +19,7 @@ class ApplicationCubit extends Cubit<ApplicationState> {
   List<ApplicationModel> _allApps = [];
   String _activeDeptFilter = 'All';
   String _searchQuery = '';
+  ApplicationFilterData? _activeFilter;
 
   List<ApplicationModel> get allApps => _allApps;
 
@@ -36,6 +38,17 @@ class ApplicationCubit extends Cubit<ApplicationState> {
 
   void setDeptFilter(String dept) {
     _activeDeptFilter = dept;
+    _emitLoaded();
+  }
+
+
+  void setFilter(ApplicationFilterData filter) {
+    _activeFilter = filter.isEmpty ? null : filter;
+    _emitLoaded();
+  }
+
+  void clearFilter() {
+    _activeFilter = null;
     _emitLoaded();
   }
 
@@ -115,9 +128,10 @@ class ApplicationCubit extends Cubit<ApplicationState> {
 
   void _emitLoaded() {
     emit(ApplicationLoaded(
-      applications: _allApps,
+      applications:     _allApps,
       activeDeptFilter: _activeDeptFilter,
-      searchQuery: _searchQuery,
+      searchQuery:      _searchQuery,
+      filterData:       _activeFilter,   // ← add
     ));
   }
 }
