@@ -5,6 +5,10 @@
 // Main tab            → Headings accordion
 // Cards tab           → DJ accordion with subtitle + journey items grid
 // Important Reads tab → Blog posts card grid with filter tabs + search
+// FIXED: _lastUpdatedRow now shows dynamic date from model (not static)
+// FIXED: Preview Screen button hidden on Important Reads tab
+// FIXED: Tab bar restyled to match job_listing_detail_page pattern
+// DEBUG: Added comprehensive logging for blog post loading/filtering
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -30,7 +34,16 @@ import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 
+import '../../../../widgets/app_admin_navbar.dart';
+import '../../../careers_main_dashboard.dart';
+import '../../job_list/job_listing_main_page.dart';
+import '../../main_page/home_main_page.dart';
 import '../degital_services/services_digital_journey_preview_page.dart';
+
+// 🔵 DEBUG: Helper for consistent logging
+void _log(String message, {String level = '🔵'}) {
+  debugPrint('$level [ServicesMainPageMaster] $message');
+}
 
 class _C {
   static const Color primary    = Color(0xFF008037);
@@ -98,10 +111,12 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
   @override
   void initState() {
     super.initState();
+    _log('Page initialized');
     _searchCtrl.addListener(() {
       setState(() => _searchQuery = _searchCtrl.text.toLowerCase().trim());
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _log('Loading ServiceCmsCubit and BlogCubit...');
       context.read<ServiceCmsCubit>().load();
       context.read<BlogCubit>().load();
     });
@@ -109,8 +124,19 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 
   @override
   void dispose() {
+    _log('Page disposed');
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  // ── Date formatter ─────────────────────────────────────────────────────────
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '—';
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${d.day} ${months[d.month]} ${d.year}';
   }
 
   @override
@@ -138,6 +164,12 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  AppAdminNavbar(
+                    activeLabel:     'Web Page',
+                    homePage:       CareersMainPageDashboard(),
+                    webPage:        HomeMainPage(),
+                    jobListingPage: JobListingMainPage(),
+                  ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 2),
                   SizedBox(height: 20.h),
@@ -168,71 +200,52 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               ),
             ),
             const Spacer(),
-            GestureDetector(
-              onTap: () {
-                if (_statusIndex == 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<ServiceCmsCubit>(),
-                        child: ServicesMainPreviewPage(model: model),
+            // ✅ FIX 2: Hide Preview Screen button on Important Reads tab
+            if (_statusIndex != 2)
+              GestureDetector(
+                onTap: () {
+                  if (_statusIndex == 0) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<ServiceCmsCubit>(),
+                          child: ServicesMainPreviewPage(model: model),
+                        ),
                       ),
-                    ),
-                  );
-                } else if (_statusIndex == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<ServiceCmsCubit>(),
-                        child: ServicesDigitalJourneyPreviewPage(model: model),
+                    );
+                  } else if (_statusIndex == 1) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<ServiceCmsCubit>(),
+                          child: ServicesDigitalJourneyPreviewPage(model: model),
+                        ),
                       ),
-                    ),
-                  );
-                } else if (_statusIndex == 2) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Select a post to preview')),
-                  );
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: _C.primary,
-                  borderRadius: BorderRadius.circular(6.r),
+                    );
+                  }
+                },
+                child: Container(
+                  width: 165.w,
+                  height: 45.h,
+                  decoration: BoxDecoration(
+                    color: _C.primary,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Center(
+                    child: Text('Preview Screen',
+                        style: StyleText.fontSize14Weight500
+                            .copyWith(color: Colors.white)),
+                  ),
                 ),
-                child: Text('Preview Screen',
-                    style: StyleText.fontSize14Weight500
-                        .copyWith(color: Colors.white)),
               ),
-            ),
           ],
         ),
         SizedBox(height: 14.h),
 
-        // ── Status tabs ──────────────────────────────────────────────────
-        Row(
-          children: List.generate(_statusLabels.length, (i) {
-            final active = _statusIndex == i;
-            return GestureDetector(
-              onTap: () => setState(() => _statusIndex = i),
-              child: Padding(
-                padding: EdgeInsets.only(right: 24.w),
-                child: Text(_statusLabels[i],
-                  style: active
-                      ? StyleText.fontSize16Weight600.copyWith(
-                    color:           _C.primary,
-                    decoration:      TextDecoration.underline,
-                    decorationColor: _C.primary,
-                  )
-                      : StyleText.fontSize14Weight400
-                      .copyWith(color: _C.hintText),
-                ),
-              ),
-            );
-          }),
-        ),
+        // ── ✅ FIX 3: Tab bar — job_listing_detail_page style ────────────
+        _buildTabBar(),
         SizedBox(height: 12.h),
 
         // ── Tab content ──────────────────────────────────────────────────
@@ -245,6 +258,48 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
     );
   }
 
+  // ── ✅ FIX 3: Tab bar widget — matches job_listing_detail_page pattern ──
+  Widget _buildTabBar() {
+    return Row(
+      children: List.generate(_statusLabels.length, (i) {
+        final isActive = _statusIndex == i;
+        return Padding(
+          padding: EdgeInsets.only(right: 24.w),
+          child: GestureDetector(
+            onTap: () {
+              _log('Tab switched to: ${_statusLabels[i]}');
+              setState(() => _statusIndex = i);
+            },
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 2.h),
+                    child: Text(
+                      _statusLabels[i],
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isActive ? _C.primary : _C.hintText,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 2,
+                    color: isActive ? _C.primary : Colors.transparent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 0 — Main
   // ══════════════════════════════════════════════════════════════════════════
@@ -253,6 +308,8 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _lastUpdatedRow(
+          // ✅ FIX 1: Pass dynamic date from model
+          lastUpdated: model.lastUpdatedAt,
           onEdit: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -275,12 +332,12 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               SizedBox(width: 16.w),
               Expanded(child: _readFieldRtl('العنوان', model.title.ar)),
             ]),
-            SizedBox(height: 10.h),
+
             _readField('Description',
                 model.shortDescription.en.isEmpty
                     ? 'Text Here' : model.shortDescription.en,
                 height: 100),
-            SizedBox(height: 10.h),
+
             _readFieldRtl('وصف', model.shortDescription.ar, height: 100),
           ],
         ),
@@ -288,14 +345,12 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // TAB 1 — Cards (Digital Journey)
-  // ══════════════════════════════════════════════════════════════════════════
   Widget _digitalJourneyTab(ServicePageModel model) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _lastUpdatedRow(
+          lastUpdated: model.lastUpdatedAt,
           onEdit: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -308,23 +363,23 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ),
         SizedBox(height: 16.h),
         _accordion(
-          key:   'digitalJourney',
+          key: 'digitalJourney',
           title: 'Digital Journey',
           children: [
             Row(children: [
               Expanded(
                 child: _readField(
-                  'SubTitle',
-                  model.shortDescription.en.isEmpty
+                  'Section Title',
+                  model.journeyTitle.en.isEmpty
                       ? 'Text Here'
-                      : model.shortDescription.en,
+                      : model.journeyTitle.en,
                 ),
               ),
               SizedBox(width: 16.w),
               Expanded(
                 child: _readFieldRtl(
-                  'العنوان',
-                  model.shortDescription.ar,
+                  'عنوان القسم',
+                  model.journeyTitle.ar,
                 ),
               ),
             ]),
@@ -350,9 +405,14 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
   // TAB 2 — Important Reads
   // ══════════════════════════════════════════════════════════════════════════
   Widget _readMoreTab() {
+    _log('Building Important Reads tab');
+
     return BlocBuilder<BlogCubit, BlogState>(
       builder: (context, blogState) {
+        _log('BlogCubit state: ${blogState.runtimeType}');
+
         if (blogState is BlogLoading) {
+          _log('  State: Loading...', level: '🟡');
           return const Center(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 60),
@@ -363,158 +423,183 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 
         final List<BlogPostModel> allPosts = switch (blogState) {
           BlogLoaded(:final posts) => posts,
-          _                       => [],
+          BlogError() => (() {
+            _log('  State: Error', level: '🔴');
+            return <BlogPostModel>[];
+          })(),
+          _ => (() {
+            _log('  State: Unknown/Empty', level: '🟡');
+            return <BlogPostModel>[];
+          })(),
         };
 
+        _log('  Total posts loaded: ${allPosts.length}');
+
+        // Log status breakdown
+        final statusCounts = <String, int>{};
+        for (final p in allPosts) {
+        statusCounts[p.status] = (statusCounts[p.status] ?? 0) + 1;
+        }
+        _log('  Status breakdown: $statusCounts');
+
         int _count(_PostStatus s) => s == _PostStatus.all
-            ? allPosts.length
+        ? allPosts.length
             : allPosts.where((p) => p.status == s.statusKey).length;
 
         List<BlogPostModel> filtered = _activeFilter == _PostStatus.all
-            ? allPosts
+        ? allPosts
             : allPosts.where((p) => p.status == _activeFilter.statusKey).toList();
 
+        _log('  Active filter: ${_activeFilter.label} (${_activeFilter.statusKey ?? "all"})');
+        _log('  Posts after status filter: ${filtered.length}');
+
         if (_searchQuery.isNotEmpty) {
-          filtered = filtered.where((p) =>
-          p.question.en.toLowerCase().contains(_searchQuery) ||
-              p.question.ar.toLowerCase().contains(_searchQuery) ||
-              p.shortDescription.en.toLowerCase().contains(_searchQuery)
-          ).toList();
+        final beforeSearch = filtered.length;
+        filtered = filtered.where((p) =>
+        p.question.en.toLowerCase().contains(_searchQuery) ||
+        p.question.ar.toLowerCase().contains(_searchQuery) ||
+        p.shortDescription.en.toLowerCase().contains(_searchQuery)
+        ).toList();
+        _log('  Search query: "$_searchQuery" -> filtered from $beforeSearch to ${filtered.length}');
         }
 
         return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.r),
+        decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        // ── Search + action buttons row ────────────────────────────
+        Row(
+        children: [
+        Expanded(
+        child: Container(
+        height: 40.h,
+        decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(6.r),
+        ),
+        child: Row(
+        children: [
+        SizedBox(width: 10.w),
+        CustomSvg(assetPath: "assets/searchIcon.svg",
+        width: 20.w, height: 20.h, fit: BoxFit.fill),
+        SizedBox(width: 8.w),
+        Expanded(
+        child: TextField(
+          cursorColor: Color(0xFF008037),
+        controller: _searchCtrl,
+        style: StyleText.fontSize13Weight400
+            .copyWith(color: _C.labelText),
+        decoration: InputDecoration(
+        hintText:       'Search',
+        hintStyle:      StyleText.fontSize13Weight400
+            .copyWith(color: _C.hintText),
+        border:         InputBorder.none,
+        isDense:        true,
+        contentPadding: EdgeInsets.zero,
+        ),
+        ),
+        ),
+        SizedBox(width: 8.w),
+        ],
+        ),
+        ),
+        ),
+        SizedBox(width: 12.w),
+          _actionBtn(
+            label: 'Time Frame',
+            onTap: (){},
+            outlined: false,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Search + action buttons row ────────────────────────────
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.card,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 10.w),
-                          CustomSvg(assetPath: "assets/searchIcon.svg",
-                              width: 20.w, height: 20.h, fit: BoxFit.fill),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchCtrl,
-                              style: StyleText.fontSize13Weight400
-                                  .copyWith(color: _C.labelText),
-                              decoration: InputDecoration(
-                                hintText:       'Search',
-                                hintStyle:      StyleText.fontSize13Weight400
-                                    .copyWith(color: _C.hintText),
-                                border:         InputBorder.none,
-                                isDense:        true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  _actionBtn(
-                    label: 'Time Frame',
-                    onTap: () {},
-                    outlined: false,
-                  ),
-                  SizedBox(width: 10.w),
-                  _actionBtn(
-                    label: 'Add New Read',
-                    onTap: _navigateToCreate,
-                    outlined: false,
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.h),
+          SizedBox(width: 12.w),
+        _actionBtn(
+        label: 'Add New Read',
+        onTap: _navigateToCreate,
+        outlined: false,
+        ),
+        ],
+        ),
+        SizedBox(height: 16.h),
 
-              // ── Filter chips row ───────────────────────────────────────
-              Row(
-                children: _PostStatus.values.map((s) {
-                  final isActive = _activeFilter == s;
-                  final int cnt  = _count(s);
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8.w),
-                    child: GestureDetector(
-                      onTap: () => setState(() => _activeFilter = s),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 7.h),
-                        decoration: BoxDecoration(
-                          color: isActive ? _C.primary : AppColors.card,
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (s != _PostStatus.all) ...[
-                              Container(
-                                width: 18.w, height: 18.w,
-                                decoration: BoxDecoration(
-                                  color: isActive
-                                      ? Colors.white.withOpacity(0.25)
-                                      : _C.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text('$cnt',
-                                    style: TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize:   10.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 6.w),
-                            ],
-                            Text(s.label,
-                              style: StyleText.fontSize13Weight500.copyWith(
-                                color: isActive ? Colors.white : _C.labelText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 20.h),
+        // ── Filter chips row ───────────────────────────────────────
+        Row(
+        children: _PostStatus.values.map((s) {
+        final isActive = _activeFilter == s;
+        final int cnt  = _count(s);
+        return Padding(
+        padding: EdgeInsets.only(right: 8.w),
+        child: GestureDetector(
+        onTap: () {
+        _log('Filter chip clicked: ${s.label}');
+        setState(() => _activeFilter = s);
+        },
+        child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: EdgeInsets.symmetric(
+        horizontal: 12.w, vertical: 7.h),
+        decoration: BoxDecoration(
+        color: isActive ? _C.primary : AppColors.card,
+        borderRadius: BorderRadius.circular(4.r),
+        ),
+        child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+        if (s != _PostStatus.all) ...[
+        Container(
+        width: 18.w, height: 18.w,
+        decoration: BoxDecoration(
+        color: isActive
+        ? Colors.white.withOpacity(0.25)
+            : _C.primary,
+        shape: BoxShape.circle,
+        ),
+        child: Center(
+        child: Text('$cnt',
+        style: TextStyle(
+        fontFamily: 'Cairo',
+        fontSize:   10.sp,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+        ),
+        ),
+        ),
+        ),
+        SizedBox(width: 6.w),
+        ],
+        Text(s.label,
+        style: StyleText.fontSize13Weight500.copyWith(
+        color: isActive ? Colors.white : _C.labelText,
+        ),
+        ),
+        ],
+        ),
+        ),
+        ),
+        );
+        }).toList(),
+        ),
+        SizedBox(height: 20.h),
 
-              // ── Cards grid ────────────────────────────────────────────
-              filtered.isEmpty
-                  ? Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40.h),
-                  child: Column(children: [
-                    Icon(Icons.article_outlined,
-                        size: 40.sp, color: _C.hintText),
-                    SizedBox(height: 8.h),
-                    Text('No posts found.',
-                        style: StyleText.fontSize13Weight400
-                            .copyWith(color: _C.hintText)),
-                  ]),
-                ),
-              )
-                  : _blogCardGrid(filtered),
-            ],
-          ),
+        // ── Cards grid ────────────────────────────────────────────
+        filtered.isEmpty
+        ? Center(
+        child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 40.h),
+        child: Column(children: [
+        Icon(Icons.article_outlined,
+        size: 40.sp, color: _C.hintText),
+        SizedBox(height: 8.h),
+        Text('No posts found.',
+        style: StyleText.fontSize13Weight400
+            .copyWith(color: _C.hintText)),
+        ]),
+        ),
+        )
+            : _blogCardGrid(filtered),
+        ],
+        ),
         );
       },
     );
@@ -556,6 +641,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 
   // ── Navigate helpers ──────────────────────────────────────────────────────
   void _navigateToCreate() {
+    _log('Navigating to CREATE blog post');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -564,10 +650,14 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           child: const BlogCreateEditPage(),
         ),
       ),
-    ).then((_) => context.read<BlogCubit>().load());
+    ).then((_) {
+      _log('Returned from CREATE page, reloading BlogCubit...');
+      context.read<BlogCubit>().load();
+    });
   }
 
   void _navigateToEdit(BlogPostModel post) {
+    _log('Navigating to EDIT blog post: ${post.id} (status: ${post.status})');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -576,10 +666,14 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           child: BlogCreateEditPage(existing: post),
         ),
       ),
-    ).then((_) => context.read<BlogCubit>().load());
+    ).then((_) {
+      _log('Returned from EDIT page, reloading BlogCubit...');
+      context.read<BlogCubit>().load();
+    });
   }
 
   Future<void> _confirmDelete(BlogPostModel post) async {
+    _log('Confirming delete for post: ${post.id}');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -598,7 +692,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
       ),
     );
     if (confirmed == true && mounted) {
+      _log('User confirmed delete, calling cubit.deletePost()');
       await context.read<BlogCubit>().deletePost(post.id);
+      _log('Delete completed, cubit state should refresh automatically');
+    } else {
+      _log('Delete cancelled');
     }
   }
 
@@ -629,8 +727,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
     );
   }
 
-  // ── Shared: Last Updated + Edit Details row ───────────────────────────────
-  Widget _lastUpdatedRow({required VoidCallback onEdit}) {
+  // ── ✅ FIX 1: Last Updated + Edit Details row — now dynamic date ──────────
+  Widget _lastUpdatedRow({
+    required VoidCallback onEdit,
+    DateTime? lastUpdated,
+  }) {
     return Row(
       children: [
         Container(
@@ -639,23 +740,25 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
             color: _C.cardBg,
             borderRadius: BorderRadius.circular(4.r),
           ),
-          child: Text('Last Updated On 12 Jul 2026',
-              style: StyleText.fontSize13Weight500.copyWith(color: _C.primary)),
+          child: Text(
+            'Last Updated On ${_fmtDate(lastUpdated)}',
+            style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+          ),
         ),
         const Spacer(),
         GestureDetector(
           onTap: onEdit,
           child: Container(
-            width: 130.w, height: 36.h,
+            width: 205.w, height: 40.h,
             decoration: BoxDecoration(
               color: AppColors.card,
-              borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Center(
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Edit Details',
                     style: StyleText.fontSize14Weight500
-                        .copyWith(color: _C.primary)),
+                        .copyWith(color: Colors.black)),
                 SizedBox(width: 6.w),
                 CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
@@ -678,18 +781,20 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
       children: rows.map((row) {
         return Padding(
           padding: EdgeInsets.only(bottom: 8.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...row.map((item) => Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: _journeyMiniCard(item),
-                ),
-              )),
-              ...List.generate(
-                  4 - row.length, (_) => const Expanded(child: SizedBox())),
-            ],
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ...row.map((item) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 8.w),
+                    child: _journeyMiniCard(item),
+                  ),
+                )),
+                ...List.generate(
+                    4 - row.length, (_) => const Expanded(child: SizedBox())),
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -700,12 +805,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
     return Container(
       padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 28.w, height: 28.w,
@@ -767,11 +871,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft:  Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r)
               ),
               child: Row(children: [
                 Expanded(child: Text(title,
@@ -906,117 +1006,147 @@ class _BlogCard extends StatelessWidget {
     final String cleanUrl = post.imageUrl.trim();
     final bool hasImage   = cleanUrl.isNotEmpty;
 
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Row 1: date + status badge ─────────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '$_datePrefix ${_fmtDate(post.createdAt)}',
-                  style: StyleText.fontSize11Weight400
-                      .copyWith(color: _C.hintText),
-                  overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: onEdit,
+      child: Container(
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Row 1: date + status badge ─────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    '$_datePrefix ${_fmtDate(post.createdAt)}',
+                    style: StyleText.fontSize11Weight400
+                        .copyWith(color: _C.hintText),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-              Container(
-                padding:
-                EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: _statusColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  _statusLabel,
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: _statusColor),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-
-          // ── Row 2: text (left) + image (right) ────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      post.question.en.isNotEmpty
-                          ? post.question.en
-                          : 'Untitled',
-                      style: StyleText.fontSize13Weight600.copyWith(
-                        color: _C.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      post.shortDescription.en.isNotEmpty
-                          ? post.shortDescription.en
-                          : 'Short Description...',
-                      style: StyleText.fontSize12Weight400
-                          .copyWith(color: _C.hintText),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 12.w),
-
-              // ── Image — auto-detects SVG vs raster via XHR ─────────
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
-                child: hasImage
-                    ? _XhrImage(
-                  url:    cleanUrl,
-                  width:  100.w,
-                  height: 80.h,
-                )
-                    : _imgPlaceholder(),
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
-
-          // ── Row 3: edit/delete icons + Read More button ───────────────
-          Row(
-            children: [
-
-              const Spacer(),
-              GestureDetector(
-                onTap: onEdit,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 14.w, vertical: 7.h),
+                Container(
+                  padding:
+                  EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: _C.primary,
-                    borderRadius: BorderRadius.circular(6.r),
+                    color: _statusColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
-                    'Read More',
+                    _statusLabel,
                     style: StyleText.fontSize12Weight500
-                        .copyWith(color: Colors.white),
+                        .copyWith(color: _statusColor),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // ── Row 2: text (left) + image (right) ────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.question.en.isNotEmpty
+                            ? post.question.en
+                            : 'Untitled',
+                        style: StyleText.fontSize13Weight600.copyWith(
+                          color: _C.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 6.h),
+                      Text(
+                        post.shortDescription.en.isNotEmpty
+                            ? post.shortDescription.en
+                            : 'Short Description...',
+                        style: StyleText.fontSize12Weight400
+                            .copyWith(color: _C.hintText),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 12.w),
+
+                // ── Image — auto-detects SVG vs raster via XHR ─────────
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: hasImage
+                      ? _XhrImage(
+                    url:    cleanUrl,
+                    width:  100.w,
+                    height: 80.h,
+                  )
+                      : _imgPlaceholder(),
+                ),
+              ],
+            ),
+            SizedBox(height: 16.h),
+
+            // ── Row 3: edit/delete icons + Read More button ───────────────
+            Row(
+              children: [
+                // // Edit icon
+                // GestureDetector(
+                //   onTap: onEdit,
+                //   child: Container(
+                //     padding: EdgeInsets.all(6.r),
+                //     decoration: BoxDecoration(
+                //       color: _C.sectionBg,
+                //       borderRadius: BorderRadius.circular(4.r),
+                //     ),
+                //     child: Icon(Icons.edit_outlined,
+                //         size: 16.sp, color: _C.labelText),
+                //   ),
+                // ),
+                // SizedBox(width: 8.w),
+                // // Delete icon
+                // GestureDetector(
+                //   onTap: onDelete,
+                //   child: Container(
+                //     padding: EdgeInsets.all(6.r),
+                //     decoration: BoxDecoration(
+                //       color: _C.sectionBg,
+                //       borderRadius: BorderRadius.circular(4.r),
+                //     ),
+                //     child: Icon(Icons.delete_outline,
+                //         size: 16.sp, color: Colors.red),
+                //   ),
+                // ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: (){},
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 14.w, vertical: 7.h),
+                    decoration: BoxDecoration(
+                      color: _C.primary,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      'Read More',
+                      style: StyleText.fontSize12Weight500
+                          .copyWith(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

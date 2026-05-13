@@ -17,7 +17,7 @@ class ApplicationCubit extends Cubit<ApplicationState> {
         super(ApplicationInitial());
 
   List<ApplicationModel> _allApps = [];
-  String _activeDeptFilter = 'All';
+  String _activeJobTitleFilter = 'All';   // ← was _activeDeptFilter
   String _searchQuery = '';
   ApplicationFilterData? _activeFilter;
 
@@ -36,11 +36,11 @@ class ApplicationCubit extends Cubit<ApplicationState> {
     }
   }
 
-  void setDeptFilter(String dept) {
-    _activeDeptFilter = dept;
+  /// Filter by Job Title (was setDeptFilter)
+  void setJobTitleFilter(String jobTitle) {
+    _activeJobTitleFilter = jobTitle;
     _emitLoaded();
   }
-
 
   void setFilter(ApplicationFilterData filter) {
     _activeFilter = filter.isEmpty ? null : filter;
@@ -128,10 +128,10 @@ class ApplicationCubit extends Cubit<ApplicationState> {
 
   void _emitLoaded() {
     emit(ApplicationLoaded(
-      applications:     _allApps,
-      activeDeptFilter: _activeDeptFilter,
-      searchQuery:      _searchQuery,
-      filterData:       _activeFilter,   // ← add
+      applications:       _allApps,
+      activeJobTitleFilter: _activeJobTitleFilter,  // ← was activeDeptFilter
+      searchQuery:        _searchQuery,
+      filterData:         _activeFilter,
     ));
   }
 }

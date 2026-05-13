@@ -25,7 +25,12 @@ class DatePicker {
         config: CalendarDatePicker2WithActionButtonsConfig(
           firstDate: firstDate ?? DateTime(1900),
           lastDate: DateTime(2100),
-
+          selectableDayPredicate: (day) {
+            final now = DateTime.now();
+            return !(day.year == now.year &&
+                day.month == now.month &&
+                day.day == now.day);
+          },
           dayBuilder: ({
             required DateTime date,
             BoxDecoration? decoration,

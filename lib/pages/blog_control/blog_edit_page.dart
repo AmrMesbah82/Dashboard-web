@@ -218,7 +218,7 @@ class _BlogEditPageState extends State<BlogEditPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<BlogCubit, BlogState>(
       listener: (context, state) {
-        if (state is BlogPostSaved) {
+        if (state is BlogSaved) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Saved successfully!'),
             backgroundColor: _C.primary,

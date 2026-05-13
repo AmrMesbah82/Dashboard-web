@@ -16,6 +16,16 @@ class DepartmentLoaded extends DepartmentState {
   DepartmentLoaded(this.departments);
 }
 
+class DepartmentUpdated extends DepartmentState {
+  final DepartmentModel department;
+  DepartmentUpdated(this.department);
+}
+
+class DepartmentDeleted extends DepartmentState {
+  final String id;
+  DepartmentDeleted(this.id);
+}
+
 class DepartmentCreated extends DepartmentState {
   final DepartmentModel department;
   DepartmentCreated(this.department);

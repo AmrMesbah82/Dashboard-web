@@ -6,6 +6,8 @@
 //          Labels come from the model's BiText (en/ar) instead of hardcoded
 //          localisation strings, so CMS name edits are reflected immediately.
 //          onItemTap callback preserved for admin/dashboard override.
+//          ✅ Logo: nothing is shown until the real URL arrives from Firebase.
+//             No static asset placeholder flicker.
 //
 //          Design sizes (ScreenUtil):
 //          Desktop (≥1366) → 1366×768, Tablet (768–1365) → 1024×768,
@@ -66,7 +68,6 @@ Color _navbarBgFromState(HomeCmsState state) {
     HomeCmsSaved(:final data)  => data.branding.headerFooterColor,
     _                          => '',
   };
-  // Fallback to AppColors.white if not set
   return _hexColor(hex, AppColors.white);
 }
 
@@ -127,7 +128,7 @@ class AppNavbar extends StatelessWidget {
     return BlocBuilder<HomeCmsCubit, HomeCmsState>(
       builder: (context, cmsState) {
         final Color primary  = _primaryFromState(cmsState);
-        final Color navbarBg = _navbarBgFromState(cmsState); // ✅ CMS-driven bg
+        final Color navbarBg = _navbarBgFromState(cmsState);
         final double w       = MediaQuery.of(context).size.width;
 
         if (w >= _BP.tablet)
@@ -165,7 +166,7 @@ class AppNavbar extends StatelessWidget {
 class _NavbarDesktop extends StatelessWidget {
   final String                       currentRoute;
   final Color                        primary;
-  final Color                        navbarBg; // ✅
+  final Color                        navbarBg;
   final HomeCmsState                 cmsState;
   final void Function(String route)? onItemTap;
 
@@ -179,8 +180,6 @@ class _NavbarDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double contentW = (248.w * 4) + (8.w * 3);
-
     return BlocBuilder<LanguageCubit, LanguageState>(
       builder: (context, langState) {
         final navItems = _getVisibleNavItems(langState.locale.languageCode, cmsState);
@@ -188,39 +187,30 @@ class _NavbarDesktop extends StatelessWidget {
 
         return Directionality(
           textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: ((MediaQuery.of(context).size.width - contentW) / 2)
-                  .clamp(16.0, double.infinity),
-              right: ((MediaQuery.of(context).size.width - contentW) / 2)
-                  .clamp(16.0, double.infinity),
-              top: 20.h,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color:        navbarBg,
+              borderRadius: BorderRadius.circular(8.r),
             ),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color:        navbarBg, // ✅ CMS-driven background
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const _BayanatzLogo(),
-                  Row(
-                    children: navItems
-                        .map((e) => _NavItem(
-                      key:          ValueKey('${e.route}_${langState.locale.languageCode}'),
-                      label:        e.label,
-                      route:        e.route,
-                      currentRoute: currentRoute,
-                      primary:      primary,
-                      onItemTap:    onItemTap,
-                    ))
-                        .toList(),
-                  ),
-                  _LanguageToggle(primary: primary),
-                ],
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _BayanatzLogo(),
+                Row(
+                  children: navItems
+                      .map((e) => _NavItem(
+                    key:          ValueKey('${e.route}_${langState.locale.languageCode}'),
+                    label:        e.label,
+                    route:        e.route,
+                    currentRoute: currentRoute,
+                    primary:      primary,
+                    onItemTap:    onItemTap,
+                  ))
+                      .toList(),
+                ),
+                _LanguageToggle(primary: primary),
+              ],
             ),
           ),
         );
@@ -236,7 +226,7 @@ class _NavbarDesktop extends StatelessWidget {
 class _NavbarTablet extends StatelessWidget {
   final String                       currentRoute;
   final Color                        primary;
-  final Color                        navbarBg; // ✅
+  final Color                        navbarBg;
   final HomeCmsState                 cmsState;
   final void Function(String route)? onItemTap;
 
@@ -262,7 +252,7 @@ class _NavbarTablet extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color:        navbarBg, // ✅ CMS-driven background
+                color:        navbarBg,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Row(
@@ -303,7 +293,7 @@ class _NavbarTablet extends StatelessWidget {
 class _NavbarMobile extends StatelessWidget {
   final String                       currentRoute;
   final Color                        primary;
-  final Color                        navbarBg; // ✅
+  final Color                        navbarBg;
   final HomeCmsState                 cmsState;
   final void Function(String route)? onItemTap;
 
@@ -327,11 +317,11 @@ class _NavbarMobile extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             child: Container(
               decoration: BoxDecoration(
-                color:        navbarBg, // ✅ CMS-driven background
+                color:        navbarBg,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 8.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -366,7 +356,7 @@ class _NavbarMobile extends StatelessWidget {
         pageBuilder: (ctx, anim, _) => _FullScreenDrawer(
           currentRoute: currentRoute,
           primary:      primary,
-          navbarBg:     navbarBg, // ✅ pass to drawer
+          navbarBg:     navbarBg,
           cmsState:     cmsState,
           onItemTap:    onItemTap,
         ),
@@ -382,7 +372,7 @@ class _NavbarMobile extends StatelessWidget {
 class _FullScreenDrawer extends StatelessWidget {
   final String                       currentRoute;
   final Color                        primary;
-  final Color                        navbarBg; // ✅ for top bar background
+  final Color                        navbarBg;
   final HomeCmsState                 cmsState;
   final void Function(String route)? onItemTap;
 
@@ -410,9 +400,8 @@ class _FullScreenDrawer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ── Top bar uses navbarBg ──────────────────────────────
                   Container(
-                    color: navbarBg, // ✅ CMS-driven background
+                    color: navbarBg,
                     padding: EdgeInsets.symmetric(
                         horizontal: 16.w, vertical: 10.h),
                     child: Row(
@@ -448,7 +437,6 @@ class _FullScreenDrawer extends StatelessWidget {
 
                   SizedBox(height: 10.h),
 
-                  // ── Nav list ──────────────────────────────────────────
                   Expanded(
                     child: ListView(
                       key:     ValueKey(langState.locale.languageCode),
@@ -519,6 +507,9 @@ class _FullScreenDrawer extends StatelessWidget {
 
 // ─── Shared Widgets ───────────────────────────────────────────────────────────
 
+// ✅ _BayanatzLogo: shows nothing (transparent SizedBox) while logoUrl is empty.
+//    Once Firebase returns the URL, it renders the SVG.
+//    No static asset placeholder is ever shown.
 class _BayanatzLogo extends StatelessWidget {
   final bool rawSize;
   const _BayanatzLogo({this.rawSize = false});
@@ -535,25 +526,10 @@ class _BayanatzLogo extends StatelessWidget {
           _                          => '',
         };
 
-        final Widget logoWidget = logoUrl.isNotEmpty
-            ? SvgPicture.network(
-          logoUrl,
-          width:  sz,
-          height: sz,
-          fit:    BoxFit.fill,
-          placeholderBuilder: (_) => Image(
-            image:  const AssetImage("assets/images/logo.jpg"),
-            width:  sz,
-            height: sz,
-            fit:    BoxFit.fill,
-          ),
-        )
-            : Image(
-          image:  const AssetImage("assets/images/logo.jpg"),
-          width:  sz,
-          height: sz,
-          fit:    BoxFit.fill,
-        );
+        // ✅ Nothing shown until we have a real URL — no static flicker.
+        if (logoUrl.isEmpty) {
+          return SizedBox(width: sz, height: sz);
+        }
 
         return GestureDetector(
           onTap: () => context.go('/'),
@@ -561,7 +537,14 @@ class _BayanatzLogo extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
-              child: logoWidget,
+              // ✅ SvgPicture.network with no placeholderBuilder —
+              //    renders nothing until the network SVG is ready.
+              child: SvgPicture.network(
+                logoUrl,
+                width:  sz,
+                height: sz,
+                fit:    BoxFit.fill,
+              ),
             ),
           ),
         );

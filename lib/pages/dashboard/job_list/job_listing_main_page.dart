@@ -18,6 +18,7 @@ import 'package:web_app_admin/controller/home_cubit.dart';
 import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_cubit.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_state.dart';
+import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/search.dart';
@@ -160,10 +161,11 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                 child: Column(
                   children: [
                     AppAdminNavbar(
-                      activeLabel:    'Home',
+                      activeLabel:    'Job Listing',
                       homePage:       CareersMainPageDashboard(),
                       webPage:        HomeMainPage(),
                       jobListingPage: JobListingMainPage(),
+
                     ),
                     SizedBox(height: 20.h),
 
@@ -349,10 +351,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                               Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(40.sp),
-                                  child: Text(
-                                    'No jobs found',
-                                    style: TextStyle(fontSize: 14.sp, color: _C.hintText),
-                                  ),
+                                  child: CustomSvg(assetPath: "",width: 150.w,height: 150.h,fit: BoxFit.fill,)
                                 ),
                               )
                             else

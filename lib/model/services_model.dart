@@ -4,6 +4,7 @@
 // UPDATED: Added journeyTitle BilingualText field to ServicePageModel
 //          to separate "Reasons to Choose..." section title from
 //          shortDescription (which belongs to the header only).
+// UPDATED: Added lastUpdatedAt DateTime? field to ServicePageModel
 
 class BilingualText {
   final String en;
@@ -81,9 +82,11 @@ class JourneyItemModel {
 class ServicePageModel {
   final BilingualText          title;
   final BilingualText          shortDescription;
-  // ✅ NEW: separate field for the "Reasons to Choose..." section heading
+  // ✅ Separate field for the "Reasons to Choose..." section heading
   final BilingualText          journeyTitle;
   final List<JourneyItemModel> journeyItems;
+  // ✅ NEW: tracks when the services page was last updated
+  final DateTime?              lastUpdatedAt;
 
   const ServicePageModel({
     this.title            = const BilingualText(),
@@ -93,6 +96,7 @@ class ServicePageModel {
       ar: 'أسباب اختيار بيانتز لرحلتك الرقمية',
     ),
     this.journeyItems     = const [],
+    this.lastUpdatedAt,
   });
 
   ServicePageModel copyWith({
@@ -100,11 +104,13 @@ class ServicePageModel {
     BilingualText?          shortDescription,
     BilingualText?          journeyTitle,
     List<JourneyItemModel>? journeyItems,
+    DateTime?               lastUpdatedAt,
   }) => ServicePageModel(
     title:            title            ?? this.title,
     shortDescription: shortDescription ?? this.shortDescription,
     journeyTitle:     journeyTitle     ?? this.journeyTitle,
     journeyItems:     journeyItems     ?? this.journeyItems,
+    lastUpdatedAt:    lastUpdatedAt    ?? this.lastUpdatedAt,
   );
 
   Map<String, dynamic> toMap() => {
@@ -112,6 +118,10 @@ class ServicePageModel {
     'shortDescription': shortDescription.toMap(),
     'journeyTitle':     journeyTitle.toMap(),
     'journeyItems':     journeyItems.map((j) => j.toMap()).toList(),
+    // ✅ lastUpdatedAt is handled by FieldValue.serverTimestamp() in the repo
+    //    so we only serialize it for reading, not writing
+    if (lastUpdatedAt != null)
+      'lastUpdatedAt': lastUpdatedAt!.toIso8601String(),
   };
 
   factory ServicePageModel.fromMap(Map<String, dynamic> map) => ServicePageModel(
@@ -121,7 +131,18 @@ class ServicePageModel {
     journeyItems:     (map['journeyItems'] as List? ?? [])
         .map((j) => JourneyItemModel.fromMap(j))
         .toList(),
+    lastUpdatedAt:    _parseDateTime(map['lastUpdatedAt']),
   );
 
   static ServicePageModel empty() => const ServicePageModel();
+
+  /// ✅ Handles Firestore Timestamp, ISO string, or null
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value.runtimeType.toString().contains('Timestamp')) {
+      try { return (value as dynamic).toDate() as DateTime; } catch (_) {}
+    }
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
 }

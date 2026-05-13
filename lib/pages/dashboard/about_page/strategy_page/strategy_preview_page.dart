@@ -1,7 +1,9 @@
 // ******************* FILE INFO *******************
 // File Name: strategy_preview_page.dart
 // Screen 3 of 3 — Our Strategy CMS: Preview (Desktop/Tablet/Mobile + ENG/AR)
+// UPDATED: Added SVG support for Strategic House images
 
+import 'dart:html' as html;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -18,17 +20,14 @@ import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
 class _C {
-  static const Color primary = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg = Color(0xFFFFFFFF);
-  static const Color grey = Color(0xFF9E9E9E);
+  static const Color primary  = Color(0xFF008037);
+  static const Color cardBg   = Color(0xFFFFFFFF);
+  static const Color grey     = Color(0xFF9E9E9E);
   static const Color hintText = Color(0xFF797979);
-  static const Color back = Color(0xFFF1F2ED);
+  static const Color back     = Color(0xFFF1F2ED);
 }
 
 enum _PreviewMode { desktop, tablet, mobile }
-
-enum _PreviewLang { eng, ar }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -48,14 +47,15 @@ class StrategyPreviewPage extends StatefulWidget {
 
 class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
   _PreviewMode _mode = _PreviewMode.desktop;
-  _PreviewLang _lang = _PreviewLang.eng;
-  bool _previewOpen = true;
 
-  bool get _isRtl => _lang == _PreviewLang.ar;
+  bool _strategicHouseEnOpen = true;
+  bool _strategicHouseArOpen = true;
 
-  // Returns in-memory bytes if user just picked a new file, else null
-  Uint8List? get _visionSvgBytes =>
-      widget.imageUploads['strategy_cms/vision/svg'];
+  // In-memory bytes (freshly picked, not yet uploaded)
+  Uint8List? get _strategicHouseEnBytes =>
+      widget.imageUploads['strategy_cms/strategicHouse/en'];
+  Uint8List? get _strategicHouseArBytes =>
+      widget.imageUploads['strategy_cms/strategicHouse/ar'];
 
   // ── Save ──────────────────────────────────────────────────────────────────
   void _onSave() async {
@@ -63,7 +63,8 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
     if (ok == true && mounted) {
       context.read<StrategyCubit>().save(
         model: widget.model,
-        imageUploads: widget.imageUploads.isEmpty ? null : widget.imageUploads,
+        imageUploads:
+        widget.imageUploads.isEmpty ? null : widget.imageUploads,
       );
     }
   }
@@ -116,74 +117,87 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                             ),
                             SizedBox(height: 16.h),
 
-                            // ── Mode tabs + ENG|AR ─────────────────────────────────
+                            // ── Mode tabs ──────────────────────────────────
                             Row(
-                              children: [
-                                ..._PreviewMode.values.map((m) {
-                                  final sel = m == _mode;
-                                  final label = switch (m) {
-                                    _PreviewMode.desktop => 'Desktop',
-                                    _PreviewMode.tablet => 'Tablet',
-                                    _PreviewMode.mobile => 'Mobile',
-                                  };
-                                  return GestureDetector(
-                                    onTap: () => setState(() => _mode = m),
-                                    child: Padding(
-                                      padding: EdgeInsets.only(right: 24.w),
-                                      child: Text(
-                                        label,
-                                        style: sel
-                                            ? StyleText.fontSize14Weight600
-                                                  .copyWith(
-                                                    color: _C.primary,
-                                                    decoration: TextDecoration
-                                                        .underline,
-                                                    decorationColor: _C.primary,
-                                                  )
-                                            : StyleText.fontSize14Weight400
-                                                  .copyWith(color: _C.hintText),
-                                      ),
+                              children: _PreviewMode.values.map((m) {
+                                final sel = m == _mode;
+                                final label = switch (m) {
+                                  _PreviewMode.desktop => 'Desktop',
+                                  _PreviewMode.tablet  => 'Tablet',
+                                  _PreviewMode.mobile  => 'Mobile',
+                                };
+                                return GestureDetector(
+                                  onTap: () => setState(() => _mode = m),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 24.w),
+                                    child: Text(
+                                      label,
+                                      style: sel
+                                          ? StyleText.fontSize14Weight600
+                                          .copyWith(
+                                        color: _C.primary,
+                                        decoration:
+                                        TextDecoration.underline,
+                                        decorationColor: _C.primary,
+                                      )
+                                          : StyleText.fontSize14Weight400
+                                          .copyWith(color: _C.hintText),
                                     ),
-                                  );
-                                }),
-                                const Spacer(),
-                                _langBtn('ENG', _PreviewLang.eng, isLeft: true),
-                                _langBtn('AR', _PreviewLang.ar, isLeft: false),
-                              ],
+                                  ),
+                                );
+                              }).toList(),
                             ),
                             SizedBox(height: 16.h),
 
-                            // ── Vision accordion ───────────────────────────────────
+                            // ── Strategic House — ENG accordion ────────────
                             _previewAccordion(
-                              title: 'Vision',
-                              isOpen: _previewOpen,
-                              onToggle: () =>
-                                  setState(() => _previewOpen = !_previewOpen),
-                              child: _previewBody(),
+                              title: 'Strategic House - ENG',
+                              isOpen: _strategicHouseEnOpen,
+                              onToggle: () => setState(() =>
+                              _strategicHouseEnOpen =
+                              !_strategicHouseEnOpen),
+                              child: _strategicHousePreviewBody(
+                                bytes: _strategicHouseEnBytes,
+                                url: widget.model.strategicHouseEnUrl,
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+
+                            // ── Strategic House — ARB accordion ────────────
+                            _previewAccordion(
+                              title: 'Strategic House - ARB',
+                              isOpen: _strategicHouseArOpen,
+                              onToggle: () => setState(() =>
+                              _strategicHouseArOpen =
+                              !_strategicHouseArOpen),
+                              child: _strategicHousePreviewBody(
+                                bytes: _strategicHouseArBytes,
+                                url: widget.model.strategicHouseArUrl,
+                              ),
                             ),
                             SizedBox(height: 24.h),
 
-                            // ── Back | Save ────────────────────────────────────────
+                            // ── Back | Save ────────────────────────────────
                             Row(
                               children: [
                                 Expanded(
                                   child: SizedBox(
                                     height: 44.h,
                                     child: ElevatedButton(
-                                      onPressed: () => Navigator.pop(context),
+                                      onPressed: () =>
+                                          Navigator.pop(context),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: _C.grey,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
-                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(8.r),
                                         ),
                                       ),
-                                      child: Text(
-                                        'Back',
-                                        style: StyleText.fontSize14Weight600
-                                            .copyWith(color: Colors.white),
-                                      ),
+                                      child: Text('Back',
+                                          style: StyleText
+                                              .fontSize14Weight600
+                                              .copyWith(
+                                              color: Colors.white)),
                                     ),
                                   ),
                                 ),
@@ -196,16 +210,15 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: _C.primary,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
-                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(8.r),
                                         ),
                                       ),
-                                      child: Text(
-                                        'Save',
-                                        style: StyleText.fontSize14Weight600
-                                            .copyWith(color: Colors.white),
-                                      ),
+                                      child: Text('Save',
+                                          style: StyleText
+                                              .fontSize14Weight600
+                                              .copyWith(
+                                              color: Colors.white)),
                                     ),
                                   ),
                                 ),
@@ -226,33 +239,6 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
     );
   }
 
-  // ── Language button ───────────────────────────────────────────────────────
-  Widget _langBtn(String label, _PreviewLang lang, {required bool isLeft}) {
-    final active = _lang == lang;
-    return GestureDetector(
-      onTap: () => setState(() => _lang = lang),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-        decoration: BoxDecoration(
-          color: active ? _C.primary : _C.cardBg,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(isLeft ? 6.r : 0),
-            bottomLeft: Radius.circular(isLeft ? 6.r : 0),
-            topRight: Radius.circular(isLeft ? 0 : 6.r),
-            bottomRight: Radius.circular(isLeft ? 0 : 6.r),
-          ),
-          border: Border.all(color: _C.primary),
-        ),
-        child: Text(
-          label,
-          style: StyleText.fontSize12Weight600.copyWith(
-            color: active ? Colors.white : _C.primary,
-          ),
-        ),
-      ),
-    );
-  }
-
   // ── Accordion ─────────────────────────────────────────────────────────────
   Widget _previewAccordion({
     required String title,
@@ -262,7 +248,6 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Column(
@@ -271,25 +256,23 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
             onTap: onToggle,
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              padding:
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
-                        topLeft: Radius.circular(6.r),
-                        topRight: Radius.circular(6.r),
-                      )
+                  topLeft: Radius.circular(6.r),
+                  topRight: Radius.circular(6.r),
+                )
                     : BorderRadius.circular(6.r),
               ),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      title,
-                      style: StyleText.fontSize14Weight600.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: Text(title,
+                        style: StyleText.fontSize14Weight600
+                            .copyWith(color: Colors.white)),
                   ),
                   Icon(
                     isOpen
@@ -302,228 +285,244 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
               ),
             ),
           ),
-          if (isOpen)
-            child,
+          if (isOpen) child,
         ],
       ),
     );
   }
 
-  // ── Preview body — passes BOTH bytes and url ──────────────────────────────
-  Widget _previewBody() {
-    final desc = _isRtl
-        ? widget.model.vision.description.ar
-        : widget.model.vision.description.en;
-    final svgUrl = widget.model.vision.svgUrl;
-    final svgBytes = _visionSvgBytes; // in-memory bytes from file picker
+  // ── Preview body for a Strategic House section ────────────────────────────
+  Widget _strategicHousePreviewBody({
+    required Uint8List? bytes,
+    required String url,
+  }) {
+    final hasImage = bytes != null || url.isNotEmpty;
 
-    return Directionality(
-      textDirection: _isRtl ? TextDirection.rtl : TextDirection.ltr,
-      child: switch (_mode) {
-        _PreviewMode.desktop => _StrategyDesktopPreview(
-          desc: desc,
-          svgUrl: svgUrl,
-          svgBytes: svgBytes,
+    // Responsive container width
+    final double containerWidth = switch (_mode) {
+      _PreviewMode.desktop => 960.w,
+      _PreviewMode.tablet  => 680.w,
+      _PreviewMode.mobile  => 360.w,
+    };
+
+    final double imageHeight = switch (_mode) {
+      _PreviewMode.desktop => 300.h,
+      _PreviewMode.tablet  => 240.h,
+      _PreviewMode.mobile  => 180.h,
+    };
+
+    return Container(
+      width: double.infinity,
+      color: _C.cardBg,
+      padding: EdgeInsets.all(16.r),
+      child: Center(
+        child: Container(
+          width: containerWidth,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9F9F9),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: hasImage
+              ? ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: _buildImageWidget(
+              bytes: bytes,
+              url: url,
+              height: imageHeight,
+            ),
+          )
+              : SizedBox(
+            height: imageHeight,
+            child: Center(
+              child: Icon(Icons.image_outlined,
+                  color: Colors.grey[400], size: 48.sp),
+            ),
+          ),
         ),
-        _PreviewMode.tablet => _StrategyTabletPreview(
-          desc: desc,
-          svgUrl: svgUrl,
-          svgBytes: svgBytes,
-        ),
-        _PreviewMode.mobile => _StrategyMobilePreview(
-          desc: desc,
-          svgUrl: svgUrl,
-          svgBytes: svgBytes,
-        ),
-      },
+      ),
     );
   }
 }
 
-// ── Shared SVG renderer — bytes take priority over url ────────────────────────
-Widget _svgWidget({
+// ── Image widget helper with SVG support ───────────────────────────────────────
+Widget _buildImageWidget({
   required Uint8List? bytes,
   required String url,
-  required double width,
   required double height,
 }) {
-  if (bytes != null && bytes.isNotEmpty) {
-    // Render from in-memory bytes (newly picked file, not yet uploaded)
-    return SvgPicture.memory(
-      bytes,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-    );
+  // Helper to check if bytes contain SVG
+  bool _isSvgBytes(Uint8List? bytes) {
+    if (bytes == null || bytes.length < 5) return false;
+    final header = bytes.sublist(0, bytes.length > 5 ? 5 : bytes.length);
+    final headerStr = String.fromCharCodes(header);
+    return headerStr.contains('<svg') || headerStr.contains('<?xml');
   }
-  if (url.isNotEmpty) {
-    // Render from Firebase Storage URL (existing saved file)
-    return SvgPicture.network(
-      url,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-      placeholderBuilder: (_) => SizedBox(
-        width: width,
+
+  // Helper to check if URL points to SVG
+  bool _isSvgUrl(String url) {
+    final decoded = Uri.decodeFull(url).toLowerCase();
+    return decoded.contains('.svg') ||
+        decoded.contains('/svg?') ||
+        decoded.contains('/svg/') ||
+        decoded.endsWith('/svg');
+  }
+
+  // Handle uploaded bytes (new upload)
+  if (bytes != null && bytes.isNotEmpty) {
+    final isSvg = _isSvgBytes(bytes);
+    if (isSvg) {
+      return SvgPicture.memory(
+        bytes,
+        width: double.infinity,
         height: height,
-        child: const Center(
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) => Center(
           child: CircularProgressIndicator(
-            color: Color(0xFF008037),
+            color: const Color(0xFF008037),
             strokeWidth: 2,
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Image.memory(
+        bytes,
+        width: double.infinity,
+        height: height,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => SizedBox(
+          height: height,
+          child: Icon(Icons.broken_image,
+              color: Colors.grey[400], size: 48),
+        ),
+      );
+    }
   }
-  // Nothing to render
+
+  // Handle existing URL (from database)
+  if (url.isNotEmpty) {
+    final isSvg = _isSvgUrl(url);
+    if (isSvg) {
+      // For SVG URLs, fetch and display
+      return FutureBuilder<Uint8List>(
+        future: _loadSvgBytes(url),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SizedBox(
+              height: height,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: const Color(0xFF008037),
+                  strokeWidth: 2,
+                ),
+              ),
+            );
+          }
+          if (snapshot.hasData) {
+            return SvgPicture.memory(
+              snapshot.data!,
+              width: double.infinity,
+              height: height,
+              fit: BoxFit.contain,
+            );
+          }
+          if (snapshot.hasError) {
+            print('Error loading SVG: ${snapshot.error}');
+            return SizedBox(
+              height: height,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image,
+                        color: Colors.grey[400], size: 48),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Failed to load image',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      );
+    } else {
+      // For raster images
+      return Image.network(
+        url,
+        width: double.infinity,
+        height: height,
+        fit: BoxFit.contain,
+        loadingBuilder: (_, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return SizedBox(
+            height: height,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                    : null,
+                color: const Color(0xFF008037),
+                strokeWidth: 2,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (_, __, ___) => SizedBox(
+          height: height,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.broken_image,
+                    color: Colors.grey[400], size: 48),
+                SizedBox(height: 8.h),
+                Text(
+                  'Failed to load image',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  // No image
   return SizedBox(
-    width: width,
     height: height,
-    child: Icon(
-      Icons.image_outlined,
-      color: Colors.grey[400],
-      size: width * 0.4,
-    ),
+    child: Icon(Icons.image_outlined, color: Colors.grey[400], size: 48),
   );
 }
 
-// ─── Desktop ──────────────────────────────────────────────────────────────────
-class _StrategyDesktopPreview extends StatelessWidget {
-  final String desc;
-  final String svgUrl;
-  final Uint8List? svgBytes;
-
-  const _StrategyDesktopPreview({
-    required this.desc,
-    required this.svgUrl,
-    this.svgBytes,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasSvg = svgBytes != null || svgUrl.isNotEmpty;
-    return Container(
-      padding: EdgeInsets.all(20.r),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              desc.isEmpty ? 'Description text here…' : desc,
-              style: StyleText.fontSize14Weight400.copyWith(
-                fontSize: 13.sp,
-                height: 1.75,
-              ),
-            ),
-          ),
-          if (hasSvg) ...[
-            SizedBox(width: 24.w),
-            _svgWidget(
-              bytes: svgBytes,
-              url: svgUrl,
-              width: 200.w,
-              height: 200.h,
-            ),
-          ],
-        ],
-      ),
+// ── Load SVG bytes from URL ────────────────────────────────────────────────────
+Future<Uint8List> _loadSvgBytes(String url) async {
+  try {
+    print('🔵 Loading SVG from URL: $url');
+    final response = await html.HttpRequest.request(
+      url,
+      method: 'GET',
+      responseType: 'arraybuffer',
     );
-  }
-}
-
-// ─── Tablet ───────────────────────────────────────────────────────────────────
-class _StrategyTabletPreview extends StatelessWidget {
-  final String desc;
-  final String svgUrl;
-  final Uint8List? svgBytes;
-
-  const _StrategyTabletPreview({
-    required this.desc,
-    required this.svgUrl,
-    this.svgBytes,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasSvg = svgBytes != null || svgUrl.isNotEmpty;
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        children: [
-          if (hasSvg) ...[
-            Center(
-              child: _svgWidget(
-                bytes: svgBytes,
-                url: svgUrl,
-                width: 160.w,
-                height: 160.h,
-              ),
-            ),
-            SizedBox(height: 12.h),
-          ],
-          Text(
-            desc.isEmpty ? 'Description text here…' : desc,
-            style: StyleText.fontSize14Weight400.copyWith(
-              fontSize: 12.sp,
-              height: 1.75,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Mobile ───────────────────────────────────────────────────────────────────
-class _StrategyMobilePreview extends StatelessWidget {
-  final String desc;
-  final String svgUrl;
-  final Uint8List? svgBytes;
-
-  const _StrategyMobilePreview({
-    required this.desc,
-    required this.svgUrl,
-    this.svgBytes,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasSvg = svgBytes != null || svgUrl.isNotEmpty;
-    return Container(
-      padding: EdgeInsets.all(14.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        children: [
-          if (hasSvg) ...[
-            Center(
-              child: _svgWidget(
-                bytes: svgBytes,
-                url: svgUrl,
-                width: 120.w,
-                height: 120.h,
-              ),
-            ),
-            SizedBox(height: 10.h),
-          ],
-          Text(
-            desc.isEmpty ? 'Description text here…' : desc,
-            style: StyleText.fontSize14Weight400.copyWith(
-              fontSize: 11.sp,
-              height: 1.7,
-            ),
-          ),
-        ],
-      ),
-    );
+    if (response.status != 200) {
+      throw Exception('Failed to load SVG: ${response.status}');
+    }
+    final bytes = (response.response as ByteBuffer).asUint8List();
+    print('🟢 SVG loaded successfully, size: ${bytes.length} bytes');
+    return bytes;
+  } catch (e) {
+    print('🔴 Error loading SVG: $e');
+    rethrow;
   }
 }
 
@@ -531,7 +530,8 @@ class _StrategyMobilePreview extends StatelessWidget {
 Future<bool?> _confirm(BuildContext context) => showDialog<bool>(
   context: context,
   builder: (_) => AlertDialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.r)),
     contentPadding: EdgeInsets.all(24.r),
     content: Column(
       mainAxisSize: MainAxisSize.min,
@@ -543,27 +543,22 @@ Future<bool?> _confirm(BuildContext context) => showDialog<bool>(
             color: const Color(0xFFE8F5EE),
             borderRadius: BorderRadius.circular(40.r),
           ),
-          child: Icon(
-            Icons.edit_note,
-            size: 40.sp,
-            color: const Color(0xFF008037),
-          ),
+          child: Icon(Icons.edit_note,
+              size: 40.sp, color: const Color(0xFF008037)),
         ),
         SizedBox(height: 16.h),
         Text(
           'EDITING OUR STRATEGY DETAILS',
           textAlign: TextAlign.center,
-          style: StyleText.fontSize14Weight600.copyWith(
-            color: const Color(0xFF1A1A1A),
-          ),
+          style: StyleText.fontSize14Weight600
+              .copyWith(color: const Color(0xFF1A1A1A)),
         ),
         SizedBox(height: 8.h),
         Text(
           'Do you want to save the changes made to this Our Strategy?',
           textAlign: TextAlign.center,
-          style: StyleText.fontSize12Weight400.copyWith(
-            color: AppColors.secondaryBlack,
-          ),
+          style: StyleText.fontSize12Weight400
+              .copyWith(color: AppColors.secondaryBlack),
         ),
         SizedBox(height: 20.h),
         Row(
@@ -576,15 +571,11 @@ Future<bool?> _confirm(BuildContext context) => showDialog<bool>(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF9E9E9E),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
+                        borderRadius: BorderRadius.circular(8.r)),
                   ),
-                  child: Text(
-                    'Back',
-                    style: StyleText.fontSize13Weight500.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text('Back',
+                      style: StyleText.fontSize13Weight500
+                          .copyWith(color: Colors.white)),
                 ),
               ),
             ),
@@ -597,15 +588,11 @@ Future<bool?> _confirm(BuildContext context) => showDialog<bool>(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF008037),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
+                        borderRadius: BorderRadius.circular(8.r)),
                   ),
-                  child: Text(
-                    'Confirm',
-                    style: StyleText.fontSize13Weight500.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text('Confirm',
+                      style: StyleText.fontSize13Weight500
+                          .copyWith(color: Colors.white)),
                 ),
               ),
             ),

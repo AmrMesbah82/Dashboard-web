@@ -1,8 +1,8 @@
 /// ******************* FILE INFO *******************
 /// File Name: home_main_page.dart
 /// Page 1 — "Main" read-only overview page (Figma screens 1 & 2)
-/// UPDATED: "Edit Main" button now shows publish confirm dialog before
-///          navigating. Saving overlay removed — dialog handles loading state.
+/// UPDATED: Navigation field strips leading '/' before display.
+/// UPDATED: Added Navigation Items read-only accordion section.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,6 +34,12 @@ class _C {
   static const Color back      = Color(0xFFF1F2ED);
 }
 
+// ── Helper: strip leading slash for display ───────────────────────────────────
+String _displayRoute(String route) {
+  if (route.isEmpty) return 'None';
+  return route.startsWith('/') ? route.substring(1) : route;
+}
+
 class HomeMainPage extends StatefulWidget {
   const HomeMainPage({super.key});
   @override
@@ -43,6 +49,7 @@ class HomeMainPage extends StatefulWidget {
 class _HomeMainPageState extends State<HomeMainPage> {
   final Map<String, bool> _open = {
     'theme':  true,
+    'nav':    true,
     'header': true,
     'footer': true,
     'links':  true,
@@ -53,7 +60,6 @@ class _HomeMainPageState extends State<HomeMainPage> {
     'Main', 'Home', 'Services', 'About Us', 'Contact Us', 'Careers'
   ];
 
-  // ── Navigate to edit page ──────────────────────────────────────────────────
   void _goToEdit() => context.pushNamed('home_edit');
 
   @override
@@ -79,11 +85,8 @@ class _HomeMainPageState extends State<HomeMainPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
-
-
                   AppAdminNavbar(
-                    activeLabel:    'Home',
+                    activeLabel:    'Web Page',
                     homePage:       CareersMainPageDashboard(),
                     webPage:        HomeMainPage(),
                     jobListingPage: JobListingMainPage(),
@@ -91,14 +94,13 @@ class _HomeMainPageState extends State<HomeMainPage> {
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 0),
                   SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20.w, vertical: 20.h),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                     child: SizedBox(
                       width: 1000.w,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── Title row ────────────────────────────────────
+                          // ── Title row ──────────────────────────────────────
                           Row(
                             children: [
                               Text(
@@ -110,20 +112,16 @@ class _HomeMainPageState extends State<HomeMainPage> {
                               ),
                               const Spacer(),
                               GestureDetector(
-                                onTap: () =>
-                                    context.pushNamed('home_preview'),
+                                onTap: () => context.pushNamed('home_preview'),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20.w, vertical: 10.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                                   decoration: BoxDecoration(
                                     color: _C.primary,
-                                    borderRadius:
-                                    BorderRadius.circular(6.r),
+                                    borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
                                     'Preview Screen',
-                                    style: StyleText.fontSize14Weight500
-                                        .copyWith(color: Colors.white),
+                                    style: StyleText.fontSize14Weight500.copyWith(color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -131,51 +129,41 @@ class _HomeMainPageState extends State<HomeMainPage> {
                           ),
                           SizedBox(height: 12.h),
 
-                          // ── Last updated + Edit row ───────────────────────
+                          // ── Last updated + Edit row ────────────────────────
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: (){
-                                  navigateTo(context, CareersMainPageDashboard());
-                                },
+                                onTap: () => navigateTo(context, CareersMainPageDashboard()),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 14.w, vertical: 8.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
                                     color: _C.cardBg,
                                     borderRadius: BorderRadius.circular(4.r),
                                   ),
                                   child: Text(
                                     'Last Updated On 12 Jul 2026',
-                                    style: StyleText.fontSize13Weight500
-                                        .copyWith(color: _C.primary),
+                                    style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
                                   ),
                                 ),
                               ),
                               const Spacer(),
-
-                              // ── Edit Main button ────────────────────────
                               GestureDetector(
                                 onTap: _goToEdit,
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 14.w, vertical: 8.h),
+                                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
                                     color: _C.cardBg,
-                                    borderRadius:
-                                    BorderRadius.circular(4.r),
+                                    borderRadius: BorderRadius.circular(4.r),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         'Edit Main',
-                                        style: StyleText.fontSize14Weight500
-                                            .copyWith(color: _C.primary),
+                                        style: StyleText.fontSize14Weight500.copyWith(color: _C.primary),
                                       ),
                                       SizedBox(width: 8.w),
-                                      Icon(Icons.edit_outlined,
-                                          size: 14.sp, color: _C.primary),
+                                      Icon(Icons.edit_outlined, size: 14.sp, color: _C.primary),
                                     ],
                                   ),
                                 ),
@@ -184,7 +172,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                           ),
                           SizedBox(height: 16.h),
 
-                          // ── Content ──────────────────────────────────────
+                          // ── Content ────────────────────────────────────────
                           if (data != null) ...[
                             _accordion(
                               key: 'theme',
@@ -192,23 +180,25 @@ class _HomeMainPageState extends State<HomeMainPage> {
                               children: [_readOnlyLogoSection(data)],
                             ),
                             SizedBox(height: 10.h),
-
+                            _accordion(
+                              key: 'nav',
+                              title: 'Navigation Items',
+                              children: [_readOnlyNavSection(data)],
+                            ),
+                            SizedBox(height: 10.h),
                             _accordion(
                               key: 'footer',
                               title: 'Footer',
                               children: [_readOnlyFooterSection(data)],
                             ),
                             SizedBox(height: 10.h),
-
                             _accordion(
                               key: 'links',
                               title: 'Links',
                               children: [_readOnlyLinksSection(data)],
                             ),
                           ] else ...[
-                            const Center(
-                                child: CircularProgressIndicator(
-                                    color: _C.primary)),
+                            const Center(child: CircularProgressIndicator(color: _C.primary)),
                           ],
 
                           SizedBox(height: 40.h),
@@ -225,7 +215,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
     );
   }
 
-  // ── Accordion ──────────────────────────────────────────────────────────────
+  // ── Accordion ───────────────────────────────────────────────────────────────
   Widget _accordion({
     required String key,
     required String title,
@@ -233,8 +223,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
   }) {
     final isOpen = _open[key] ?? true;
     return Container(
-      decoration:
-      BoxDecoration(borderRadius: BorderRadius.circular(6.r)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -242,22 +231,16 @@ class _HomeMainPageState extends State<HomeMainPage> {
             onTap: () => setState(() => _open[key] = !isOpen),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                  horizontal: 16.w, vertical: 14.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft: Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(title,
-                        style: StyleText.fontSize14Weight600
-                            .copyWith(color: Colors.white)),
+                        style: StyleText.fontSize14Weight600.copyWith(color: Colors.white)),
                   ),
                   Icon(
                     isOpen
@@ -271,30 +254,23 @@ class _HomeMainPageState extends State<HomeMainPage> {
             ),
           ),
           if (isOpen)
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
         ],
       ),
     );
   }
 
-  // ── Read-only Logo / Theme section ─────────────────────────────────────────
+  // ── Read-only Logo / Theme section ──────────────────────────────────────────
   Widget _readOnlyLogoSection(HomePageModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         SizedBox(height: 15.h),
-        Text('Logo',
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: _C.labelText)),
+        Text('Logo', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 8.h),
         Container(
-          width: 70.w,
-          height: 70.h,
-          decoration: const BoxDecoration(
-              color: Color(0xFFD9D9D9), shape: BoxShape.circle),
+          width: 70.w, height: 70.h,
+          decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
           child: data.branding.logoUrl.isNotEmpty
               ? Center(
             child: ClipOval(
@@ -302,12 +278,8 @@ class _HomeMainPageState extends State<HomeMainPage> {
                 padding: EdgeInsets.all(10.w),
                 child: SvgPicture.network(
                   data.branding.logoUrl,
-                  width: 30.w,
-                  height: 30.h,
-                  fit: BoxFit.contain,
-                  placeholderBuilder: (_) =>
-                  const CircularProgressIndicator(
-                      strokeWidth: 2),
+                  width: 30.w, height: 30.h, fit: BoxFit.contain,
+                  placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
             ),
@@ -316,74 +288,161 @@ class _HomeMainPageState extends State<HomeMainPage> {
         ),
         SizedBox(height: 16.h),
         Row(children: [
-          Expanded(
-              child: _colorReadField(
-                  'Primary Color', data.branding.primaryColor)),
+          Expanded(child: _colorReadField('Primary Color', data.branding.primaryColor)),
           SizedBox(width: 16.w),
-          Expanded(
-              child: _colorReadField(
-                  'Secondary', data.branding.secondaryColor)),
+          Expanded(child: _colorReadField('Secondary', data.branding.secondaryColor)),
         ]),
         SizedBox(height: 12.h),
         Row(children: [
-          Expanded(
-              child: _colorReadField('Background',
-                  data.branding.backgroundColor.isNotEmpty
-                      ? data.branding.backgroundColor
-                      : '#D9D9D9')),
+          Expanded(child: _colorReadField('Background',
+              data.branding.backgroundColor.isNotEmpty ? data.branding.backgroundColor : '#D9D9D9')),
           SizedBox(width: 16.w),
-          Expanded(
-              child: _colorReadField('Header and Footer',
-                  data.branding.headerFooterColor.isNotEmpty
-                      ? data.branding.headerFooterColor
-                      : '#D9D9D9')),
+          Expanded(child: _colorReadField('Header and Footer',
+              data.branding.headerFooterColor.isNotEmpty ? data.branding.headerFooterColor : '#D9D9D9')),
         ]),
         SizedBox(height: 12.h),
         Row(children: [
-          Expanded(
-              child: _readField(
-                  'English Font',
-                  data.branding.englishFont.isEmpty
-                      ? 'Select Font'
-                      : data.branding.englishFont)),
+          Expanded(child: _readField('English Font',
+              data.branding.englishFont.isEmpty ? 'Select Font' : data.branding.englishFont)),
           SizedBox(width: 16.w),
-          Expanded(
-              child: _readField(
-                  'Arabic Font',
-                  data.branding.arabicFont.isEmpty
-                      ? 'Select Font'
-                      : data.branding.arabicFont)),
+          Expanded(child: _readField('Arabic Font',
+              data.branding.arabicFont.isEmpty ? 'Select Font' : data.branding.arabicFont)),
         ]),
       ],
     );
   }
 
-  // ── Read-only Header section ───────────────────────────────────────────────
-  Widget _readOnlyHeaderSection(HomePageModel data) {
-    return Column(
-      children: data.headerItems
-          .map((item) => Padding(
-        padding: EdgeInsets.only(bottom: 10.h),
-        child: Row(
-          children: [
-            Icon(Icons.drag_indicator_rounded,
-                size: 18.sp, color: _C.hintText),
-            SizedBox(width: 8.w),
-            Expanded(
-                child: _readFieldWithStatus(
-                    'Title', item.title.en, item.status)),
-            SizedBox(width: 8.w),
-            Expanded(
-                child:
-                _readFieldRtl('العنوان', item.title.ar)),
-          ],
+  // ── Read-only Navigation Items section ──────────────────────────────────────
+  Widget _readOnlyNavSection(HomePageModel data) {
+    if (data.navButtons.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 20.h),
+        child: Center(
+          child: Text(
+            'No navigation items configured',
+            style: StyleText.fontSize13Weight400.copyWith(color: _C.hintText),
+          ),
         ),
-      ))
-          .toList(),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: data.navButtons.asMap().entries.map((entry) {
+        final i   = entry.key;
+        final btn = entry.value;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 15.h),
+
+            // ── Row: drag handle indicator + status badge ─────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.drag_indicator_rounded,
+                        size: 16.sp, color: _C.hintText),
+                    SizedBox(width: 6.w),
+                    Text(
+                      'Item ${i + 1}',
+                      style: StyleText.fontSize13Weight600
+                          .copyWith(color: _C.labelText),
+                    ),
+                  ],
+                ),
+                // Status indicator
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Status: ',
+                        style: StyleText.fontSize11Weight400
+                            .copyWith(color: _C.labelText)),
+                    Container(
+                      width: 32.w,
+                      height: 18.h,
+                      decoration: BoxDecoration(
+                        color: btn.status
+                            ? _C.primary
+                            : Colors.grey.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Align(
+                        alignment: btn.status
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          width: 14.w,
+                          height: 14.h,
+                          margin: EdgeInsets.symmetric(horizontal: 2.w),
+                          decoration: const BoxDecoration(
+                              color: Colors.white, shape: BoxShape.circle),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+
+            // ── Title EN / AR fields ───────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: _readField(
+                    'Title',
+                    btn.name.en.isEmpty ? 'Text Here' : btn.name.en,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: _readFieldRtl(
+                    'عنصر التنقل',
+                    btn.name.ar.isEmpty ? 'أدخل النص هنا' : btn.name.ar,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+
+            // ── Route field ───────────────────────────────────────────────
+            SizedBox(
+              width: (1000.w - 8.w) / 2,
+              child: _readField(
+                'Route',
+                btn.route.isEmpty ? 'None' : _displayRoute(btn.route),
+              ),
+            ),
+            SizedBox(height: 6.h),
+          ],
+        );
+      }).toList(),
     );
   }
 
-  // ── Read-only Footer section ───────────────────────────────────────────────
+  // ── Read-only Header section ─────────────────────────────────────────────────
+  Widget _readOnlyHeaderSection(HomePageModel data) {
+    return Column(
+      children: data.headerItems.map((item) => Padding(
+        padding: EdgeInsets.only(bottom: 10.h),
+        child: Row(
+          children: [
+            Icon(Icons.drag_indicator_rounded, size: 18.sp, color: _C.hintText),
+            SizedBox(width: 8.w),
+            Expanded(child: _readFieldWithStatus('Title', item.title.en, item.status)),
+            SizedBox(width: 8.w),
+            Expanded(child: _readFieldRtl('العنوان', item.title.ar)),
+          ],
+        ),
+      )).toList(),
+    );
+  }
+
+  // ── Read-only Footer section ─────────────────────────────────────────────────
   Widget _readOnlyFooterSection(HomePageModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,24 +459,19 @@ class _HomeMainPageState extends State<HomeMainPage> {
             ],
             Text(
               '${i + 1}${_ord(i + 1)} Column',
-              style: StyleText.fontSize13Weight600
-                  .copyWith(color: _C.labelText),
+              style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText),
             ),
             SizedBox(height: 8.h),
             Row(children: [
-              Expanded(
-                  child: _readField('Group Title',
-                      col.title.en.isEmpty ? 'Read Us' : col.title.en)),
+              Expanded(child: _readField('Group Title',
+                  col.title.en.isEmpty ? 'Read Us' : col.title.en)),
               SizedBox(width: 16.w),
-              Expanded(
-                  child: _readFieldRtl(
-                      'عنوان المجموعة', col.title.ar)),
+              Expanded(child: _readFieldRtl('عنوان المجموعة', col.title.ar)),
             ]),
             SizedBox(height: 8.h),
             Row(children: [
-              Expanded(
-                  child: _readField('Navigation',
-                      col.route.isEmpty ? 'None' : col.route)),
+              // ✅ Strip leading '/' from navigation route
+              Expanded(child: _readField('Navigation', _displayRoute(col.route))),
               SizedBox(width: 10.w),
               const Expanded(child: SizedBox()),
             ]),
@@ -425,16 +479,10 @@ class _HomeMainPageState extends State<HomeMainPage> {
             ...col.labels.map((lbl) => Padding(
               padding: EdgeInsets.only(bottom: 6.h),
               child: Row(children: [
-                Expanded(
-                    child: _readField(
-                        'Navigation Label',
-                        lbl.label.en.isEmpty
-                            ? 'Text Here'
-                            : lbl.label.en)),
+                Expanded(child: _readField('Navigation Label',
+                    lbl.label.en.isEmpty ? 'Text Here' : lbl.label.en)),
                 SizedBox(width: 8.w),
-                Expanded(
-                    child: _readFieldRtl(
-                        'تسمية التنقل', lbl.label.ar)),
+                Expanded(child: _readFieldRtl('تسمية التنقل', lbl.label.ar)),
               ]),
             )),
             SizedBox(height: 8.h),
@@ -444,7 +492,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
     );
   }
 
-  // ── Read-only Links section ────────────────────────────────────────────────
+  // ── Read-only Links section ──────────────────────────────────────────────────
   Widget _readOnlyLinksSection(HomePageModel data) {
     final rows = (data.socialLinks.length / 2).ceil();
     return Column(
@@ -456,14 +504,10 @@ class _HomeMainPageState extends State<HomeMainPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child:
-                  _readLinkItem(data.socialLinks[left], left)),
+              Expanded(child: _readLinkItem(data.socialLinks[left], left)),
               SizedBox(width: 16.w),
               right < data.socialLinks.length
-                  ? Expanded(
-                  child: _readLinkItem(
-                      data.socialLinks[right], right))
+                  ? Expanded(child: _readLinkItem(data.socialLinks[right], right))
                   : const Expanded(child: SizedBox()),
             ],
           ),
@@ -477,15 +521,11 @@ class _HomeMainPageState extends State<HomeMainPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 15.h),
-        Text('Icon',
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: _C.labelText)),
+        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 6.h),
         Container(
-          width: 60.w,
-          height: 60.h,
-          decoration: const BoxDecoration(
-              color: Color(0xFFD9D9D9), shape: BoxShape.circle),
+          width: 60.w, height: 60.h,
+          decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
           child: link.iconUrl.isNotEmpty
               ? Center(
             child: ClipOval(
@@ -493,12 +533,8 @@ class _HomeMainPageState extends State<HomeMainPage> {
                 padding: EdgeInsets.all(8.w),
                 child: SvgPicture.network(
                   link.iconUrl,
-                  width: 30.w,
-                  height: 30.h,
-                  fit: BoxFit.contain,
-                  placeholderBuilder: (_) =>
-                  const CircularProgressIndicator(
-                      strokeWidth: 2),
+                  width: 30.w, height: 30.h, fit: BoxFit.contain,
+                  placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
             ),
@@ -506,35 +542,25 @@ class _HomeMainPageState extends State<HomeMainPage> {
               : const Icon(Icons.add, color: Colors.grey, size: 20),
         ),
         SizedBox(height: 6.h),
-        _readField('Insert Link',
-            link.url.isEmpty ? 'Insert Links' : link.url),
+        _readField('Insert Link', link.url.isEmpty ? 'Insert Links' : link.url),
       ],
     );
   }
 
-  // ── Shared read-only field helpers ─────────────────────────────────────────
+  // ── Shared read-only field helpers ───────────────────────────────────────────
   Widget _readField(String label, String value) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label,
-          style: StyleText.fontSize12Weight500
-              .copyWith(color: _C.labelText)),
+      Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
       SizedBox(height: 4.h),
       Container(
-        width: double.infinity,
-        height: 36.h,
+        width: double.infinity, height: 36.h,
         padding: EdgeInsets.symmetric(horizontal: 10.w),
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(4.r),
-        ),
+        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
         alignment: Alignment.centerLeft,
-        child: Text(
-          value,
-          style: StyleText.fontSize12Weight400
-              .copyWith(color: _C.hintText),
-          overflow: TextOverflow.ellipsis,
-        ),
+        child: Text(value,
+            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            overflow: TextOverflow.ellipsis),
       ),
     ],
   );
@@ -544,23 +570,16 @@ class _HomeMainPageState extends State<HomeMainPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: _C.labelText)),
+        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 4.h),
         Container(
-          width: double.infinity,
-          height: 36.h,
+          width: double.infinity, height: 36.h,
           padding: EdgeInsets.symmetric(horizontal: 10.w),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(4.r),
-          ),
+          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
           alignment: Alignment.centerRight,
           child: Text(
             value.isEmpty ? 'أدخل النص هنا' : value,
-            style: StyleText.fontSize12Weight400
-                .copyWith(color: _C.hintText),
+            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
             overflow: TextOverflow.ellipsis,
             textDirection: TextDirection.rtl,
           ),
@@ -569,66 +588,47 @@ class _HomeMainPageState extends State<HomeMainPage> {
     ),
   );
 
-  Widget _readFieldWithStatus(
-      String label, String value, bool status) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _readFieldWithStatus(String label, String value, bool status) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label,
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: _C.labelText)),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text('Status: ',
-                    style: StyleText.fontSize11Weight400
-                        .copyWith(color: _C.labelText)),
-                Container(
-                  width: 32.w,
-                  height: 18.h,
-                  decoration: BoxDecoration(
-                    color: status
-                        ? _C.primary
-                        : Colors.grey.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Align(
-                    alignment: status
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      width: 14.w,
-                      height: 14.h,
-                      margin: EdgeInsets.symmetric(horizontal: 2.w),
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle),
-                    ),
-                  ),
+          Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('Status: ', style: StyleText.fontSize11Weight400.copyWith(color: _C.labelText)),
+            Container(
+              width: 32.w, height: 18.h,
+              decoration: BoxDecoration(
+                color: status ? _C.primary : Colors.grey.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Align(
+                alignment: status ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 14.w, height: 14.h,
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
+                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                 ),
-              ]),
-            ],
-          ),
-          SizedBox(height: 4.h),
-          Container(
-            width: double.infinity,
-            height: 36.h,
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(4.r),
+              ),
             ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value.isEmpty ? 'Text Here' : value,
-              style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          ]),
         ],
-      );
+      ),
+      SizedBox(height: 4.h),
+      Container(
+        width: double.infinity, height: 36.h,
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          value.isEmpty ? 'Text Here' : value,
+          style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    ],
+  );
 
   Widget _colorReadField(String label, String hex) {
     Color color;
@@ -643,30 +643,20 @@ class _HomeMainPageState extends State<HomeMainPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: _C.labelText)),
+        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 4.h),
         Container(
           height: 36.h,
           padding: EdgeInsets.symmetric(horizontal: 10.w),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(4.r),
-          ),
+          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
           child: Row(children: [
             Container(
-              width: 14.w,
-              height: 14.h,
-              decoration: BoxDecoration(
-                  color: color, shape: BoxShape.circle),
+              width: 14.w, height: 14.h,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             SizedBox(width: 8.w),
-            Text(
-              hex.isEmpty ? '#D9D9D9' : hex,
-              style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText),
-            ),
+            Text(hex.isEmpty ? '#D9D9D9' : hex,
+                style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText)),
           ]),
         ),
       ],

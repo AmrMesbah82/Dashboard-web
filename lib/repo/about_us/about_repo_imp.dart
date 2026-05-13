@@ -1,7 +1,7 @@
 // ******************* FILE INFO *******************
 // File Name: about_repo_impl.dart
 // Created by: Amr Mesbah
-// UPDATED: Source.server in all fetch methods for fresh Firestore data
+// UPDATED: Fixed storage paths for strategy images
 
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,12 +25,25 @@ class AboutRepoImpl implements AboutRepo {
   Future<AboutPageModel> fetchAboutPage() async {
     try {
       final snap = await _ref(_aboutDoc)
-          .get(const GetOptions(source: Source.server)); // ← FIXED
+          .get(const GetOptions(source: Source.server));
       if (!snap.exists || snap.data() == null) {
-        _log('   [AboutRepo] about_page doc missing → empty');
         return AboutPageModel.empty();
       }
-      return AboutPageModel.fromMap(_sanitize(snap.data()!));
+
+      final raw = snap.data()!;
+
+      // ── Extract lastUpdatedAt BEFORE sanitize() removes it ──
+      DateTime? lastUpdatedAt;
+      final ts = raw['lastUpdatedAt'];
+      if (ts is Timestamp) {
+        lastUpdatedAt = ts.toDate();
+      } else if (ts is String) {
+        lastUpdatedAt = DateTime.tryParse(ts);
+      }
+
+      final model = AboutPageModel.fromMap(_sanitize(raw));
+      return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← inject it back
+
     } catch (e) {
       _log('🔴 [AboutRepo] fetchAboutPage ERROR: $e');
       rethrow;
@@ -40,8 +53,9 @@ class AboutRepoImpl implements AboutRepo {
   @override
   Future<void> saveAboutPage(AboutPageModel model) async {
     try {
-      final data = model.toMap()
-        ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
+      final data = model.toMap();
+      // Overwrite the ISO string from toMap() with the accurate server timestamp
+      data['lastUpdatedAt'] = FieldValue.serverTimestamp();
       await _ref(_aboutDoc).set(data);
       _log('🟢 [AboutRepo] saveAboutPage OK');
     } catch (e) {
@@ -54,12 +68,25 @@ class AboutRepoImpl implements AboutRepo {
   Future<OurStrategyModel> fetchStrategy() async {
     try {
       final snap = await _ref(_strategyDoc)
-          .get(const GetOptions(source: Source.server)); // ← FIXED
+          .get(const GetOptions(source: Source.server));
       if (!snap.exists || snap.data() == null) {
-        _log('   [AboutRepo] our_strategy doc missing → empty');
         return OurStrategyModel.empty();
       }
-      return OurStrategyModel.fromMap(_sanitize(snap.data()!));
+
+      final raw = snap.data()!;
+
+      // ── Extract lastUpdatedAt BEFORE _sanitize() removes it ──
+      DateTime? lastUpdatedAt;
+      final ts = raw['lastUpdatedAt'];
+      if (ts is Timestamp) {
+        lastUpdatedAt = ts.toDate();
+      } else if (ts is String) {
+        lastUpdatedAt = DateTime.tryParse(ts);
+      }
+
+      final model = OurStrategyModel.fromMap(_sanitize(raw));
+      return model.copyWith(lastUpdatedAt: lastUpdatedAt);  // ← inject back
+
     } catch (e) {
       _log('🔴 [AboutRepo] fetchStrategy ERROR: $e');
       rethrow;
@@ -71,6 +98,10 @@ class AboutRepoImpl implements AboutRepo {
     try {
       final data = model.toMap()
         ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
+
+      _log('   [AboutRepo] saveStrategy - strategicHouseEnUrl: ${model.strategicHouseEnUrl}');
+      _log('   [AboutRepo] saveStrategy - strategicHouseArUrl: ${model.strategicHouseArUrl}');
+
       await _ref(_strategyDoc).set(data);
       _log('🟢 [AboutRepo] saveStrategy OK');
     } catch (e) {
@@ -83,12 +114,31 @@ class AboutRepoImpl implements AboutRepo {
   Future<TermsOfServiceModel> fetchTerms() async {
     try {
       final snap = await _ref(_termsDoc)
-          .get(const GetOptions(source: Source.server)); // ← FIXED
+          .get(const GetOptions(source: Source.server));
       if (!snap.exists || snap.data() == null) {
-        _log('   [AboutRepo] terms_of_service doc missing → empty');
         return TermsOfServiceModel.empty();
       }
-      return TermsOfServiceModel.fromMap(_sanitize(snap.data()!));
+
+      final raw = snap.data()!;
+
+      // ── Debug: print what lastUpdatedAt looks like in Firestore ──
+      print('🟡 [TermsRepo] raw lastUpdatedAt = ${raw['lastUpdatedAt']} (${raw['lastUpdatedAt']?.runtimeType})');
+
+      DateTime? lastUpdatedAt;
+      final ts = raw['lastUpdatedAt'];
+      if (ts is Timestamp) {
+        lastUpdatedAt = ts.toDate();
+        print('🟢 [TermsRepo] parsed Timestamp → $lastUpdatedAt');
+      } else if (ts is String) {
+        lastUpdatedAt = DateTime.tryParse(ts);
+        print('🟢 [TermsRepo] parsed String → $lastUpdatedAt');
+      } else {
+        print('🔴 [TermsRepo] lastUpdatedAt is null or unknown type');
+      }
+
+      final model = TermsOfServiceModel.fromMap(_sanitize(raw));
+      return model.copyWith(lastUpdatedAt: lastUpdatedAt);
+
     } catch (e) {
       _log('🔴 [AboutRepo] fetchTerms ERROR: $e');
       rethrow;
@@ -115,8 +165,17 @@ class AboutRepoImpl implements AboutRepo {
   }) async {
     try {
       _log('🔵 [AboutRepo] uploadImage → $storagePath');
+
+      // Generate a unique filename to avoid conflicts
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final extension = _detectExtension(bytes);
+      final uniquePath = storagePath.contains('.')
+          ? storagePath.replaceFirst('.', '_$timestamp.')
+          : '$storagePath$timestamp.$extension';
+
       final mime = _detectMime(bytes);
-      final ref  = _storage.ref(storagePath);
+      final ref = _storage.ref(uniquePath);
+
       await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url = await ref.getDownloadURL();
       _log('🟢 [AboutRepo] uploadImage → $url');
@@ -138,7 +197,7 @@ class AboutRepoImpl implements AboutRepo {
       final mime = fileName.toLowerCase().endsWith('.pdf')
           ? 'application/pdf'
           : 'application/octet-stream';
-      final ref  = _storage.ref('$storagePath/$fileName');
+      final ref = _storage.ref('$storagePath/$fileName');
       await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url = await ref.getDownloadURL();
       _log('🟢 [AboutRepo] uploadDocument → $url');
@@ -168,6 +227,21 @@ class AboutRepoImpl implements AboutRepo {
         return 'image/svg+xml';
     }
     return 'image/png';
+  }
+
+  String _detectExtension(Uint8List bytes) {
+    if (bytes.length >= 4) {
+      if (bytes[0] == 0x89 && bytes[1] == 0x50) return 'png';
+      if (bytes[0] == 0xFF && bytes[1] == 0xD8) return 'jpg';
+      if (bytes[0] == 0x47 && bytes[1] == 0x49) return 'gif';
+      if (bytes[0] == 0x52 && bytes[1] == 0x49) return 'webp';
+    }
+    if (bytes.length > 4) {
+      final header = String.fromCharCodes(bytes.take(5));
+      if (header.contains('<svg') || header.contains('<?xml'))
+        return 'svg';
+    }
+    return 'png';
   }
 
   void _log(String msg) => print(msg);

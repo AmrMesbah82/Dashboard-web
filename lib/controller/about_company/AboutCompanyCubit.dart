@@ -11,8 +11,8 @@ class AboutCompanyCubit extends Cubit<AboutCompanyState> {
   final AboutCompanyRepo _repo;
 
   AboutCompanyCubit({required AboutCompanyRepo repo})
-      : _repo = repo,
-        super(AboutCompanyInitial());
+    : _repo = repo,
+      super(AboutCompanyInitial());
 
   AboutCompanyModel? _cachedData;
 

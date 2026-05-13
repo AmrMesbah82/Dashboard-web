@@ -11,8 +11,12 @@
 //     Row 2: [Discard (grey)] [Save For Later (grey)]
 // Fixed:
 //   • Card Preview button uses post.buttonLabel.en (from Button section)
+//   • Card Preview now includes short description (between question and date/button row)
 //   • Footer buttons match blog_create_edit_page.dart style (ElevatedButton, 2×2 grid)
 //   • Loading overlay + snackbar feedback + double-tap guard
+//   • Accepts imageBytes for previewing newly picked images (not yet uploaded)
+//   • Accepts isPickedSvg flag for correct SVG vs raster rendering
+//   • Removed hardcoded fallback for descriptionTitle
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -56,7 +60,18 @@ String _fmtDate(DateTime? d) {
 class BlogPreviewPage extends StatefulWidget {
   final BlogPostModel draft;
 
-  const BlogPreviewPage({super.key, required this.draft});
+  /// Picked image bytes (not yet uploaded) — for previewing new/changed images
+  final Uint8List? imageBytes;
+
+  /// Whether the picked image is SVG
+  final bool isPickedSvg;
+
+  const BlogPreviewPage({
+    super.key,
+    required this.draft,
+    this.imageBytes,
+    this.isPickedSvg = false,
+  });
 
   @override
   State<BlogPreviewPage> createState() => _BlogPreviewPageState();
@@ -77,7 +92,10 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
     try {
       await context
           .read<BlogCubit>()
-          .createPost(post: widget.draft.copyWith(status: 'published'));
+          .createPost(
+        post: widget.draft.copyWith(status: 'published'),
+        imageBytes: widget.imageBytes,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -85,7 +103,9 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
             backgroundColor: _C.primary,
           ),
         );
-        Navigator.pop(context);
+        // Pop preview + edit page
+        Navigator.pop(context); // pop preview
+        Navigator.pop(context); // pop edit
       }
     } catch (e) {
       if (mounted) {
@@ -108,7 +128,10 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
     try {
       await context
           .read<BlogCubit>()
-          .createPost(post: widget.draft.copyWith(status: 'draft'));
+          .createPost(
+        post: widget.draft.copyWith(status: 'draft'),
+        imageBytes: widget.imageBytes,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -116,6 +139,8 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
             backgroundColor: _C.primary,
           ),
         );
+        // Pop preview + edit page
+        Navigator.pop(context);
         Navigator.pop(context);
       }
     } catch (e) {
@@ -133,7 +158,11 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
   }
 
   void _back()    => Navigator.pop(context);
-  void _discard() => Navigator.pop(context);
+  void _discard() {
+    // Pop preview + edit page (discard everything)
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
 
   // ══════════════════════════════════════════════════════════════════════════
   @override
@@ -142,65 +171,58 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
 
     return Scaffold(
       backgroundColor: _C.sectionBg,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Center(
-              child: SizedBox(
-                width: 1000.w,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AdminSubNavBar(activeIndex: 2),
-                      SizedBox(height: 24.h),
+      body: SingleChildScrollView(
+        child: Center(
+          child: SizedBox(
+            width: 1000.w,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 32.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AdminSubNavBar(activeIndex: 2),
+                  SizedBox(height: 24.h),
 
-                      Text(
-                        'Preview Read Details',
-                        style: StyleText.fontSize22Weight700.copyWith(
-                          color:      _C.primary,
-                          fontSize:   28.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-
-                      _accordion(
-                        key:   'card',
-                        title: 'Card View',
-                        child: _CardPreview(post: p),
-                      ),
-                      SizedBox(height: 16.h),
-
-                      _accordion(
-                        key:   'readMore',
-                        title: 'Read More',
-                        child: _ReadMorePreview(post: p),
-                      ),
-                      SizedBox(height: 20.h),
-
-                      // ── Action buttons — matches edit page exactly ──
-                      _actionButtons(),
-                      SizedBox(height: 40.h),
-                    ],
+                  Text(
+                    'Preview Read Details',
+                    style: StyleText.fontSize22Weight700.copyWith(
+                      color:      _C.primary,
+                      fontSize:   28.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 24.h),
+
+                  _accordion(
+                    key:   'card',
+                    title: 'Card View',
+                    child: _CardPreview(
+                      post:       p,
+                      imageBytes: widget.imageBytes,
+                      isPickedSvg: widget.isPickedSvg,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  _accordion(
+                    key:   'readMore',
+                    title: 'Read More',
+                    child: _ReadMorePreview(
+                      post:       p,
+                      imageBytes: widget.imageBytes,
+                      isPickedSvg: widget.isPickedSvg,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // ── Action buttons — matches edit page exactly ──
+                  _actionButtons(),
+                  SizedBox(height: 40.h),
+                ],
               ),
             ),
           ),
-
-          // ── Loading overlay ────────────────────────────────────────
-          if (_loading)
-            Container(
-              color: Colors.black26,
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(_C.primary),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -232,7 +254,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               ),
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 300.w),
           Expanded(
             child: SizedBox(
               height: 44.h,
@@ -240,7 +262,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                 onPressed: _loading ? null : _publish,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _C.primary,
-                  disabledBackgroundColor: _C.grey,
+                  disabledBackgroundColor: _C.primary.withOpacity(0.7),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -281,7 +303,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               ),
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 300.w),
           Expanded(
             child: SizedBox(
               height: 44.h,
@@ -313,7 +335,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
     final isOpen = _open[key] ?? true;
     return Container(
       decoration: BoxDecoration(
-          color: _C.cardBg, borderRadius: BorderRadius.circular(6.r)),
+           borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -325,11 +347,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft:  Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(
@@ -348,7 +366,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
           ),
           if (isOpen)
             Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
               child: child,
             ),
         ],
@@ -360,11 +378,19 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
 // ══════════════════════════════════════════════════════════════════════════════
 // CARD PREVIEW  (compact card — mirrors Figma: text left, image right)
 // Button label uses post.buttonLabel.en (from Button section in edit page)
+// NOW INCLUDES SHORT DESCRIPTION between question and date/button row
 // ══════════════════════════════════════════════════════════════════════════════
 
 class _CardPreview extends StatelessWidget {
   final BlogPostModel post;
-  const _CardPreview({required this.post});
+  final Uint8List? imageBytes;
+  final bool isPickedSvg;
+
+  const _CardPreview({
+    required this.post,
+    this.imageBytes,
+    this.isPickedSvg = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -377,7 +403,7 @@ class _CardPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: _C.cardBg,
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: _C.border),
+
       ),
       child: Padding(
         padding: EdgeInsets.all(10.r),
@@ -401,42 +427,105 @@ class _CardPreview extends StatelessWidget {
                 SizedBox(width: 10.w),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8.r),
-                  child: post.imageUrl.isNotEmpty
-                      ? _XhrImage(
-                    url:    post.imageUrl,
+                  child: _buildImage(
                     width:  100.w,
                     height: 70.h,
-                  )
-                      : Container(
-                    width:  100.w,
-                    height: 70.h,
-                    color:  _C.border,
-                    child: Icon(Icons.image_outlined,
-                        size: 24.sp, color: _C.hintText),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8.h),
-
-            Text(_fmtDate(post.createdAt),
-                style: StyleText.fontSize12Weight400
-                    .copyWith(color: _C.hintText)),
             SizedBox(height: 10.h),
 
-            Container(
-              padding:
-              EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-              decoration: BoxDecoration(
-                  color:        _C.primary,
-                  borderRadius: BorderRadius.circular(6.r)),
-              child: Text(buttonLabel,
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: Colors.white)),
+            // ── Short Description ────────────────────────────────────────
+            if (post.shortDescription.en.isNotEmpty)
+              Text(
+                post.shortDescription.en,
+                style: StyleText.fontSize12Weight400.copyWith(
+                  color: _C.textBody,
+                  height: 1.4,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            SizedBox(height: 12.h),
+
+            Row(
+              children: [
+                Text(_fmtDate(post.createdAt),
+                    style: StyleText.fontSize12Weight400
+                        .copyWith(color: _C.hintText)),
+                Spacer(),
+
+                Container(
+                  padding:
+                  EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+                  decoration: BoxDecoration(
+                      color:        _C.primary,
+                      borderRadius: BorderRadius.circular(6.r)),
+                  child: Text(buttonLabel,
+                      style: StyleText.fontSize12Weight500
+                          .copyWith(color: Colors.white)),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImage({required double width, required double height}) {
+    // 🟢 Priority 1: Picked bytes (new/changed image)
+    if (imageBytes != null) {
+      print('🟢 _CardPreview._buildImage: imageBytes.length=${imageBytes!.length}, isPickedSvg=$isPickedSvg');
+      if (isPickedSvg) {
+        return Container(
+          width: width,
+          height: height,
+          color: _C.sectionBg,
+          child: Center(
+            child: SvgPicture.memory(
+              imageBytes!,
+              width:  width * 0.5,
+              height: height * 0.5,
+              fit: BoxFit.scaleDown,
+            ),
+          ),
+        );
+      } else {
+        return Image.memory(
+          imageBytes!,
+          width:  width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (_, error, ___) {
+            print('🔴 _CardPreview Image.memory error: $error');
+            return _imagePlaceholder(width, height);
+          },
+        );
+      }
+    }
+
+    // 🟢 Priority 2: Existing URL (editing an existing post)
+    if (post.imageUrl.isNotEmpty) {
+      return _XhrImage(
+        url:    post.imageUrl,
+        width:  width,
+        height: height,
+      );
+    }
+
+    // 🟡 Fallback: placeholder
+    return _imagePlaceholder(width, height);
+  }
+
+  Widget _imagePlaceholder(double width, double height) {
+    return Container(
+      width:  width,
+      height: height,
+      color:  _C.border,
+      child: Icon(Icons.image_outlined,
+          size: 24.sp, color: _C.hintText),
     );
   }
 }
@@ -447,7 +536,14 @@ class _CardPreview extends StatelessWidget {
 
 class _ReadMorePreview extends StatelessWidget {
   final BlogPostModel post;
-  const _ReadMorePreview({required this.post});
+  final Uint8List? imageBytes;
+  final bool isPickedSvg;
+
+  const _ReadMorePreview({
+    required this.post,
+    this.imageBytes,
+    this.isPickedSvg = false,
+  });
 
   MarkdownStyleSheet _mdStyle() {
     return MarkdownStyleSheet(
@@ -503,81 +599,137 @@ class _ReadMorePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final String title = post.question.en.isNotEmpty
         ? post.question.en
-        : 'Why digital transformation is important?';
-    final String sectionHead = post.descriptionTitle.en.isNotEmpty
-        ? post.descriptionTitle.en
-        : 'Digital Transformation';
-    final String intro = post.shortDescription.en.isNotEmpty
-        ? post.shortDescription.en
-        : '';
+        : 'Question text';
+    final String sectionHead = post.descriptionTitle.en;
+    final String intro = post.shortDescription.en;
     final String dateStr = _fmtDate(post.createdAt);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: StyleText.fontSize22Weight700.copyWith(
-              color:      _C.primary,
-              fontSize:   22.sp,
-              fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 20.h),
-
-        Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(sectionHead,
-                      style: StyleText.fontSize14Weight600.copyWith(
-                          color:      _C.labelText,
-                          fontWeight: FontWeight.w700)),
-                  SizedBox(height: 8.h),
-                  if (intro.isNotEmpty) ...[
-                    Text(intro,
-                        style: StyleText.fontSize13Weight400.copyWith(
-                            color: _C.textBody, height: 1.7)),
-                    SizedBox(height: 8.h),
-                  ],
-                  Text(dateStr,
-                      style: StyleText.fontSize12Weight400
-                          .copyWith(color: _C.hintText)),
-                ],
-              ),
+            Text(
+              title,
+              style: StyleText.fontSize22Weight700.copyWith(
+                  color:      _C.primary,
+                  fontSize:   22.sp,
+                  fontWeight: FontWeight.w700),
             ),
-            SizedBox(width: 24.w),
+            SizedBox(height: 20.h),
 
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.r),
-              child: post.imageUrl.isNotEmpty
-                  ? _XhrImage(
-                url:    post.imageUrl,
-                width:  200.w,
-                height: 150.h,
-              )
-                  : Container(
-                width:  200.w,
-                height: 150.h,
-                decoration: BoxDecoration(
-                  color:        _C.border,
-                  borderRadius: BorderRadius.circular(10.r),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (sectionHead.isNotEmpty) ...[
+                        Text(sectionHead,
+                            style: StyleText.fontSize14Weight600.copyWith(
+                                color:      _C.labelText,
+                                fontWeight: FontWeight.w700)),
+                        SizedBox(height: 8.h),
+                      ],
+                      if (intro.isNotEmpty) ...[
+                        Text(intro,
+                            style: StyleText.fontSize13Weight400.copyWith(
+                                color: _C.textBody, height: 1.7)),
+                        SizedBox(height: 8.h),
+                      ],
+                      Text(dateStr,
+                          style: StyleText.fontSize12Weight400
+                              .copyWith(color: _C.hintText)),
+                    ],
+                  ),
                 ),
-                child: Icon(Icons.image_outlined,
-                    size: 40.sp, color: _C.hintText),
-              ),
+                SizedBox(width: 24.w),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: _buildImage(
+                    width:  200.w,
+                    height: 150.h,
+                  ),
+                ),
+              ],
             ),
+            SizedBox(height: 20.h),
+
+            ...post.blocks.asMap().entries.map(
+                    (e) => _blockWidget(index: e.key, block: e.value)),
+
+            SizedBox(height: 4.h),
           ],
         ),
-        SizedBox(height: 20.h),
+      ),
+    );
+  }
 
-        ...post.blocks.asMap().entries.map(
-                (e) => _blockWidget(index: e.key, block: e.value)),
+  Widget _buildImage({required double width, required double height}) {
+    // 🟢 Priority 1: Picked bytes
+    if (imageBytes != null) {
+      print('🟢 _ReadMorePreview._buildImage: imageBytes.length=${imageBytes!.length}, isPickedSvg=$isPickedSvg');
+      if (isPickedSvg) {
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color:        _C.sectionBg,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Center(
+            child: SvgPicture.memory(
+              imageBytes!,
+              width:  width * 0.5,
+              height: height * 0.5,
+              fit: BoxFit.scaleDown,
+            ),
+          ),
+        );
+      } else {
+        return Image.memory(
+          imageBytes!,
+          width:  width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (_, error, ___) {
+            print('🔴 _ReadMorePreview Image.memory error: $error');
+            return _imagePlaceholder(width, height);
+          },
+        );
+      }
+    }
 
-        SizedBox(height: 4.h),
-      ],
+    // 🟢 Priority 2: Existing URL
+    if (post.imageUrl.isNotEmpty) {
+      return _XhrImage(
+        url:    post.imageUrl,
+        width:  width,
+        height: height,
+      );
+    }
+
+    // 🟡 Fallback
+    return _imagePlaceholder(width, height);
+  }
+
+  Widget _imagePlaceholder(double width, double height) {
+    return Container(
+      width:  width,
+      height: height,
+      decoration: BoxDecoration(
+        color:        _C.border,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Icon(Icons.image_outlined,
+          size: 40.sp, color: _C.hintText),
     );
   }
 

@@ -97,6 +97,10 @@ class AboutCubit extends Cubit<AboutState> {
 // OUR STRATEGY CUBIT
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// OUR STRATEGY CUBIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
 class StrategyCubit extends Cubit<StrategyState> {
   final AboutRepo _repo;
 
@@ -108,8 +112,13 @@ class StrategyCubit extends Cubit<StrategyState> {
     print('🟡 [StrategyCubit] load()');
     safeEmit(StrategyLoading());
     try {
-      safeEmit(StrategyLoaded(await _repo.fetchStrategy()));
+      final data = await _repo.fetchStrategy();
+      print('🟢 [StrategyCubit] load OK');
+      print('  - Strategic House EN URL: ${data.strategicHouseEnUrl}');
+      print('  - Strategic House AR URL: ${data.strategicHouseArUrl}');
+      safeEmit(StrategyLoaded(data));
     } catch (e) {
+      print('🔴 [StrategyCubit] load ERROR: $e');
       safeEmit(StrategyError(e.toString()));
     }
   }
@@ -119,24 +128,51 @@ class StrategyCubit extends Cubit<StrategyState> {
     Map<String, Uint8List>? imageUploads,
   }) async {
     print('🟡 [StrategyCubit] save()');
+    print('  - Image uploads: ${imageUploads?.keys}');
+    print('  - Current Strategic House EN URL: ${model.strategicHouseEnUrl}');
+    print('  - Current Strategic House AR URL: ${model.strategicHouseArUrl}');
+
     try {
       var updated = model;
 
       if (imageUploads != null && imageUploads.isNotEmpty) {
-        for (final entry in imageUploads.entries) {
-          final url = await _repo.uploadImage(
-              bytes: entry.value, storagePath: entry.key);
+        print('🔵 [StrategyCubit] Uploading ${imageUploads.length} images...');
 
-          if (entry.key.contains('navLabel/icon')) {
+        for (final entry in imageUploads.entries) {
+          final path = entry.key;
+          final bytes = entry.value;
+
+          print('  - Uploading: $path');
+          final url = await _repo.uploadImage(
+              bytes: bytes, storagePath: path);
+          print('  - Uploaded to: $url');
+
+          // Update the model with the new URL based on the path
+          if (path.contains('navLabel/icon')) {
             updated = updated.copyWith(
                 navigationLabel:
                 updated.navigationLabel.copyWith(iconUrl: url));
-          } else if (entry.key.contains('vision/svg')) {
+            print('  ✓ Updated navLabel icon URL');
+          }
+          else if (path.contains('strategicHouse/en')) {
+            updated = updated.copyWith(strategicHouseEnUrl: url);
+            print('  ✓ Updated strategicHouse EN URL');
+          }
+          else if (path.contains('strategicHouse/ar')) {
+            updated = updated.copyWith(strategicHouseArUrl: url);
+            print('  ✓ Updated strategicHouse AR URL');
+          }
+          else if (path.contains('vision/svg')) {
             updated = updated.copyWith(
                 vision: updated.vision.copyWith(svgUrl: url));
+            print('  ✓ Updated vision SVG URL');
           }
         }
       }
+
+      print('🔵 [StrategyCubit] Saving to Firestore...');
+      print('  - Final Strategic House EN URL: ${updated.strategicHouseEnUrl}');
+      print('  - Final Strategic House AR URL: ${updated.strategicHouseArUrl}');
 
       await _repo.saveStrategy(updated);
       print('🟢 [StrategyCubit] save OK');
@@ -169,12 +205,15 @@ class TermsCubit extends Cubit<TermsState> {
     }
   }
 
+// In about_cubit.dart - TermsCubit save method
   Future<void> save({
     required TermsOfServiceModel model,
     Map<String, Uint8List>?      imageUploads,
-    Map<String, DocUpload>?      docUploads,  // PUBLIC type from about_us.dart
+    Map<String, DocUpload>?      docUploads,
   }) async {
     print('🟡 [TermsCubit] save()');
+    safeEmit(TermsSaving());  // ← ADD THIS LINE
+
     try {
       var updated = model;
 

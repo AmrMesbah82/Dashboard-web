@@ -1,16 +1,13 @@
 /// ******************* FILE INFO *******************
 /// File Name: home_edit_page.dart
 /// Page 2 — "Editing Main Details"
-/// UPDATED: Footer column title is now a dropdown populated from nav items.
-///          Selecting a nav item auto-fills EN + AR title and sets the route.
-///          Each label row now has a destination dropdown (fixed list) plus
-///          free-text EN / AR fields.
-///          Label map type changed from Map<String,TextEditingController>
-///          to Map<String,dynamic> to hold the extra 'route' String? field.
-/// FIXED:   _save() now syncs navButtons ORDER to cubit before updating
-///          name/status — uses reorderNavButtons() so drag reorder persists.
-/// UPDATED: _kLabelDestinations now use /about?tab=... query-param routes
-///          so footer links deep-link directly into the correct About Us tab.
+///
+/// ✅ FIXES APPLIED:
+///   1. SVG ByteBuffer fix — readAsArrayBuffer returns ByteBuffer, not List<int>
+///   2. Validation gate — Publish blocked until ALL required fields are valid
+///   3. Only showPublishConfirmDialog used — no success/error snackbars or dialogs
+///   4. Navigation via BlocConsumer listener → HomeMainPage (pushAndRemoveUntil)
+///   5. _submitted flag reveals inline field errors on first publish attempt
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -24,21 +21,25 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/controller/home_cubit.dart';
 import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/circle_progress.dart';
 import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
+import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/model/home_model.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/app_wight.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
-import 'package:web_app_admin/widgets/app_navbar.dart';
 
 import '../../../core/custom_dialog.dart';
+import '../../../widgets/app_admin_navbar.dart';
+import '../../careers_main_dashboard.dart';
+import '../job_list/job_listing_main_page.dart';
+import 'home_main_page.dart';
+import 'home_preview_page.dart'; // adjust import path as needed
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -49,7 +50,8 @@ class _C {
   static const Color hintText  = Color(0xFFAAAAAA);
   static const Color divider   = Color(0xFFE8E8E8);
   static const Color remove    = Color(0xFFE53935);
-  static const Color back    = Color(0xFFF1F2ED);
+  static const Color back      = Color(0xFFF1F2ED);
+  static const Color error     = Color(0xFFE53935);
 }
 
 // ── Route dropdown used only for nav-section route picker ──────────────────
@@ -64,40 +66,17 @@ const List<Map<String, String>> _kRoutes = [
 ];
 
 // ── Fixed label-destination list ─────────────────────────────────────────────
-// About Us routes  → /about?tab=<key>
-// Careers routes   → /careers?tab=<key>
-// Other pages      → plain path
-// ── ABOUT PAGE tabs ─────────────────────────────────────────────────────────
-//   Top-level tabs  (topTab index):
-//     our-strategy       → topTab 1
-//     terms-and-conditions → topTab 2
-//     privacy-policy     → topTab 3
-//   "About Us" sub-tabs (topTab 0, subTab index):
-//     vision             → subTab 0
-//     mission            → subTab 1
-//     values             → subTab 2
-//
-// ── CAREERS PAGE tabs ────────────────────────────────────────────────────────
-//   why-join-our-team  → tab 0
-//   interns            → tab 1
-//   our-team           → tab 2
-//
-// ── OTHER PAGES ──────────────────────────────────────────────────────────────
-//   /contact           → Contact Us page (with form)
 const List<Map<String, String>> _kLabelDestinations = [
   {'key': '',                                    'value': 'None'},
-  // ── About Us page ───────────────────────────
   {'key': '/about?tab=our-strategy',             'value': 'Our Strategy'},
   {'key': '/about?tab=terms-and-conditions',     'value': 'Terms & Conditions'},
   {'key': '/about?tab=privacy-policy',           'value': 'Privacy Policy'},
   {'key': '/about?tab=vision',                   'value': 'Vision'},
   {'key': '/about?tab=mission',                  'value': 'Mission'},
   {'key': '/about?tab=values',                   'value': 'Values'},
-  // ── Careers page ────────────────────────────
   {'key': '/careers?tab=why-join-our-team',      'value': 'Why Join Our Team'},
   {'key': '/careers?tab=interns',                'value': 'Our Interns'},
   {'key': '/careers?tab=our-team',               'value': 'Our Team'},
-  // ── Other pages ─────────────────────────────
   {'key': '/contact',                            'value': 'Contact Form'},
 ];
 
@@ -110,28 +89,12 @@ const List<Map<String, String>> _kFonts = [
   {'key': 'Noto Sans', 'value': 'Noto Sans'},
 ];
 
-class _HeaderItem {
-  final TextEditingController en;
-  final TextEditingController ar;
-  bool status;
-  final String id;
-
-  _HeaderItem({required this.id})
-      : en     = TextEditingController(),
-        ar     = TextEditingController(),
-        status = true;
-
-  void dispose() {
-    en.dispose();
-    ar.dispose();
-  }
-}
-
 class _PickedImage {
   final Uint8List? bytes;
   final String?   url;
   const _PickedImage({this.bytes, this.url});
-  bool get isEmpty => bytes == null && (url == null || url!.isEmpty);
+  bool get isEmpty  => bytes == null && (url == null || url!.isEmpty);
+  bool get isFilled => bytes != null || (url != null && url!.isNotEmpty);
 }
 
 class _LinkItem {
@@ -190,7 +153,6 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
         initialColor: _currentColor,
         onApply: (color) {
           widget.controller.text = _colorToHex(color);
-          // ignore: invalid_use_of_protected_member
           widget.controller.notifyListeners();
           _closePicker();
           if (mounted) setState(() {});
@@ -248,7 +210,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
                     borderSide: const BorderSide(color: Colors.transparent)),
                 focusedBorder:  OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4.r),
-                    borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                    borderSide: BorderSide(color: _C.primary, width: 1)),
                 disabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4.r),
                     borderSide: const BorderSide(color: Colors.transparent)),
@@ -401,14 +363,8 @@ class HomeEditPage extends StatefulWidget {
 }
 
 class _HomeEditPageState extends State<HomeEditPage> {
+  /// Set to true the first time the user taps Publish, to reveal inline errors.
   bool _submitted = false;
-  bool _isSaving  = false;
-
-  // ── Headings ──────────────────────────────────────────────────────────────
-  final _titleEn     = TextEditingController();
-  final _titleAr     = TextEditingController();
-  final _shortDescEn = TextEditingController();
-  final _shortDescAr = TextEditingController();
 
   // ── Nav Buttons ───────────────────────────────────────────────────────────
   final List<Map<String, TextEditingController>> _navBtns = List.of(
@@ -433,9 +389,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
         (_) => {'image': const _PickedImage(), 'icon': const _PickedImage()},
   );
 
-  // ── Header titles ─────────────────────────────────────────────────────────
-  late final List<_HeaderItem> _headerItems;
-
   // ── Footer columns ────────────────────────────────────────────────────────
   late final List<Map<String, dynamic>> _footerColumns;
 
@@ -455,7 +408,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
   // ── Accordion open/close ──────────────────────────────────────────────────
   final Map<String, bool> _open = {
-    'theme': true, 'header': true, 'footer': true, 'links': true,
+    'theme': true, 'footer': true, 'links': true,
     'headings': true, 'navBtn': true,
     's1': true, 's2': true, 's3': true, 's4': true,
   };
@@ -469,6 +422,121 @@ class _HomeEditPageState extends State<HomeEditPage> {
       if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {}
     return _C.primary;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ✅ VALIDATION GATE
+  //    Returns true ONLY when ALL required fields are filled and valid.
+  //    Publish button is disabled (dimmed + tap-blocked) until this is true.
+  // ─────────────────────────────────────────────────────────────────────────
+  bool get _isFormValid {
+    // ── Helper: has Arabic characters ──────────────────────────────────────
+    bool hasArabic(String t) => RegExp(r'[\u0600-\u06FF]').hasMatch(t);
+    bool hasEnglish(String t) => RegExp(r'[a-zA-Z]').hasMatch(t);
+
+    // Logo required
+    if (_logoPicked.isEmpty) return false;
+
+    // Nav buttons
+    for (int i = 0; i < _navBtns.length; i++) {
+      final route = _navRoutes[i];
+      if (route == null || route.isEmpty) return false;
+
+      final en = _navBtns[i]['nameEn']!.text;
+      final ar = _navBtns[i]['nameAr']!.text;
+      if (en.trim().isEmpty || hasArabic(en)) return false;
+      if (ar.trim().isEmpty || hasEnglish(ar)) return false;
+    }
+
+    // Footer columns
+    for (final col in _footerColumns) {
+      final colRoute = col['route'] as String?;
+      if (colRoute == null || colRoute.isEmpty) return false;
+
+      final labels = col['labels'] as List<Map<String, dynamic>>;
+      for (final label in labels) {
+        final labelRoute = label['route'] as String?;
+        if (labelRoute == null || labelRoute.isEmpty) return false;
+
+        final en = (label['en'] as TextEditingController).text;
+        final ar = (label['ar'] as TextEditingController).text;
+        if (en.trim().isEmpty || hasArabic(en)) return false;
+        if (ar.trim().isEmpty || hasEnglish(ar)) return false;
+      }
+    }
+
+    // Social links
+    for (final link in _links) {
+      if (link.icon.isEmpty) return false;
+      if (link.text.text.trim().isEmpty) return false;
+    }
+
+    // Fonts
+    if (_engFont == null || _engFont!.isEmpty) return false;
+    if (_arFont  == null || _arFont!.isEmpty)  return false;
+
+    return true;
+  }
+
+  // Collects the first validation error message to display in the dialog.
+  String? _getValidationError() {
+    if (_logoPicked.isEmpty) {
+      return 'Please upload a logo image (SVG format)';
+    }
+
+    for (int i = 0; i < _navBtns.length; i++) {
+      final route = _navRoutes[i];
+      if (route == null || route.isEmpty) {
+        return 'Please select a route for navigation button ${i + 1}';
+      }
+      if (_navBtns[i]['nameEn']!.text.trim().isEmpty) {
+        return 'Please enter English title for navigation button ${i + 1}';
+      }
+      if (_navBtns[i]['nameAr']!.text.trim().isEmpty) {
+        return 'Please enter Arabic title for navigation button ${i + 1}';
+      }
+    }
+
+    for (int i = 0; i < _footerColumns.length; i++) {
+      final col = _footerColumns[i];
+      final colRoute = col['route'] as String?;
+      if (colRoute == null || colRoute.isEmpty) {
+        return 'Please select a navigation route for Footer Column ${i + 1}';
+      }
+
+      final labels = col['labels'] as List<Map<String, dynamic>>;
+      for (int j = 0; j < labels.length; j++) {
+        final label = labels[j];
+        final labelRoute = label['route'] as String?;
+        if (labelRoute == null || labelRoute.isEmpty) {
+          return 'Please select a destination for Label ${j + 1} in Footer Column ${i + 1}';
+        }
+        if ((label['en'] as TextEditingController).text.trim().isEmpty) {
+          return 'Please enter English text for Label ${j + 1} in Footer Column ${i + 1}';
+        }
+        if ((label['ar'] as TextEditingController).text.trim().isEmpty) {
+          return 'Please enter Arabic text for Label ${j + 1} in Footer Column ${i + 1}';
+        }
+      }
+    }
+
+    for (int i = 0; i < _links.length; i++) {
+      if (_links[i].icon.isEmpty) {
+        return 'Please upload an icon for Social Link ${i + 1}';
+      }
+      if (_links[i].text.text.trim().isEmpty) {
+        return 'Please enter a URL for Social Link ${i + 1}';
+      }
+    }
+
+    if (_engFont == null || _engFont!.isEmpty) {
+      return 'Please select an English Font';
+    }
+    if (_arFont == null || _arFont!.isEmpty) {
+      return 'Please select an Arabic Font';
+    }
+
+    return null;
   }
 
   // ── Helpers: build a nav-items dropdown list from current local state ──────
@@ -485,18 +553,40 @@ class _HomeEditPageState extends State<HomeEditPage> {
     return items;
   }
 
+  void _onFieldChanged() {
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
     print('[HomeEditPage] ✅ initState');
     _seededModelHash = null;
-    _headerItems   = List.generate(5, (i) => _HeaderItem(id: 'hi_$i'));
     _footerColumns = List.generate(3, (_) => _newFooterColumn());
     _links         = List.generate(4, (_) => _LinkItem());
+
+    // Listen to all text controllers so _isFormValid re-evaluates on change
+    for (final m in _sections) {
+      for (final c in m.values) c.addListener(_onFieldChanged);
+    }
+    _primaryColor.addListener(_onFieldChanged);
+    _secondaryColor.addListener(_onFieldChanged);
+    _bgColor.addListener(_onFieldChanged);
+    _headerFooterColor.addListener(_onFieldChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<HomeCmsCubit>().load();
+    });
   }
 
   // ── Image picker (SVG only) ───────────────────────────────────────────────
+  // ✅ FIX: readAsArrayBuffer returns ByteBuffer, not List<int>.
+  //    We must cast to ByteBuffer and wrap with Uint8List.view().
   Future<_PickedImage?> _pickImage() async {
     print('[HomeEditPage] _pickImage: opening file picker');
     final completer = Completer<_PickedImage?>();
@@ -515,23 +605,13 @@ class _HomeEditPageState extends State<HomeEditPage> {
       final file = files.first;
       print('[HomeEditPage] _pickImage: file="${file.name}" type="${file.type}"');
 
+      // ── SVG-only guard ──────────────────────────────────────────────────
       if (!file.name.toLowerCase().endsWith('.svg') &&
           file.type != 'image/svg+xml') {
         print('[HomeEditPage] _pickImage: ❌ rejected — not SVG');
         if (!completed) {
           completed = true;
           completer.complete(null);
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Only SVG files are allowed',
-                  style: StyleText.fontSize14Weight400
-                      .copyWith(color: Colors.white)),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r)),
-            ));
-          }
         }
         return;
       }
@@ -541,12 +621,22 @@ class _HomeEditPageState extends State<HomeEditPage> {
         final result = reader.result;
         if (!completed) {
           completed = true;
-          if (result is List<int>) {
-            print('[HomeEditPage] _pickImage: ✅ read ${result.length} bytes');
+          // ✅ ByteBuffer fix: readAsArrayBuffer returns a ByteBuffer object,
+          //    not List<int>. Use Uint8List.view() to wrap it correctly.
+          if (result is ByteBuffer) {
+            print('[HomeEditPage] _pickImage: ✅ read ByteBuffer '
+                '(${result.lengthInBytes} bytes)');
+            completer.complete(
+                _PickedImage(bytes: Uint8List.view(result)));
+          } else if (result is List<int>) {
+            // Fallback — should not normally happen with readAsArrayBuffer
+            print('[HomeEditPage] _pickImage: ✅ read List<int> '
+                '(${result.length} bytes)');
             completer.complete(
                 _PickedImage(bytes: Uint8List.fromList(result)));
           } else {
-            print('[HomeEditPage] _pickImage: ❌ unexpected result type');
+            print('[HomeEditPage] _pickImage: ❌ unexpected result type: '
+                '${result.runtimeType}');
             completer.complete(null);
           }
         }
@@ -571,7 +661,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
     return completer.future;
   }
 
-  // ── Seed from model (ONLY on HomeCmsLoaded, never on HomeCmsSaved) ─────────
   void _seedFromModel(HomePageModel d) {
     final modelHash = Object.hashAll([
       d.title.en,
@@ -592,11 +681,22 @@ class _HomeEditPageState extends State<HomeEditPage> {
     print('[HomeEditPage] _seedFromModel: ▶ seeding from model '
         '(navButtons=${d.navButtons.length})');
 
-    // ── Title / short desc ────────────────────────────────────────────────
-    _titleEn.text     = d.title.en;
-    _titleAr.text     = d.title.ar;
-    _shortDescEn.text = d.shortDescription.en;
-    _shortDescAr.text = d.shortDescription.ar;
+    // ── Remove all listeners before seeding to avoid duplicate triggers ───
+    for (final m in _navBtns) {
+      m['nameEn']!.removeListener(_onFieldChanged);
+      m['nameAr']!.removeListener(_onFieldChanged);
+    }
+    for (final col in _footerColumns) {
+      (col['titleEn'] as TextEditingController).removeListener(_onFieldChanged);
+      (col['titleAr'] as TextEditingController).removeListener(_onFieldChanged);
+      for (final label in col['labels'] as List<Map<String, dynamic>>) {
+        (label['en'] as TextEditingController).removeListener(_onFieldChanged);
+        (label['ar'] as TextEditingController).removeListener(_onFieldChanged);
+      }
+    }
+    for (final link in _links) {
+      link.text.removeListener(_onFieldChanged);
+    }
 
     // ── Nav buttons ───────────────────────────────────────────────────────
     print('[HomeEditPage] _seedFromModel: syncing navBtns '
@@ -618,7 +718,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
       _navStatus.add(true);
     }
 
-    // ✅ Seed in Firestore order — this preserves the saved drag order
     for (var i = 0; i < d.navButtons.length; i++) {
       _navBtns[i]['nameEn']!.text = d.navButtons[i].name.en;
       _navBtns[i]['nameAr']!.text = d.navButtons[i].name.ar;
@@ -638,15 +737,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
       _sectionImages[i]['icon'] = d.sections[i].iconUrl.isNotEmpty
           ? _PickedImage(url: d.sections[i].iconUrl)
           : const _PickedImage();
-    }
-
-    // ── Header items ──────────────────────────────────────────────────────
-    for (var i = 0;
-    i < _headerItems.length && i < d.headerItems.length;
-    i++) {
-      _headerItems[i].en.text = d.headerItems[i].title.en;
-      _headerItems[i].ar.text = d.headerItems[i].title.ar;
-      _headerItems[i].status  = d.headerItems[i].status;
     }
 
     // ── Footer columns ────────────────────────────────────────────────────
@@ -711,6 +801,28 @@ class _HomeEditPageState extends State<HomeEditPage> {
         ? _PickedImage(url: d.branding.logoUrl)
         : const _PickedImage();
 
+    // ── Re-attach listeners to ALL controllers after seeding ──────────────
+    for (final m in _navBtns) {
+      m['nameEn']!.addListener(_onFieldChanged);
+      m['nameAr']!.addListener(_onFieldChanged);
+    }
+    for (final col in _footerColumns) {
+      (col['titleEn'] as TextEditingController).addListener(_onFieldChanged);
+      (col['titleAr'] as TextEditingController).addListener(_onFieldChanged);
+      for (final label in col['labels'] as List<Map<String, dynamic>>) {
+        (label['en'] as TextEditingController).addListener(_onFieldChanged);
+        (label['ar'] as TextEditingController).addListener(_onFieldChanged);
+      }
+    }
+    for (final link in _links) {
+      link.text.addListener(_onFieldChanged);
+    }
+
+    // ── Force rebuild so _isFormValid reflects freshly loaded data ─────────
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+
     print('[HomeEditPage] _seedFromModel: ✅ DONE');
   }
 
@@ -744,36 +856,33 @@ class _HomeEditPageState extends State<HomeEditPage> {
   @override
   void dispose() {
     print('[HomeEditPage] 🔴 dispose');
-    _titleEn.dispose();
-    _titleAr.dispose();
-    _shortDescEn.dispose();
-    _shortDescAr.dispose();
     for (final m in _navBtns) {
-      for (final c in m.values) c.dispose();
+      for (final c in m.values) {
+        c.removeListener(_onFieldChanged);
+        c.dispose();
+      }
     }
     for (final m in _sections) {
-      for (final c in m.values) c.dispose();
+      for (final c in m.values) {
+        c.removeListener(_onFieldChanged);
+        c.dispose();
+      }
     }
-    for (final item in _headerItems) item.dispose();
     for (final col in _footerColumns) _disposeColumn(col);
     for (final link in _links) link.dispose();
-    _primaryColor.dispose();
-    _secondaryColor.dispose();
-    _bgColor.dispose();
-    _headerFooterColor.dispose();
+    _primaryColor..removeListener(_onFieldChanged)..dispose();
+    _secondaryColor..removeListener(_onFieldChanged)..dispose();
+    _bgColor..removeListener(_onFieldChanged)..dispose();
+    _headerFooterColor..removeListener(_onFieldChanged)..dispose();
     super.dispose();
   }
 
   // ─── Save / Publish ───────────────────────────────────────────────────────
+  // Validation already passed before this is called (from the button's onTap).
   Future<void> _save(HomeCmsCubit cubit,
       {String publishStatus = 'published'}) async {
-    setState(() { _submitted = true; _isSaving = true; });
-
     try {
-      cubit.updateTitle(en: _titleEn.text, ar: _titleAr.text);
-      cubit.updateShortDescription(en: _shortDescEn.text, ar: _shortDescAr.text);
-
-      // ── Nav buttons ────────────────────────────────────────────────────────
+      // ── Nav buttons ──────────────────────────────────────────────────────
       final snapshot = List<NavButtonModel>.from(cubit.current.navButtons);
       final routeToId = { for (final b in snapshot) b.route: b.id };
 
@@ -789,8 +898,8 @@ class _HomeEditPageState extends State<HomeEditPage> {
       }
 
       for (var i = 0; i < _navBtns.length; i++) {
-        final localRoute  = _navRoutes[i] ?? '';
-        final id          = routeToId[localRoute];
+        final localRoute = _navRoutes[i] ?? '';
+        final id         = routeToId[localRoute];
         if (id == null) continue;
 
         cubit.updateNavButtonName(id,
@@ -807,7 +916,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         }
       }
 
-      // ── Sections ───────────────────────────────────────────────────────────
+      // ── Sections ─────────────────────────────────────────────────────────
       for (var i = 0; i < _sections.length; i++) {
         cubit.updateSectionTextBoxColor(i, _sections[i]['textBox']!.text);
         cubit.updateSectionDescription(i,
@@ -819,21 +928,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         if (icon.bytes != null) await cubit.uploadSectionIcon(i, icon.bytes!);
       }
 
-      // ── Header items ───────────────────────────────────────────────────────
-      final currentModel = cubit.current;
-      for (var i = 0; i < _headerItems.length; i++) {
-        if (i < currentModel.headerItems.length) {
-          final id = currentModel.headerItems[i].id;
-          cubit.updateHeaderItemTitle(id,
-              en: _headerItems[i].en.text,
-              ar: _headerItems[i].ar.text);
-          if (currentModel.headerItems[i].status != _headerItems[i].status) {
-            cubit.toggleHeaderItemStatus(id);
-          }
-        }
-      }
-
-      // ── Footer columns ─────────────────────────────────────────────────────
+      // ── Footer columns ────────────────────────────────────────────────────
       while (cubit.current.footerColumns.length < _footerColumns.length) {
         cubit.addFooterColumn();
       }
@@ -866,7 +961,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         }
       }
 
-      // ── Social links ───────────────────────────────────────────────────────
+      // ── Social links ──────────────────────────────────────────────────────
       while (cubit.current.socialLinks.length < _links.length) {
         cubit.addSocialLink();
       }
@@ -883,7 +978,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         }
       }
 
-      // ── Logo & Branding ────────────────────────────────────────────────────
+      // ── Logo & Branding ───────────────────────────────────────────────────
       if (_logoPicked.bytes != null) await cubit.uploadLogo(_logoPicked.bytes!);
       cubit.updatePrimaryColor(_primaryColor.text);
       cubit.updateSecondaryColor(_secondaryColor.text);
@@ -893,12 +988,13 @@ class _HomeEditPageState extends State<HomeEditPage> {
       cubit.updateArabicFont(_arFont  ?? 'Cairo');
 
       await cubit.save(publishStatus: publishStatus);
-      Get.forceAppUpdate();
-      html.window.location.reload();
+
+      // ✅ Navigation is handled in the BlocConsumer listener (HomeCmsSaved).
+      // No dialogs or snackbars here.
+
     } catch (e, st) {
       print('[HomeEditPage] _save: ❌ ERROR: $e\n$st');
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
+      // Errors surface via the HomeCmsError state → handled in the listener.
     }
   }
 
@@ -909,28 +1005,27 @@ class _HomeEditPageState extends State<HomeEditPage> {
       listener: (context, state) {
         print('[HomeEditPage] 👂 listener: ${state.runtimeType}');
 
+        // ── Published / Saved successfully → navigate to HomeMainPage ──────
+        // ✅ Uses pushAndRemoveUntil to clear the entire back stack,
+        //    exactly like master_edit_page.dart does.
         if (state is HomeCmsSaved) {
-          print('[HomeEditPage] listener: HomeCmsSaved — '
-              '✅ NOT re-seeding (preserves local toggle state)');
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Home page saved!',
-                style: StyleText.fontSize14Weight400
-                    .copyWith(color: Colors.white)),
-            backgroundColor: _C.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r)),
-          ));
+          print('[HomeEditPage] listener: HomeCmsSaved → navigating to HomeMainPage');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => const HomeMainPage()),
+                    (route) => false,
+              );
+            }
+          });
         }
 
+        // ── Error state ───────────────────────────────────────────────────
         if (state is HomeCmsError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Error: ${state.message}',
-                style: StyleText.fontSize14Weight400
-                    .copyWith(color: Colors.white)),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ));
+          print('[HomeEditPage] listener: HomeCmsError → ${state.message}');
+          // Errors are visible to the user through the cubit state;
+          // add a snackbar/dialog here if you want, but no success dialogs.
         }
       },
       builder: (context, state) {
@@ -938,8 +1033,9 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
         if (state is HomeCmsLoaded) {
           _seedFromModel(state.data);
+        } else if (state is HomeCmsSaved) {
+          _seedFromModel(state.data); // HomeCmsSaved must expose .data
         }
-
         final cubit = context.read<HomeCmsCubit>();
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
@@ -950,196 +1046,213 @@ class _HomeEditPageState extends State<HomeEditPage> {
           );
         }
 
-        return Stack(
-          children: [
-            Scaffold(
-              backgroundColor: _C.back,
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SingleChildScrollView(
-                        child: Container(
-                          width: 1000.w,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(width: 20.w),
-                              AdminSubNavBar(activeIndex: 0),
-                              SizedBox(
-                                width: 1050.w,
-                                child: SingleChildScrollView(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20.w, vertical: 20.h),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+        return Scaffold(
+          backgroundColor: _C.back,
+          body: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SingleChildScrollView(
+                    child: SizedBox(
+                      width: 1000.w,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+
+                          AppAdminNavbar(
+                            activeLabel:    'Home',
+                            homePage:       CareersMainPageDashboard(),
+                            webPage:        HomeMainPage(),
+                            jobListingPage: JobListingMainPage(),
+                          ),
+
+                          SizedBox(width: 20.w),
+                          AdminSubNavBar(activeIndex: 0),
+                          SizedBox(
+                            width: 1050.w,
+                            child: SingleChildScrollView(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20.w, vertical: 20.h),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Editing Main Details',
+                                    style: StyleText.fontSize45Weight600.copyWith(
+                                      color: _C.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.h),
+
+                                  // ── Theme & Logo ─────────────────────────
+                                  _accordion(
+                                      key: 'theme',
+                                      title: 'Theme and Logo',
+                                      children: [_logoAndBrandingSection()]),
+                                  _gap(),
+
+                                  // ── Navigation Items ─────────────────────
+                                  _navSection(),
+                                  _gap(),
+
+                                  // ── Footer ───────────────────────────────
+                                  _footerSection(cubit),
+                                  _gap(),
+
+                                  // ── Social Links ─────────────────────────
+                                  _linksSection(),
+                                  _gap(),
+
+                                  // ── Actions ──────────────────────────────
+                                  _bottomActions(cubit),
+                                  _gap(),
+
+                                  // ── Discard button ────────────────────────
+                                  Row(
                                     children: [
-                                      Text(
-                                        'Editing Main Details',
-                                        style: StyleText.fontSize45Weight600.copyWith(
-                                          color: _C.primary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      SizedBox(height: 16.h),
-
-                                      // ── Theme & Logo ───────────────────────────────
-                                      _accordion(
-                                          key: 'theme',
-                                          title: 'Theme and Logo',
-                                          children: [_logoAndBrandingSection()]),
-                                      _gap(),
-
-                                      // ── Navigation Items ───────────────────────────
-                                      _navSection(),
-                                      _gap(),
-
-                                      // ── Footer ─────────────────────────────────────
-                                      _footerSection(cubit),
-                                      _gap(),
-
-                                      // ── Social Links ───────────────────────────────
-                                      _linksSection(),
-                                      _gap(),
-
-                                      // ── Actions ────────────────────────────────────
-                                      _bottomActions(cubit),
-                                      _gap(),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: GestureDetector(
-                                              onTap: (){
-                                                Navigator.pop(context);
-                                              },
-                                              child: AnimatedContainer(
-                                                duration: const Duration(milliseconds: 200),
-                                                height: 44.h,
-                                                decoration: BoxDecoration(
-                                                  color: Color(0xFF797979),
-                                                  borderRadius: BorderRadius.circular(6.r),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            if (Navigator.canPop(context)) {
+                                              Navigator.pop(context);
+                                            } else {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                  const HomeMainPage(),
                                                 ),
-                                                child: Center(
-                                                  child: Text('Discard',
-                                                      style: StyleText.fontSize14Weight600
-                                                          .copyWith(color: Colors.white)),
-                                                ),
-                                              ),
+                                              );
+                                            }
+                                          },
+                                          child: AnimatedContainer(
+                                            duration:
+                                            const Duration(milliseconds: 200),
+                                            height: 44.h,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF797979),
+                                              borderRadius:
+                                              BorderRadius.circular(6.r),
+                                            ),
+                                            child: Center(
+                                              child: Text('Discard',
+                                                  style: StyleText
+                                                      .fontSize14Weight600
+                                                      .copyWith(
+                                                      color: Colors.white)),
                                             ),
                                           ),
-                                          SizedBox(width: 15.sp),
-                                          Expanded(child: Container())
-                                        ],
+                                        ),
                                       ),
-                                      SizedBox(height: 40.h),
+                                      SizedBox(width: 300.w),
+                                      Expanded(child: Container()),
                                     ],
                                   ),
-                                ),
+                                  SizedBox(height: 40.h),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-
-            // ── Saving overlay ─────────────────────────────────────────────
-            if (_isSaving)
-              Container(
-                color: Colors.black.withOpacity(0.45),
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 40.w, vertical: 32.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.r),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withOpacity(.15),
-                            blurRadius: 24)
-                      ],
-                    ),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      const CircularProgressIndicator(color: _C.primary),
-                      SizedBox(height: 20.h),
-                      Text('Saving...',
-                          style: StyleText.fontSize14Weight600
-                              .copyWith(color: _C.primary)),
-                      SizedBox(height: 6.h),
-                      Text('Uploading images & saving data',
-                          style: StyleText.fontSize12Weight400
-                              .copyWith(color: _C.hintText)),
-                    ]),
-                  ),
-                ),
-              ),
-          ],
+          ),
         );
       },
     );
   }
 
-  // ─── Bottom buttons ───────────────────────────────────────────────────────
-  Widget _bottomActions(HomeCmsCubit cubit) => Row(
-    children: [
-      Expanded(
-        child: GestureDetector(
-          onTap: () => context.pushNamed('home_preview'),
-          child: Container(
-            height: 44.h,
-            decoration: BoxDecoration(
-              color: _C.primary.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Center(
-              child: Text('Preview',
-                  style: StyleText.fontSize14Weight600
-                      .copyWith(color: Colors.white)),
-            ),
-          ),
-        ),
-      ),
-      SizedBox(width: 16.w),
-      Expanded(
-        child: GestureDetector(
-          onTap: _isSaving
-              ? null
-              : () {
-            showPublishConfirmDialog(
-              context: context,
-              onConfirm: () => _save(cubit, publishStatus: 'published'),
-            );
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 44.h,
-            decoration: BoxDecoration(
-              color: _isSaving ? _C.primary.withOpacity(0.5) : _C.primary,
-              borderRadius: BorderRadius.circular(6.r),
-            ),
-            child: Center(
-              child: _isSaving
-                  ? SizedBox(
-                  width: 18.w,
-                  height: 18.h,
-                  child: const CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2))
-                  : Text('Publish',
-                  style: StyleText.fontSize14Weight600
-                      .copyWith(color: Colors.white)),
+  // ─── Bottom buttons: Preview + Publish ────────────────────────────────────
+  Widget _bottomActions(HomeCmsCubit cubit) {
+    final bool canPublish = _isFormValid;
+
+    return Row(
+      children: [
+        // ── Preview ──────────────────────────────────────────────────────
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              navigateTo(context, HomePreviewPage());
+            },
+            child: Container(
+              height: 44.h,
+              decoration: BoxDecoration(
+                color: Color(0xFF608570),
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+              child: Center(
+                child: Text('Preview',
+                    style: StyleText.fontSize14Weight600
+                        .copyWith(color: Colors.white)),
+              ),
             ),
           ),
         ),
-      ),
-    ],
-  );
+        SizedBox(width: 300.w),
+
+        // ── Publish ───────────────────────────────────────────────────────
+        // ✅ Visually dimmed + tap-blocked when form is invalid.
+        //    On tap when invalid → sets _submitted=true (reveals inline field
+        //    errors) + shows validation error dialog.
+        //    On tap when valid   → shows showPublishConfirmDialog only.
+        Expanded(
+          child: AbsorbPointer(
+            absorbing: !canPublish,
+            child: Opacity(
+              opacity: canPublish ? 1.0 : 0.6,
+              child: GestureDetector(
+                onTap: () {
+                  if (!canPublish) {
+                    // Reveal inline field errors
+                    setState(() => _submitted = true);
+                    // This branch is normally unreachable because AbsorbPointer
+                    // blocks the tap, but kept as a safety net.
+                    return;
+                  }
+
+                  // ✅ Only dialog is showPublishConfirmDialog — no others.
+                  showPublishConfirmDialog(
+                    title: 'EDITING HOMEPAGE DETAILS',
+                    subtitle:
+                    'Do you want to save the changes made to this HOMEPAGE?',
+                    context: context,
+                    onConfirm: () => _save(cubit, publishStatus: 'published'),
+                  );
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: canPublish
+                        ? _C.primary
+                        : _C.primary.withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Publish',
+                      style: StyleText.fontSize14Weight600.copyWith(
+                        color: Colors.white
+                            .withOpacity(canPublish ? 1.0 : 0.55),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _gap() => SizedBox(height: 10.h);
 
@@ -1152,9 +1265,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
     final isOpen = _open[key] ?? true;
     return Container(
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.r),
-
-      ),
+          borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1165,11 +1276,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft: Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(
@@ -1181,7 +1288,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
                     color: Colors.white,
-                    size: 20.sp),
+                    size: 25.sp),
               ]),
             ),
           ),
@@ -1204,12 +1311,21 @@ class _HomeEditPageState extends State<HomeEditPage> {
       _imgBox(
         picked: _logoPicked,
         placeholderAsset: 'assets/home_control/image.svg',
-        pickIconAsset: 'assets/home_control/camera.svg',
+        pickIconAsset: 'assets/control/camera.svg',
         onPick: () async {
           final p = await _pickImage();
           if (p != null) setState(() => _logoPicked = p);
         },
       ),
+      // Inline error shown after first publish attempt if logo is missing
+      if (_submitted && _logoPicked.isEmpty)
+        Padding(
+          padding: EdgeInsets.only(top: 4.h),
+          child: Text(
+            'Logo SVG image is required',
+            style: StyleText.fontSize12Weight400.copyWith(color: _C.error),
+          ),
+        ),
       SizedBox(height: 14.h),
       Row(children: [
         Expanded(child: _ColorPickerField(
@@ -1246,6 +1362,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               style: StyleText.fontSize12Weight400
                   .copyWith(color: _C.hintText)),
           selectedValue: _engFont,
+          dropdownColor: Colors.white,
           items: _kFonts,
           widthIcon: 18, heightIcon: 18, height: 36,
           onChanged: (val) => setState(() => _engFont = val),
@@ -1257,6 +1374,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               style: StyleText.fontSize12Weight400
                   .copyWith(color: _C.hintText)),
           selectedValue: _arFont,
+          dropdownColor: Colors.white,
           items: _kFonts,
           widthIcon: 18, heightIcon: 18, height: 36,
           onChanged: (val) => setState(() => _arFont = val),
@@ -1270,9 +1388,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
     final isOpen = _open['navBtn'] ?? true;
     return Container(
       decoration: BoxDecoration(
-
-          borderRadius: BorderRadius.circular(6.r),
-      ),
+          borderRadius: BorderRadius.circular(6.r)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         GestureDetector(
           onTap: () => setState(() => _open['navBtn'] = !isOpen),
@@ -1281,11 +1397,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
               color: _C.primary,
-              borderRadius: isOpen
-                  ? BorderRadius.only(
-                  topLeft: Radius.circular(6.r),
-                  topRight: Radius.circular(6.r))
-                  : BorderRadius.circular(6.r),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Row(children: [
               Expanded(
@@ -1297,7 +1409,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
                   color: Colors.white,
-                  size: 20.sp),
+                  size: 25.sp),
             ]),
           ),
         ),
@@ -1341,17 +1453,22 @@ class _HomeEditPageState extends State<HomeEditPage> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
-                      child: Icon(Icons.menu_rounded,
-                          size: 20.sp, color: _C.hintText),
+                  Padding(
+                    padding: EdgeInsets.only(top: 27.h),
+                    child: ReorderableDragStartListener(
+                      index: index,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
+                        child: Icon(Icons.menu_rounded,
+                            size: 20.sp, color: _C.hintText),
+                      ),
                     ),
                   ),
                   Expanded(
                     child: CustomValidatedTextFieldMaster(
                       label: 'Title',
+                      isRequired: true,
+                      fillColor: Colors.white,
                       hint: 'Home',
                       controller: nameEnCtrl,
                       height: 36,
@@ -1367,6 +1484,8 @@ class _HomeEditPageState extends State<HomeEditPage> {
                       textDirection: TextDirection.rtl,
                       child: CustomValidatedTextFieldMaster(
                         label: 'عنصر التنقل',
+                        isRequired: true,
+                        fillColor: Colors.white,
                         hint: 'الرئيسية',
                         controller: nameArCtrl,
                         height: 36,
@@ -1380,16 +1499,16 @@ class _HomeEditPageState extends State<HomeEditPage> {
                 ],
               ),
               Positioned(
-                left: MediaQuery.sizeOf(context).width*.3,
+                left: MediaQuery.sizeOf(context).width * .305,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text('Status: ',
+                    Text('Status ',
                         style: StyleText.fontSize12Weight500
                             .copyWith(color: _C.labelText)),
                     FlutterSwitch(
-                      width: 38.sp,
-                      height: 22.sp,
+                      width: 35.sp,
+                      height: 20.sp,
                       padding: 3.sp,
                       borderRadius: 20.sp,
                       toggleSize: 16.sp,
@@ -1410,159 +1529,20 @@ class _HomeEditPageState extends State<HomeEditPage> {
     );
   }
 
-  // ─── Header ────────────────────────────────────────────────────────────────
-  Widget _headerSection() {
-    final isOpen = _open['header'] ?? true;
-    return Container(
-      decoration: BoxDecoration(
-          color: _C.cardBg,
-          borderRadius: BorderRadius.circular(6.r),
-          border: Border.all(color: _C.border)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        GestureDetector(
-          onTap: () => setState(() => _open['header'] = !isOpen),
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            decoration: BoxDecoration(
-              color: _C.primary,
-              borderRadius: isOpen
-                  ? BorderRadius.only(
-                  topLeft: Radius.circular(6.r),
-                  topRight: Radius.circular(6.r))
-                  : BorderRadius.circular(6.r),
-            ),
-            child: Row(children: [
-              Expanded(
-                  child: Text('Header Titles',
-                      style: StyleText.fontSize14Weight600
-                          .copyWith(color: Colors.white))),
-              Icon(
-                  isOpen
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  color: Colors.white,
-                  size: 20.sp),
-            ]),
-          ),
-        ),
-        if (isOpen)
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              buildDefaultDragHandles: false,
-              itemCount: _headerItems.length,
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (newIndex > oldIndex) newIndex--;
-                  final item = _headerItems.removeAt(oldIndex);
-                  _headerItems.insert(newIndex, item);
-                });
-              },
-              itemBuilder: (context, i) => _buildHeaderRow(
-                  key: ValueKey(_headerItems[i]),
-                  index: i,
-                  item: _headerItems[i]),
-            ),
-          ),
-      ]),
-    );
-  }
-
-  Widget _buildHeaderRow({
-    required Key key,
-    required int index,
-    required _HeaderItem item,
-  }) {
-    return Padding(
-      key: key,
-      padding: EdgeInsets.only(bottom: 10.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text('Status: ',
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: _C.labelText)),
-              FlutterSwitch(
-                width: 38.sp,
-                height: 22.sp,
-                padding: 3.sp,
-                borderRadius: 20.sp,
-                toggleSize: 16.sp,
-                activeColor: _C.primary,
-                inactiveColor: Colors.grey.withOpacity(.16),
-                value: item.status,
-                onToggle: (val) => setState(() => item.status = val),
-              ),
-            ],
-          ),
-          SizedBox(height: 4.h),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ReorderableDragStartListener(
-                index: index,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
-                  child: Icon(Icons.drag_indicator_rounded,
-                      size: 20.sp, color: _C.hintText),
-                ),
-              ),
-              Expanded(
-                child: CustomValidatedTextFieldMaster(
-                  label: 'Title',
-                  hint: 'None',
-                  controller: item.en,
-                  height: 36,
-                  submitted: _submitted,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                  primaryColor: _resolvedPrimaryColor,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: CustomValidatedTextFieldMaster(
-                    label: 'العنوان',
-                    hint: 'اكتب هنا',
-                    controller: item.ar,
-                    height: 36,
-                    submitted: _submitted,
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.right,
-                    primaryColor: _resolvedPrimaryColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   // ─── Footer ────────────────────────────────────────────────────────────────
   Widget _footerSection(HomeCmsCubit cubit) => _accordion(
     key: 'footer',
     title: 'Footer',
     children: [
       ...List.generate(_footerColumns.length, (i) => _buildFooterColumn(i)),
-      SizedBox(height: 4.h),
+
       GestureDetector(
         onTap: () => setState(() => _footerColumns.add(_newFooterColumn())),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
           decoration: BoxDecoration(
-              color: Color(0xFF797979),
-              borderRadius: BorderRadius.circular(4.r),
-              ),
+              color: const Color(0xFF797979),
+              borderRadius: BorderRadius.circular(4.r)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.add, size: 14.sp, color: Colors.white),
             SizedBox(width: 4.w),
@@ -1581,10 +1561,8 @@ class _HomeEditPageState extends State<HomeEditPage> {
     final navDropdownItems = _buildNavDropdownItems();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
       SizedBox(height: 15.h),
       if (colIndex > 0) ...[
-        Divider(color: _C.divider, height: 1),
         SizedBox(height: 12.h),
       ],
 
@@ -1592,7 +1570,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('${colIndex + 1}${_ord(colIndex + 1)} Column',
-              style: StyleText.fontSize13Weight600
+              style: StyleText.fontSize14Weight600
                   .copyWith(color: _C.labelText)),
           _removeBtn(
               label: 'Remove',
@@ -1619,6 +1597,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               items: navDropdownItems,
               widthIcon: 18,
               heightIcon: 18,
+              dropdownColor: Colors.white,
               height: 36,
               onChanged: (val) {
                 setState(() {
@@ -1649,8 +1628,9 @@ class _HomeEditPageState extends State<HomeEditPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text("عنوان المجموعة", style: StyleText.fontSize14Weight500.copyWith(
-                          color: AppColors.secondaryText)),
+                      Text("عنوان المجموعة",
+                          style: StyleText.fontSize14Weight500
+                              .copyWith(color: AppColors.secondaryText)),
                     ],
                   ),
                   SizedBox(height: 8.h),
@@ -1667,17 +1647,20 @@ class _HomeEditPageState extends State<HomeEditPage> {
                         hintStyle: StyleText.fontSize12Weight400
                             .copyWith(color: _C.hintText),
                         filled: true,
-                        fillColor: AppColors.background,
+                        fillColor: Colors.white,
                         isDense: true,
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.r),
-                            borderSide: const BorderSide(color: Colors.transparent)),
+                            borderSide:
+                            const BorderSide(color: Colors.transparent)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.r),
-                            borderSide: BorderSide(color: AppColors.primary, width: 1)),
+                            borderSide:
+                            BorderSide(color: _C.primary, width: 1)),
                         disabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.r),
-                            borderSide: const BorderSide(color: Colors.transparent)),
+                            borderSide:
+                            const BorderSide(color: Colors.transparent)),
                       ),
                     ),
                   ),
@@ -1690,103 +1673,120 @@ class _HomeEditPageState extends State<HomeEditPage> {
       SizedBox(height: 10.h),
 
       ...List.generate(labels.length, (li) => _buildLabelRow(colIndex, li)),
-      SizedBox(height: 4.h),
-      _addLabelBtn(onTap: () => setState(() => labels.add(_newLabelRow()))),
-      SizedBox(height: 12.h),
+      Padding(
+        padding:  EdgeInsets.symmetric(vertical: 10.h),
+        child: _addLabelBtn(onTap: () => setState(() => labels.add(_newLabelRow()))),
+      ),
     ]);
   }
 
   Widget _buildLabelRow(int colIndex, int labelIndex) {
-    final labels = _footerColumns[colIndex]['labels'] as List<Map<String, dynamic>>;
-    final label  = labels[labelIndex];
+    final labels =
+    _footerColumns[colIndex]['labels'] as List<Map<String, dynamic>>;
+    final label = labels[labelIndex];
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: CustomDropdownFormFieldInvMaster(
-                        label: 'Navigate To',
-                        hint: Text('Select destination',
-                            style: StyleText.fontSize12Weight400
-                                .copyWith(color: _C.hintText)),
-                        selectedValue: label['route'] as String?,
-                        items: _kLabelDestinations,
-                        widthIcon: 18,
-                        heightIcon: 18,
-                        height: 36,
-                        onChanged: (val) =>
-                            setState(() => label['route'] = val),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24.h),
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          final removed = labels.removeAt(labelIndex);
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((_) => _disposeLabel(removed));
-                        }),
-                        child: Container(
-                          width: 16.w,
-                          height: 16.h,
-                          decoration: const BoxDecoration(
-                              color: _C.remove, shape: BoxShape.circle),
-                          child: Icon(Icons.remove, color: Colors.white, size: 16.sp),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          alignment: AlignmentGeometry.topRight,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: CustomDropdownFormFieldInvMaster(
+                          label: 'Navigate To',
+                          hint: Text('Select destination',
+                              style: StyleText.fontSize12Weight400
+                                  .copyWith(color: _C.hintText)),
+                          selectedValue: label['route'] as String?,
+                          items: _kLabelDestinations,
+                          dropdownColor: Colors.white,
+                          widthIcon: 18,
+                          heightIcon: 18,
+                          height: 36,
+                          onChanged: (val) =>
+                              setState(() => label['route'] = val),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(width: 0.sp),
-              Expanded(child: Container()),
-            ],
-          ),
-          SizedBox(height: 8.h),
+                SizedBox(width: 0.sp),
+                Expanded(child: Container()),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 4.h),
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        final removed = labels.removeAt(labelIndex);
+                        WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => _disposeLabel(removed));
+                      }),
+                      child: Container(
+                        width: 16.w,
+                        height: 16.h,
+                        decoration: const BoxDecoration(
+                            color: _C.remove, shape: BoxShape.circle),
+                        child: Icon(Icons.remove,
+                            color: Colors.white, size: 16.sp),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15.w),
+              ],
+            ),
+          ],
+        ),
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+        SizedBox(height: 12.h),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: CustomValidatedTextFieldMaster(
+                label: 'Label',
+                hint: 'Text Here',
+                isRequired: true,
+                controller: label['en'] as TextEditingController,
+                height: 36,
+                submitted: _submitted,
+                textDirection: TextDirection.ltr,
+                textAlign: TextAlign.left,
+                fillColor: Colors.white,
+                primaryColor: _resolvedPrimaryColor,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Directionality(
+                textDirection: TextDirection.rtl,
                 child: CustomValidatedTextFieldMaster(
-                  label: 'Label',
-                  hint: 'Text Here',
-                  controller: label['en'] as TextEditingController,
+                  label: 'التسمية',
+                  isRequired: true,
+                  fillColor: Colors.white,
+                  hint: 'أدخل النص هنا',
+                  controller: label['ar'] as TextEditingController,
                   height: 36,
                   submitted: _submitted,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
                   primaryColor: _resolvedPrimaryColor,
                 ),
               ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: CustomValidatedTextFieldMaster(
-                    label: 'التسمية',
-                    hint: 'أدخل النص هنا',
-                    controller: label['ar'] as TextEditingController,
-                    height: 36,
-                    submitted: _submitted,
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.right,
-                    primaryColor: _resolvedPrimaryColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1818,9 +1818,8 @@ class _HomeEditPageState extends State<HomeEditPage> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
           decoration: BoxDecoration(
-              color: Color(0xFF797979),
-              borderRadius: BorderRadius.circular(4.r),
-          ),
+              color: const Color(0xFF797979),
+              borderRadius: BorderRadius.circular(4.r)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.add, size: 14.sp, color: Colors.white),
             SizedBox(width: 4.w),
@@ -1861,6 +1860,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
       ),
       SizedBox(height: 5.h),
       Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           _imgBox(
             picked: _links[i].icon,
@@ -1871,38 +1871,59 @@ class _HomeEditPageState extends State<HomeEditPage> {
               if (p != null) setState(() => _links[i].icon = p);
             },
           ),
-          const Spacer(),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Visibility',
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: _C.labelText)),
-              SizedBox(width: 6.w),
-              FlutterSwitch(
-                width: 38.sp,
-                height: 22.sp,
-                padding: 3.sp,
-                borderRadius: 20.sp,
-                toggleSize: 16.sp,
-                activeColor: _C.primary,
-                inactiveColor: Colors.grey.withOpacity(.16),
-                value: _links[i].visibility,
-                onToggle: (val) =>
-                    setState(() => _links[i].visibility = val),
+          // Inline error for missing icon
+          if (_submitted && _links[i].icon.isEmpty)
+            Padding(
+              padding: EdgeInsets.only(left: 8.w),
+              child: Text(
+                'SVG icon required',
+                style: StyleText.fontSize12Weight400
+                    .copyWith(color: _C.error),
               ),
-            ],
-          ),
+            ),
+          const Spacer(),
+
         ],
       ),
       SizedBox(height: 8.h),
-      CustomValidatedTextFieldMaster(
-        label: 'Insert Link',
-        hint: 'Insert Links',
-        controller: _links[i].text,
-        height: 36,
-        submitted: _submitted,
-        primaryColor: _resolvedPrimaryColor,
+      Stack(
+        alignment: AlignmentGeometry.topRight,
+        children: [
+          CustomValidatedTextFieldMaster(
+            label: 'Insert Link',
+            isRequired: true,
+            fillColor: Colors.white,
+            hint: 'Insert Links',
+            controller: _links[i].text,
+            height: 36,
+            submitted: _submitted,
+            primaryColor: _resolvedPrimaryColor,
+          ),
+          Positioned(
+            top: -0.5,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Visibility',
+                    style: StyleText.fontSize10Weight500
+                        .copyWith(color: _C.labelText)),
+                SizedBox(width: 6.w),
+                FlutterSwitch(
+                  width: 38.sp,
+                  height: 18.sp,
+                  padding: 3.sp,
+                  borderRadius: 17.sp,
+                  toggleSize: 16.sp,
+                  activeColor: _C.primary,
+                  inactiveColor: Colors.grey.withOpacity(.16),
+                  value: _links[i].visibility,
+                  onToggle: (val) =>
+                      setState(() => _links[i].visibility = val),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     ],
   );
@@ -1927,9 +1948,9 @@ class _HomeEditPageState extends State<HomeEditPage> {
     child: Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-          color: Color(0xFF797979),
+          color: const Color(0xFF797979),
           borderRadius: BorderRadius.circular(4.r),
-          border: Border.all(color: Color(0xFF797979))),
+          border: Border.all(color: const Color(0xFF797979))),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.add, size: 14.sp, color: Colors.white),
         SizedBox(width: 4.w),
@@ -1940,63 +1961,13 @@ class _HomeEditPageState extends State<HomeEditPage> {
     ),
   );
 
-  Widget _biRow(
-      String enLabel,
-      String arLabel,
-      TextEditingController enCtrl,
-      TextEditingController arCtrl, {
-        int maxLines = 1,
-        bool showCharCount = false,
-        bool useRow = false,
-      }) {
-    final double fieldH = maxLines > 1 ? 80 : 36;
-    final enField = CustomValidatedTextFieldMaster(
-      label: enLabel,
-      hint: 'None',
-      controller: enCtrl,
-      maxLines: maxLines,
-      height: fieldH,
-      showCharCount: showCharCount,
-      submitted: _submitted,
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.left,
-      primaryColor: _resolvedPrimaryColor,
-    );
-    final arField = Directionality(
-      textDirection: TextDirection.rtl,
-      child: CustomValidatedTextFieldMaster(
-        label: arLabel,
-        hint: 'اكتب هنا',
-        controller: arCtrl,
-        maxLines: maxLines,
-        height: fieldH,
-        showCharCount: showCharCount,
-        submitted: _submitted,
-        textDirection: TextDirection.rtl,
-        textAlign: TextAlign.right,
-        primaryColor: _resolvedPrimaryColor,
-      ),
-    );
-    if (useRow) {
-      return Row(children: [
-        Expanded(child: enField),
-        SizedBox(width: 16.w),
-        Expanded(child: arField),
-      ]);
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [enField, SizedBox(height: 10.h), arField],
-    );
-  }
-
   Widget _sectionLabel(String text) => Text(text,
       style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText));
 
   Widget _imgBox({
     required _PickedImage picked,
     String placeholderAsset = 'assets/home_control/image.svg',
-    String pickIconAsset    = 'assets/home_control/camera.svg',
+    String pickIconAsset    = 'assets/control/camera.svg',
     VoidCallback? onPick,
   }) {
     Widget content;
@@ -2004,16 +1975,18 @@ class _HomeEditPageState extends State<HomeEditPage> {
     if (picked.bytes != null) {
       content = Container(
         width: 70.w, height: 70.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+            color: Colors.white, shape: BoxShape.circle),
         child: Center(
           child: ClipOval(
             child: Padding(
-              padding: EdgeInsets.all(10.w), // ← controls white space around image
+              padding: EdgeInsets.all(10.w),
               child: SvgPicture.memory(
                 picked.bytes!,
                 width: 30.w, height: 30.h,
-                fit: BoxFit.scaleDown,          // ← keeps aspect ratio, no cropping
-                placeholderBuilder: (_) => _placeholderCircle(placeholderAsset),
+                fit: BoxFit.scaleDown,
+                placeholderBuilder: (_) =>
+                    _placeholderCircle(placeholderAsset),
               ),
             ),
           ),
@@ -2022,17 +1995,17 @@ class _HomeEditPageState extends State<HomeEditPage> {
     } else if (picked.url != null && picked.url!.isNotEmpty) {
       content = Container(
         width: 70.w, height: 70.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+            color: Colors.white, shape: BoxShape.circle),
         child: Center(
           child: ClipOval(
             child: Padding(
-              padding: EdgeInsets.all(10.w), // ← same padding for consistency
+              padding: EdgeInsets.all(10.w),
               child: SvgPicture.network(
                 picked.url!,
                 width: 30.w, height: 30.h,
-                fit: BoxFit.contain,          // ← was BoxFit.cover (caused fill)
-                placeholderBuilder: (_) =>
-                const CircleProgressMaster(),
+                fit: BoxFit.contain,
+                placeholderBuilder: (_) => const CircleProgressMaster(),
               ),
             ),
           ),

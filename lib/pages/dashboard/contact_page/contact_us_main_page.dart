@@ -1,7 +1,6 @@
 // ******************* FILE INFO *******************
 // File Name: contact_us_main_page.dart
-// Purpose: Read-only overview page for Contact Us CMS
-// Navigation: Main | Home | Services | About Us | Contact Us (active) | Careers
+// UPDATED: Dynamic last-updated date from model.lastUpdatedAt (no more hardcoded string)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +21,8 @@ import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
 import '../../../core/custom_svg.dart';
+import '../../../widgets/app_admin_navbar.dart';
+import '../main_page/home_main_page.dart';
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -30,7 +31,7 @@ class _C {
   static const Color border    = Color(0xFFE0E0E0);
   static const Color labelText = Color(0xFF333333);
   static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back = Color(0xFFF1F2ED);
+  static const Color back      = Color(0xFFF1F2ED);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -45,17 +46,27 @@ class ContactUsMainPage extends StatefulWidget {
 }
 
 class _ContactUsMainPageState extends State<ContactUsMainPage> {
-  int _subNavIndex = 4; // Contact Us is index 4
+  int _subNavIndex = 4;
   final List<String> _subNavLabels = [
     'Main', 'Home', 'Services', 'About Us', 'Contact Us', 'Careers'
   ];
 
   final Map<String, bool> _open = {
-    'info': true,
+    'info':     true,
     'followUs': true,
-    'offices': true,
-    'confirm': true,
+    'offices':  true,
+    'confirm':  true,
   };
+
+  // ── Date formatter ─────────────────────────────────────────────────────────
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '—';
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${d.day} ${months[d.month]} ${d.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,14 +91,20 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                        //      AppNavbar(currentRoute: '/contact'),
+                  AppAdminNavbar(
+                    activeLabel: 'Web Page',
+                    homePage: HomeMainPage(),
+                    webPage: HomeMainPage(),
+                    jobListingPage: HomeMainPage(),
+                  ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 4),
                   SizedBox(height: 20.h),
                   Container(
                     width: 1000.w,
                     child: data == null
-                        ? const Center(child: CircularProgressIndicator(color: _C.primary))
+                        ? const Center(
+                        child: CircularProgressIndicator(color: _C.primary))
                         : _body(data),
                   ),
                 ],
@@ -98,72 +115,6 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
       },
     );
   }
-
-  // ── Sub-navbar ─────────────────────────────────────────────────────────────
-  Widget _subNavBar() => Container(
-    width: 1000.w,
-    decoration: BoxDecoration(
-        color: _C.cardBg,
-        borderRadius: BorderRadius.circular(4.r)),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_subNavLabels.length, (i) {
-        final active = _subNavIndex == i;
-        return GestureDetector(
-          onTap: () {
-            setState(() => _subNavIndex = i);
-            switch (i) {
-              case 0:
-                context.go('/admin/dashboard');
-              case 1:
-                context.go('/admin/dashboard');
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BlocProvider.value(
-                      value: context.read<HomeCmsCubit>(),
-                      child: const HomeMainPageMaster(),
-                    ),
-                  ),
-                );
-                break;
-              case 2:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const ServicesMainPageMaster()),
-                );
-              case 3:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AboutMainPageMasterDashboard(),
-                  ),
-                );
-              case 4:
-                break; // already here
-              case 5:
-                context.go('/admin/careers-cms');
-            }
-          },
-          child: Container(
-            margin: EdgeInsets.only(right: 4.w),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color:        active ? _C.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: Text(
-              _subNavLabels[i],
-              style: StyleText.fontSize14Weight500.copyWith(
-                color: active ? Colors.white : _C.labelText,
-              ),
-            ),
-          ),
-        );
-      }),
-    ),
-  );
 
   // ── Body ───────────────────────────────────────────────────────────────────
   Widget _body(ContactUsCmsModel data) {
@@ -176,22 +127,23 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             Text(
               'Contact Us',
               style: StyleText.fontSize45Weight600.copyWith(
-                color: _C.primary,
-                fontWeight: FontWeight.w700,
+                color: _C.primary, fontWeight: FontWeight.w700,
               ),
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () => context.push('/admin/contact-cms/preview'), // ✅ Use push instead of go
+              onTap: () => context.push('/admin/contact-cms/preview'),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+width: 165.w,
+                height: 45.h,
                 decoration: BoxDecoration(
                   color: _C.primary,
                   borderRadius: BorderRadius.circular(6.r),
                 ),
-                child: Text(
-                  'Preview Screen',
-                  style: StyleText.fontSize14Weight500.copyWith(color: Colors.white),
+                child: Center(
+                  child: Text('Preview Screen',
+                      style: StyleText.fontSize14Weight500
+                          .copyWith(color: Colors.white)),
                 ),
               ),
             ),
@@ -208,16 +160,18 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
                 color: _C.cardBg,
                 borderRadius: BorderRadius.circular(4.r),
               ),
+              // ── FIXED: dynamic date from model.lastUpdatedAt ──
               child: Text(
-                'Last Updated On 12 Jul 2026',
-                style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+                'Last Updated On ${_fmtDate(data.lastUpdatedAt)}',
+                style: StyleText.fontSize13Weight500
+                    .copyWith(color: _C.primary),
               ),
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () => context.push('/admin/contact-cms/edit'), // ✅ Use push instead of go
+              onTap: () => context.push('/admin/contact-cms/edit'),
               child: Container(
-                width: 130.w, height: 36.h,
+                width: 205.w, height: 40.h,
                 decoration: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(4.r),
@@ -226,9 +180,10 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Text('Edit Details',
                         style: StyleText.fontSize14Weight500
-                            .copyWith(color: _C.primary)),
+                            .copyWith(color: Colors.black)),
                     SizedBox(width: 6.w),
-                    CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
+                    CustomSvg(
+                        assetPath: "assets/control/edit_icon_pick.svg",
                         width: 20.w, height: 20.h,
                         fit: BoxFit.scaleDown, color: _C.primary),
                   ]),
@@ -245,9 +200,9 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
           title: 'Info',
           children: [
             SizedBox(height: 15.h),
-            _readField('Sub description', data.subDescription.en),
+            _readField('Sub description', data.subDescription.en,height: 72.h),
             SizedBox(height: 10.h),
-            _readFieldRtl('وصف فرعي', data.subDescription.ar),
+            _readFieldRtl('وصف فرعي', data.subDescription.ar,height: 72.h),
             SizedBox(height: 16.h),
             Row(
               children: [
@@ -268,7 +223,8 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             SizedBox(height: 15.h),
             if (data.socialIcons.isEmpty)
               Text('No social icons added',
-                  style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText))
+                  style: StyleText.fontSize12Weight400
+                      .copyWith(color: _C.hintText))
             else
               _socialIconsGrid(data.socialIcons),
           ],
@@ -283,7 +239,8 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             SizedBox(height: 15.h),
             if (data.officeLocations.isEmpty)
               Text('No office locations added',
-                  style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText))
+                  style: StyleText.fontSize12Weight400
+                      .copyWith(color: _C.hintText))
             else
               ...data.officeLocations.asMap().entries.map((e) {
                 return Padding(
@@ -304,11 +261,12 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+                    Text('SVG',
+                        style: StyleText.fontSize12Weight500
+                            .copyWith(color: _C.labelText)),
                     SizedBox(height: 6.h),
                     _imgCircle(data.confirmMessage.svgUrl, isSvg: true),
                   ],
@@ -318,15 +276,19 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             SizedBox(height: 16.h),
             Row(
               children: [
-                Expanded(child: _readField('Title', data.confirmMessage.title.en)),
+                Expanded(child: _readField(
+                    'Title', data.confirmMessage.title.en)),
                 SizedBox(width: 16.w),
-                Expanded(child: _readFieldRtl('العنوان', data.confirmMessage.title.ar)),
+                Expanded(child: _readFieldRtl(
+                    'العنوان', data.confirmMessage.title.ar)),
               ],
             ),
             SizedBox(height: 10.h),
-            _readField('Description', data.confirmMessage.description.en, height: 80),
+            _readField('Description',
+                data.confirmMessage.description.en, height: 80),
             SizedBox(height: 10.h),
-            _readFieldRtl('الوصف', data.confirmMessage.description.ar, height: 80),
+            _readFieldRtl('الوصف',
+                data.confirmMessage.description.ar, height: 80),
           ],
         ),
         SizedBox(height: 40.h),
@@ -339,7 +301,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
     final rows = (icons.length / 2).ceil();
     return Column(
       children: List.generate(rows, (rowIndex) {
-        final left = rowIndex * 2;
+        final left  = rowIndex * 2;
         final right = left + 1;
         return Padding(
           padding: EdgeInsets.only(bottom: 14.h),
@@ -363,11 +325,13 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 15.h),
-        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text('Icon',
+            style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 6.h),
         _imgCircle(icon.iconUrl),
         SizedBox(height: 8.h),
-        _readField('Insert Link', icon.link.isEmpty ? 'Insert Links' : icon.link),
+        _readField('Selected Link',
+            icon.link.isEmpty ? 'Insert Links' : icon.link),
       ],
     );
   }
@@ -377,10 +341,8 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Location ${index + 1}',
-          style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText),
-        ),
+        Text('Location ${index + 1}',
+            style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText)),
         SizedBox(height: 8.h),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +350,9 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+                Text('Icon',
+                    style: StyleText.fontSize12Weight500
+                        .copyWith(color: _C.labelText)),
                 SizedBox(height: 6.h),
                 _imgCircle(office.iconUrl),
               ],
@@ -398,9 +362,11 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
         SizedBox(height: 12.h),
         Row(
           children: [
-            Expanded(child: _readField('Location Name', office.locationName.en)),
+            Expanded(child: _readField(
+                'Location Name', office.locationName.en)),
             SizedBox(width: 16.w),
-            Expanded(child: _readFieldRtl('اسم الموقع', office.locationName.ar)),
+            Expanded(child: _readFieldRtl(
+                'اسم الموقع', office.locationName.ar)),
           ],
         ),
         SizedBox(height: 10.h),
@@ -418,8 +384,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
   // ── Image Circle ───────────────────────────────────────────────────────────
   Widget _imgCircle(String url, {bool isSvg = false}) {
     return Container(
-      width: 60.w,
-      height: 60.h,
+      width: 60.w, height: 60.h,
       decoration: BoxDecoration(
         color: url.isNotEmpty ? Colors.white : const Color(0xFFD9D9D9),
         shape: BoxShape.circle,
@@ -428,18 +393,14 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
           ? ClipOval(
         child: Padding(
           padding: EdgeInsets.all(15.r),
-          child: SvgPicture.network(
-            url,
-            fit: BoxFit.contain,
-            placeholderBuilder: (_) => const SizedBox(),
-          ),
+          child: SvgPicture.network(url, fit: BoxFit.contain,
+              placeholderBuilder: (_) => const SizedBox()),
         ),
       )
           : Center(
         child: Icon(
           isSvg ? Icons.description_outlined : Icons.image_outlined,
-          color: Colors.grey,
-          size: 20.sp,
+          color: Colors.grey, size: 20.sp,
         ),
       ),
     );
@@ -453,10 +414,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
   }) {
     final isOpen = _open[key] ?? true;
     return Container(
-      decoration: BoxDecoration(
-
-        borderRadius: BorderRadius.circular(6.r),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -467,25 +425,20 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                  topLeft: Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      title,
-                      style: StyleText.fontSize14Weight600.copyWith(color: Colors.white),
-                    ),
+                    child: Text(title,
+                        style: StyleText.fontSize14Weight600
+                            .copyWith(color: Colors.white)),
                   ),
                   Icon(
-                    isOpen ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                    color: Colors.white,
-                    size: 20.sp,
+                    isOpen
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: Colors.white, size: 25.sp,
                   ),
                 ],
               ),
@@ -502,62 +455,59 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
   }
 
   // ── Read Field ─────────────────────────────────────────────────────────────
-  Widget _readField(String label, String value, {double height = 36}) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
+  Widget _readField(String label, String value, {double height = 36}) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+          SizedBox(height: 4.h),
+          Container(
+            width: double.infinity, height: height.h,
+            padding: EdgeInsets.symmetric(
+                horizontal: 10.w, vertical: height > 36 ? 8.h : 0),
+            decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(4.r)),
+            alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
+            child: Text(
+              value.isEmpty ? 'Text Here' : value,
+              style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+              maxLines: height > 36 ? 4 : 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
 
-      Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
-      SizedBox(height: 4.h),
-      Container(
-        width: double.infinity,
-        height: height.h,
-        padding: EdgeInsets.symmetric(
-          horizontal: 10.w,
-          vertical: height > 36 ? 8.h : 0,
+  Widget _readFieldRtl(String label, String value, {double height = 36}) =>
+      Directionality(
+        textDirection: TextDirection.rtl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: StyleText.fontSize12Weight500
+                    .copyWith(color: _C.labelText)),
+            SizedBox(height: 4.h),
+            Container(
+              width: double.infinity, height: height.h,
+              padding: EdgeInsets.symmetric(
+                  horizontal: 10.w, vertical: height > 36 ? 8.h : 0),
+              decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(4.r)),
+              alignment:
+              height > 36 ? Alignment.topRight : Alignment.centerRight,
+              child: Text(
+                value.isEmpty ? 'أكتب هنا' : value,
+                style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                textDirection: TextDirection.rtl,
+                maxLines: height > 36 ? 4 : 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(4.r),
-        ),
-        alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
-        child: Text(
-          value.isEmpty ? 'Text Here' : value,
-          style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
-          maxLines: height > 36 ? 4 : 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    ],
-  );
-
-  Widget _readFieldRtl(String label, String value, {double height = 36}) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
-        SizedBox(height: 4.h),
-        Container(
-          width: double.infinity,
-          height: height.h,
-          padding: EdgeInsets.symmetric(
-            horizontal: 10.w,
-            vertical: height > 36 ? 8.h : 0,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(4.r),
-          ),
-          alignment: height > 36 ? Alignment.topRight : Alignment.centerRight,
-          child: Text(
-            value.isEmpty ? 'أكتب هنا' : value,
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
-            textDirection: TextDirection.rtl,
-            maxLines: height > 36 ? 4 : 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    ),
-  );
+      );
 }

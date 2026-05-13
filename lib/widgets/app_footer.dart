@@ -99,7 +99,7 @@ class AppFooter extends StatelessWidget {
                 primary: primary, footerBg: footerBg, isRtl: isRtl,
               );
             } else if (screenWidth >= _BP.mobile) {
-              footer = _FooterTablet(
+              footer = _FooterDesktop(
                 model: model, columns: columns,
                 primary: primary, footerBg: footerBg, isRtl: isRtl,
               );
@@ -145,69 +145,66 @@ class _FooterDesktop extends StatelessWidget {
     ((MediaQuery.of(context).size.width - contentW) / 2)
         .clamp(16.0, double.infinity);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: hPad),
-      child: Container(
-        padding: EdgeInsets.all(22.sp),
-        decoration: BoxDecoration(
-          color: footerBg, // ✅ CMS-driven color
-          borderRadius: BorderRadiusDirectional.only(
-            topStart: Radius.circular(24.r),
-            topEnd:   Radius.circular(24.r),
+    return Container(
+      padding: EdgeInsets.all(22.sp),
+      decoration: BoxDecoration(
+        color: footerBg, // ✅ CMS-driven color
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: Radius.circular(24.r),
+          topEnd:   Radius.circular(24.r),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _LogoBox(logoUrl: model.branding.logoUrl, primary: primary, size: 50.sp),
+              SizedBox(width: 32.w),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: columns
+                      .map((col) => _FooterColumnWidget(
+                    column:     col,
+                    titleColor: AppColors.text,
+                    primary:    primary,
+                    isRtl:      isRtl,
+                  ))
+                      .toList(),
+                ),
+              ),
+            ],
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _LogoBox(logoUrl: model.branding.logoUrl, primary: primary, size: 50.sp),
-                SizedBox(width: 32.w),
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: columns
-                        .map((col) => _FooterColumnWidget(
-                      column:     col,
-                      titleColor: AppColors.text,
-                      primary:    primary,
-                      isRtl:      isRtl,
-                    ))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 24.h),
-            Divider(color: primary, thickness: 0.5),
-            SizedBox(height: 14.h),
-            Row(
-              children: [
-                const Expanded(flex: 2, child: SizedBox()),
-                Expanded(
-                  flex: 3,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      ..._socialIcons(model.socialLinks, primary),
-                      const Spacer(),
-                      Text(
-                        _staticCopyright(isRtl),
-                        style: StyleText.fontSize14Weight400.copyWith(
-                          color: AppColors.text,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12.sp,
-                        ),
+          SizedBox(height: 24.h),
+          Divider(color: primary, thickness: 0.5),
+          SizedBox(height: 14.h),
+          Row(
+            children: [
+              const Expanded(flex: 2, child: SizedBox()),
+              Expanded(
+                flex: 3,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    ..._socialIcons(model.socialLinks, primary),
+                    const Spacer(),
+                    Text(
+                      _staticCopyright(isRtl),
+                      style: StyleText.fontSize14Weight400.copyWith(
+                        color: AppColors.text,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12.sp,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

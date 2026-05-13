@@ -29,17 +29,22 @@ class BilingualText {
 
 // ── Career Statistic Item ─────────────────────────────────────────────────────
 
+// PATCH — replace your CareerStatItem class in careers_cms_model.dart with this version
+// Added: iconUrl field (Firebase Storage download URL for the SVG icon)
+
 class CareerStatItem {
   final String id;
   final BilingualText title;
   final BilingualText shortDescription;
   final String summaryValue;
+  final String iconUrl; // ← NEW
 
   const CareerStatItem({
     required this.id,
     required this.title,
     required this.shortDescription,
     required this.summaryValue,
+    this.iconUrl = '',
   });
 
   factory CareerStatItem.empty() => CareerStatItem(
@@ -47,6 +52,7 @@ class CareerStatItem {
     title: const BilingualText(),
     shortDescription: const BilingualText(),
     summaryValue: '',
+    iconUrl: '',
   );
 
   factory CareerStatItem.fromMap(String id, Map<String, dynamic> map) =>
@@ -57,12 +63,14 @@ class CareerStatItem {
         shortDescription: BilingualText.fromMap(
             (map['shortDescription'] as Map<String, dynamic>?) ?? {}),
         summaryValue: map['summaryValue'] as String? ?? '',
+        iconUrl: map['iconUrl'] as String? ?? '', // ← read from Firestore
       );
 
   Map<String, dynamic> toMap() => {
     'title': title.toMap(),
     'shortDescription': shortDescription.toMap(),
     'summaryValue': summaryValue,
+    'iconUrl': iconUrl, // ← write to Firestore
   };
 
   CareerStatItem copyWith({
@@ -70,12 +78,14 @@ class CareerStatItem {
     BilingualText? title,
     BilingualText? shortDescription,
     String? summaryValue,
+    String? iconUrl,
   }) =>
       CareerStatItem(
         id: id ?? this.id,
         title: title ?? this.title,
         shortDescription: shortDescription ?? this.shortDescription,
         summaryValue: summaryValue ?? this.summaryValue,
+        iconUrl: iconUrl ?? this.iconUrl,
       );
 }
 
@@ -333,7 +343,7 @@ class CareersDashboardData {
     final hired     = apps.where((a) => a.status == ApplicationStatus.hired).length;
 
     final hiringStages = [
-      HiringStageItem(label: 'Shortlist',  value: shortlisted),
+      HiringStageItem(label: 'Applied',  value: shortlisted),
       HiringStageItem(label: 'Interview',  value: interviewed),
       HiringStageItem(label: 'Offer Sent', value: offerSent),
       HiringStageItem(label: 'Hired',      value: hired),
@@ -475,7 +485,7 @@ class CareersDashboardData {
     jobPostingScheduled: const [200,60,100,20],
     jobPostingDraft:     const [100,40,50,10],
     hiringStages: const [
-      HiringStageItem(label: 'Shortlist',  value: 500),
+      HiringStageItem(label: 'Applied',  value: 500),
       HiringStageItem(label: 'Interview',  value: 350),
       HiringStageItem(label: 'Offer Sent', value: 200),
       HiringStageItem(label: 'Hired',      value: 120),

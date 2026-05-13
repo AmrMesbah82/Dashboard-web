@@ -3,6 +3,9 @@
 // Screen 1 of 3 — Terms of Service CMS: Main view (read-only accordions)
 // Used as _tabIndex == 2 body in AboutMainPageMasterDashboard
 
+import 'dart:async';
+import 'dart:html' as html;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -77,6 +80,7 @@ class _TermsMainViewState extends State<TermsMainView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _lastUpdatedRow(
+              lastUpdated: model.lastUpdatedAt,             // ← ADD
               onEdit: () => navigateTo(
                 context,
                 BlocProvider.value(
@@ -190,17 +194,29 @@ class _TermsMainViewState extends State<TermsMainView> {
     );
   }
 
-  // ── Last Updated + Edit Details ───────────────────────────────────────────
-  Widget _lastUpdatedRow({required VoidCallback onEdit}) {
+  Widget _lastUpdatedRow({
+    required VoidCallback onEdit,
+    DateTime? lastUpdated,                        // ← ADD
+  }) {
+    String fmtDate(DateTime? d) {
+      if (d == null) return '—';
+      const months = [
+        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${d.day} ${months[d.month]} ${d.year}';
+    }
+
     return Row(
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
               color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
-          child: Text('Last Updated On 12 Jul 2026',
-              style:
-              StyleText.fontSize13Weight500.copyWith(color: _C.primary)),
+          child: Text(
+            'Last Updated On ${fmtDate(lastUpdated)}',  // ← dynamic
+            style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+          ),
         ),
         const Spacer(),
         GestureDetector(
@@ -249,11 +265,7 @@ class _TermsMainViewState extends State<TermsMainView> {
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft: Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(
@@ -265,7 +277,7 @@ class _TermsMainViewState extends State<TermsMainView> {
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
                     color: Colors.white,
-                    size: 20.sp),
+                    size: 26.sp),
               ]),
             ),
           ),
@@ -322,56 +334,126 @@ class _TermsMainViewState extends State<TermsMainView> {
     );
   }
 
-  // ── Attached document field ───────────────────────────────────────────────
   Widget _attachField(String label, String url) {
     final hasFile = url.isNotEmpty;
-    final fileName = hasFile ? url.split('/').last.split('?').first : '';
+
+    String fileName = '';
+    if (hasFile) {
+      final decoded = Uri.decodeFull(url);
+      final segments = decoded.split('/');
+      final raw = segments.last.split('?').first;
+      fileName = raw.replaceAll(RegExp(r'^.*%2F'), '');
+      if (fileName.isEmpty) fileName = 'Document';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style:
-            StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
-        SizedBox(height: 4.h),
+        Text(
+          label,
+          style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText),
+        ),
+        SizedBox(height: 6.h),
         GestureDetector(
           onTap: hasFile
-              ? () => launchUrl(Uri.parse(url),
-              mode: LaunchMode.externalApplication)
+              ? () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)
               : null,
           child: Container(
             width: double.infinity,
-            height: 40.h,
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: BoxDecoration(
-                color: hasFile
-                    ? const Color(0xFFE8F5EE)
-                    : AppColors.background,
-                borderRadius: BorderRadius.circular(4.r),
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(
+                color: hasFile ? _C.primary : const Color(0xFFDDDDDD),
+                width: 1,
+              ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
-                    hasFile ? Icons.picture_as_pdf : Icons.attach_file,
-                    size: 16.sp,
-                    color: hasFile ? _C.primary : _C.hintText),
-                SizedBox(width: 8.w),
+                // ── PDF SVG icon ──────────────────────────────────────────
+                SvgPicture.asset(
+                  'assets/images/pdf 1.svg',
+                  width: 28.w,
+                  height: 28.h,
+                  fit: BoxFit.contain,
+                ),
+                SizedBox(width: 10.w),
+
+                // ── Filename + size ───────────────────────────────────────
                 Expanded(
-                    child: Text(
-                        hasFile
-                            ? (fileName.isEmpty ? 'View Document' : fileName)
-                            : 'No document attached',
-                        style: StyleText.fontSize12Weight400.copyWith(
-                            color: hasFile ? _C.primary : _C.hintText),
-                        overflow: TextOverflow.ellipsis)),
-                if (hasFile)
-                  Icon(Icons.open_in_new,
-                      size: 14.sp, color: _C.primary),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        hasFile ? fileName : 'No document attached',
+                        style: StyleText.fontSize12Weight500.copyWith(
+                          color: hasFile ? _C.labelText : _C.hintText,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      if (hasFile) ...[
+                        SizedBox(height: 2.h),
+                        // ── Fetch size asynchronously ─────────────────────
+                        FutureBuilder<String>(
+                          future: _fetchFileSize(url),
+                          builder: (context, snapshot) {
+                            final sizeLabel = snapshot.data ?? '...';
+                            return Text(
+                              sizeLabel,
+                              // WITH this:
+                              style: StyleText.fontSize12Weight400.copyWith(
+                                color: _C.hintText,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ],
     );
+  }
+
+  Future<String> _fetchFileSize(String url) async {
+    try {
+      final xhr = html.HttpRequest();
+      xhr.open('HEAD', url, async: true);
+
+      final completer = Completer<String>();
+
+      xhr.onLoad.listen((_) {
+        final contentLength = xhr.getResponseHeader('content-length');
+        if (contentLength != null) {
+          final bytes = int.tryParse(contentLength);
+          if (bytes != null) {
+            completer.complete(_formatBytes(bytes));
+            return;
+          }
+        }
+        completer.complete('');
+      });
+
+      xhr.onError.listen((_) => completer.complete(''));
+      xhr.send();
+
+      return completer.future;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   // ── Read-only LTR ─────────────────────────────────────────────────────────

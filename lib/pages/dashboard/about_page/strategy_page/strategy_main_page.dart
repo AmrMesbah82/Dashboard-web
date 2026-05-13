@@ -1,7 +1,7 @@
 // ******************* FILE INFO *******************
 // File Name: strategy_main_page.dart
 // Screen 1 of 3 — Our Strategy CMS: Main view (read-only accordions)
-// UPDATED: XHR-safe image loading (no more SvgPicture.network / Image.network)
+// UPDATED: Added Strategic House ENG + ARB accordions
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
@@ -114,8 +114,9 @@ class StrategyMainView extends StatefulWidget {
 
 class _StrategyMainViewState extends State<StrategyMainView> {
   final Map<String, bool> _open = {
-    'navigationLabel': true,
-    'vision':          true,
+    'navigationLabel':  true,
+    'strategicHouseEn': true,
+    'strategicHouseAr': true,
   };
 
   @override
@@ -152,6 +153,7 @@ class _StrategyMainViewState extends State<StrategyMainView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _lastUpdatedRow(
+              lastUpdated: model.lastUpdatedAt,    // ← ADD this
               onEdit: () => navigateTo(
                 context,
                 BlocProvider.value(
@@ -167,7 +169,6 @@ class _StrategyMainViewState extends State<StrategyMainView> {
               key: 'navigationLabel',
               title: 'Navigation Label',
               children: [
-
                 SizedBox(height: 20.h),
                 _iconPreviewCircle(
                     label: 'Icon',
@@ -186,21 +187,37 @@ class _StrategyMainViewState extends State<StrategyMainView> {
                           'العنوان',
                           model.navigationLabel.title.ar)),
                 ]),
+                SizedBox(height: 16.h),
               ],
             ),
             SizedBox(height: 12.h),
 
-            // ② Vision
+            // ② Strategic House — ENG
             _accordion(
-              key: 'vision',
-              title: 'Vision',
+              key: 'strategicHouseEn',
+              title: 'Strategic House - ENG',
               children: [
                 SizedBox(height: 20.h),
-                _iconPreviewCircle(
-                    label: 'SVG',
-                    url: model.vision.svgUrl,
-                    isSvg: true),
-                SizedBox(height: 12.h),
+                _imagePreviewBox(
+                  label: 'Image (English)',
+                  url: model.strategicHouseEnUrl,
+                ),
+                SizedBox(height: 16.h),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // ③ Strategic House — ARB
+            _accordion(
+              key: 'strategicHouseAr',
+              title: 'Strategic House - ARB',
+              children: [
+                SizedBox(height: 20.h),
+                _imagePreviewBox(
+                  label: 'Image (Arabic)',
+                  url: model.strategicHouseArUrl,
+                ),
+                SizedBox(height: 16.h),
               ],
             ),
             SizedBox(height: 40.h),
@@ -210,19 +227,33 @@ class _StrategyMainViewState extends State<StrategyMainView> {
     );
   }
 
-  // ── Last Updated + Edit Details ───────────────────────────────────────────
-  Widget _lastUpdatedRow({required VoidCallback onEdit}) {
+// ── Last Updated + Edit Details ───────────────────────────────────────────
+  Widget _lastUpdatedRow({
+    required VoidCallback onEdit,
+    DateTime? lastUpdated,           // ← ADD this parameter
+  }) {
+    // ── Date formatter ──
+    String fmtDate(DateTime? d) {
+      if (d == null) return '—';
+      const months = [
+        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${d.day} ${months[d.month]} ${d.year}';
+    }
+
     return Row(
       children: [
         Container(
-          padding:
-          EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
               color: _C.cardBg,
               borderRadius: BorderRadius.circular(4.r)),
-          child: Text('Last Updated On 12 Jul 2026',
-              style: StyleText.fontSize13Weight500
-                  .copyWith(color: _C.primary)),
+          child: Text(
+            'Last Updated On ${fmtDate(lastUpdated)}',   // ← dynamic
+            style: StyleText.fontSize13Weight500
+                .copyWith(color: _C.primary),
+          ),
         ),
         const Spacer(),
         GestureDetector(
@@ -239,7 +270,8 @@ class _StrategyMainViewState extends State<StrategyMainView> {
                     style: StyleText.fontSize14Weight500
                         .copyWith(color: _C.primary)),
                 SizedBox(width: 6.w),
-                CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
+                CustomSvg(
+                    assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
                     fit: BoxFit.scaleDown, color: _C.primary),
               ]),
@@ -259,13 +291,10 @@ class _StrategyMainViewState extends State<StrategyMainView> {
     final isOpen = _open[key] ?? true;
     return Container(
       decoration: BoxDecoration(
-
           borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-
           GestureDetector(
             onTap: () => setState(() => _open[key] = !isOpen),
             child: Container(
@@ -274,11 +303,7 @@ class _StrategyMainViewState extends State<StrategyMainView> {
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft: Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(
@@ -290,16 +315,57 @@ class _StrategyMainViewState extends State<StrategyMainView> {
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
                     color: Colors.white,
-                    size: 20.sp),
+                    size: 25.sp),
               ]),
             ),
           ),
           if (isOpen)
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children),
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+
+              ),
+              // padding: EdgeInsets.symmetric(vertical: 16.w),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: children),
+            ),
         ],
       ),
+    );
+  }
+
+  // ── Image preview box (for Strategic House sections) ──────────────────────
+  Widget _imagePreviewBox({required String label, required String url}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: StyleText.fontSize12Weight500
+                .copyWith(color: _C.labelText)),
+        SizedBox(height: 8.h),
+        Container(
+          width: double.infinity,
+          height: 200.h,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEEEEE),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: url.isEmpty
+              ? Center(
+              child: Icon(Icons.image_outlined,
+                  color: Colors.grey[400], size: 48.sp))
+              : ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: _netImg(
+              url: url,
+              width: double.infinity,
+              height: 200.h,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

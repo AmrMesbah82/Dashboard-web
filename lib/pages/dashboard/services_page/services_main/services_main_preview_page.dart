@@ -1,6 +1,7 @@
 // ******************* FILE INFO *******************
 // File Name: services_main_preview_page.dart
 // Screen 3 — Services CMS: Preview "Main" section (Desktop/Tablet/Mobile)
+// UPDATED: Added responsive sizing and CENTER alignment for all content
 // Save button shows confirm dialog before persisting.
 
 import 'package:flutter/material.dart';
@@ -14,16 +15,23 @@ import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
+import '../../../../core/custom_dialog.dart';
+import '../../../../core/two_tab.dart';
+import '../../../../widgets/app_admin_navbar.dart';
+import '../../main_page/home_main_page.dart';
+import '../services_main/services_main_page.dart'; // ← same import as edit page
+
 class _C {
   static const Color primary   = Color(0xFF008037);
   static const Color sectionBg = Color(0xFFF5F5F5);
   static const Color cardBg    = Color(0xFFFFFFFF);
+  static const Color border    = Color(0xFFE0E0E0);
   static const Color grey      = Color(0xFF9E9E9E);
+  static const Color labelText = Color(0xFF333333);
   static const Color hintText  = Color(0xFF797979);
 }
 
-enum _PreviewMode { desktop, tablet, mobile }
-enum _PreviewLang { eng, ar }
+enum _Device { desktop, tablet, mobile }
 
 class ServicesMainPreviewPage extends StatefulWidget {
   final ServicePageModel model;
@@ -34,211 +42,271 @@ class ServicesMainPreviewPage extends StatefulWidget {
 }
 
 class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
-  _PreviewMode _mode = _PreviewMode.desktop;
-  _PreviewLang _lang = _PreviewLang.eng;
-  bool _viewOpen = true;
+  _Device _device   = _Device.desktop;
+  bool    _isAr     = false;
+  bool    _viewOpen = true;
 
-  // FIX: await save so navigation waits for Firestore to finish
-  Future<void> _onSave() async {
-    final confirmed = await _showConfirmDialog(context);
-    if (confirmed == true && mounted) {
-      await context.read<ServiceCmsCubit>().save(publishStatus: 'published');
-      if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+  // ── Responsive container width ─────────────────────────────────────────────
+  double get _containerWidth {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600)  return screenWidth * 0.9;
+    if (screenWidth < 1024) return screenWidth * 0.85;
+    return 1000.w;
+  }
+
+  Future<void> _save() async {
+    final cubit = context.read<ServiceCmsCubit>();
+
+    // 1. Push edited values into cubit
+    cubit.updateTitle(
+      en: widget.model.title.en,
+      ar: widget.model.title.ar,
+    );
+    cubit.updateShortDescription(
+      en: widget.model.shortDescription.en,
+      ar: widget.model.shortDescription.ar,
+    );
+
+    // 2. Persist
+    await cubit.save(publishStatus: 'published');
+
+    // 3. Navigate AFTER the dialog closes itself (dialog pops in finally block)
+    //    Use addPostFrameCallback so the navigator stack is stable
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => const ServicesMainPageMaster(),
+            ),
+                (route) => false,
+          );
+        }
+      });
     }
+  }
+
+  // ── Triggered by Save button ───────────────────────────────────────────────
+  void _onSave() {
+    showPublishConfirmDialog(
+      context: context,
+      title: 'EDITING SERVICE DETAILS',
+      subtitle: 'Do you want to save the changes made to this Service Details?',
+      confirmLabel: 'Confirm',
+      backLabel: 'Back',
+      onConfirm: _save, // async — dialog shows loader while saving
+    );
   }
 
   void _onBack() => Navigator.pop(context);
 
+  // ── Build ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _C.sectionBg,
       body: BlocListener<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
-          if (state is ServiceCmsSaved) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Saved successfully')),
+          // Error feedback (save can fail inside the dialog too)
+          if (state is ServiceCmsError) {
+            showConfirmDialog(
+              context: context,
+              title: 'Error',
+              subtitle: state.message,
+              confirmLabel: 'OK',
+              cancelLabel: '',
+              onConfirm: () {},
+              iconWidget: Container(
+                width: 60.r,
+                height: 60.r,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE53935),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+              ),
             );
           }
         },
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // ── Top app navbar ─────────────────────────────────────────
-              AppNavbar(currentRoute: '/services'),
+          child: Center(
+            child: Container(
+              width: _containerWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppAdminNavbar(
+                    activeLabel:    'Web Page',
+                    homePage:       HomeMainPage(),
+                    webPage:        HomeMainPage(),
+                    jobListingPage: HomeMainPage(),
+                  ),
+                  SizedBox(height: 20.h),
 
-              // ── Page body ──────────────────────────────────────────────
-              Container(
-                width: 1000.w,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8.h),
+                  AppNavbar(currentRoute: '/services'),
+                  SizedBox(height: 8.h),
 
-                    // ── Large green title ────────────────────────────────
-                    Text(
-                      'Preview Services Details',
-                      style: StyleText.fontSize45Weight600.copyWith(
-                        color: _C.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                  Text(
+                    'Preview Services Details',
+                    style: StyleText.fontSize45Weight600.copyWith(
+                      color: _C.primary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: _getResponsiveTitleSize(),
                     ),
-                    SizedBox(height: 16.h),
+                  ),
+                  SizedBox(height: 14.h),
 
-                    // ── Mode tabs row + ENG | AR toggle ─────────────────
-                    Row(
-                      children: [
-                        // Desktop / Tablet / Mobile tabs
-                        ..._PreviewMode.values.map((m) {
-                          final bool selected = m == _mode;
-                          final String label = switch (m) {
-                            _PreviewMode.desktop => 'Desktop',
-                            _PreviewMode.tablet  => 'Tablet',
-                            _PreviewMode.mobile  => 'Mobile',
-                          };
-                          return GestureDetector(
-                            onTap: () => setState(() => _mode = m),
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 24.w),
-                              child: Text(
-                                label,
-                                style: selected
-                                    ? StyleText.fontSize14Weight600.copyWith(
-                                  color: _C.primary,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: _C.primary,
-                                )
-                                    : StyleText.fontSize14Weight400.copyWith(
-                                  color: _C.hintText,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
+                  _buildTopControls(),
+                  SizedBox(height: 12.h),
 
-                        const Spacer(),
+                  _viewAccordion(),
+                  SizedBox(height: 24.h),
 
-                        // ENG toggle button
-                        GestureDetector(
-                          onTap: () => setState(() => _lang = _PreviewLang.eng),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14.w, vertical: 6.h),
-                            decoration: BoxDecoration(
-                              color: _lang == _PreviewLang.eng
-                                  ? _C.primary
-                                  : _C.cardBg,
-                              borderRadius: BorderRadius.only(
-                                topLeft:     Radius.circular(6.r),
-                                bottomLeft:  Radius.circular(6.r),
-                              ),
-                              border: Border.all(color: _C.primary),
-                            ),
-                            child: Text(
-                              'ENG',
-                              style: StyleText.fontSize12Weight600.copyWith(
-                                color: _lang == _PreviewLang.eng
-                                    ? Colors.white
-                                    : _C.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // AR toggle button
-                        GestureDetector(
-                          onTap: () => setState(() => _lang = _PreviewLang.ar),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14.w, vertical: 6.h),
-                            decoration: BoxDecoration(
-                              color: _lang == _PreviewLang.ar
-                                  ? _C.primary
-                                  : _C.cardBg,
-                              borderRadius: BorderRadius.only(
-                                topRight:    Radius.circular(6.r),
-                                bottomRight: Radius.circular(6.r),
-                              ),
-                              border: Border.all(color: _C.primary),
-                            ),
-                            child: Text(
-                              'AR',
-                              style: StyleText.fontSize12Weight600.copyWith(
-                                color: _lang == _PreviewLang.ar
-                                    ? Colors.white
-                                    : _C.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-
-                    // ── View accordion ───────────────────────────────────
-                    _viewAccordion(),
-                    SizedBox(height: 24.h),
-
-                    // ── Back (left half) | Save (right half) ─────────────
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 44.h,
-                            child: ElevatedButton(
-                              onPressed: _onBack,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _C.grey,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.r)),
-                              ),
-                              child: Text('Back',
-                                  style: StyleText.fontSize14Weight600
-                                      .copyWith(color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: SizedBox(
-                            height: 44.h,
-                            child: ElevatedButton(
-                              onPressed: _onSave,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _C.primary,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.r)),
-                              ),
-                              child: Text('Save',
-                                  style: StyleText.fontSize14Weight600
-                                      .copyWith(color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 40.h),
-                  ],
-                ),
+                  _buildActionButtons(),
+                  SizedBox(height: 40.h),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ── View Accordion ──────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  double _getResponsiveTitleSize() {
+    final w = MediaQuery.of(context).size.width;
+    if (w < 600)  return 28.sp;
+    if (w < 1024) return 36.sp;
+    return 45.sp;
+  }
+
+  Widget _buildTopControls() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final langToggle = CustomSegmentedTabs(
+      tabs: ['ENG', 'AR'],
+      selectedIndex: _isAr ? 1 : 0,
+      onTabSelected: (i) => setState(() => _isAr = i == 1),
+      selectedColor:       _C.primary,
+      unselectedColor:     Colors.transparent,
+      selectedTextColor:   Colors.white,
+      unselectedTextColor: _C.labelText,
+      containerColor:      _C.border.withOpacity(0.45),
+      equalWidth: false,
+      containerPadding: EdgeInsets.symmetric(horizontal: 8.sp, vertical: 4.sp),
+    );
+
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDeviceTabBar(),
+          SizedBox(height: 12.h),
+          langToggle,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        _buildDeviceTabBar(),
+        const Spacer(),
+        langToggle,
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 44.h,
+            child: ElevatedButton(
+              onPressed: _onBack,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _C.grey,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r)),
+              ),
+              child: Text('Back',
+                  style: StyleText.fontSize14Weight600
+                      .copyWith(color: Colors.white)),
+            ),
+          ),
+        ),
+        SizedBox(width: isMobile ? 12.w : 300.w),
+        Expanded(
+          child: SizedBox(
+            height: 44.h,
+            child: ElevatedButton(
+              onPressed: _onSave,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _C.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r)),
+              ),
+              child: Text('Save',
+                  style: StyleText.fontSize14Weight600
+                      .copyWith(color: Colors.white)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDeviceTabBar() {
+    final tabs = [_Device.desktop, _Device.tablet, _Device.mobile];
+    final screenWidth = MediaQuery.of(context).size.width;
+    final spacing = screenWidth < 600 ? 16.w : 24.w;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(tabs.length, (i) {
+        final d        = tabs[i];
+        final isActive = _device == d;
+        final label    = d.name[0].toUpperCase() + d.name.substring(1);
+        return Padding(
+          padding: EdgeInsets.only(right: spacing),
+          child: GestureDetector(
+            onTap: () => setState(() => _device = d),
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 6.h),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize:   screenWidth < 600 ? 13.sp : 15.sp,
+                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                        color:      isActive ? _C.primary : _C.hintText,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 2,
+                    color: isActive ? _C.primary : Colors.transparent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
   Widget _viewAccordion() {
     return Container(
-      decoration: BoxDecoration(
-        color: _C.cardBg,
-        borderRadius: BorderRadius.circular(6.r),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           GestureDetector(
             onTap: () => setState(() => _viewOpen = !_viewOpen),
             child: Container(
@@ -246,12 +314,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: _viewOpen
-                    ? BorderRadius.only(
-                  topLeft:  Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(
@@ -269,29 +332,24 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
               ]),
             ),
           ),
-
-          // Body
           if (_viewOpen)
             Padding(
-              padding: EdgeInsets.all(16.w),
-              child: _previewContent(),
+              padding: EdgeInsets.symmetric(vertical: 16.w),
+              child: Center(child: _previewContent()),
             ),
         ],
       ),
     );
   }
 
-  // ── Preview content ─────────────────────────────────────────────────────────
   Widget _previewContent() {
-    final bool isAr = _lang == _PreviewLang.ar;
-
-    final double maxW = switch (_mode) {
-      _PreviewMode.desktop => double.infinity,
-      _PreviewMode.tablet  => 600.w,
-      _PreviewMode.mobile  => 320.w,
+    final double maxW = switch (_device) {
+      _Device.desktop => double.infinity,
+      _Device.tablet  => 600.w,
+      _Device.mobile  => 320.w,
     };
 
-    final String title = isAr
+    final String title = _isAr
         ? (widget.model.title.ar.isNotEmpty
         ? widget.model.title.ar
         : 'الخدمات')
@@ -299,7 +357,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
         ? widget.model.title.en
         : 'Services');
 
-    final String desc = isAr
+    final String desc = _isAr
         ? (widget.model.shortDescription.ar.isNotEmpty
         ? widget.model.shortDescription.ar
         : 'تقدم بياناتز مجموعة من الخدمات المصممة لدعم مبادرات التحول الرقمي.')
@@ -308,32 +366,26 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
         : 'Bayanatz offers a range of services designed to support digital transformation initiatives within your organization.');
 
     return Directionality(
-      textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
+      textDirection: _isAr ? TextDirection.rtl : TextDirection.ltr,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxW),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Page title ───────────────────────────────────────────────
             Text(
               title,
               style: StyleText.fontSize45Weight600.copyWith(
-                color: _C.primary,
-                fontSize: _mode == _PreviewMode.mobile ? 22.sp : 28.sp,
+                color:    _C.primary,
+                fontSize: _device == _Device.mobile ? 22.sp : 28.sp,
               ),
             ),
             SizedBox(height: 10.h),
-
-            // ── Short description / subtitle ─────────────────────────────
-            // FIX: was already rendering desc correctly here — now also
-            // shows a labelled subtitle row so the editor can confirm it
-            // before saving.
             Text(
               desc,
               style: StyleText.fontSize14Weight400.copyWith(
-                color: _C.hintText,
-                fontSize: _mode == _PreviewMode.mobile ? 12.sp : 14.sp,
-                height: 1.7,
+                color:    _C.hintText,
+                fontSize: _device == _Device.mobile ? 12.sp : 14.sp,
+                height:   1.7,
               ),
             ),
           ],
@@ -341,82 +393,4 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
       ),
     );
   }
-}
-
-// ── Confirm Dialog ──────────────────────────────────────────────────────────
-Future<bool?> _showConfirmDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (_) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      contentPadding: EdgeInsets.all(24.r),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width:  80.w,
-            height: 80.w,
-            decoration: BoxDecoration(
-              color:        const Color(0xFFE8F5EE),
-              borderRadius: BorderRadius.circular(40.r),
-            ),
-            child: Icon(Icons.edit_note,
-                size: 40.sp, color: _C.primary),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'EDITING SERVICE DETAILS',
-            textAlign: TextAlign.center,
-            style: StyleText.fontSize14Weight600.copyWith(
-                color: const Color(0xFF1A1A1A)),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Do you want to save the changes made to this Service Details?',
-            textAlign: TextAlign.center,
-            style: StyleText.fontSize12Weight400.copyWith(
-                color: AppColors.secondaryBlack),
-          ),
-          SizedBox(height: 20.h),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40.h,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _C.grey,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r)),
-                    ),
-                    child: Text('Back',
-                        style: StyleText.fontSize13Weight500
-                            .copyWith(color: Colors.white)),
-                  ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: SizedBox(
-                  height: 40.h,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _C.primary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r)),
-                    ),
-                    child: Text('Confirm',
-                        style: StyleText.fontSize13Weight500
-                            .copyWith(color: Colors.white)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }

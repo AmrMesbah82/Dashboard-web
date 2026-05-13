@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:web_app_admin/controller/about_company/AboutCompanyCubit.dart';
 import 'package:web_app_admin/controller/about_us/about_us_cubit.dart';
 import 'package:web_app_admin/controller/career/careers_cms_cubit.dart';
+import 'package:web_app_admin/controller/career/careers_section_cubit.dart';
 import 'package:web_app_admin/controller/contact_us/contacu_us_location_cubit.dart';
 import 'package:web_app_admin/controller/contact_us/contatc_us_cubit.dart';
 import 'package:web_app_admin/controller/home_cubit.dart';
@@ -16,6 +17,7 @@ import 'package:web_app_admin/pages/dashboard/inquire/inquiry_main_page.dart';
 import 'package:web_app_admin/repo/Services/repo_imp.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:web_app_admin/repo/application/application_repo_imp.dart';
+import 'package:web_app_admin/repo/blog/blog_repo_impl.dart';
 import 'package:web_app_admin/repo/department/department_repo_imp.dart';
 import 'package:web_app_admin/repo/home_repository_impl.dart';
 import 'package:web_app_admin/repo/inquire/inquiry_repo_imp.dart';
@@ -144,7 +146,7 @@ class BayanatzApp extends StatelessWidget {
               )..load(),
             ),
             BlocProvider<BlogCubit>(
-              create: (_) => BlogCubit()..load(),
+              create: (_) => BlogCubit(BlogRepositoryImpl())..load(),  // ✅ With repository
             ),
             BlocProvider<AboutCubit>(
               create: (_) => AboutCubit()..load(),
@@ -189,6 +191,13 @@ class BayanatzApp extends StatelessWidget {
             ),
             BlocProvider<InquiryCubit>(
               create: (_) => InquiryCubit(repo: InquiryRepoImp()),
+            ),
+
+
+            BlocProvider<CareersSectionCubit>(
+              create: (_) => CareersSectionCubit(
+                sectionKey: 'whyJoinOurTeam', // default section
+              )..load(),
             ),
 
           ],

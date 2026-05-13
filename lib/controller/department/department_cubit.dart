@@ -19,7 +19,6 @@ class DepartmentCubit extends Cubit<DepartmentState> {
 
   List<DepartmentModel> get allDepartments => _allDepartments;
 
-  /// Returns departments as dropdown items for Job Listing edit page
   List<Map<String, String>> get dropdownItems => _allDepartments
       .map((d) => {'key': d.nameEn, 'value': d.nameEn})
       .toList();
@@ -46,10 +45,10 @@ class DepartmentCubit extends Cubit<DepartmentState> {
       print('🟡 [DepartmentCubit] createDepartment() — $nameEn');
 
       final dept = DepartmentModel(
-        id: '',
-        nameEn: nameEn,
-        nameAr: nameAr,
-        iconUrl: iconUrl,
+        id:        '',
+        nameEn:    nameEn,
+        nameAr:    nameAr,
+        iconUrl:   iconUrl,
         createdAt: DateTime.now(),
       );
 
@@ -65,6 +64,67 @@ class DepartmentCubit extends Cubit<DepartmentState> {
     } catch (e) {
       print('🔴 [DepartmentCubit] createDepartment() ERROR: $e');
       emit(DepartmentError('Failed to create: $e', lastDepartments: _allDepartments));
+    }
+  }
+
+  Future<void> updateDepartment({
+    required String id,
+    required String nameEn,
+    required String nameAr,
+    String iconUrl = '',
+  }) async {
+    try {
+      print('🟡 [DepartmentCubit] updateDepartment() — $id');
+
+      final updated = DepartmentModel(
+        id:        id,
+        nameEn:    nameEn,
+        nameAr:    nameAr,
+        iconUrl:   iconUrl,
+        createdAt: _allDepartments
+            .firstWhere((d) => d.id == id,
+            orElse: () => DepartmentModel(
+                id: id, nameEn: nameEn, nameAr: nameAr, iconUrl: iconUrl))
+            .createdAt,
+      );
+
+      final saved = await _repo.updateDepartment(updated);
+
+      _allDepartments = _allDepartments
+          .map((d) => d.id == id ? saved : d)
+          .toList();
+
+      print('🟢 [DepartmentCubit] updateDepartment() — done');
+      emit(DepartmentUpdated(saved));
+
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!isClosed) emit(DepartmentLoaded(_allDepartments));
+      });
+    } catch (e) {
+      print('🔴 [DepartmentCubit] updateDepartment() ERROR: $e');
+      emit(DepartmentError('Failed to update: $e', lastDepartments: _allDepartments));
+    }
+  }
+
+  Future<void> deleteDepartment({required String id}) async {
+    try {
+      print('🟡 [DepartmentCubit] deleteDepartment() — $id');
+
+      await _repo.deleteDepartment(id);
+
+      _allDepartments = _allDepartments
+          .where((d) => d.id != id)
+          .toList();
+
+      print('🟢 [DepartmentCubit] deleteDepartment() — done');
+      emit(DepartmentDeleted(id));
+
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!isClosed) emit(DepartmentLoaded(_allDepartments));
+      });
+    } catch (e) {
+      print('🔴 [DepartmentCubit] deleteDepartment() ERROR: $e');
+      emit(DepartmentError('Failed to delete: $e', lastDepartments: _allDepartments));
     }
   }
 }

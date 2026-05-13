@@ -14,13 +14,13 @@ class ApplicationLoading extends ApplicationState {}
 
 class ApplicationLoaded extends ApplicationState {
   final List<ApplicationModel> applications;
-  final String activeDeptFilter;
+  final String activeJobTitleFilter;   // ← was activeDeptFilter
   final String searchQuery;
   final ApplicationFilterData? filterData;
 
   ApplicationLoaded({
     required this.applications,
-    this.activeDeptFilter = 'All',
+    this.activeJobTitleFilter = 'All',  // ← was activeDeptFilter
     this.searchQuery = '',
     this.filterData,
   });
@@ -28,10 +28,10 @@ class ApplicationLoaded extends ApplicationState {
   List<ApplicationModel> get filteredApps {
     var result = List<ApplicationModel>.from(applications);
 
-    // ── 1. Department filter ──────────────────────────────────────────────
-    if (activeDeptFilter != 'All') {
+    // ── 1. Job Title filter (was Department) ──────────────────────────────
+    if (activeJobTitleFilter != 'All') {
       result = result
-          .where((a) => a.department.toLowerCase() == activeDeptFilter.toLowerCase())
+          .where((a) => a.jobTitle.toLowerCase() == activeJobTitleFilter.toLowerCase())
           .toList();
     }
 
@@ -138,12 +138,12 @@ class ApplicationLoaded extends ApplicationState {
   int get hiredCompleted =>
       filteredApps.where((a) => a.status == ApplicationStatus.hired).length;
 
-  // ── Department counts for filter tabs ────────────────────────────────────
-  Map<String, int> get departmentCounts {
+  // ── Job Title counts for filter tabs (was departmentCounts) ──────────────
+  Map<String, int> get jobTitleCounts {
     final map = <String, int>{};
     for (final a in applications) {
-      if (a.department.isNotEmpty) {
-        map[a.department] = (map[a.department] ?? 0) + 1;
+      if (a.jobTitle.isNotEmpty) {
+        map[a.jobTitle] = (map[a.jobTitle] ?? 0) + 1;
       }
     }
     return map;

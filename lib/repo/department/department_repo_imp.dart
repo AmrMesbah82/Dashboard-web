@@ -59,4 +59,29 @@ class DepartmentRepoImp implements DepartmentRepo {
       rethrow;
     }
   }
+
+  @override
+  Future<DepartmentModel> updateDepartment(DepartmentModel dept) async {
+    try {
+      print('🟡 [DepartmentRepoImp] updateDepartment() — ${dept.id}');
+      await _collection.doc(dept.id).update(dept.toMap());
+      print('🟢 [DepartmentRepoImp] updateDepartment() — done');
+      return dept;
+    } catch (e) {
+      print('🔴 [DepartmentRepoImp] updateDepartment() ERROR: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteDepartment(String id) async {
+    try {
+      print('🟡 [DepartmentRepoImp] deleteDepartment() — $id');
+      await _collection.doc(id).delete();
+      print('🟢 [DepartmentRepoImp] deleteDepartment() — done');
+    } catch (e) {
+      print('🔴 [DepartmentRepoImp] deleteDepartment() ERROR: $e');
+      rethrow;
+    }
+  }
 }

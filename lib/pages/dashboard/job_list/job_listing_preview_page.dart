@@ -11,8 +11,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_cubit.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_state.dart';
 import 'package:web_app_admin/model/job_listing_model.dart';
+import 'package:web_app_admin/pages/careers_main_dashboard.dart';
+import 'package:web_app_admin/pages/dashboard/about_company/about_comany_edit_page.dart';
+import 'package:web_app_admin/pages/dashboard/job_list/job_listing_main_page.dart';
 import 'package:web_app_admin/theme/app_wight.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
+import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 
 class _C {
   static const Color primary      = Color(0xFF008037);
@@ -125,6 +129,14 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
           width: double.infinity,
           child: Column(
             children: [
+
+              AppAdminNavbar(
+                activeLabel:    'Job Listing',
+                homePage:       CareersMainPageDashboard(),
+                webPage:        const AboutCompanyEditPage(),
+                jobListingPage: JobListingMainPage(),
+              ),
+
               SizedBox(height: 30.h),
               SizedBox(
                 width: 1000.w,
@@ -150,10 +162,10 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                         _viewModeTab('Tablet'),
                         SizedBox(width: 16.w),
                         _viewModeTab('Mobile'),
-                        const Spacer(),
-                        _langToggle('ENG'),
-                        SizedBox(width: 4.w),
-                        _langToggle('AR'),
+                        // const Spacer(),
+                        // _langToggle('ENG'),
+                        // SizedBox(width: 4.w),
+                        // _langToggle('AR'),
                       ],
                     ),
                     SizedBox(height: 24.h),
@@ -285,6 +297,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                               'Skills:',
                                               style: TextStyle(
                                                 fontSize: 13.sp,
+                                                fontWeight: FontWeight.w500,
                                                 color: _C.hintText,
                                               ),
                                             ),
@@ -381,7 +394,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                             child: Container(
                               height: 48.h,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
+                                color: Color(0xFF797979),
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Center(
@@ -441,16 +454,19 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
     final isActive = _viewMode == mode;
     return GestureDetector(
       onTap: () => setState(() => _viewMode = mode),
-      child: Text(
-        mode,
-        style: TextStyle(
-          fontSize: 15.sp,
-          fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-          color: isActive ? _C.labelText : _C.hintText,
-          decoration:
-          isActive ? TextDecoration.underline : TextDecoration.none,
-          decorationColor: _C.labelText,
-          decorationThickness: 2,
+      child: Padding(
+        padding: EdgeInsets.only(right: 28.w),
+        child: Text(
+          mode,
+          style: isActive
+              ? StyleText.fontSize16Weight600.copyWith(
+            color: _C.primary,
+            decoration:      TextDecoration.underline,
+            decorationColor: _C.primary,
+          )
+              : StyleText.fontSize16Weight400.copyWith(
+            color: _C.hintText,
+          ),
         ),
       ),
     );
@@ -557,7 +573,6 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
               color: _C.primary,
-              decoration: TextDecoration.underline,
               decorationColor: _C.primary,
               height: 1.6,
             ),
@@ -637,7 +652,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   children: [
                     // Benefit title (left column)
                     SizedBox(
-                      width: 200.w,
+                      width: 350.w,
                       child: Text(
                         title.isEmpty ? 'Benefit' : title,
                         style: TextStyle(
@@ -686,7 +701,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(top: 4.h),
+                padding: EdgeInsets.only(top: 10.h),
                 child: Container(
                   width: 5.sp,
                   height: 5.sp,

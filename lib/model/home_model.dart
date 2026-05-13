@@ -5,6 +5,7 @@
 // Created by: Amr Mesbah
 // FIXED: NavButtonModel now has status field to control navbar visibility
 // FIXED: SocialLinkModel now has visibility field to control footer display
+// ADDED: scheduledPublishDate field on HomePageModel for publish scheduling
 
 /// Bilingual text wrapper
 class BiText {
@@ -74,12 +75,14 @@ class SectionCardModel {
   final String iconUrl;
   final String textBoxColor;
   final BiText description;
+  final bool   visibility; // ✅ controls whether section shows on public site
 
   const SectionCardModel({
     this.imageUrl     = '',
     this.iconUrl      = '',
     this.textBoxColor = '#008037',
     this.description  = const BiText(),
+    this.visibility   = true, // ✅ default visible
   });
 
   SectionCardModel copyWith({
@@ -87,12 +90,14 @@ class SectionCardModel {
     String? iconUrl,
     String? textBoxColor,
     BiText? description,
+    bool?   visibility, // ✅
   }) =>
       SectionCardModel(
         imageUrl:     imageUrl     ?? this.imageUrl,
         iconUrl:      iconUrl      ?? this.iconUrl,
         textBoxColor: textBoxColor ?? this.textBoxColor,
         description:  description  ?? this.description,
+        visibility:   visibility   ?? this.visibility, // ✅
       );
 
   Map<String, dynamic> toMap() => {
@@ -100,6 +105,7 @@ class SectionCardModel {
     'iconUrl':      iconUrl,
     'textBoxColor': textBoxColor,
     'description':  description.toMap(),
+    'visibility':   visibility, // ✅ persisted to Firestore
   };
 
   factory SectionCardModel.fromMap(Map<String, dynamic> map) => SectionCardModel(
@@ -107,6 +113,7 @@ class SectionCardModel {
     iconUrl:      map['iconUrl']      ?? '',
     textBoxColor: map['textBoxColor'] ?? '#008037',
     description:  BiText.fromMap(map['description'] ?? {}),
+    visibility:   map['visibility']   ?? true, // ✅ old docs default to true
   );
 }
 
@@ -348,8 +355,9 @@ class HomePageModel {
   final List<FooterColumnModel> footerColumns;
   final List<SocialLinkModel>   socialLinks;
   final BrandingModel           branding;
-  final String                  publishStatus;
+  final String                  publishStatus; // 'published' | 'scheduled' | 'draft'
   final DateTime?               lastUpdatedAt;
+  final DateTime?               scheduledPublishDate; // ✅ NEW — when to auto-publish
 
   const HomePageModel({
     this.title            = const BiText(),
@@ -362,6 +370,7 @@ class HomePageModel {
     this.branding         = const BrandingModel(),
     this.publishStatus    = 'draft',
     this.lastUpdatedAt,
+    this.scheduledPublishDate, // ✅ NEW
   });
 
   HomePageModel copyWith({
@@ -375,31 +384,36 @@ class HomePageModel {
     BrandingModel?           branding,
     String?                  publishStatus,
     DateTime?                lastUpdatedAt,
+    DateTime?                scheduledPublishDate, // ✅ NEW
+    // ✅ use this sentinel to explicitly clear the scheduled date
+    bool                     clearScheduledPublishDate = false,
   }) =>
       HomePageModel(
-        title:            title            ?? this.title,
-        shortDescription: shortDescription ?? this.shortDescription,
-        navButtons:       navButtons       ?? this.navButtons,
-        sections:         sections         ?? this.sections,
-        headerItems:      headerItems      ?? this.headerItems,
-        footerColumns:    footerColumns    ?? this.footerColumns,
-        socialLinks:      socialLinks      ?? this.socialLinks,
-        branding:         branding         ?? this.branding,
-        publishStatus:    publishStatus    ?? this.publishStatus,
-        lastUpdatedAt:    lastUpdatedAt    ?? this.lastUpdatedAt,
+        title:                title                ?? this.title,
+        shortDescription:     shortDescription     ?? this.shortDescription,
+        navButtons:           navButtons           ?? this.navButtons,
+        sections:             sections             ?? this.sections,
+        headerItems:          headerItems          ?? this.headerItems,
+        footerColumns:        footerColumns        ?? this.footerColumns,
+        socialLinks:          socialLinks          ?? this.socialLinks,
+        branding:             branding             ?? this.branding,
+        publishStatus:        publishStatus        ?? this.publishStatus,
+        lastUpdatedAt:        lastUpdatedAt        ?? this.lastUpdatedAt,
+        scheduledPublishDate: clearScheduledPublishDate
+            ? null
+            : (scheduledPublishDate ?? this.scheduledPublishDate),
       );
 
   Map<String, dynamic> toMap() => {
-    'title':            title.toMap(),
-    'shortDescription': shortDescription.toMap(),
-    'navButtons':       navButtons.map((e) => e.toMap()).toList(),
-    'sections':         sections.map((e) => e.toMap()).toList(),
-    'headerItems':      headerItems.map((e) => e.toMap()).toList(),
-    'footerColumns':    footerColumns.map((e) => e.toMap()).toList(),
-    'socialLinks':      socialLinks.map((e) => e.toMap()).toList(),
-    'branding':         branding.toMap(),
-    'publishStatus':    publishStatus,
-    'lastUpdatedAt':    lastUpdatedAt?.toIso8601String(),
+    'title':                title.toMap(),
+    'shortDescription':     shortDescription.toMap(),
+    'navButtons':           navButtons.map((e) => e.toMap()).toList(),
+    'sections':             sections.map((e) => e.toMap()).toList(),
+    'headerItems':          headerItems.map((e) => e.toMap()).toList(),
+    'footerColumns':        footerColumns.map((e) => e.toMap()).toList(),
+    'socialLinks':          socialLinks.map((e) => e.toMap()).toList(),
+    'branding':             branding.toMap(),
+    'publishStatus':        publishStatus,
   };
 
   factory HomePageModel.fromMap(Map<String, dynamic> map) => HomePageModel(
@@ -420,17 +434,43 @@ class HomePageModel {
     socialLinks: (map['socialLinks'] as List<dynamic>? ?? [])
         .map((e) => SocialLinkModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    branding:      BrandingModel.fromMap(map['branding'] ?? {}),
-    publishStatus: map['publishStatus'] ?? 'draft',
-    lastUpdatedAt: _parseDateTime(map['lastUpdatedAt']),
+    branding:             BrandingModel.fromMap(map['branding'] ?? {}),
+    publishStatus:        map['publishStatus'] ?? 'draft',
+    lastUpdatedAt:        _parseDateTime(map['lastUpdatedAt']),
+    scheduledPublishDate: _parseDateTime(map['scheduledPublishDate']), // ✅ NEW
   );
 
   static DateTime? _parseDateTime(dynamic value) {
-    if (value == null) return null;
-    if (value.runtimeType.toString().contains('Timestamp')) {
-      try { return (value as dynamic).toDate() as DateTime; } catch (_) {}
+    print('🟡 _parseDateTime called — value=$value  type=${value?.runtimeType}');
+    if (value == null) {
+      print('   → null, returning null');
+      return null;
     }
-    if (value is String) return DateTime.tryParse(value);
+    try {
+      if (value is DateTime) {
+        print('   → already DateTime: $value');
+        return value;
+      }
+      final type = value.runtimeType.toString();
+      if (type.contains('Timestamp')) {
+        final dt = value.toDate() as DateTime;
+        print('   → Timestamp converted to DateTime: $dt');
+        return dt;
+      }
+      if (value is String && value.isNotEmpty) {
+        final dt = DateTime.tryParse(value);
+        print('   → String parsed to DateTime: $dt');
+        return dt;
+      }
+      if (value is int) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(value);
+        print('   → int converted to DateTime: $dt');
+        return dt;
+      }
+    } catch (e) {
+      print('🔴 _parseDateTime ERROR: $e  value=$value');
+    }
+    print('   → no match, returning null');
     return null;
   }
 
@@ -499,8 +539,9 @@ class HomePageModel {
       SocialLinkModel(id: 'sl_2', iconUrl: '', url: '', visibility: true),
       SocialLinkModel(id: 'sl_3', iconUrl: '', url: '', visibility: true),
     ],
-    branding:      const BrandingModel(),
-    publishStatus: 'draft',
-    lastUpdatedAt: null,
+    branding:             const BrandingModel(),
+    publishStatus:        'draft',
+    lastUpdatedAt:        null,
+    scheduledPublishDate: null, // ✅ NEW
   );
 }

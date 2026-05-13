@@ -1,29 +1,40 @@
 // ******************* FILE INFO *******************
 // File Name: repo.dart
-// Description: Abstract repository contract for Home CMS.
+// Description: Abstract repository for Home CMS.
+//              Supports dual-document architecture:
+//              - Published doc  → `cms/home_page`
+//              - Draft doc      → `cms/home_page_draft`
 // Created by: Amr Mesbah
+// Last Update: 20/04/2026
+// UPDATED: Added draft lifecycle methods (fetch, save, delete, promote) ✅
 
 import 'dart:typed_data';
 import 'package:web_app_admin/model/home_model.dart';
 
 abstract class HomeRepository {
-  /// Fetch from Firestore (may use local cache).
+  // ── Published document ───────────────────────────────────────────────────
   Future<HomePageModel> fetchHomePage();
-
-  /// Fetch directly from Firestore server — bypasses local IndexedDB cache.
-  /// Always use this after a save() to guarantee reading the written data.
   Future<HomePageModel> fetchHomePageFresh();
-
-  /// Persist [model] to Firestore.
   Future<void> saveHomePage(HomePageModel model);
+  Stream<HomePageModel> watchHomePage();
 
-  /// Upload raw image [bytes] to Firebase Storage under [storagePath]
-  /// and return the public HTTPS download URL.
+  // ── Draft document ───────────────────────────────────────────────────────
+  /// Fetch the draft version. Returns null if no draft exists.
+  Future<HomePageModel?> fetchDraft();
+
+  /// Save form edits as a draft (does NOT touch the published doc).
+  Future<void> saveDraft(HomePageModel model);
+
+  /// Delete the draft document (e.g. after publish or discard).
+  Future<void> deleteDraft();
+
+  /// Promote draft → published: copies draft into the published doc,
+  /// then deletes the draft.
+  Future<void> promoteDraft();
+
+  // ── Assets ───────────────────────────────────────────────────────────────
   Future<String> uploadImage({
     required Uint8List bytes,
     required String storagePath,
   });
-
-  /// Real-time stream of updates (used for live preview sync).
-  Stream<HomePageModel> watchHomePage();
 }

@@ -1094,6 +1094,8 @@ class _AboutBodyDesktopState extends State<_AboutBodyDesktop> {
             ),
 
           // ── Tab 1: Our Strategy ──
+          // In _AboutBodyTablet build method, replace the Tab 1 section:
+
           if (_selectedTopTab == 1)
             _Reveal(
               key: const ValueKey('top_1'),
@@ -1106,23 +1108,152 @@ class _AboutBodyDesktopState extends State<_AboutBodyDesktop> {
                     StrategySaved(:final data) => data.vision.svgUrl,
                     _ => '',
                   };
-                  return Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.r),
-                    decoration: BoxDecoration(
-                      color: _kSurface,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Center(
-                      child: svgUrl.isNotEmpty
-                          ? _netImg(
+                  final String strategicHouseEnUrl = switch (strategyState) {
+                    StrategyLoaded(:final data) => data.strategicHouseEnUrl,
+                    StrategySaved(:final data) => data.strategicHouseEnUrl,
+                    _ => '',
+                  };
+                  final String strategicHouseArUrl = switch (strategyState) {
+                    StrategyLoaded(:final data) => data.strategicHouseArUrl,
+                    StrategySaved(:final data) => data.strategicHouseArUrl,
+                    _ => '',
+                  };
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Vision Section with SVG
+                      if (svgUrl.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(14.r),
+                          decoration: BoxDecoration(
+                            color: _kSurface,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: _netImg(
                               url: svgUrl,
-                              width: 300.w,
-                              height: 300.h,
+                              width: 250.w,
+                              height: 250.h,
                               fit: BoxFit.contain,
-                            )
-                          : const SizedBox.shrink(),
-                    ),
+                            ),
+                          ),
+                        ),
+
+                      SizedBox(height: 20.h),
+
+                      // Strategic House - English
+                      if (strategicHouseEnUrl.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.isRtl ? 'البيت الاستراتيجي' : 'Strategic House',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: widget.primaryColor,
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              widget.isRtl ? 'النسخة الإنجليزية' : 'English Version',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(14.r),
+                              decoration: BoxDecoration(
+                                color: _kSurface,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: _netImg(
+                                  url: strategicHouseEnUrl,
+                                  width: double.infinity,
+                                  height: 250.h,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      SizedBox(height: 20.h),
+
+                      // Strategic House - Arabic
+                      if (strategicHouseArUrl.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.isRtl ? 'البيت الاستراتيجي' : 'Strategic House',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: widget.primaryColor,
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              widget.isRtl ? 'النسخة العربية' : 'Arabic Version',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(14.r),
+                              decoration: BoxDecoration(
+                                color: _kSurface,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: _netImg(
+                                  url: strategicHouseArUrl,
+                                  width: double.infinity,
+                                  height: 250.h,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // If no content at all
+                      if (svgUrl.isEmpty && strategicHouseEnUrl.isEmpty && strategicHouseArUrl.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(14.r),
+                          decoration: BoxDecoration(
+                            color: _kSurface,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.isRtl ? 'لا يوجد محتوى بعد' : 'No content yet',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 13.sp,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),
@@ -2086,6 +2217,8 @@ class _AboutBodyMobileState extends State<_AboutBodyMobile> {
                 initialExpanded: widget.initialSubTab,
               ),
             ),
+          // In _AboutBodyMobile build method, replace the Tab 1 section:
+
           if (_selectedTopTab == 1)
             _Reveal(
               key: const ValueKey('mob_top_1'),
@@ -2098,21 +2231,152 @@ class _AboutBodyMobileState extends State<_AboutBodyMobile> {
                     StrategySaved(:final data) => data.vision.svgUrl,
                     _ => '',
                   };
-                  return Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(14.r),
-                    decoration: BoxDecoration(
-                      color: _kSurface,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: svgUrl.isNotEmpty
-                        ? _netImg(
-                            url: svgUrl,
-                            width: double.infinity,
-                            height: 220.h,
-                            fit: BoxFit.contain,
-                          )
-                        : const SizedBox.shrink(),
+                  final String strategicHouseEnUrl = switch (strategyState) {
+                    StrategyLoaded(:final data) => data.strategicHouseEnUrl,
+                    StrategySaved(:final data) => data.strategicHouseEnUrl,
+                    _ => '',
+                  };
+                  final String strategicHouseArUrl = switch (strategyState) {
+                    StrategyLoaded(:final data) => data.strategicHouseArUrl,
+                    StrategySaved(:final data) => data.strategicHouseArUrl,
+                    _ => '',
+                  };
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Vision Section with SVG
+                      if (svgUrl.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.r),
+                          decoration: BoxDecoration(
+                            color: _kSurface,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: _netImg(
+                              url: svgUrl,
+                              width: double.infinity,
+                              height: 180.h,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+
+                      SizedBox(height: 16.h),
+
+                      // Strategic House - English
+                      if (strategicHouseEnUrl.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.isRtl ? 'البيت الاستراتيجي' : 'Strategic House',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w700,
+                                color: widget.primaryColor,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              widget.isRtl ? 'النسخة الإنجليزية' : 'English Version',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(12.r),
+                              decoration: BoxDecoration(
+                                color: _kSurface,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: _netImg(
+                                  url: strategicHouseEnUrl,
+                                  width: double.infinity,
+                                  height: 180.h,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      SizedBox(height: 16.h),
+
+                      // Strategic House - Arabic
+                      if (strategicHouseArUrl.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.isRtl ? 'البيت الاستراتيجي' : 'Strategic House',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w700,
+                                color: widget.primaryColor,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              widget.isRtl ? 'النسخة العربية' : 'Arabic Version',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(12.r),
+                              decoration: BoxDecoration(
+                                color: _kSurface,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: _netImg(
+                                  url: strategicHouseArUrl,
+                                  width: double.infinity,
+                                  height: 180.h,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // If no content at all
+                      if (svgUrl.isEmpty && strategicHouseEnUrl.isEmpty && strategicHouseArUrl.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(12.r),
+                          decoration: BoxDecoration(
+                            color: _kSurface,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.isRtl ? 'لا يوجد محتوى بعد' : 'No content yet',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 12.sp,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

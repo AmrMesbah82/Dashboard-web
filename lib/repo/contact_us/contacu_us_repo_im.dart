@@ -25,11 +25,16 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
           .get();
 
       if (!doc.exists || doc.data() == null) {
-        // Return default empty model
         return _defaultModel();
       }
 
-      return ContactUsCmsModel.fromJson(doc.data()!);
+      final model = ContactUsCmsModel.fromJson(doc.data()!);
+
+      // ── Extract Firestore Timestamp and inject into model ──
+      final raw = doc.data()!['lastUpdatedAt'];
+      final lastUpdatedAt = raw is Timestamp ? raw.toDate() : null;
+
+      return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← THIS was missing
     } catch (e) {
       print('❌ ContactUsCmsRepo.load error: $e');
       rethrow;
@@ -42,20 +47,20 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
     Map<String, Uint8List>? imageUploads,
   }) async {
     try {
-      // ✅ Step 1: Upload images and get download URLs
       Map<String, String> uploadedUrls = {};
       if (imageUploads != null && imageUploads.isNotEmpty) {
         uploadedUrls = await _uploadImages(imageUploads);
       }
 
-      // ✅ Step 2: Update model with new URLs
       final updatedModel = _updateModelWithUrls(model, uploadedUrls);
 
-      // ✅ Step 3: Save model to Firestore with updated URLs
+      final json = updatedModel.toJson();
+      json['lastUpdatedAt'] = FieldValue.serverTimestamp(); // ← THIS was missing
+
       await _firestore
           .collection(_collectionName)
           .doc(_docId)
-          .set(updatedModel.toJson(), SetOptions(merge: true));
+          .set(json, SetOptions(merge: true));
 
       print('✅ ContactUsCmsRepo.save: saved successfully');
     } catch (e) {
@@ -130,14 +135,15 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
 
     // Return updated model
     return ContactUsCmsModel(
-      publishStatus: model.publishStatus,
-      subDescription: model.subDescription,
-      email: model.email,
-      socialIcons: updatedSocialIcons,
+      publishStatus:   model.publishStatus,
+      subDescription:  model.subDescription,
+      email:           model.email,
+      followUsTitle:   model.followUsTitle,          // ← ADD
+      socialIcons:     updatedSocialIcons,
       officeLocations: updatedOfficeLocations,
       confirmMessage: ContactConfirmMessage(
-        svgUrl: confirmSvgUrl,
-        title: model.confirmMessage.title,
+        svgUrl:      confirmSvgUrl,
+        title:       model.confirmMessage.title,
         description: model.confirmMessage.description,
       ),
     );
@@ -194,27 +200,15 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
         ar: 'حقق أهدافك بكفاءة ودون انقطاع من خلال سير عمل سلس ومتواصل',
       ),
       email: 'info@bayanatz.com',
+      followUsTitle: ContactBilingualText(        // ← ADD
+        en: 'Follow Us',
+        ar: 'تابعنا',
+      ),
       socialIcons: [
-        ContactSocialIcon(
-          id: 'social_1',
-          iconUrl: '',
-          link: '',
-        ),
-        ContactSocialIcon(
-          id: 'social_2',
-          iconUrl: '',
-          link: '',
-        ),
-        ContactSocialIcon(
-          id: 'social_3',
-          iconUrl: '',
-          link: '',
-        ),
-        ContactSocialIcon(
-          id: 'social_4',
-          iconUrl: '',
-          link: '',
-        ),
+        ContactSocialIcon(id: 'social_1', iconUrl: '', link: ''),
+        ContactSocialIcon(id: 'social_2', iconUrl: '', link: ''),
+        ContactSocialIcon(id: 'social_3', iconUrl: '', link: ''),
+        ContactSocialIcon(id: 'social_4', iconUrl: '', link: ''),
       ],
       officeLocations: [
         ContactOfficeLocation(

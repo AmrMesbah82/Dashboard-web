@@ -4,6 +4,12 @@
 // Navigates to: AboutPreviewPage (screen 3)
 // UPDATE: Values section — first item labeled "Main Icon", rest labeled "Icon"
 //         matching Figma design exactly.
+// UPDATED: Added custom dialogs for publish/save
+// UPDATED: Proper validation with error messages under text fields
+// UPDATED: All text fields have isRequired: true for inline validation
+// UPDATED: Added Navigation Label section (between Headings and Vision)
+// UPDATED: Publish button disabled until all fields valid. Error text only
+//          appears after first submit attempt. Button reactively enables/disables.
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
@@ -18,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/controller/about_us/about_us_cubit.dart';
 import 'package:web_app_admin/controller/about_us/about_us_state.dart';
+import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/model/about_us.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
@@ -25,14 +32,16 @@ import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
+import '../../../core/custom_dialog.dart';
+import 'about_main_page_master.dart';
 import 'about_preview_page.dart';
 
-const Color _kGreen      = Color(0xFF2D8C4E);
+const Color _kGreen = Color(0xFF2D8C4E);
 const Color _kGreenSolid = Color(0xFF008037);
 const Color _kGreenLight = Color(0xFFE8F5EE);
-const Color _kRed        = Color(0xFFD32F2F);
-const Color _kSurface    = Color(0xFFFFFFFF);
-const Color _kBg         = Color(0xFFF2F2F2);
+const Color _kRed = Color(0xFFD32F2F);
+const Color _kSurface = Color(0xFFFFFFFF);
+const Color _kBg = Color(0xFFF2F2F2);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAGE
@@ -50,25 +59,31 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   final _titleEnCtrl = TextEditingController();
   final _titleArCtrl = TextEditingController();
 
+  // ── Navigation Label ──
+  final _navTitleEnCtrl = TextEditingController();
+  final _navTitleArCtrl = TextEditingController();
+  Uint8List? _navIconBytes;
+  String _navIconUrl = '';
+
   // ── Vision ──
-  final _visionSubEnCtrl  = TextEditingController();
-  final _visionSubArCtrl  = TextEditingController();
+  final _visionSubEnCtrl = TextEditingController();
+  final _visionSubArCtrl = TextEditingController();
   final _visionDescEnCtrl = TextEditingController();
   final _visionDescArCtrl = TextEditingController();
   Uint8List? _visionIconBytes;
   Uint8List? _visionSvgBytes;
   String _visionIconUrl = '';
-  String _visionSvgUrl  = '';
+  String _visionSvgUrl = '';
 
   // ── Mission ──
-  final _missionSubEnCtrl  = TextEditingController();
-  final _missionSubArCtrl  = TextEditingController();
+  final _missionSubEnCtrl = TextEditingController();
+  final _missionSubArCtrl = TextEditingController();
   final _missionDescEnCtrl = TextEditingController();
   final _missionDescArCtrl = TextEditingController();
   Uint8List? _missionIconBytes;
   Uint8List? _missionSvgBytes;
   String _missionIconUrl = '';
-  String _missionSvgUrl  = '';
+  String _missionSvgUrl = '';
 
   // ── Values ──
   final List<_ValueItem> _valueItems = [];
@@ -76,16 +91,23 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   // ── Accordion open/close ──
   bool _headingsOpen = true;
-  bool _visionOpen   = true;
-  bool _missionOpen  = true;
-  bool _valuesOpen   = true;
+  bool _navigationLabelOpen = true;
+  bool _visionOpen = true;
+  bool _missionOpen = true;
+  bool _valuesOpen = true;
 
+  /// True only after user has attempted to submit at least once.
+  /// Error text under fields only appears when this is true.
   bool _submitted = false;
-  bool _seeded    = false;
-  bool _isSaving  = false;
+
+  bool _seeded = false;
+  bool _isSaving = false;
 
   // ── URL → bytes cache (avoids re-fetching on every rebuild) ──
   final Map<String, Future<Uint8List>> _urlBytesCache = {};
+
+  /// Computed live — true when every required field has a value.
+  bool get _isFormValid => _validateFields();
 
   @override
   void initState() {
@@ -97,6 +119,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   void dispose() {
     _titleEnCtrl.dispose();
     _titleArCtrl.dispose();
+    _navTitleEnCtrl.dispose();
+    _navTitleArCtrl.dispose();
     _visionSubEnCtrl.dispose();
     _visionSubArCtrl.dispose();
     _visionDescEnCtrl.dispose();
@@ -125,16 +149,22 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
     input.onChange.listen((_) {
       final files = input.files;
-      if (files == null || files.isEmpty) { completer.complete(null); return; }
+      if (files == null || files.isEmpty) {
+        completer.complete(null);
+        return;
+      }
       final file = files.first;
       final reader = html.FileReader();
       reader.readAsArrayBuffer(file);
       reader.onLoadEnd.listen((_) {
         if (reader.readyState == html.FileReader.DONE) {
           final result = reader.result;
-          if (result is ByteBuffer) completer.complete(result.asUint8List());
-          else if (result is Uint8List) completer.complete(result);
-          else completer.complete(null);
+          if (result is ByteBuffer)
+            completer.complete(result.asUint8List());
+          else if (result is Uint8List)
+            completer.complete(result);
+          else
+            completer.complete(null);
         }
       });
       reader.onError.listen((_) => completer.complete(null));
@@ -146,18 +176,33 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   Future<Uint8List?> _pickSvgFile() async {
     final completer = Completer<Uint8List?>();
-    final input = html.FileUploadInputElement();
+    final input = html.FileUploadInputElement()..accept = '.svg,image/svg+xml';
 
     input.onChange.listen((_) {
       final files = input.files;
-      if (files == null || files.isEmpty) { completer.complete(null); return; }
+      if (files == null || files.isEmpty) {
+        completer.complete(null);
+        return;
+      }
       final file = files.first;
       if (!file.name.toLowerCase().endsWith('.svg')) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('❌ Please upload SVG files only! You selected: ${file.name}'),
-          backgroundColor: _kRed,
-          duration: const Duration(seconds: 3),
-        ));
+        showConfirmDialog(
+          context: context,
+          title: 'Invalid File',
+          subtitle: 'Please upload SVG files only! You selected: ${file.name}',
+          confirmLabel: 'OK',
+          cancelLabel: '',
+          onConfirm: () {},
+          iconWidget: Container(
+            width: 60.r,
+            height: 60.r,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE53935),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+          ),
+        );
         completer.complete(null);
         return;
       }
@@ -166,9 +211,12 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
       reader.onLoadEnd.listen((_) {
         if (reader.readyState == html.FileReader.DONE) {
           final result = reader.result;
-          if (result is ByteBuffer) completer.complete(result.asUint8List());
-          else if (result is Uint8List) completer.complete(result);
-          else completer.complete(null);
+          if (result is ByteBuffer)
+            completer.complete(result.asUint8List());
+          else if (result is Uint8List)
+            completer.complete(result);
+          else
+            completer.complete(null);
         }
       });
       reader.onError.listen((_) => completer.complete(null));
@@ -184,15 +232,21 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
     input.onChange.listen((_) {
       final files = input.files;
-      if (files == null || files.isEmpty) { completer.complete(null); return; }
+      if (files == null || files.isEmpty) {
+        completer.complete(null);
+        return;
+      }
       final reader = html.FileReader();
       reader.readAsArrayBuffer(files.first);
       reader.onLoadEnd.listen((_) {
         if (reader.readyState == html.FileReader.DONE) {
           final result = reader.result;
-          if (result is ByteBuffer) completer.complete(result.asUint8List());
-          else if (result is Uint8List) completer.complete(result);
-          else completer.complete(null);
+          if (result is ByteBuffer)
+            completer.complete(result.asUint8List());
+          else if (result is Uint8List)
+            completer.complete(result);
+          else
+            completer.complete(null);
         }
       });
       reader.onError.listen((_) => completer.complete(null));
@@ -206,7 +260,6 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   // URL loaders (XHR — CORS-safe for Firebase Storage)
   // ══════════════════════════════════════════════════════════════════════════
 
-  /// Returns a cached Future so FutureBuilder never re-fetches on rebuild.
   Future<Uint8List> _cachedLoad(String url, {bool isSvg = false}) {
     return _urlBytesCache.putIfAbsent(
       url,
@@ -221,7 +274,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         method: 'GET',
         responseType: 'arraybuffer',
       );
-      if (response.status == 200 && response.response != null) {
+      if (response.status == 150 && response.response != null) {
         return (response.response as ByteBuffer).asUint8List();
       }
       throw Exception('HTTP ${response.status}');
@@ -238,7 +291,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         responseType: 'arraybuffer',
         mimeType: 'image/svg+xml',
       );
-      if (response.status == 200 && response.response != null) {
+      if (response.status == 150 && response.response != null) {
         return (response.response as ByteBuffer).asUint8List();
       }
       throw Exception('HTTP ${response.status}');
@@ -255,25 +308,30 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     _titleEnCtrl.text = m.title.en;
     _titleArCtrl.text = m.title.ar;
 
-    _visionSubEnCtrl.text  = m.vision.subDescription.en;
-    _visionSubArCtrl.text  = m.vision.subDescription.ar;
+    // ── Navigation Label ──
+    _navTitleEnCtrl.text = m.navigationLabel.title.en;
+    _navTitleArCtrl.text = m.navigationLabel.title.ar;
+    _navIconUrl = m.navigationLabel.iconUrl;
+
+    _visionSubEnCtrl.text = m.vision.subDescription.en;
+    _visionSubArCtrl.text = m.vision.subDescription.ar;
     _visionDescEnCtrl.text = m.vision.description.en;
     _visionDescArCtrl.text = m.vision.description.ar;
     _visionIconUrl = m.vision.iconUrl;
-    _visionSvgUrl  = m.vision.svgUrl;
+    _visionSvgUrl = m.vision.svgUrl;
 
-    _missionSubEnCtrl.text  = m.mission.subDescription.en;
-    _missionSubArCtrl.text  = m.mission.subDescription.ar;
+    _missionSubEnCtrl.text = m.mission.subDescription.en;
+    _missionSubArCtrl.text = m.mission.subDescription.ar;
     _missionDescEnCtrl.text = m.mission.description.en;
     _missionDescArCtrl.text = m.mission.description.ar;
     _missionIconUrl = m.mission.iconUrl;
-    _missionSvgUrl  = m.mission.svgUrl;
+    _missionSvgUrl = m.mission.svgUrl;
 
     _valueItems.clear();
     for (final v in m.values) {
       final item = _ValueItem(id: v.id, counter: ++_valueCounter);
-      item.titleEnCtrl.text     = v.title.en;
-      item.titleArCtrl.text     = v.title.ar;
+      item.titleEnCtrl.text = v.title.en;
+      item.titleArCtrl.text = v.title.ar;
       item.shortDescEnCtrl.text = v.shortDescription.en;
       item.shortDescArCtrl.text = v.shortDescription.ar;
       item.iconUrl = v.iconUrl;
@@ -285,64 +343,215 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   AboutPageModel _buildModel(String status) {
     return AboutPageModel(
       publishStatus: status,
-      title: AboutBilingualText(en: _titleEnCtrl.text.trim(), ar: _titleArCtrl.text.trim()),
+      title: AboutBilingualText(
+        en: _titleEnCtrl.text.trim(),
+        ar: _titleArCtrl.text.trim(),
+      ),
+      navigationLabel: AboutNavigationLabel(
+        iconUrl: _navIconUrl,
+        title: AboutBilingualText(
+          en: _navTitleEnCtrl.text.trim(),
+          ar: _navTitleArCtrl.text.trim(),
+        ),
+      ),
       vision: AboutSection(
         iconUrl: _visionIconUrl,
         svgUrl: _visionSvgUrl,
-        subDescription: AboutBilingualText(en: _visionSubEnCtrl.text.trim(), ar: _visionSubArCtrl.text.trim()),
-        description: AboutBilingualText(en: _visionDescEnCtrl.text.trim(), ar: _visionDescArCtrl.text.trim()),
+        subDescription: AboutBilingualText(
+          en: _visionSubEnCtrl.text.trim(),
+          ar: _visionSubArCtrl.text.trim(),
+        ),
+        description: AboutBilingualText(
+          en: _visionDescEnCtrl.text.trim(),
+          ar: _visionDescArCtrl.text.trim(),
+        ),
       ),
       mission: AboutSection(
         iconUrl: _missionIconUrl,
         svgUrl: _missionSvgUrl,
-        subDescription: AboutBilingualText(en: _missionSubEnCtrl.text.trim(), ar: _missionSubArCtrl.text.trim()),
-        description: AboutBilingualText(en: _missionDescEnCtrl.text.trim(), ar: _missionDescArCtrl.text.trim()),
+        subDescription: AboutBilingualText(
+          en: _missionSubEnCtrl.text.trim(),
+          ar: _missionSubArCtrl.text.trim(),
+        ),
+        description: AboutBilingualText(
+          en: _missionDescEnCtrl.text.trim(),
+          ar: _missionDescArCtrl.text.trim(),
+        ),
       ),
-      values: _valueItems.map((v) => AboutValueItem(
-        id: v.id,
-        iconUrl: v.iconUrl,
-        title: AboutBilingualText(en: v.titleEnCtrl.text.trim(), ar: v.titleArCtrl.text.trim()),
-        shortDescription: AboutBilingualText(en: v.shortDescEnCtrl.text.trim(), ar: v.shortDescArCtrl.text.trim()),
-      )).toList(),
+      values: _valueItems
+          .map(
+            (v) => AboutValueItem(
+          id: v.id,
+          iconUrl: v.iconUrl,
+          title: AboutBilingualText(
+            en: v.titleEnCtrl.text.trim(),
+            ar: v.titleArCtrl.text.trim(),
+          ),
+          shortDescription: AboutBilingualText(
+            en: v.shortDescEnCtrl.text.trim(),
+            ar: v.shortDescArCtrl.text.trim(),
+          ),
+        ),
+      )
+          .toList(),
     );
   }
 
   // ── Collect image uploads ──────────────────────────────────────────────────
   Map<String, Uint8List> _collectUploads() {
     final uploads = <String, Uint8List>{};
-    if (_visionIconBytes  != null) uploads['about_cms/vision/icon']   = _visionIconBytes!;
-    if (_visionSvgBytes   != null) uploads['about_cms/vision/svg']    = _visionSvgBytes!;
-    if (_missionIconBytes != null) uploads['about_cms/mission/icon']  = _missionIconBytes!;
-    if (_missionSvgBytes  != null) uploads['about_cms/mission/svg']   = _missionSvgBytes!;
+    if (_navIconBytes != null)
+      uploads['about_cms/navigation/icon'] = _navIconBytes!;
+    if (_visionIconBytes != null)
+      uploads['about_cms/vision/icon'] = _visionIconBytes!;
+    if (_visionSvgBytes != null)
+      uploads['about_cms/vision/svg'] = _visionSvgBytes!;
+    if (_missionIconBytes != null)
+      uploads['about_cms/mission/icon'] = _missionIconBytes!;
+    if (_missionSvgBytes != null)
+      uploads['about_cms/mission/svg'] = _missionSvgBytes!;
     for (final v in _valueItems) {
-      if (v.iconBytes != null) uploads['about_cms/values/${v.id}/icon'] = v.iconBytes!;
+      if (v.iconBytes != null)
+        uploads['about_cms/values/${v.id}/icon'] = v.iconBytes!;
     }
     return uploads;
   }
 
-  // ── Validate fields ────────────────────────────────────────────────────────
+  // ── Validate fields — pure check, no side effects ──────────────────────────
   bool _validateFields() {
-    final requiredCtrls = [
-      _titleEnCtrl, _titleArCtrl,
-      _visionSubEnCtrl, _visionSubArCtrl,
-      _visionDescEnCtrl, _visionDescArCtrl,
-      _missionSubEnCtrl, _missionSubArCtrl,
-      _missionDescEnCtrl, _missionDescArCtrl,
-      for (final v in _valueItems) ...[
-        v.titleEnCtrl, v.titleArCtrl,
-        v.shortDescEnCtrl, v.shortDescArCtrl,
-      ],
-    ];
-    return !requiredCtrls.any((c) => c.text.trim().isEmpty);
+    // Check Headings
+    if (_titleEnCtrl.text.trim().isEmpty) return false;
+    if (_titleArCtrl.text.trim().isEmpty) return false;
+
+    // Check Navigation Label
+    if (_navTitleEnCtrl.text.trim().isEmpty) return false;
+    if (_navTitleArCtrl.text.trim().isEmpty) return false;
+    if (_navIconBytes == null && _navIconUrl.isEmpty) return false;
+
+    // Check Vision
+    if (_visionSubEnCtrl.text.trim().isEmpty) return false;
+    if (_visionSubArCtrl.text.trim().isEmpty) return false;
+    if (_visionDescEnCtrl.text.trim().isEmpty) return false;
+    if (_visionDescArCtrl.text.trim().isEmpty) return false;
+    if (_visionIconBytes == null && _visionIconUrl.isEmpty) return false;
+    if (_visionSvgBytes == null && _visionSvgUrl.isEmpty) return false;
+
+    // Check Mission
+    if (_missionSubEnCtrl.text.trim().isEmpty) return false;
+    if (_missionSubArCtrl.text.trim().isEmpty) return false;
+    if (_missionDescEnCtrl.text.trim().isEmpty) return false;
+    if (_missionDescArCtrl.text.trim().isEmpty) return false;
+    if (_missionIconBytes == null && _missionIconUrl.isEmpty) return false;
+    if (_missionSvgBytes == null && _missionSvgUrl.isEmpty) return false;
+
+    // Check Values
+    for (final v in _valueItems) {
+      if (v.titleEnCtrl.text.trim().isEmpty) return false;
+      if (v.titleArCtrl.text.trim().isEmpty) return false;
+      if (v.shortDescEnCtrl.text.trim().isEmpty) return false;
+      if (v.shortDescArCtrl.text.trim().isEmpty) return false;
+      if (v.iconBytes == null && v.iconUrl.isEmpty) return false;
+    }
+
+    return true;
+  }
+
+  // ── Show validation error dialog with missing fields ──────────────────────
+  void _showValidationError() {
+    final List<String> missingFields = [];
+
+    // Check Headings
+    if (_titleEnCtrl.text.trim().isEmpty) missingFields.add('Title (English)');
+    if (_titleArCtrl.text.trim().isEmpty) missingFields.add('Title (Arabic)');
+
+    // Check Navigation Label
+    if (_navTitleEnCtrl.text.trim().isEmpty)
+      missingFields.add('Navigation Label - Title (English)');
+    if (_navTitleArCtrl.text.trim().isEmpty)
+      missingFields.add('Navigation Label - Title (Arabic)');
+    if (_navIconBytes == null && _navIconUrl.isEmpty)
+      missingFields.add('Navigation Label - Icon');
+
+    // Check Vision
+    if (_visionSubEnCtrl.text.trim().isEmpty)
+      missingFields.add('Vision Sub Description (English)');
+    if (_visionSubArCtrl.text.trim().isEmpty)
+      missingFields.add('Vision Sub Description (Arabic)');
+    if (_visionDescEnCtrl.text.trim().isEmpty)
+      missingFields.add('Vision Description (English)');
+    if (_visionDescArCtrl.text.trim().isEmpty)
+      missingFields.add('Vision Description (Arabic)');
+    if (_visionIconBytes == null && _visionIconUrl.isEmpty)
+      missingFields.add('Vision Icon Image');
+    if (_visionSvgBytes == null && _visionSvgUrl.isEmpty)
+      missingFields.add('Vision SVG Icon');
+
+    // Check Mission
+    if (_missionSubEnCtrl.text.trim().isEmpty)
+      missingFields.add('Mission Sub Description (English)');
+    if (_missionSubArCtrl.text.trim().isEmpty)
+      missingFields.add('Mission Sub Description (Arabic)');
+    if (_missionDescEnCtrl.text.trim().isEmpty)
+      missingFields.add('Mission Description (English)');
+    if (_missionDescArCtrl.text.trim().isEmpty)
+      missingFields.add('Mission Description (Arabic)');
+    if (_missionIconBytes == null && _missionIconUrl.isEmpty)
+      missingFields.add('Mission Icon Image');
+    if (_missionSvgBytes == null && _missionSvgUrl.isEmpty)
+      missingFields.add('Mission SVG Icon');
+
+    // Check Values
+    for (var i = 0; i < _valueItems.length; i++) {
+      final v = _valueItems[i];
+      final prefix = 'Value ${i + 1}';
+      if (v.titleEnCtrl.text.trim().isEmpty)
+        missingFields.add('$prefix - Title (English)');
+      if (v.titleArCtrl.text.trim().isEmpty)
+        missingFields.add('$prefix - Title (Arabic)');
+      if (v.shortDescEnCtrl.text.trim().isEmpty)
+        missingFields.add('$prefix - Short Description (English)');
+      if (v.shortDescArCtrl.text.trim().isEmpty)
+        missingFields.add('$prefix - Short Description (Arabic)');
+      if (v.iconBytes == null && v.iconUrl.isEmpty)
+        missingFields.add('$prefix - Icon Image');
+    }
+
+    final message = missingFields.isEmpty
+        ? 'Please check all required fields.'
+        : 'Please fill the following required fields:\n\n• ${missingFields.join('\n• ')}';
+
+    showConfirmDialog(
+      context: context,
+      title: 'Required Fields Missing',
+      subtitle: message,
+      confirmLabel: 'OK',
+      cancelLabel: '',
+      onConfirm: () {},
+      iconWidget: Container(
+        width: 60.r,
+        height: 60.r,
+        decoration: const BoxDecoration(
+          color: Color(0xFFE53935),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+      ),
+    );
   }
 
   // ── Preview ────────────────────────────────────────────────────────────────
-  void _onPreview() {
+  void _onPreview() async {
     setState(() => _submitted = true);
-    if (!_validateFields()) return;
-    final model   = _buildModel('draft');
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
+
+    final model = _buildModel('draft');
     final uploads = _collectUploads();
-    final cubit   = context.read<AboutCubit>();
+    final cubit = context.read<AboutCubit>();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -354,27 +563,69 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     );
   }
 
-  // ── Save / Publish ─────────────────────────────────────────────────────────
+  // ── Save / Publish with custom dialog ─────────────────────────────────────
   Future<void> _save(String status) async {
+    // Mark submitted so error text appears under empty fields
     setState(() => _submitted = true);
-    if (!_validateFields()) return;
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
 
     setState(() => _isSaving = true);
-    final model   = _buildModel(status);
-    final uploads = _collectUploads();
-    await context.read<AboutCubit>().save(
-      model: model,
-      imageUploads: uploads.isEmpty ? null : uploads,
-    );
+
+    try {
+      final model = _buildModel(status);
+      final uploads = _collectUploads();
+      await context.read<AboutCubit>().save(
+        model: model,
+        imageUploads: uploads.isEmpty ? null : uploads,
+      );
+
+      if (mounted) {
+  
+
+        if (status == 'published') {
+          await Future.delayed(const Duration(milliseconds: 1500));
+          if (mounted) context.go('/');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showConfirmDialog(
+          context: context,
+          title: 'Error',
+          subtitle: 'Failed to save: ${e.toString()}',
+          confirmLabel: 'OK',
+          cancelLabel: '',
+          onConfirm: () {},
+          iconWidget: Container(
+            width: 60.r,
+            height: 60.r,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE53935),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   // ── Add / remove value item ────────────────────────────────────────────────
   void _addValueItem() {
     setState(() {
-      _valueItems.add(_ValueItem(
-        id: 'val_${DateTime.now().millisecondsSinceEpoch}',
-        counter: ++_valueCounter,
-      ));
+      _valueItems.add(
+        _ValueItem(
+          id: 'val_${DateTime.now().millisecondsSinceEpoch}',
+          counter: ++_valueCounter,
+        ),
+      );
     });
   }
 
@@ -392,21 +643,35 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
       listener: (context, state) {
         if (state is AboutLoaded) _seedFromModel(state.data);
         if (state is AboutSaved) {
-          setState(() => _isSaving = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('About Us saved successfully!'),
-              backgroundColor: _kGreenSolid,
-            ),
-          );
-          // no navigation — stay on edit page after publish
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const AboutMainPageMasterDashboard(),
+                ),
+                    (route) => false,
+              );
+            }
+          });
         }
         if (state is AboutError) {
           setState(() => _isSaving = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${state.message}'),
-              backgroundColor: _kRed,
+          showConfirmDialog(
+            context: context,
+            title: 'Error',
+            subtitle: state.message,
+            confirmLabel: 'OK',
+            cancelLabel: '',
+            onConfirm: () {},
+            iconWidget: Container(
+              width: 60.r,
+              height: 60.r,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE53935),
+                shape: BoxShape.circle,
+              ),
+              child:
+              Icon(Icons.error_outline, color: Colors.white, size: 36.r),
             ),
           );
         }
@@ -416,27 +681,26 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
         return Scaffold(
           backgroundColor: Color(0xFFF1F2ED),
-          body: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Container(
-                  width: double.infinity,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20.h),
-                      AdminSubNavBar(activeIndex: 3),
-                      SizedBox(
-                        width: 1000.w,
-                        child: isLoading
-                            ? const Center(child: CircularProgressIndicator(color: _kGreenSolid))
-                            : _buildForm(),
+          body: SingleChildScrollView(
+            child: Container(
+              width: double.infinity,
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  AdminSubNavBar(activeIndex: 3),
+                  SizedBox(
+                    width: 1000.w,
+                    child: isLoading
+                        ? const Center(
+                      child: CircularProgressIndicator(
+                        color: _kGreenSolid,
                       ),
-                    ],
+                    )
+                        : _buildForm(),
                   ),
-                ),
+                ],
               ),
-              if (_isSaving) _buildSavingOverlay(),
-            ],
+            ),
           ),
         );
       },
@@ -458,71 +722,103 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         ),
         SizedBox(height: 24.h),
 
+
+        // ── Navigation Label ──
+        _accordion(
+          title: 'Navigation Label',
+          isOpen: _navigationLabelOpen,
+          onToggle: () =>
+              setState(() => _navigationLabelOpen = !_navigationLabelOpen),
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _navigationLabelSection(),
+          ),
+        ),
+
+        SizedBox(height: 15.h),
+        // ── Headings ──
         _accordion(
           title: 'Headings',
           isOpen: _headingsOpen,
           onToggle: () => setState(() => _headingsOpen = !_headingsOpen),
-          child: _headingsSection(),
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _headingsSection(),
+          ),
         ),
 
 
+        SizedBox(height: 15.h),
+
+
+        // ── Vision ──
         _accordion(
           title: 'Vision',
           isOpen: _visionOpen,
           onToggle: () => setState(() => _visionOpen = !_visionOpen),
-          child: _sectionEditor(
-            iconBytes: _visionIconBytes,
-            svgBytes:  _visionSvgBytes,
-            iconUrl:   _visionIconUrl,
-            svgUrl:    _visionSvgUrl,
-            onPickIcon: () async {
-              final b = await _pickImageIcon();
-              if (b != null) setState(() => _visionIconBytes = b);
-            },
-            onPickSvg: () async {
-              final b = await _pickSvgFile();
-              if (b != null) setState(() => _visionSvgBytes = b);
-            },
-            subEnCtrl:  _visionSubEnCtrl,
-            subArCtrl:  _visionSubArCtrl,
-            descEnCtrl: _visionDescEnCtrl,
-            descArCtrl: _visionDescArCtrl,
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _sectionEditor(
+              iconBytes: _visionIconBytes,
+              svgBytes: _visionSvgBytes,
+              iconUrl: _visionIconUrl,
+              svgUrl: _visionSvgUrl,
+              onPickIcon: () async {
+                final b = await _pickSvgFile();
+                if (b != null) setState(() => _missionIconBytes = b);              },
+              onPickSvg: () async {
+                final b = await _pickSvgFile();
+                if (b != null) setState(() => _visionSvgBytes = b);
+              },
+              subEnCtrl: _visionSubEnCtrl,
+              subArCtrl: _visionSubArCtrl,
+              descEnCtrl: _visionDescEnCtrl,
+              descArCtrl: _visionDescArCtrl,
+            ),
           ),
         ),
         SizedBox(height: 16.h),
 
+        // ── Mission ──
         _accordion(
           title: 'Mission',
           isOpen: _missionOpen,
           onToggle: () => setState(() => _missionOpen = !_missionOpen),
-          child: _sectionEditor(
-            iconBytes: _missionIconBytes,
-            svgBytes:  _missionSvgBytes,
-            iconUrl:   _missionIconUrl,
-            svgUrl:    _missionSvgUrl,
-            onPickIcon: () async {
-              final b = await _pickImageIcon();
-              if (b != null) setState(() => _missionIconBytes = b);
-            },
-            onPickSvg: () async {
-              final b = await _pickSvgFile();
-              if (b != null) setState(() => _missionSvgBytes = b);
-            },
-            subEnCtrl:  _missionSubEnCtrl,
-            subArCtrl:  _missionSubArCtrl,
-            descEnCtrl: _missionDescEnCtrl,
-            descArCtrl: _missionDescArCtrl,
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _sectionEditor(
+              iconBytes: _missionIconBytes,
+              svgBytes: _missionSvgBytes,
+              iconUrl: _missionIconUrl,
+              svgUrl: _missionSvgUrl,
+              onPickIcon: () async {
+                final b = await _pickSvgFile();
+                if (b != null) setState(() => _visionIconBytes = b);
+              },
+              onPickSvg: () async {
+                final b = await _pickSvgFile();
+                if (b != null) setState(() => _missionSvgBytes = b);
+              },
+              subEnCtrl: _missionSubEnCtrl,
+              subArCtrl: _missionSubArCtrl,
+              descEnCtrl: _missionDescEnCtrl,
+              descArCtrl: _missionDescArCtrl,
+            ),
           ),
         ),
         SizedBox(height: 16.h),
 
+        // ── Values ──
         _accordion(
           title: 'Values',
           isOpen: _valuesOpen,
           onToggle: () => setState(() => _valuesOpen = !_valuesOpen),
-          child: _valuesSection(),
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _valuesSection(),
+          ),
         ),
-        SizedBox(height: 32.h),
+        SizedBox(height: 16.h),
 
         _actionButtons(),
         SizedBox(height: 48.h),
@@ -546,14 +842,13 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
             decoration: BoxDecoration(
               color: _kGreenSolid,
-              borderRadius: isOpen
-                  ? BorderRadius.vertical(top: Radius.circular(12.r))
-                  : BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title,
+                Text(
+                  title,
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     fontSize: 16.sp,
@@ -562,22 +857,17 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                   ),
                 ),
                 Icon(
-                  isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  isOpen
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: Colors.white,
-                  size: 22.sp,
+                  size: 26.sp,
                 ),
               ],
             ),
           ),
         ),
-        if (isOpen)
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.r)),
-            ),
-            child: child,
-          ),
+        if (isOpen) child,
       ],
     );
   }
@@ -587,13 +877,54 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20.h),
-
-        _fieldLabel('Title'),
+        Row(
+          children: [
+            _fieldLabel('Title'),
+            Spacer(),
+            _fieldLabelAr("العنوان")
+          ],
+        ),
         SizedBox(height: 8.h),
         _bilingualRow(
           enCtrl: _titleEnCtrl,
           arCtrl: _titleArCtrl,
+          enHint: 'Text Here',
+          arHint: 'أدخل النص هنا',
+        ),
+      ],
+    );
+  }
+
+  // ── Navigation Label section ───────────────────────────────────────────────
+  Widget _navigationLabelSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Icon upload — only show error after submit attempt
+        _imageUploadCircle(
+          label: 'Icon',
+          bytes: _navIconBytes,
+          url: _navIconUrl,
+          onTap: () async {
+           final b = await _pickSvgFile();
+            if (b != null) setState(() => _navIconBytes = b);
+          },
+          isSvg: false,
+          showError:
+          _submitted && _navIconBytes == null && _navIconUrl.isEmpty,
+        ),
+        SizedBox(height: 20.h),
+        Row(
+          children: [
+            _fieldLabel('Title'),
+            Spacer(),
+            _fieldLabelAr("العنوان")
+          ],
+        ),
+        SizedBox(height: 8.h),
+        _bilingualRow(
+          enCtrl: _navTitleEnCtrl,
+          arCtrl: _navTitleArCtrl,
           enHint: 'Text Here',
           arHint: 'أدخل النص هنا',
         ),
@@ -617,22 +948,26 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        SizedBox(height: 20.h
-        ),
-
         Row(
           children: [
-
-
             _imageUploadCircle(
-              label: 'Icon', bytes: iconBytes, url: iconUrl,
-              onTap: onPickIcon, isSvg: false,
+              label: 'Icon',
+              bytes: iconBytes,
+              url: iconUrl,
+              onTap: onPickIcon,
+              isSvg: false,
+              showError:
+              _submitted && iconBytes == null && iconUrl.isEmpty,
             ),
             SizedBox(width: 24.w),
             _imageUploadCircle(
-              label: 'SVG', bytes: svgBytes, url: svgUrl,
-              onTap: onPickSvg, isSvg: true,
+              label: 'SVG',
+              bytes: svgBytes,
+              url: svgUrl,
+              onTap: onPickSvg,
+              isSvg: true,
+              showError:
+              _submitted && svgBytes == null && svgUrl.isEmpty,
             ),
           ],
         ),
@@ -640,37 +975,73 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         _fieldLabel('Sub description'),
         SizedBox(height: 8.h),
         CustomValidatedTextFieldMaster(
-          hint: 'Text Here', controller: subEnCtrl,
-          height: 100, maxLines: 4, maxLength: 200, showCharCount: true,
-          submitted: _submitted, textDirection: TextDirection.ltr,
-          textAlign: TextAlign.start, onChanged: (_) => setState(() {}),
+          hint: 'Text Here',
+          controller: subEnCtrl,
+          fillColor: Colors.white,
+          height: 100,
+          maxLines: 4,
+          maxLength: 150,
+          showCharCount: true,
+          submitted: _submitted,
+          isRequired: true,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.start,
+          primaryColor: _kGreenSolid,
+          onChanged: (_) => setState(() {}),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 16.h),
         _fieldLabelAr('وصف فرعي'),
         SizedBox(height: 4.h),
         CustomValidatedTextFieldMaster(
-          hint: 'أدخل النص هنا', controller: subArCtrl,
-          height: 100, maxLines: 4, maxLength: 200, showCharCount: true,
-          submitted: _submitted, textDirection: TextDirection.rtl,
-          textAlign: TextAlign.right, onChanged: (_) => setState(() {}),
+          hint: 'أدخل النص هنا',
+          fillColor: Colors.white,
+          controller: subArCtrl,
+          height: 100,
+          maxLines: 4,
+          maxLength: 150,
+          showCharCount: true,
+          submitted: _submitted,
+          isRequired: true,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.right,
+          primaryColor: _kGreenSolid,
+          onChanged: (_) => setState(() {}),
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 16.h),
         _fieldLabel('Description'),
         SizedBox(height: 8.h),
         CustomValidatedTextFieldMaster(
-          hint: 'Text Here', controller: descEnCtrl,
-          height: 100, maxLines: 4, maxLength: 800, showCharCount: true,
-          submitted: _submitted, textDirection: TextDirection.ltr,
-          textAlign: TextAlign.start, onChanged: (_) => setState(() {}),
+          hint: 'Text Here',
+          controller: descEnCtrl,
+          fillColor: Colors.white,
+          height: 100,
+          maxLines: 4,
+          maxLength: 500,
+          showCharCount: true,
+          submitted: _submitted,
+          isRequired: true,
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.start,
+          primaryColor: _kGreenSolid,
+          onChanged: (_) => setState(() {}),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 16.h),
         _fieldLabelAr('الوصف'),
         SizedBox(height: 4.h),
         CustomValidatedTextFieldMaster(
-          hint: 'أدخل النص هنا', controller: descArCtrl,
-          height: 100, maxLines: 4, maxLength: 800, showCharCount: true,
-          submitted: _submitted, textDirection: TextDirection.rtl,
-          textAlign: TextAlign.right, onChanged: (_) => setState(() {}),
+          hint: 'أدخل النص هنا',
+          controller: descArCtrl,
+          height: 100,
+          fillColor: Colors.white,
+          maxLines: 4,
+          maxLength: 500,
+          showCharCount: true,
+          submitted: _submitted,
+          isRequired: true,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.right,
+          primaryColor: _kGreenSolid,
+          onChanged: (_) => setState(() {}),
         ),
       ],
     );
@@ -681,6 +1052,25 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   // ══════════════════════════════════════════════════════════════════════════
 
   Widget _valuesSection() {
+    if (_valueItems.isEmpty) {
+      return Column(
+        children: [
+          SizedBox(height: 20.h),
+          Center(
+            child: Text(
+              'No values added. Click "Add Point" to create one.',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          SizedBox(height: 20.h),
+          _addValueButton(),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -690,100 +1080,139 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           return _valueItemWidget(v, isMain: isMain);
         }),
         SizedBox(height: 16.h),
-        GestureDetector(
-          onTap: _addValueItem,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            decoration: BoxDecoration(
-              color: const Color(0xFF555555),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add, color: Colors.white, size: 16.sp),
-                SizedBox(width: 6.w),
-                Text('Point',
-                  style: TextStyle(
-                    fontFamily: 'Cairo', fontSize: 13.sp,
-                    fontWeight: FontWeight.w600, color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        _addValueButton(),
       ],
+    );
+  }
+
+  Widget _addValueButton() {
+    return GestureDetector(
+      onTap: _addValueItem,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFF555555),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add, color: Colors.white, size: 16.sp),
+            SizedBox(width: 6.w),
+            Text(
+              'Add Point',
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _valueItemWidget(_ValueItem v, {required bool isMain}) {
     final String itemLabel = isMain ? 'Main Icon' : 'Icon';
+    final bool showIconError =
+        _submitted && v.iconBytes == null && v.iconUrl.isEmpty;
 
     return Container(
       margin: EdgeInsets.only(bottom: 20.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header row: label + icon upload on left, Remove on right ──
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Icon upload with "Main Icon" or "Icon" label
               _imageUploadCircle(
                 label: itemLabel,
                 bytes: v.iconBytes,
                 url: v.iconUrl,
                 isSvg: false,
+                showError: showIconError,
                 onTap: () async {
-                  final b = await _pickImage();
+                  final b = await _pickSvgFile();
                   if (b != null) setState(() => v.iconBytes = b);
                 },
               ),
               GestureDetector(
                 onTap: () => _removeValueItem(v.id),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 7.h,
+                  ),
                   decoration: BoxDecoration(
-                      color: _kRed, borderRadius: BorderRadius.circular(6.r)),
-                  child: Text('Remove',
-                      style: TextStyle(fontFamily: 'Cairo', fontSize: 12.sp,
-                          fontWeight: FontWeight.w600, color: Colors.white)),
+                    color: _kRed,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Text(
+                    'Remove',
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
           SizedBox(height: 16.h),
-
-          // ── Title (bilingual) ──
-          _fieldLabel('Title'),
+          Row(
+            children: [
+              _fieldLabel('Title'),
+              Spacer(),
+              _fieldLabelAr("العنوان")
+            ],
+          ),
           SizedBox(height: 8.h),
-          _bilingualRow(enCtrl: v.titleEnCtrl, arCtrl: v.titleArCtrl,
-              enHint: 'Text Here', arHint: 'أدخل النص هنا'),
+          _bilingualRow(
+            enCtrl: v.titleEnCtrl,
+            arCtrl: v.titleArCtrl,
+            enHint: 'Text Here',
+            arHint: 'أدخل النص هنا',
+          ),
           SizedBox(height: 16.h),
-
-          // ── Short Description (bilingual) ──
           _fieldLabel('Short Description'),
           SizedBox(height: 8.h),
           CustomValidatedTextFieldMaster(
-            hint: 'Text Here', controller: v.shortDescEnCtrl,
-            height: 100, maxLines: 4, maxLength: 200, showCharCount: true,
-            submitted: _submitted, textDirection: TextDirection.ltr,
-            textAlign: TextAlign.start, onChanged: (_) => setState(() {}),
+            hint: 'Text Here',
+            controller: v.shortDescEnCtrl,
+            height: 100,
+            fillColor: Colors.white,
+            maxLines: 4,
+            maxLength: 150,
+            showCharCount: true,
+            submitted: _submitted,
+            isRequired: true,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.start,
+            primaryColor: _kGreenSolid,
+            onChanged: (_) => setState(() {}),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 16.h),
           _fieldLabelAr('وصف مختصر'),
           SizedBox(height: 4.h),
           CustomValidatedTextFieldMaster(
-            hint: 'أدخل النص هنا', controller: v.shortDescArCtrl,
-            height: 100, maxLines: 4, maxLength: 200, showCharCount: true,
-            submitted: _submitted, textDirection: TextDirection.rtl,
-            textAlign: TextAlign.right, onChanged: (_) => setState(() {}),
+            hint: 'أدخل النص هنا',
+            controller: v.shortDescArCtrl,
+            fillColor: Colors.white,
+            height: 100,
+            maxLines: 4,
+            maxLength: 150,
+            showCharCount: true,
+            submitted: _submitted,
+            isRequired: true,
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.right,
+            primaryColor: _kGreenSolid,
+            onChanged: (_) => setState(() {}),
           ),
         ],
       ),
@@ -792,45 +1221,101 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   // ── Action buttons ─────────────────────────────────────────────────────────
   Widget _actionButtons() {
+    /// Compute validity live — buttons react as user types / uploads
+    final bool formValid = _isFormValid;
+
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _btn(label: 'Preview', color: const Color(0xFF4CAF50), onTap: _onPreview)),
-            SizedBox(width: 16.w),
-            Expanded(child: _btn(label: 'Publish', color: _kGreenSolid, onTap: () => _save('published'))),
+            Expanded(
+              child: _btn(
+                label: 'Preview',
+                color: formValid
+                    ? const Color(0xFF608570)
+                    : const Color(0xFF608570).withOpacity(0.4),
+                onTap: formValid ? _onPreview : null,
+              ),
+            ),
+            SizedBox(width: 300.w),
+            Expanded(
+              child: _btn(
+                label: 'Publish',
+                color: formValid
+                    ? _kGreenSolid
+                    : _kGreenSolid.withOpacity(0.4),
+                onTap: formValid ? () => _showPublishConfirmDialog() : null,
+              ),
+            ),
           ],
         ),
         SizedBox(height: 12.h),
         Row(
           children: [
-            Expanded(child: _btn(label: 'Discard', color: const Color(0xFF9E9E9E), onTap: () => Navigator.pop(context)),
-            )],
+            Expanded(
+              child: _btn(
+                label: 'Discard',
+                color: const Color(0xFF797979),
+                onTap: () {
+                  showConfirmDialog(
+                    context: context,
+                    title: 'Discard Changes',
+                    subtitle:
+                    'Are you sure you want to discard all changes?',
+                    confirmLabel: 'Discard',
+                    cancelLabel: 'Cancel',
+                    onConfirm: () => context.pop(),
+                  );
+                },
+              ),
+            ),
+            SizedBox(width: 300.w),
+            Expanded(
+              child: _btn(
+                label: 'Save For Later',
+                color: formValid
+                    ? Colors.grey.shade600
+                    : Colors.grey.shade600.withOpacity(0.4),
+                onTap: formValid ? () => _showSaveDraftDialog() : null,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  // ── Saving overlay ─────────────────────────────────────────────────────────
-  Widget _buildSavingOverlay() {
-    return Container(
-      color: Colors.black54,
-      child: Center(
-        child: Container(
-          width: 180.w, height: 100.h,
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(12.r)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(color: _kGreenSolid),
-              SizedBox(height: 12.h),
-              Text('Saving...',
-                  style: TextStyle(fontFamily: 'Cairo', fontSize: 14.sp, color: Colors.black87)),
-            ],
-          ),
-        ),
-      ),
+  void _showPublishConfirmDialog() {
+    setState(() => _submitted = true);
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
+
+    showPublishConfirmDialog(
+      context: context,
+      title: 'EDITING ABOUT US DETAILS ',
+      subtitle: 'Do you want to save the changes made to this About Us?',
+      confirmLabel: 'Publish',
+      onConfirm: () => _save('published'),
+    );
+  }
+
+  void _showSaveDraftDialog() {
+    setState(() => _submitted = true);
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
+
+    showPublishConfirmDialog(
+      context: context,
+      title: 'SAVE AS DRAFT',
+      subtitle: 'Do you want to save this page as a draft?',
+      confirmLabel: 'Save Draft',
+      onConfirm: () => _save('draft'),
     );
   }
 
@@ -844,114 +1329,163 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     required String url,
     required VoidCallback onTap,
     bool isSvg = false,
+    bool showError = false,
   }) {
-    final hasImage = bytes != null || url.isNotEmpty;
+    final bool hasBytes = bytes != null;
+    final bool hasUrl = url.isNotEmpty;
+
+    Widget content;
+    if (hasBytes) {
+      content = Container(
+        width: 60.w,
+        height: 60.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: ClipOval(
+          child: Padding(
+            padding: EdgeInsets.all(15.r),
+            child: _isSvgMemory(bytes!, isSvg)
+                ? SvgPicture.memory(
+              bytes,
+              width: 30.w,
+              height: 30.h,
+              fit: BoxFit.contain,
+            )
+                : Image.memory(bytes,
+                width: 30.w, height: 30.h, fit: BoxFit.contain),
+          ),
+        ),
+      );
+    } else if (hasUrl) {
+      content = Container(
+        width: 60.w,
+        height: 60.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: ClipOval(
+          child: Padding(
+            padding: EdgeInsets.all(15.r),
+            child: FutureBuilder<Uint8List>(
+              future: _cachedLoad(url, isSvg: isSvg),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: _kGreenSolid),
+                    ),
+                  );
+                }
+                if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  if (_isSvgMemory(data, isSvg)) {
+                    return SvgPicture.memory(
+                      data,
+                      width: 30.w,
+                      height: 30.h,
+                      fit: BoxFit.contain,
+                    );
+                  }
+                  return Image.memory(data,
+                      width: 30.w, height: 30.h, fit: BoxFit.contain);
+                }
+                return Icon(
+                  isSvg ? Icons.description_outlined : Icons.broken_image,
+                  color: Colors.grey[400],
+                  size: 22.sp,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    } else {
+      content = Container(
+        width: 60.w,
+        height: 60.h,
+        decoration: BoxDecoration(
+          color: const Color(0xFFD9D9D9),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Icon(
+            isSvg ? Icons.description_outlined : Icons.add,
+            color: Colors.grey,
+            size: 22.sp,
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(fontFamily: 'Cairo', fontSize: 13.sp,
-                fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
         SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: onTap,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 64.w, height: 64.h,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFEEEEEE),
-                ),
-                child: hasImage
-                    ? ClipOval(child: _buildImageWidget(bytes, url, isSvg))
-                    : Icon(
-                  isSvg ? Icons.description_outlined : Icons.add,
-                  color: Colors.grey[600], size: 28.sp,
-                ),
-              ),
-              Positioned(
-                bottom: -2, right: -2,
-                child: GestureDetector(
-                  onTap: onTap,
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    width: 24.w, height: 24.h,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: _kGreenSolid,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4, offset: const Offset(0, 2),
-                      )],
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            GestureDetector(onTap: onTap, child: content),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  width: 25.w,
+                  height: 25.h,
+                  decoration: BoxDecoration(
+                    color: Colors.green[700],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: CustomSvg(
+                      assetPath: "assets/control/camera.svg",
+                      width: 10.w,
+                      height: 10.h,
+                      fit: BoxFit.scaleDown,
                     ),
-                    child: Icon(Icons.edit, color: Colors.white, size: 13.sp),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+        if (showError)
+          Padding(
+            padding: EdgeInsets.only(top: 4.h),
+            child: Text(
+              'This field is required',
+              style: TextStyle(
+                fontSize: 10.sp,
+                color: Colors.red,
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildImageWidget(Uint8List? bytes, String url, bool isSvg) {
-    // ── Helper: detect SVG from bytes ──
-    bool _isSvgBytes(Uint8List b) {
-      if (b.length < 5) return false;
-      final header = String.fromCharCodes(b.sublist(0, b.length.clamp(0, 100))).trimLeft();
-      return header.startsWith('<svg') || header.startsWith('<?xml');
-    }
-
-    // ── Helper: render bytes (auto-detects SVG vs image) ──
-    Widget _renderBytes(Uint8List b) {
-      if (isSvg || _isSvgBytes(b)) {
-        return Padding(
-          padding: EdgeInsets.all(16.r),
-          child: SvgPicture.memory(b, fit: BoxFit.contain),
-        );
-      }
-      return Image.memory(b, fit: BoxFit.cover);
-    }
-
-    final Widget spinner = SizedBox(
-      width: 20, height: 20,
-      child: CircularProgressIndicator(strokeWidth: 2, color: _kGreenSolid),
-    );
-
-    // ── 1. Already have bytes in memory (freshly picked) ──
-    if (bytes != null) {
-      return _renderBytes(bytes);
-    }
-
-    // ── 2. Load from URL via XHR ──
-    if (url.isNotEmpty) {
-      return FutureBuilder<Uint8List>(
-        future: _cachedLoad(url, isSvg: isSvg),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: spinner);
-          }
-          if (snapshot.hasData) {
-            return _renderBytes(snapshot.data!);
-          }
-          // error
-          return Icon(
-            isSvg ? Icons.description_outlined : Icons.broken_image,
-            color: isSvg ? Colors.grey[400] : Colors.red[300],
-            size: 28.sp,
-          );
-        },
-      );
-    }
-
-    // ── 3. No bytes, no URL — placeholder ──
-    return Icon(
-      isSvg ? Icons.description_outlined : Icons.image_outlined,
-      color: Colors.grey[500], size: 28.sp,
-    );
+  bool _isSvgMemory(Uint8List b, bool hintSvg) {
+    if (hintSvg) return true;
+    if (b.length < 5) return false;
+    final header =
+    String.fromCharCodes(b.sublist(0, b.length.clamp(0, 100))).trimLeft();
+    return header.startsWith('<svg') || header.startsWith('<?xml');
   }
 
   // ── Shared form helpers ────────────────────────────────────────────────────
@@ -960,25 +1494,41 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     required TextEditingController arCtrl,
     required String enHint,
     required String arHint,
-    int maxLength = 200,
+    int maxLength = 150,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: CustomValidatedTextFieldMaster(
-            hint: enHint, controller: enCtrl, height: 42, maxLines: 1,
-            maxLength: maxLength, submitted: _submitted,
-            textDirection: TextDirection.ltr, textAlign: TextAlign.start,
+            hint: enHint,
+            controller: enCtrl,
+            fillColor: Colors.white,
+            height: 42,
+            maxLines: 1,
+            maxLength: maxLength,
+            submitted: _submitted,
+            isRequired: true,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.start,
+            primaryColor: _kGreenSolid,
             onChanged: (_) => setState(() {}),
           ),
         ),
         SizedBox(width: 12.w),
         Expanded(
           child: CustomValidatedTextFieldMaster(
-            hint: arHint, controller: arCtrl, height: 42, maxLines: 1,
-            maxLength: maxLength, submitted: _submitted,
-            textDirection: TextDirection.rtl, textAlign: TextAlign.right,
+            hint: arHint,
+            controller: arCtrl,
+            height: 42,
+            fillColor: Colors.white,
+            maxLines: 1,
+            maxLength: maxLength,
+            submitted: _submitted,
+            isRequired: true,
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.right,
+            primaryColor: _kGreenSolid,
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -986,27 +1536,54 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     );
   }
 
-  Widget _fieldLabel(String text) => Text(text,
-      style: TextStyle(fontFamily: 'Cairo', fontSize: 13.sp,
-          fontWeight: FontWeight.w600, color: Colors.black87));
+  Widget _fieldLabel(String text) => Text(
+    text,
+    style: TextStyle(
+      fontFamily: 'Cairo',
+      fontSize: 13.sp,
+      fontWeight: FontWeight.w600,
+      color: Colors.black87,
+    ),
+  );
 
   Widget _fieldLabelAr(String text) => Align(
     alignment: Alignment.centerRight,
-    child: Text(text,
-        style: TextStyle(fontFamily: 'Cairo', fontSize: 13.sp,
-            fontWeight: FontWeight.w600, color: Colors.black87)),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontFamily: 'Cairo',
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w600,
+        color: Colors.black87,
+      ),
+    ),
   );
 
-  Widget _btn({required String label, required Color color, required VoidCallback onTap}) {
+  /// Updated _btn — supports null onTap for disabled state.
+  Widget _btn({
+    required String label,
+    required Color color,
+    required VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity, height: 48.h,
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10.r)),
+        width: double.infinity,
+        height: 48.h,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
         child: Center(
-          child: Text(label,
-              style: TextStyle(fontFamily: 'Cairo', fontSize: 15.sp,
-                  fontWeight: FontWeight.w700, color: Colors.white)),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
@@ -1016,9 +1593,9 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 // ── Value item helper class ────────────────────────────────────────────────────
 class _ValueItem {
   final String id;
-  final int    counter;
-  final titleEnCtrl     = TextEditingController();
-  final titleArCtrl     = TextEditingController();
+  final int counter;
+  final titleEnCtrl = TextEditingController();
+  final titleArCtrl = TextEditingController();
   final shortDescEnCtrl = TextEditingController();
   final shortDescArCtrl = TextEditingController();
   Uint8List? iconBytes;

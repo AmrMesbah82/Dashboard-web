@@ -70,13 +70,13 @@ Widget _primaryBtn({
       width: width,
       height: 38.h,
       decoration: BoxDecoration(
-        color: AppColors.primary, // #FFDE59
+        color: Color(0xFF008037), // #FFDE59
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Center(
         child: Text(
           label,
-          style: StyleText.fontSize14Weight500.copyWith(color: Colors.black),
+          style: StyleText.fontSize14Weight500.copyWith(color: Colors.white),
         ),
       ),
     ),
@@ -101,7 +101,7 @@ Widget _secondaryBtn({
       child: Center(
         child: Text(
           label,
-          style: StyleText.fontSize14Weight500.copyWith(color: Colors.black87),
+          style: StyleText.fontSize14Weight500.copyWith(color: Colors.black),
         ),
       ),
     ),
@@ -201,16 +201,16 @@ class _ConfirmDialog extends StatelessWidget {
           // Buttons row
           Row(
             children: [
-              Expanded(
-                child: _secondaryBtn(
-                  label: cancelLabel,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onCancel?.call();
-                  },
-                ),
-              ),
-              SizedBox(width: 12.w),
+              // Expanded(
+              //   child: _secondaryBtn(
+              //     label: cancelLabel,
+              //     onTap: () {
+              //       Navigator.of(context).pop();
+              //       onCancel?.call();
+              //     },
+              //   ),
+              // ),
+              // SizedBox(width: 12.w),
               Expanded(
                 child: _primaryBtn(
                   label: confirmLabel,
@@ -658,13 +658,6 @@ class _UploadDialogState extends State<_UploadDialog> {
           Row(
             children: [
               Expanded(
-                child: _secondaryBtn(
-                  label: widget.discardLabel,
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
                 child: _primaryBtn(
                   label: widget.submitLabel,
                   onTap: _handleSubmit,
@@ -791,22 +784,37 @@ class _TitleIcon extends StatelessWidget {
         );
   }
 }
+
 // ─────────────────────────────────────────────
 //  5.  PUBLISH CONFIRM DIALOG  (Figma: "Editing Main Details")
 // ─────────────────────────────────────────────
+///
+/// CHANGED: onConfirm is now Future<void> Function()? so the dialog can
+/// await the full async _save() and show a CircularProgressIndicator
+/// inside the dialog while saving — no full-screen overlay needed.
+///
+/// Usage:
+/// ```dart
+/// showPublishConfirmDialog(
+///   context: context,
+///   onConfirm: () => _save(cubit, publishStatus: 'published'),
+/// );
+/// ```
 Future<void> showPublishConfirmDialog({
   required BuildContext context,
   String title = 'EDITING MAIN DETAILS',
   String subtitle = 'Do you want to save the changes made to this Main?',
   String confirmLabel = 'Confirm',
   String backLabel = 'Back',
-  VoidCallback? onConfirm,
+  // ── CHANGED: was VoidCallback? — now Future<void> Function()? ──
+  Future<void> Function()? onConfirm,
   VoidCallback? onBack,
   /// Optional custom illustration asset path (SVG or PNG)
   String? illustrationAsset,
 }) {
   return showDialog(
     context: context,
+    barrierDismissible: false, // prevent accidental dismiss while saving
     barrierColor: Colors.black.withOpacity(0.4),
     builder: (_) => _PublishConfirmDialog(
       title: title,
@@ -825,7 +833,8 @@ class _PublishConfirmDialog extends StatefulWidget {
   final String subtitle;
   final String confirmLabel;
   final String backLabel;
-  final VoidCallback? onConfirm;
+  // ── CHANGED: was VoidCallback? — now Future<void> Function()? ──
+  final Future<void> Function()? onConfirm;
   final VoidCallback? onBack;
   final String? illustrationAsset;
 
@@ -846,10 +855,31 @@ class _PublishConfirmDialog extends StatefulWidget {
 class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
   bool _loading = false;
 
+  /// Called when the user taps Confirm.
+  /// Shows CircularProgressIndicator inside the dialog while _save() runs.
+  /// Closes the dialog automatically when done.
+  Future<void> _handleConfirm() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      // Directly await the async _save() — no microtask wrapper
+      await widget.onConfirm?.call();
+    } catch (e) {
+      // _save() handles its own error logging; we just ensure loading resets
+      debugPrint('[PublishConfirmDialog] onConfirm error: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !_loading, // prevent back-swipe while saving
+      // Prevent back-swipe / back button while saving
+      canPop: !_loading,
       child: _DialogShell(
         width: 600.w,
         child: Column(
@@ -892,7 +922,11 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
               ),
             ),
             SizedBox(height: 32.h),
-            // ── Buttons ───────────────────────────────────────────────────────────
+
+            // ── Buttons / Loader ──────────────────────────────────
+            // When _loading is true  → show CircularProgressIndicator
+            //                          centered where the buttons were.
+            // When _loading is false → show Back + Confirm buttons.
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
               child: SizedBox(
@@ -906,6 +940,7 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
                 )
                     : Row(
                   children: [
+                    // ── Back button ──────────────────────────
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -929,6 +964,7 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
                       ),
                     ),
                     SizedBox(width: 16.w),
+                    // ── Confirm button ───────────────────────
                     Expanded(
                       child: GestureDetector(
                         onTap: _handleConfirm,
@@ -957,20 +993,6 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleConfirm() async {
-    if (_loading) return;
-    setState(() => _loading = true);
-    try {
-      // onConfirm is the async _save() call — we await it
-      await Future.microtask(() => widget.onConfirm?.call());
-    } finally {
-      if (mounted) {
-        setState(() => _loading = false);
-        Navigator.of(context).pop();
-      }
-    }
   }
 
   Widget _buildIllustration() {
@@ -1123,40 +1145,3 @@ class _PersonIllustrationPainter extends CustomPainter {
   @override
   bool shouldRepaint(_) => false;
 }
-
-
-
-
-//showConfirmDialog(
-//   context: context,
-//   title: 'Request To Cancellation',
-//   subtitle: 'Are You Sure You Want to Cancel This Request?',
-//   iconAsset: 'assets/icons/cancel.svg', // or leave null for default red X
-//   onConfirm: () { /* your action */ },
-// );
-
-
-// showSuccessDialog(
-// context: context,
-// title: 'Request Cancelation',
-// subtitle: 'You Successfully Requested Cancelation For This Request',
-// onClose: () { /* optional */ },
-// );
-
-
-//showCommentDialog(
-//   context: context,
-//   title: 'Reason Of Cancellation',
-//   fieldLabel: 'Justifications',
-//   titleIconAsset: 'assets/icons/cancel.svg',
-//   textDirection: TextDirection.ltr, // or rtl for Arabic
-//   onSubmit: (text) { /* use comment text */ },
-// );
-
-
-//showUploadDialog(
-//   context: context,
-//   allowedExtensions: ['pdf', 'png', 'jpg'],
-//   headerIconAsset: 'assets/icons/attachment.svg',
-//   onSubmit: (file, titleName) { /* handle upload */ },
-// );

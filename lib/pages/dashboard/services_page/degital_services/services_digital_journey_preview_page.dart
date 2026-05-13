@@ -121,7 +121,7 @@ class _ServicesDigitalJourneyPreviewPageState
                               ),
                             ),
                           ),
-                          SizedBox(width: 12.w),
+                          SizedBox(width: 300.w),
                           Expanded(
                             child: SizedBox(
                               height: 44.h,
@@ -173,12 +173,7 @@ class _ServicesDigitalJourneyPreviewPageState
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: _accordionOpen
-                    ? BorderRadius.only(
-                  topLeft: Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
                 children: [
@@ -203,7 +198,6 @@ class _ServicesDigitalJourneyPreviewPageState
           if (_accordionOpen)
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(16.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(6.r),

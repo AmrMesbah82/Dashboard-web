@@ -57,6 +57,8 @@ class TermsLoaded extends TermsState {
   TermsLoaded(this.data);
 }
 
+class TermsSaving extends TermsState {}  // ← ADD THIS LINE
+
 class TermsSaved extends TermsState {
   final TermsOfServiceModel data;
   TermsSaved(this.data);

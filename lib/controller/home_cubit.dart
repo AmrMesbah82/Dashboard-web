@@ -1,17 +1,15 @@
 // ******************* FILE INFO *******************
 // File Name: home_cubit.dart
 // Description: BLoC Cubit for Home CMS.
+//              Dual-document architecture:
+//              - load() checks for draft first, falls back to published
+//              - save(publishStatus: 'published') → writes published doc, deletes draft
+//              - save(publishStatus: 'draft')     → writes draft doc only
+//              - save(publishStatus: 'scheduled')  → writes draft doc with schedule date
+//              - discardDraft() → deletes draft doc
 // Created by: Amr Mesbah
-// FIXED: load() now calls _mergeDefaults() which ensures navButtons always
-//        contains all 5 default routes, filling in any missing ones from
-//        HomePageModel.defaultModel without overwriting existing saved items.
-// FIXED: _mergeDefaults() now PRESERVES Firestore order instead of rebuilding
-//        from defaultModel order — fixes reorder not persisting after save.
-// ADDED: reorderNavButtons() — reorders navButtons list and emits live update
-// ADDED: toggleNavButtonStatus() — toggles a nav button's status field
-// FIXED: updateSocialLink() now accepts visibility param ✅
-// ADDED: _applyFontsToStorage() — writes selected fonts to GetStorage so
-//        AppTextStyles picks them up immediately after load/save ✅
+// Last Update: 20/04/2026
+// UPDATED: Dual-document draft system ✅
 
 import 'dart:math';
 import 'dart:typed_data';
@@ -32,8 +30,11 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   final _storage = GetStorage();
 
   HomePageModel _model = HomePageModel.defaultModel;
-
   HomePageModel get current => _model;
+
+  /// Whether the currently loaded data came from a draft document.
+  bool _isFromDraft = false;
+  bool get isFromDraft => _isFromDraft;
 
   static final _rng = Random();
   static String _uid() {
@@ -42,214 +43,227 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
     return '${ts}_$rand';
   }
 
-  // ✅ writes branding fonts to GetStorage so AppTextStyles reads them
   void _applyFontsToStorage(BrandingModel branding) {
     final engFont = branding.englishFont.isEmpty ? 'Cairo' : branding.englishFont;
     final arFont  = branding.arabicFont.isEmpty  ? 'Cairo' : branding.arabicFont;
     _storage.write('font',         engFont);
     _storage.write('font_arabic',  arFont);
-    print('✅ [HomeCubit] _applyFontsToStorage() '
-        'font=$engFont font_arabic=$arFont');
+    print('✅ [HomeCubit] _applyFontsToStorage() font=$engFont font_arabic=$arFont');
   }
 
   // ── Merge defaults ────────────────────────────────────────────────────────
-  // FIXED: preserves Firestore order — only appends truly missing routes at end
   HomePageModel _mergeDefaults(HomePageModel loaded) {
     final defaults = HomePageModel.defaultModel.navButtons;
 
-    // STEP 1: Deduplicate by id — keep first occurrence only
     final seen = <String>{};
     final deduped = loaded.navButtons.where((b) {
-      if (seen.contains(b.id)) {
-        print('⚠️  [HomeCubit] _mergeDefaults: removing duplicate id=${b.id}');
-        return false;
-      }
+      if (seen.contains(b.id)) return false;
       seen.add(b.id);
       return true;
     }).toList();
 
-    // STEP 2: Append only routes that are completely missing from Firestore
-    // ✅ Do NOT rebuild from defaults order — keep loaded order as-is
     final existingRoutes = deduped.map((b) => b.route).toSet();
     final missing = defaults
         .where((d) => !existingRoutes.contains(d.route))
         .toList();
 
-    if (missing.isNotEmpty) {
-      for (final m in missing) {
-        print('   + inserting missing navButton: '
-            'en=${m.name.en} route=${m.route}');
-      }
-    }
-
-    // ✅ Preserve Firestore order — missing items appended at end only
     final merged = [...deduped, ...missing];
-
-    print('✅ [HomeCubit] _mergeDefaults() — result: ${merged.length} items');
-    for (var i = 0; i < merged.length; i++) {
-      print('   navButtons[$i] → '
-          'en=${merged[i].name.en} '
-          'route=${merged[i].route} '
-          'status=${merged[i].status}');
-    }
-
     return loaded.copyWith(navButtons: merged);
   }
 
-  // ── Load ──────────────────────────────────────────────────────────────────
-
+  // ══════════════════════════════════════════════════════════════════════════
+  //  LOAD — draft-first strategy
+  // ══════════════════════════════════════════════════════════════════════════
   Future<void> load() async {
     print('🔵 [HomeCubit] load() called');
     emit(HomeCmsLoading());
     try {
-      print('🔵 [HomeCubit] load() → fetching fresh from server...');
+      // 1️⃣ Check if a draft exists
+      final draft = await _repo.fetchDraft();
+      if (draft != null) {
+        print('🟢 [HomeCubit] load: ✅ draft found — loading draft');
+        final result = _mergeDefaults(draft);
+        _model       = result;
+        _isFromDraft = true;
+        _applyFontsToStorage(_model.branding);
+        emit(HomeCmsLoaded(_model, isFromDraft: true));
+        return;
+      }
+
+      // 2️⃣ No draft — load published
+      print('🟡 [HomeCubit] load: no draft — loading published');
       final fetched = await _repo.fetchHomePageFresh();
-      print('🟢 [HomeCubit] load() SUCCESS');
-      print('   title.en               = ${fetched.title.en}');
-      print('   navButtons.length      = ${fetched.navButtons.length}');
-      print('   sections.length        = ${fetched.sections.length}');
-      print('   branding.logoUrl       = ${fetched.branding.logoUrl}');
-
       final result = _mergeDefaults(fetched);
-      print('   navButtons after merge = ${result.navButtons.length}');
-      for (var i = 0; i < result.navButtons.length; i++) {
-        print('   navButtons[$i] → '
-            'en=${result.navButtons[i].name.en} | '
-            'route=${result.navButtons[i].route} | '
-            'status=${result.navButtons[i].status}');
-      }
-
-      for (var i = 0; i < result.socialLinks.length; i++) {
-        print('   socialLinks[$i] → '
-            'id=${result.socialLinks[i].id} '
-            'visibility=${result.socialLinks[i].visibility} '
-            'url=${result.socialLinks[i].url}');
-      }
-
-      _model = result;
+      _model       = result;
+      _isFromDraft = false;
       _applyFontsToStorage(_model.branding);
-      emit(HomeCmsLoaded(_model));
+      print('🟢 [HomeCubit] load() SUCCESS');
+      print('   title.en             = ${_model.title.en}');
+      print('   publishStatus        = ${_model.publishStatus}');
+      print('   isFromDraft          = $_isFromDraft');
+      emit(HomeCmsLoaded(_model, isFromDraft: false));
     } catch (e, st) {
-      print('🔴 [HomeCubit] load() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] load() ERROR: $e\n   StackTrace: $st');
       emit(HomeCmsError('Failed to load home page: $e'));
     }
   }
 
-  // ── Save ──────────────────────────────────────────────────────────────────
-
-  Future<void> save({String publishStatus = 'published'}) async {
-    print('🔵 [HomeCubit] save() called — publishStatus=$publishStatus');
-    print('   _model.navButtons.length = ${_model.navButtons.length}');
-    for (var i = 0; i < _model.navButtons.length; i++) {
-      print('   BEFORE SAVE navButtons[$i] → '
-          'id=${_model.navButtons[i].id} '
-          'en=${_model.navButtons[i].name.en} '
-          'route=${_model.navButtons[i].route} '
-          'status=${_model.navButtons[i].status}');
-    }
-    for (var i = 0; i < _model.socialLinks.length; i++) {
-      print('   BEFORE SAVE socialLinks[$i] → '
-          'id=${_model.socialLinks[i].id} '
-          'visibility=${_model.socialLinks[i].visibility}');
-    }
+  // ══════════════════════════════════════════════════════════════════════════
+  //  SAVE — routes to published or draft based on publishStatus
+  // ══════════════════════════════════════════════════════════════════════════
+  Future<void> save({
+    String publishStatus = 'published',
+    DateTime? scheduledPublishDate,
+  }) async {
+    print('🔵 [HomeCubit] save() called — publishStatus=$publishStatus '
+        'scheduledPublishDate=$scheduledPublishDate');
 
     emit(HomeCmsSaving(_model));
 
     try {
-      final saving = _model.copyWith(publishStatus: publishStatus);
+      switch (publishStatus) {
+      // ── PUBLISH: save to published doc, delete draft ────────────────
+        case 'published':
+          print('🟡 [HomeCubit] save → publishing to live doc');
+          final saving = _model.copyWith(
+            publishStatus: 'published',
+            clearScheduledPublishDate: true,
+            lastUpdatedAt: DateTime.now(),
+          );
+          await _repo.saveHomePage(saving);
+          // Clean up any existing draft
+          await _repo.deleteDraft();
+          _isFromDraft = false;
 
-      print('🔵 [HomeCubit] save() → calling _repo.saveHomePage()...');
-      await _repo.saveHomePage(saving);
-      print('🟢 [HomeCubit] save() → saveHomePage() DONE');
+          // Re-fetch to get server timestamp
+          final persisted = await _repo.fetchHomePageFresh();
+          _model = _mergeDefaults(persisted);
+          _applyFontsToStorage(_model.branding);
+          print('🟢 [HomeCubit] save: ✅ published + draft cleaned');
+          emit(HomeCmsSaved(_model));
+          break;
 
-      print('🔵 [HomeCubit] save() → calling _repo.fetchHomePageFresh()...');
-      final fetched = await _repo.fetchHomePageFresh();
-      print('🟢 [HomeCubit] save() → fetchHomePageFresh() DONE');
+      // ── DRAFT: save to draft doc only, do NOT touch published ───────
+        case 'draft':
+          print('🟡 [HomeCubit] save → saving draft only');
+          final saving = _model.copyWith(
+            publishStatus: 'draft',
+            clearScheduledPublishDate: true,
+            lastUpdatedAt: DateTime.now(),
+          );
+          await _repo.saveDraft(saving);
+          _isFromDraft = true;
+          _model = saving;
+          print('🟢 [HomeCubit] save: ✅ draft saved');
+          emit(HomeCmsDraftSaved(_model));
+          break;
 
-      final persisted = _mergeDefaults(fetched);
-      print('   persisted.navButtons.length = ${persisted.navButtons.length}');
-      for (var i = 0; i < persisted.navButtons.length; i++) {
-        print('   AFTER SAVE navButtons[$i] → '
-            'id=${persisted.navButtons[i].id} '
-            'en=${persisted.navButtons[i].name.en} '
-            'route=${persisted.navButtons[i].route} '
-            'status=${persisted.navButtons[i].status}');
+      // ── SCHEDULED: save to draft doc with schedule date ─────────────
+        case 'scheduled':
+          print('🟡 [HomeCubit] save → saving scheduled draft');
+          final saving = _model.copyWith(
+            publishStatus: 'scheduled',
+            scheduledPublishDate: scheduledPublishDate,
+            lastUpdatedAt: DateTime.now(),
+          );
+          await _repo.saveDraft(saving);
+          _isFromDraft = true;
+          _model = saving;
+          print('🟢 [HomeCubit] save: ✅ scheduled draft saved');
+          emit(HomeCmsDraftSaved(_model));
+          break;
+
+        default:
+          print('🔴 [HomeCubit] save: unknown status=$publishStatus');
+          final saving = _model.copyWith(
+            publishStatus: publishStatus,
+            lastUpdatedAt: DateTime.now(),
+          );
+          await _repo.saveDraft(saving);
+          _isFromDraft = true;
+          _model = saving;
+          emit(HomeCmsDraftSaved(_model));
       }
-      for (var i = 0; i < persisted.socialLinks.length; i++) {
-        print('   AFTER SAVE socialLinks[$i] → '
-            'id=${persisted.socialLinks[i].id} '
-            'visibility=${persisted.socialLinks[i].visibility}');
-      }
-
-      _model = persisted;
-      _applyFontsToStorage(_model.branding);
-      emit(HomeCmsSaved(_model));
-      print('🟢 [HomeCubit] save() → emitted HomeCmsSaved');
-
     } catch (e, st) {
-      print('🔴 [HomeCubit] save() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] save() ERROR: $e\n   StackTrace: $st');
       emit(HomeCmsError('Failed to save: $e', _model));
     }
   }
 
-  // ── Headings ──────────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+  //  DISCARD DRAFT — deletes the draft doc (published stays untouched)
+  // ══════════════════════════════════════════════════════════════════════════
+  Future<void> discardDraft() async {
+    print('🟡 [HomeCubit] discardDraft()');
+    try {
+      await _repo.deleteDraft();
+      _isFromDraft = false;
+      print('🟢 [HomeCubit] discardDraft: ✅ DONE');
+      emit(HomeCmsDraftDeleted());
+    } catch (e) {
+      print('🔴 [HomeCubit] discardDraft: ERROR $e');
+      emit(HomeCmsError('Failed to discard draft: $e', _model));
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  FIELD UPDATE METHODS (unchanged API)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  void updateScheduledPublishDate(DateTime? date) {
+    if (date == null) {
+      _model = _model.copyWith(clearScheduledPublishDate: true);
+    } else {
+      _model = _model.copyWith(scheduledPublishDate: date);
+    }
+  }
 
   void updateTitle({required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateTitle() en="$en" ar="$ar"');
     _model = _model.copyWith(title: BiText(en: en, ar: ar));
   }
 
   void updateShortDescription({required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateShortDescription() en="$en"');
     _model = _model.copyWith(shortDescription: BiText(en: en, ar: ar));
   }
 
   // ── Nav Buttons ───────────────────────────────────────────────────────────
-
   void addNavButton() {
-    print('🔵 [HomeCubit] addNavButton()');
     final updated = List<NavButtonModel>.from(_model.navButtons)
       ..add(NavButtonModel(id: _uid()));
     _model = _model.copyWith(navButtons: updated);
   }
 
   void removeNavButton(String id) {
-    print('🔵 [HomeCubit] removeNavButton() id=$id');
     _model = _model.copyWith(
       navButtons: _model.navButtons.where((b) => b.id != id).toList(),
     );
   }
 
-  /// ✅ ADDED: reorders navButtons list and emits live update so navbar rebuilds
   void reorderNavButtons(int oldIndex, int newIndex) {
-    print('🔵 [HomeCubit] reorderNavButtons() $oldIndex → $newIndex');
     final list = List<NavButtonModel>.from(_model.navButtons);
     if (newIndex > oldIndex) newIndex--;
     list.insert(newIndex, list.removeAt(oldIndex));
     _model = _model.copyWith(navButtons: list);
-    emit(HomeCmsLoaded(_model)); // live navbar rebuild immediately
-    print('🟢 [HomeCubit] reorderNavButtons() done — new order:');
-    for (var i = 0; i < _model.navButtons.length; i++) {
-      print('   [$i] en=${_model.navButtons[i].name.en} '
-          'route=${_model.navButtons[i].route}');
-    }
+    emit(HomeCmsLoaded(_model, isFromDraft: _isFromDraft));
+  }
+
+  void reorderNavButtonsSilent(int oldIndex, int newIndex) {
+    final list = List<NavButtonModel>.from(_model.navButtons);
+    if (newIndex > oldIndex) newIndex--;
+    list.insert(newIndex, list.removeAt(oldIndex));
+    _model = _model.copyWith(navButtons: list);
   }
 
   void updateNavButtonName(String id,
       {required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateNavButtonName() id=$id en="$en"');
     _model = _model.copyWith(
       navButtons: _model.navButtons
-          .map((b) =>
-      b.id == id ? b.copyWith(name: BiText(en: en, ar: ar)) : b)
+          .map((b) => b.id == id ? b.copyWith(name: BiText(en: en, ar: ar)) : b)
           .toList(),
     );
   }
 
   void updateNavButtonRoute(String id, String route) {
-    print('🔵 [HomeCubit] updateNavButtonRoute() id=$id route="$route"');
     _model = _model.copyWith(
       navButtons: _model.navButtons
           .map((b) => b.id == id ? b.copyWith(route: route) : b)
@@ -258,95 +272,66 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   }
 
   void toggleNavButtonStatus(String id) {
-    final before = _model.navButtons
-        .where((b) => b.id == id)
-        .map((b) => b.status)
-        .firstOrNull;
-    print('🔵 [HomeCubit] toggleNavButtonStatus() '
-        'id=$id before=$before → ${!(before ?? true)}');
-
     _model = _model.copyWith(
       navButtons: _model.navButtons
           .map((b) => b.id == id ? b.copyWith(status: !b.status) : b)
           .toList(),
     );
-
-    final after = _model.navButtons
-        .where((b) => b.id == id)
-        .map((b) => b.status)
-        .firstOrNull;
-    print('🟢 [HomeCubit] toggleNavButtonStatus() id=$id after=$after ✅');
   }
 
   // ── Sections ──────────────────────────────────────────────────────────────
-
   void updateSectionTextBoxColor(int index, String color) {
-    print('🔵 [HomeCubit] updateSectionTextBoxColor() index=$index color=$color');
     _updateSection(index, (s) => s.copyWith(textBoxColor: color));
   }
 
   void updateSectionDescription(int index,
       {required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateSectionDescription() index=$index en="$en"');
-    _updateSection(
-        index, (s) => s.copyWith(description: BiText(en: en, ar: ar)));
+    _updateSection(index, (s) => s.copyWith(description: BiText(en: en, ar: ar)));
+  }
+
+  void updateSectionVisibility(int index, bool visibility) {
+    _updateSection(index, (s) => s.copyWith(visibility: visibility));
   }
 
   Future<void> uploadSectionImage(int index, Uint8List bytes) async {
-    print('🔵 [HomeCubit] uploadSectionImage() '
-        'index=$index bytes=${bytes.length}');
     final path = 'home_cms/sections/$index/image_${_uid()}.jpg';
     try {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
-      print('🟢 [HomeCubit] uploadSectionImage() SUCCESS → url=$url');
       _updateSection(index, (s) => s.copyWith(imageUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSectionImage() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] uploadSectionImage() ERROR: $e\n   $st');
       emit(HomeCmsError('Section image upload failed: $e', _model));
     }
   }
 
   Future<void> uploadSectionIcon(int index, Uint8List bytes) async {
-    print('🔵 [HomeCubit] uploadSectionIcon() '
-        'index=$index bytes=${bytes.length}');
     final path = 'home_cms/sections/$index/icon_${_uid()}.png';
     try {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
-      print('🟢 [HomeCubit] uploadSectionIcon() SUCCESS → url=$url');
       _updateSection(index, (s) => s.copyWith(iconUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSectionIcon() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] uploadSectionIcon() ERROR: $e\n   $st');
       emit(HomeCmsError('Section icon upload failed: $e', _model));
     }
   }
 
-  void _updateSection(
-      int index, SectionCardModel Function(SectionCardModel) updater) {
+  void _updateSection(int index, SectionCardModel Function(SectionCardModel) updater) {
     final sections = List<SectionCardModel>.from(_model.sections);
-    while (sections.length <= index) {
-      sections.add(const SectionCardModel());
-    }
+    while (sections.length <= index) sections.add(const SectionCardModel());
     sections[index] = updater(sections[index]);
     _model = _model.copyWith(sections: sections);
   }
 
   // ── Header Items ──────────────────────────────────────────────────────────
-
-  void updateHeaderItemTitle(String id,
-      {required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateHeaderItemTitle() id=$id en="$en"');
+  void updateHeaderItemTitle(String id, {required String en, required String ar}) {
     _model = _model.copyWith(
       headerItems: _model.headerItems
-          .map((h) =>
-      h.id == id ? h.copyWith(title: BiText(en: en, ar: ar)) : h)
+          .map((h) => h.id == id ? h.copyWith(title: BiText(en: en, ar: ar)) : h)
           .toList(),
     );
   }
 
   void toggleHeaderItemStatus(String id) {
-    print('🔵 [HomeCubit] toggleHeaderItemStatus() id=$id');
     _model = _model.copyWith(
       headerItems: _model.headerItems
           .map((h) => h.id == id ? h.copyWith(status: !h.status) : h)
@@ -355,7 +340,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   }
 
   void reorderHeaderItems(int oldIndex, int newIndex) {
-    print('🔵 [HomeCubit] reorderHeaderItems() $oldIndex → $newIndex');
     final list = List<HeaderItemModel>.from(_model.headerItems);
     if (newIndex > oldIndex) newIndex--;
     list.insert(newIndex, list.removeAt(oldIndex));
@@ -363,36 +347,27 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   }
 
   // ── Footer Columns ────────────────────────────────────────────────────────
-
   void addFooterColumn() {
-    print('🔵 [HomeCubit] addFooterColumn()');
     final updated = List<FooterColumnModel>.from(_model.footerColumns)
       ..add(FooterColumnModel(id: _uid()));
     _model = _model.copyWith(footerColumns: updated);
   }
 
   void removeFooterColumn(String id) {
-    print('🔵 [HomeCubit] removeFooterColumn() id=$id');
     _model = _model.copyWith(
-      footerColumns:
-      _model.footerColumns.where((c) => c.id != id).toList(),
+      footerColumns: _model.footerColumns.where((c) => c.id != id).toList(),
     );
   }
 
-  void updateFooterColumnTitle(String colId,
-      {required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateFooterColumnTitle() colId=$colId en="$en"');
+  void updateFooterColumnTitle(String colId, {required String en, required String ar}) {
     _model = _model.copyWith(
       footerColumns: _model.footerColumns
-          .map((c) =>
-      c.id == colId ? c.copyWith(title: BiText(en: en, ar: ar)) : c)
+          .map((c) => c.id == colId ? c.copyWith(title: BiText(en: en, ar: ar)) : c)
           .toList(),
     );
   }
 
   void updateFooterColumnRoute(String colId, String route) {
-    print('🔵 [HomeCubit] updateFooterColumnRoute() '
-        'colId=$colId route="$route"');
     _model = _model.copyWith(
       footerColumns: _model.footerColumns
           .map((c) => c.id == colId ? c.copyWith(route: route) : c)
@@ -401,57 +376,44 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   }
 
   void addFooterLabel(String colId) {
-    print('🔵 [HomeCubit] addFooterLabel() colId=$colId');
     _model = _model.copyWith(
       footerColumns: _model.footerColumns.map((c) {
         if (c.id != colId) return c;
-        return c.copyWith(
-            labels: [...c.labels, FooterLabelModel(id: _uid())]);
+        return c.copyWith(labels: [...c.labels, FooterLabelModel(id: _uid())]);
       }).toList(),
     );
   }
 
   void removeFooterLabel(String colId, String labelId) {
-    print('🔵 [HomeCubit] removeFooterLabel() '
-        'colId=$colId labelId=$labelId');
     _model = _model.copyWith(
       footerColumns: _model.footerColumns.map((c) {
         if (c.id != colId) return c;
-        return c.copyWith(
-            labels: c.labels.where((l) => l.id != labelId).toList());
+        return c.copyWith(labels: c.labels.where((l) => l.id != labelId).toList());
       }).toList(),
     );
   }
 
   void updateFooterLabel(String colId, String labelId,
       {required String en, required String ar}) {
-    print('🔵 [HomeCubit] updateFooterLabel() '
-        'colId=$colId labelId=$labelId en="$en"');
     _model = _model.copyWith(
       footerColumns: _model.footerColumns.map((c) {
         if (c.id != colId) return c;
         return c.copyWith(
           labels: c.labels
-              .map((l) => l.id == labelId
-              ? l.copyWith(label: BiText(en: en, ar: ar))
-              : l)
+              .map((l) => l.id == labelId ? l.copyWith(label: BiText(en: en, ar: ar)) : l)
               .toList(),
         );
       }).toList(),
     );
   }
 
-  void updateFooterLabelRoute(
-      String colId, String labelId, String route) {
-    print('🔵 [HomeCubit] updateFooterLabelRoute() '
-        'colId=$colId labelId=$labelId route="$route"');
+  void updateFooterLabelRoute(String colId, String labelId, String route) {
     _model = _model.copyWith(
       footerColumns: _model.footerColumns.map((c) {
         if (c.id != colId) return c;
         return c.copyWith(
           labels: c.labels
-              .map((l) =>
-          l.id == labelId ? l.copyWith(route: route) : l)
+              .map((l) => l.id == labelId ? l.copyWith(route: route) : l)
               .toList(),
         );
       }).toList(),
@@ -459,116 +421,76 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   }
 
   // ── Social Links ──────────────────────────────────────────────────────────
-
   void addSocialLink() {
-    final id = 'sl_${_uid()}';
-    print('🔵 [HomeCubit] addSocialLink() id=$id');
     _model = _model.copyWith(
-      socialLinks: [..._model.socialLinks, SocialLinkModel(id: id)],
+      socialLinks: [..._model.socialLinks, SocialLinkModel(id: 'sl_${_uid()}')],
     );
   }
 
   void removeSocialLink(String id) {
-    print('🔵 [HomeCubit] removeSocialLink() id=$id');
     _model = _model.copyWith(
-      socialLinks:
-      _model.socialLinks.where((s) => s.id != id).toList(),
+      socialLinks: _model.socialLinks.where((s) => s.id != id).toList(),
     );
   }
 
-  // ✅ FIXED: accepts visibility param and persists it to model
   void updateSocialLink(String id, {required String url, bool? visibility}) {
-    print('🔵 [HomeCubit] updateSocialLink() '
-        'id=$id url="$url" visibility=$visibility');
     _model = _model.copyWith(
       socialLinks: _model.socialLinks
           .map((s) => s.id == id
-          ? s.copyWith(
-        url:        url,
-        visibility: visibility ?? s.visibility,
-      )
+          ? s.copyWith(url: url, visibility: visibility ?? s.visibility)
           : s)
           .toList(),
     );
   }
 
   Future<void> uploadSocialLinkIcon(String id, Uint8List bytes) async {
-    print('🔵 [HomeCubit] uploadSocialLinkIcon() '
-        'id=$id bytes=${bytes.length}');
     final path = 'home_cms/social_icons/${id}_${_uid()}.png';
     try {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
-      print('🟢 [HomeCubit] uploadSocialLinkIcon() SUCCESS → url=$url');
       _model = _model.copyWith(
         socialLinks: _model.socialLinks
             .map((s) => s.id == id ? s.copyWith(iconUrl: url) : s)
             .toList(),
       );
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSocialLinkIcon() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] uploadSocialLinkIcon() ERROR: $e\n   $st');
       emit(HomeCmsError('Social icon upload failed: $e', _model));
     }
   }
 
   // ── Branding / Logo ───────────────────────────────────────────────────────
-
   Future<void> uploadLogo(Uint8List bytes) async {
-    print('🔵 [HomeCubit] uploadLogo() bytes=${bytes.length}');
     final path = 'home_cms/branding/logo_${_uid()}.png';
     try {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
-      print('🟢 [HomeCubit] uploadLogo() SUCCESS → url=$url');
-      _model =
-          _model.copyWith(branding: _model.branding.copyWith(logoUrl: url));
+      _model = _model.copyWith(branding: _model.branding.copyWith(logoUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadLogo() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [HomeCubit] uploadLogo() ERROR: $e\n   $st');
       emit(HomeCmsError('Logo upload failed: $e', _model));
     }
   }
 
   void updatePrimaryColor(String hex) {
-    print('🔵 [HomeCubit] updatePrimaryColor() hex=$hex');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(primaryColor: hex));
+    _model = _model.copyWith(branding: _model.branding.copyWith(primaryColor: hex));
   }
 
   void updateSecondaryColor(String hex) {
-    print('🔵 [HomeCubit] updateSecondaryColor() hex=$hex');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(secondaryColor: hex));
+    _model = _model.copyWith(branding: _model.branding.copyWith(secondaryColor: hex));
   }
 
   void updateBackgroundColor(String hex) {
-    print('🔵 [HomeCubit] updateBackgroundColor() hex=$hex');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(backgroundColor: hex));
+    _model = _model.copyWith(branding: _model.branding.copyWith(backgroundColor: hex));
   }
 
   void updateHeaderFooterColor(String hex) {
-    print('🔵 [HomeCubit] updateHeaderFooterColor() hex=$hex');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(headerFooterColor: hex));
+    _model = _model.copyWith(branding: _model.branding.copyWith(headerFooterColor: hex));
   }
 
   void updateEnglishFont(String font) {
-    print('🔵 [HomeCubit] updateEnglishFont() font=$font');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(englishFont: font));
-  }
-  void reorderNavButtonsSilent(int oldIndex, int newIndex) {
-    print('🔵 [HomeCubit] reorderNavButtonsSilent() $oldIndex → $newIndex');
-    final list = List<NavButtonModel>.from(_model.navButtons);
-    if (newIndex > oldIndex) newIndex--;
-    list.insert(newIndex, list.removeAt(oldIndex));
-    _model = _model.copyWith(navButtons: list);
-    // ✅ No emit — prevents _seedFromModel() from firing mid-save
+    _model = _model.copyWith(branding: _model.branding.copyWith(englishFont: font));
   }
 
   void updateArabicFont(String font) {
-    print('🔵 [HomeCubit] updateArabicFont() font=$font');
-    _model = _model.copyWith(
-        branding: _model.branding.copyWith(arabicFont: font));
+    _model = _model.copyWith(branding: _model.branding.copyWith(arabicFont: font));
   }
 }

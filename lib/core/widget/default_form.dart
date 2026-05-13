@@ -167,7 +167,7 @@ class DefaultFormField extends StatelessWidget {
                 focusedBorder: focusedBorder ??
                     OutlineInputBorder(
                       borderRadius: BorderRadius.circular(radius ?? 6.r),
-                      borderSide: BorderSide(color: AppColors.primary),
+                      borderSide: BorderSide(color: AppColors.primary), // ← fallback
                     ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(radius ?? 6.r),

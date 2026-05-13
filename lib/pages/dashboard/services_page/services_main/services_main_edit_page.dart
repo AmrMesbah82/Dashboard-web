@@ -2,6 +2,8 @@
 // File Name: services_main_edit_page.dart
 // Screen 2 — Services CMS: Edit "Headings" (title + description, AR + EN)
 // Navigates to: ServicesMainPreviewPage (screen 3)
+// UPDATED: Removed success dialog — on ServiceCmsSaved, navigates to ServicesMainPageMaster
+// UPDATED: Uses BlocConsumer pattern matching home_edit_page_master.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +13,7 @@ import 'package:web_app_admin/controller/services/services_state.dart';
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/model/services_model.dart';
+import 'package:web_app_admin/pages/dashboard/services_page/services_main/services_main_page.dart';
 import 'package:web_app_admin/pages/dashboard/services_page/services_main/services_main_preview_page.dart';
 import 'package:web_app_admin/theme/app_wight.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
@@ -18,13 +21,20 @@ import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
+import '../../../../core/custom_dialog.dart';
+import '../../../../widgets/app_admin_navbar.dart';
+import '../../../careers_main_dashboard.dart';
+import '../../job_list/job_listing_main_page.dart';
+import '../../main_page/home_main_page.dart';
+
+
 class _C {
   static const Color primary   = Color(0xFF008037);
   static const Color sectionBg = Color(0xFFF5F5F5);
   static const Color cardBg    = Color(0xFFFFFFFF);
   static const Color labelText = Color(0xFF1A1A1A);
   static const Color grey      = Color(0xFF9E9E9E);
-  static const Color back = Color(0xFFF1F2ED);
+  static const Color back      = Color(0xFFF1F2ED);
 }
 
 class ServicesMainEditPage extends StatefulWidget {
@@ -43,18 +53,94 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
 
   bool _headingsOpen = true;
   bool _submitted    = false;
+  bool _hasChanges   = false;
+  bool _isSaving     = false;
+
+  // Validation tracking
+  bool _titleEnValid = true;
+  bool _titleArValid = true;
+  bool _descEnValid  = true;
+  bool _descArValid  = true;
+
+  // Store original values
+  late String _originalTitleEn;
+  late String _originalTitleAr;
+  late String _originalDescEn;
+  late String _originalDescAr;
 
   @override
   void initState() {
     super.initState();
+
+    _originalTitleEn = widget.model.title.en;
+    _originalTitleAr = widget.model.title.ar;
+    _originalDescEn  = widget.model.shortDescription.en;
+    _originalDescAr  = widget.model.shortDescription.ar;
+
     _titleEnCtrl = TextEditingController(text: widget.model.title.en);
     _titleArCtrl = TextEditingController(text: widget.model.title.ar);
     _descEnCtrl  = TextEditingController(text: widget.model.shortDescription.en);
     _descArCtrl  = TextEditingController(text: widget.model.shortDescription.ar);
+
+    _titleEnCtrl.addListener(_checkForChangesAndValidate);
+    _titleArCtrl.addListener(_checkForChangesAndValidate);
+    _descEnCtrl.addListener(_checkForChangesAndValidate);
+    _descArCtrl.addListener(_checkForChangesAndValidate);
   }
+
+  void _checkForChangesAndValidate() {
+    final bool hasChanges =
+        _titleEnCtrl.text != _originalTitleEn ||
+            _titleArCtrl.text != _originalTitleAr ||
+            _descEnCtrl.text  != _originalDescEn  ||
+            _descArCtrl.text  != _originalDescAr;
+
+    final bool titleEnValid = _validateSingleField(_titleEnCtrl.text, 'en', isTitle: true);
+    final bool titleArValid = _validateSingleField(_titleArCtrl.text, 'ar', isTitle: true);
+    final bool descEnValid  = _validateSingleField(_descEnCtrl.text,  'en', isTitle: false);
+    final bool descArValid  = _validateSingleField(_descArCtrl.text,  'ar', isTitle: false);
+
+    if (hasChanges   != _hasChanges   ||
+        titleEnValid != _titleEnValid ||
+        titleArValid != _titleArValid ||
+        descEnValid  != _descEnValid  ||
+        descArValid  != _descArValid) {
+      setState(() {
+        _hasChanges   = hasChanges;
+        _titleEnValid = titleEnValid;
+        _titleArValid = titleArValid;
+        _descEnValid  = descEnValid;
+        _descArValid  = descArValid;
+      });
+    }
+  }
+
+  bool _validateSingleField(String text, String language, {required bool isTitle}) {
+    final bool isEmpty   = text.trim().isEmpty;
+    if (isTitle && isEmpty) return false;
+
+    final bool hasArabic  = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+    final bool hasEnglish = RegExp(r'[a-zA-Z]').hasMatch(text);
+
+    if (language == 'en' && hasArabic  && text.isNotEmpty) return false;
+    if (language == 'ar' && hasEnglish && text.isNotEmpty) return false;
+
+    return true;
+  }
+
+  bool get _isFormValid =>
+      _titleEnValid && _titleArValid && _descEnValid && _descArValid;
+
+  bool get _isPublishEnabled =>
+      _hasChanges && !_isSaving && _isFormValid;
 
   @override
   void dispose() {
+    _titleEnCtrl.removeListener(_checkForChangesAndValidate);
+    _titleArCtrl.removeListener(_checkForChangesAndValidate);
+    _descEnCtrl.removeListener(_checkForChangesAndValidate);
+    _descArCtrl.removeListener(_checkForChangesAndValidate);
+
     _titleEnCtrl.dispose();
     _titleArCtrl.dispose();
     _descEnCtrl.dispose();
@@ -67,9 +153,74 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
     shortDescription: BilingualText(en: _descEnCtrl.text, ar: _descArCtrl.text),
   );
 
-  void _onPreview() {
+  // ── Validation ─────────────────────────────────────────────────────────────
+  bool _validateFields() {
+    if (_titleEnCtrl.text.trim().isEmpty) return false;
+    if (_titleArCtrl.text.trim().isEmpty) return false;
+
+    final bool titleEnHasArabic  = RegExp(r'[\u0600-\u06FF]').hasMatch(_titleEnCtrl.text);
+    final bool titleArHasEnglish = RegExp(r'[a-zA-Z]').hasMatch(_titleArCtrl.text);
+
+    if (titleEnHasArabic  && _titleEnCtrl.text.isNotEmpty) return false;
+    if (titleArHasEnglish && _titleArCtrl.text.isNotEmpty) return false;
+
+    return true;
+  }
+
+  void _showValidationError() {
+    final List<String> missingFields = [];
+
+    if (_titleEnCtrl.text.trim().isEmpty) {
+      missingFields.add('Title (English)');
+    } else if (RegExp(r'[\u0600-\u06FF]').hasMatch(_titleEnCtrl.text)) {
+      missingFields.add('Title (English) - Please use English characters only');
+    }
+
+    if (_titleArCtrl.text.trim().isEmpty) {
+      missingFields.add('Title (Arabic)');
+    } else if (RegExp(r'[a-zA-Z]').hasMatch(_titleArCtrl.text)) {
+      missingFields.add('Title (Arabic) - Please use Arabic characters only');
+    }
+
+    if (_descEnCtrl.text.isNotEmpty &&
+        RegExp(r'[\u0600-\u06FF]').hasMatch(_descEnCtrl.text)) {
+      missingFields.add('Description (English) - Please use English characters only');
+    }
+
+    if (_descArCtrl.text.isNotEmpty &&
+        RegExp(r'[a-zA-Z]').hasMatch(_descArCtrl.text)) {
+      missingFields.add('Description (Arabic) - Please use Arabic characters only');
+    }
+
+    final message = missingFields.isEmpty
+        ? 'Please check all required fields.'
+        : 'Please fix the following issues:\n\n• ${missingFields.join('\n• ')}';
+
+    showConfirmDialog(
+      context: context,
+      title: 'Required Fields Missing',
+      subtitle: message,
+      confirmLabel: 'OK',
+      cancelLabel: '',
+      onConfirm: () {},
+      iconWidget: Container(
+        width: 60.r, height: 60.r,
+        decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+        child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+      ),
+    );
+  }
+
+  // ── Preview ────────────────────────────────────────────────────────────────
+  void _onPreview() async {
     setState(() => _submitted = true);
-    if (_titleEnCtrl.text.trim().isEmpty || _titleArCtrl.text.trim().isEmpty) return;
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -81,71 +232,173 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
     );
   }
 
-  void _onSave() {
+  // ── Save / Publish ─────────────────────────────────────────────────────────
+  Future<void> _onSave() async {
     setState(() => _submitted = true);
-    if (_titleEnCtrl.text.trim().isEmpty || _titleArCtrl.text.trim().isEmpty) return;
-    context.read<ServiceCmsCubit>().updateTitle(
-        en: _titleEnCtrl.text, ar: _titleArCtrl.text);
-    context.read<ServiceCmsCubit>().updateShortDescription(
-        en: _descEnCtrl.text, ar: _descArCtrl.text);
-    context.read<ServiceCmsCubit>().save(publishStatus: 'published');
-    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    if (!_validateFields()) {
+      _showValidationError();
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      context.read<ServiceCmsCubit>().updateTitle(
+          en: _titleEnCtrl.text, ar: _titleArCtrl.text);
+      context.read<ServiceCmsCubit>().updateShortDescription(
+          en: _descEnCtrl.text, ar: _descArCtrl.text);
+      await context.read<ServiceCmsCubit>().save(publishStatus: 'published');
+
+      // Update original values so _hasChanges resets correctly
+      _originalTitleEn = _titleEnCtrl.text;
+      _originalTitleAr = _titleArCtrl.text;
+      _originalDescEn  = _descEnCtrl.text;
+      _originalDescAr  = _descArCtrl.text;
+
+      setState(() {
+        _hasChanges = false;
+        _isSaving   = false;
+      });
+
+      // Navigation is handled by BlocConsumer listener (ServiceCmsSaved)
+    } catch (e) {
+      setState(() => _isSaving = false);
+      if (mounted) {
+        showConfirmDialog(
+          context: context,
+          title: 'Error',
+          subtitle: 'Failed to save: ${e.toString()}',
+          confirmLabel: 'OK',
+          cancelLabel: '',
+          onConfirm: () {},
+          iconWidget: Container(
+            width: 60.r, height: 60.r,
+            decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+            child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+          ),
+        );
+      }
+    }
   }
 
-  void _onDiscard() => Navigator.pop(context);
+  void _onDiscard() {
+    if (_hasChanges) {
+      showConfirmDialog(
+        context: context,
+        title: 'Discard Changes',
+        subtitle: 'Are you sure you want to discard all changes?',
+        confirmLabel: 'Discard',
+        cancelLabel: 'Cancel',
+        onConfirm: () => Navigator.pop(context),
+      );
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void _showPublishConfirmDialog() {
+    showPublishConfirmDialog(
+      context: context,
+      title: 'EDITING SERVICES DETAILS',
+      subtitle: 'Do you want to save the changes made to this Service Details?',
+      confirmLabel: 'Publish',
+      onConfirm: _onSave,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _C.back,
-      body: BlocListener<ServiceCmsCubit, ServiceCmsState>(
+      // ── Use BlocConsumer so listener handles navigation on success ──────────
+      body: BlocConsumer<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
+          // ── Published successfully → navigate to ServicesMainPageMaster ──
           if (state is ServiceCmsSaved) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Saved successfully')),
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const ServicesMainPageMaster(),
+                  ),
+                      (route) => false,
+                );
+              }
+            });
+          }
+
+          if (state is ServiceCmsError) {
+            showConfirmDialog(
+              context: context,
+              title: 'Error',
+              subtitle: state.message,
+              confirmLabel: 'OK',
+              cancelLabel: '',
+              onConfirm: () {},
+              iconWidget: Container(
+                width: 60.r, height: 60.r,
+                decoration: const BoxDecoration(
+                    color: Color(0xFFE53935), shape: BoxShape.circle),
+                child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+              ),
             );
           }
         },
-        child: SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 20.h),
-                AdminSubNavBar(activeIndex: 2),
-                SizedBox(height: 20.h),
-                Container(
-                  width: 1000.w,
+        builder: (context, state) {
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                child: SizedBox(
+                  width: double.infinity,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(height: 5.h),
-
-                      // ── Large green title ──────────────────────────────
-                      Text(
-                        'Editing Services Details',
-                        style: StyleText.fontSize45Weight600.copyWith(
-                          color: _C.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      AppAdminNavbar(
+                        activeLabel:     'Web Page',
+                        homePage:        CareersMainPageDashboard(),
+                        webPage:         HomeMainPage(),
+                        jobListingPage:  JobListingMainPage(),
                       ),
                       SizedBox(height: 20.h),
+                      AdminSubNavBar(activeIndex: 2),
+                      SizedBox(height: 20.h),
+                      SizedBox(
+                        width: 1000.w,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 5.h),
 
-                      // ── Headings accordion ─────────────────────────────
-                      _headingsAccordion(),
-                      SizedBox(height: 24.h),
+                            // ── Large green title ──────────────────────────
+                            Text(
+                              'Editing Services Details',
+                              style: StyleText.fontSize45Weight600.copyWith(
+                                color: _C.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
 
-                      // ── Action buttons ─────────────────────────────────
-                      _actionButtons(),
-                      SizedBox(height: 40.h),
+                            // ── Headings accordion ─────────────────────────
+                            _headingsAccordion(),
+                            SizedBox(height: 24.h),
+
+                            // ── Action buttons ─────────────────────────────
+                            _actionButtons(),
+                            SizedBox(height: 40.h),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
+              if (_isSaving) _buildSavingOverlay(),
+            ],
+          );
+        },
       ),
     );
   }
@@ -153,10 +406,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
   // ── Accordion ──────────────────────────────────────────────────────────────
   Widget _headingsAccordion() {
     return Container(
-      decoration: BoxDecoration(
-
-        borderRadius: BorderRadius.circular(6.r),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -167,17 +417,16 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: _headingsOpen
-                    ? BorderRadius.only(
-                  topLeft:  Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
-                Expanded(child: Text('Headings',
+                Expanded(
+                  child: Text(
+                    'Headings',
                     style: StyleText.fontSize14Weight600
-                        .copyWith(color: Colors.white))),
+                        .copyWith(color: Colors.white),
+                  ),
+                ),
                 Icon(
                   _headingsOpen
                       ? Icons.keyboard_arrow_up_rounded
@@ -188,146 +437,213 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
             ),
           ),
           if (_headingsOpen)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20.h),
-                // ── Title: EN + AR side by side ──────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Title',    style: _labelStyle()),
-                    Text('العنوان', style: _labelStyle()),
-                  ],
-                ),
-                SizedBox(height: 6.h),
-                Row(children: [
-                  Expanded(
-                    child: CustomValidatedTextFieldMaster(
-                      controller:    _titleEnCtrl,
-                      hint:          'Text Here',
-                      submitted:     _submitted,
-                      primaryColor:  _C.primary,
-
-                      textDirection: TextDirection.ltr,
-                      height:        36,
-                    ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Title: EN + AR side by side ──────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Title',    style: _labelStyle()),
+                      Text('العنوان', style: _labelStyle()),
+                    ],
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: CustomValidatedTextFieldMaster(
-                      controller:    _titleArCtrl,
-                      hint:          'أدخل النص هنا',
-                      submitted:     _submitted,
-                      primaryColor:  _C.primary,
-
-                      textDirection: TextDirection.rtl,
-                      textAlign:     TextAlign.right,
-                      height:        36,
+                  SizedBox(height: 6.h),
+                  Row(children: [
+                    Expanded(
+                      child: CustomValidatedTextFieldMaster(
+                        controller:    _titleEnCtrl,
+                        hint:          'Text Here',
+                        submitted:     _submitted,
+                        primaryColor:  _C.primary,
+                        fillColor:     Colors.white,
+                        textDirection: TextDirection.ltr,
+                        height:        36,
+                        isRequired:    true,
+                        minLength:     1,
+                      ),
                     ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: CustomValidatedTextFieldMaster(
+                        controller:    _titleArCtrl,
+                        hint:          'أدخل النص هنا',
+                        submitted:     _submitted,
+                        primaryColor:  _C.primary,
+                        fillColor:     Colors.white,
+                        textDirection: TextDirection.rtl,
+                        textAlign:     TextAlign.right,
+                        height:        36,
+                        isRequired:    true,
+                        minLength:     1,
+                      ),
+                    ),
+                  ]),
+                  SizedBox(height: 16.h),
+
+                  // ── Description EN full width ────────────────────────
+                  Text('Description', style: _labelStyle()),
+                  SizedBox(height: 6.h),
+                  CustomValidatedTextFieldMaster(
+                    controller:    _descEnCtrl,
+                    hint:          'Text Here',
+                    submitted:     false,
+                    primaryColor:  _C.primary,
+                    fillColor:     Colors.white,
+                    textDirection: TextDirection.ltr,
+                    maxLines:      4,
+                    height:        100,
+                    maxLength:     10000,
+                    isRequired:    false,
                   ),
-                ]),
+                  SizedBox(height: 16.h),
 
-
-                // ── Description EN full width ────────────────────────
-                Text('Description', style: _labelStyle()),
-                SizedBox(height: 6.h),
-                CustomValidatedTextFieldMaster(
-                  controller:    _descEnCtrl,
-                  hint:          'Text Here',
-                  submitted:     false, // not required
-                  primaryColor:  _C.primary,
-
-                  textDirection: TextDirection.ltr,
-                  maxLines:      4,
-                  height:        100,
-                  maxLength:     900,
-                ),
-
-                // ── Description AR full width RTL ────────────────────
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text('وصف', style: _labelStyle()),
-                ),
-                SizedBox(height: 6.h),
-                CustomValidatedTextFieldMaster(
-                  controller:    _descArCtrl,
-                  hint:          'أدخل النص هنا',
-                  submitted:     false, // not required
-                  primaryColor:  _C.primary,
-
-                  textDirection: TextDirection.rtl,
-                  textAlign:     TextAlign.right,
-                  maxLines:      4,
-                  height:        100,
-                  maxLength:     900,
-                ),
-              ],
+                  // ── Description AR full width RTL ────────────────────
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text('وصف', style: _labelStyle()),
+                  ),
+                  SizedBox(height: 6.h),
+                  CustomValidatedTextFieldMaster(
+                    controller:    _descArCtrl,
+                    hint:          'أدخل النص هنا',
+                    submitted:     false,
+                    primaryColor:  _C.primary,
+                    fillColor:     Colors.white,
+                    textDirection: TextDirection.rtl,
+                    textAlign:     TextAlign.right,
+                    maxLines:      4,
+                    height:        100,
+                    maxLength:     10000,
+                    isRequired:    false,
+                  ),
+                ],
+              ),
             ),
         ],
       ),
     );
   }
 
-  // ── Action buttons ─────────────────────────────────────────────────────────
   Widget _actionButtons() {
-    return Column(
-      children: [
-        // Preview — half width left
-        Row(children: [
-          Expanded(
-            child: SizedBox(
-              height: 44.h,
-              child: ElevatedButton(
-                onPressed: _onPreview,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r)),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        children: [
+          // Preview — half width left
+          Row(children: [
+            Expanded(
+              child: SizedBox(
+                height: 44.h,
+                child: ElevatedButton(
+                  onPressed: _onPreview,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF608570),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r)),
+                  ),
+                  child: Text('Preview',
+                      style: StyleText.fontSize14Weight600
+                          .copyWith(color: Colors.white)),
                 ),
-                child: Text('Preview',
-                    style: StyleText.fontSize14Weight600
-                        .copyWith(color: Colors.white)),
               ),
             ),
-          ),
-          SizedBox(width: 15.w),
-          Expanded(child: const SizedBox()),
-        ]),
-        SizedBox(height: 10.h),
+            SizedBox(width: 300.w),
+            Expanded(child: const SizedBox()),
+          ]),
+          SizedBox(height: 10.h),
 
-        // Discard | Save
-        Row(children: [
-          Expanded(
-            child: customButton(
-              title: 'Discard',
-              function: _onDiscard,
-              height: 44.h,
-              color: Color(0xFF797979),
-              textColor: Colors.white,
-              textStyle: StyleText.fontSize14Weight600.copyWith(color: Colors.white),
-              radius: 8.r,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: SizedBox(
-              height: 44.h,
-              child: ElevatedButton(
-                onPressed: _onSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r)),
-                ),
-                child: Text('Save',
-                    style: StyleText.fontSize14Weight600
-                        .copyWith(color: Colors.white)),
+          // Discard | Publish
+          Row(children: [
+            Expanded(
+              child: customButton(
+                title:     'Discard',
+                function:  _onDiscard,
+                height:    44.h,
+                color:     const Color(0xFF797979),
+                textColor: Colors.white,
+                textStyle: StyleText.fontSize14Weight600
+                    .copyWith(color: Colors.white),
+                radius: 8.r,
               ),
             ),
+            SizedBox(width: 300.w),
+            Expanded(
+              child: Tooltip(
+                message: !_isPublishEnabled
+                    ? (_hasChanges
+                    ? (_isFormValid
+                    ? ''
+                    : 'Please fix validation errors before publishing')
+                    : 'No changes to publish')
+                    : '',
+                child: SizedBox(
+                  height: 44.h,
+                  child: ElevatedButton(
+                    onPressed: _isPublishEnabled
+                        ? _showPublishConfirmDialog
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:         _C.primary,
+                      disabledBackgroundColor: _C.grey,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r)),
+                    ),
+                    child: Text('Publish',
+                          style: StyleText.fontSize14Weight600
+                              .copyWith(color: Colors.white)),
+
+                  ),
+                ),
+              ),
+            ),
+          ]),
+
+          // Validation summary message
+          if (!_isFormValid && _hasChanges)
+            Padding(
+              padding: EdgeInsets.only(top: 12.h),
+              child: Text(
+                'Please fix validation errors above before publishing',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Saving overlay ─────────────────────────────────────────────────────────
+  Widget _buildSavingOverlay() {
+    return Container(
+      color: Colors.black54,
+      child: Center(
+        child: Container(
+          width: 180.w, height: 100.h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r),
           ),
-        ]),
-      ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(color: _C.primary),
+              SizedBox(height: 12.h),
+              Text(
+                'Saving...',
+                style: TextStyle(
+                    fontFamily: 'Cairo', fontSize: 14.sp, color: Colors.black87),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

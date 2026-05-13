@@ -3,6 +3,7 @@
 /// Page 7 — "Preview Home Details" (Figma screen 7)
 /// Desktop / Tablet / Mobile tabs + ENG/AR chips
 /// "Home View" accordion with real HomePage content (hero + cards only, NO navbar/footer)
+/// FIXED: Device tabs restyled to match job_listing_detail_page tab bar pattern
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,8 @@ import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 import 'package:web_app_admin/pages/home_page.dart';
+
+import '../../../core/two_tab.dart';
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -40,7 +43,6 @@ class HomePreviewPageMaster extends StatefulWidget {
 
 class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
   _Device _device   = _Device.desktop;
-  bool    _isAr     = false;
   bool    _isSaving = false;
   bool    _homeViewOpen = true;
 
@@ -89,125 +91,181 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
         if (state is HomeCmsLoaded) data = state.data;
         if (state is HomeCmsSaved)  data = state.data;
 
-        return Scaffold(
-          backgroundColor: _C.sectionBg,
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
-                AdminSubNavBar(
-                  activeIndex: 1,
-                  homeCubit: context.read<HomeCmsCubit>(),
-                ),
-            
-                // ── Scrollable content ──────────────────────────────────────
-                Container(
-                  width: 1000.w,
+        // ✅ Wrap in BlocBuilder<LanguageCubit> so everything reacts to lang changes
+        return BlocBuilder<LanguageCubit, LanguageState>(
+          builder: (context, langState) {
+            final bool isAr = langState.isArabic;
+
+            return Scaffold(
+              backgroundColor: _C.sectionBg,
+              body: SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ── Page title ────────────────────────────────────────
-                      Text('Preview Home Details',
-                        style: StyleText.fontSize45Weight600.copyWith(
-                          color: _C.primary, fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: 14.h),
-                                  
-                      // ── Device tabs + ENG/AR chips row ───────────────────
-                      Row(
-                        children: [
-                          // Device tabs
-                          ...[_Device.desktop, _Device.tablet, _Device.mobile].map((d) {
-                            final active = _device == d;
-                            final label  = d.name[0].toUpperCase() + d.name.substring(1);
-                            return GestureDetector(
-                              onTap: () => setState(() => _device = d),
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 20.w),
-                                child: Text(label,
-                                  style: active
-                                      ? StyleText.fontSize14Weight600.copyWith(
-                                    color: _C.primary,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: _C.primary,
-                                  )
-                                      : StyleText.fontSize14Weight400.copyWith(color: _C.hintText),
-                                ),
-                              ),
-                            );
-                          }),
-                          const Spacer(),
-                          // ENG chip
-                          _langChip('ENG', active: !_isAr, onTap: () => setState(() => _isAr = false)),
-                          SizedBox(width: 6.w),
-                          // AR chip
-                          _langChip('AR',  active: _isAr,  onTap: () => setState(() => _isAr = true)),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                                  
-                      // ── Home View accordion ───────────────────────────────
-                      _homeViewAccordion(data),
-                                  
-                      SizedBox(height: 24.h),
-                                  
-                      // ── Bottom buttons ────────────────────────────────────
-                      Row(children: [
-                        // Back
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => context.pop(),
-                            child: Container(
-                              height: 44.h,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade400,
-                                borderRadius: BorderRadius.circular(6.r),
-                              ),
-                              child: Center(
-                                child: Text('Back',
-                                  style: StyleText.fontSize14Weight600.copyWith(color: Colors.white),
-                                ),
+                      Container(
+                        width: 1000.w,
+                        child: Column(
+                          children: [
+                            SizedBox(height: 20.h),
+                            AdminSubNavBar(
+                              activeIndex: 1,
+                              homeCubit: context.read<HomeCmsCubit>(),
+                            ),
+
+                            Container(
+                              width: 1000.w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 20.h),
+
+                                  Text('Preview Home Details',
+                                    style: StyleText.fontSize45Weight600.copyWith(
+                                      color: _C.primary, fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 14.h),
+
+                                  // ── Device tabs + Language toggle ──────────
+                                  Row(
+                                    children: [
+                                      _buildDeviceTabBar(),
+                                      const Spacer(),
+                                      CustomSegmentedTabs(
+                                        tabs: ['ENG', 'AR'],
+                                        selectedIndex: isAr ? 1 : 0,
+                                        onTabSelected: (i) {
+                                          context
+                                              .read<LanguageCubit>()
+                                              .setLanguage(i == 1 ? 'ar' : 'en');
+                                        },
+                                        selectedColor: _C.primary,
+                                        unselectedColor: Colors.transparent,
+                                        selectedTextColor: Colors.white,
+                                        unselectedTextColor: _C.labelText,
+                                        containerColor: _C.border.withOpacity(0.45),
+                                        equalWidth: false,
+                                        containerPadding: EdgeInsets.symmetric(
+                                            horizontal: 8.sp, vertical: 4.sp),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16.h),
+
+                                  // ── Home View accordion ───────────────────
+                                  _homeViewAccordion(data, isAr),
+
+                                  SizedBox(height: 24.h),
+
+                                  // ── Bottom buttons ────────────────────────
+                                  Row(children: [
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => context.pop(),
+                                        child: Container(
+                                          height: 44.h,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey.shade400,
+                                            borderRadius: BorderRadius.circular(6.r),
+                                          ),
+                                          child: Center(
+                                            child: Text('Back',
+                                              style: StyleText.fontSize14Weight600
+                                                  .copyWith(color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 300.w),
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: _isSaving ? null : () => _publish(cubit),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          height: 44.h,
+                                          decoration: BoxDecoration(
+                                            color: _isSaving
+                                                ? _C.primary.withOpacity(0.5)
+                                                : _C.primary,
+                                            borderRadius: BorderRadius.circular(6.r),
+                                          ),
+                                          child: Center(
+                                            child: _isSaving
+                                                ? SizedBox(
+                                                width: 18.w, height: 18.h,
+                                                child: const CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 2))
+                                                : Text('Publish',
+                                                style: StyleText.fontSize14Weight600
+                                                    .copyWith(color: Colors.white)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ]),
+                                  SizedBox(height: 40.h),
+                                ],
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        SizedBox(width: 16.w),
-                        // Publish
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _isSaving ? null : () => _publish(cubit),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              height: 44.h,
-                              decoration: BoxDecoration(
-                                color: _isSaving ? _C.primary.withOpacity(0.5) : _C.primary,
-                                borderRadius: BorderRadius.circular(6.r),
-                              ),
-                              child: Center(
-                                child: _isSaving
-                                    ? SizedBox(width: 18.w, height: 18.h,
-                                    child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                    : Text('Publish',
-                                    style: StyleText.fontSize14Weight600.copyWith(color: Colors.white)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ]),
-                      SizedBox(height: 40.h),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  // ── Language chip ──────────────────────────────────────────────────────────
+  // ── Device tab bar ────────────────────────────────────────────────────────
+  Widget _buildDeviceTabBar() {
+    final tabs = [_Device.desktop, _Device.tablet, _Device.mobile];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(tabs.length, (i) {
+        final d = tabs[i];
+        final isActive = _device == d;
+        final label = d.name[0].toUpperCase() + d.name.substring(1);
+        return Padding(
+          padding: EdgeInsets.only(right: 24.w),
+          child: GestureDetector(
+            onTap: () => setState(() => _device = d),
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 1.h),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                        color: isActive ? _C.primary : _C.hintText,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 2,
+                    color: isActive ? _C.primary : Colors.transparent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  // ── Language chip (kept for reference but replaced by CustomSegmentedTabs) ─
   Widget _langChip(String label, {required bool active, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
@@ -216,7 +274,6 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
         decoration: BoxDecoration(
           color: active ? _C.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(4.r),
-          border: Border.all(color: active ? _C.primary : _C.border),
         ),
         child: Text(label,
           style: StyleText.fontSize12Weight500.copyWith(
@@ -227,18 +284,16 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
     );
   }
 
-  // ── Home View accordion ────────────────────────────────────────────────────
-  Widget _homeViewAccordion(HomePageModel? data) {
+  // ── Home View accordion ───────────────────────────────────────────────────
+  Widget _homeViewAccordion(HomePageModel? data, bool isAr) {
     return Container(
       decoration: BoxDecoration(
         color: _C.cardBg,
         borderRadius: BorderRadius.circular(6.r),
-        border: Border.all(color: _C.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Accordion header
           GestureDetector(
             onTap: () => setState(() => _homeViewOpen = !_homeViewOpen),
             child: Container(
@@ -246,12 +301,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: _homeViewOpen
-                    ? BorderRadius.only(
-                  topLeft:  Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(child: Text('Home View',
@@ -266,22 +316,19 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
               ]),
             ),
           ),
-
-          // Preview frame
           if (_homeViewOpen)
-            _previewFrame(data),
+            _previewFrame(data, isAr),
         ],
       ),
     );
   }
 
-  // ── Preview frame (scaled real widgets) ───────────────────────────────────
-  Widget _previewFrame(HomePageModel? data) {
-    // Virtual screen size the real widgets think they're on
+  // ── Preview frame ─────────────────────────────────────────────────────────
+  Widget _previewFrame(HomePageModel? data, bool isAr) {
     final double fakeW = switch (_device) {
       _Device.desktop => 1366,
-      _Device.tablet  =>  1024,
-      _Device.mobile  =>  375,
+      _Device.tablet  => 1024,
+      _Device.mobile  => 375,
     };
     final double fakeH = switch (_device) {
       _Device.desktop => 768,
@@ -292,30 +339,27 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double availW = constraints.maxWidth;
-        final double scale  = availW / fakeW;
+        final double scale = availW / fakeW;
         final double scaledH = fakeH * scale;
 
         return ClipRRect(
           borderRadius: BorderRadius.circular(6.r),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: _C.border),
               borderRadius: BorderRadius.circular(6.r),
             ),
-            // Outer box is the SCALED size
             child: SizedBox(
-              width:  availW,
+              width: availW,
               height: scaledH,
               child: OverflowBox(
                 alignment: Alignment.topLeft,
-                minWidth:  fakeW,
-                maxWidth:  fakeW,
+                minWidth: fakeW,
+                maxWidth: fakeW,
                 minHeight: fakeH,
                 maxHeight: fakeH,
                 child: Transform.scale(
-                  scale:     scale,
+                  scale: scale,
                   alignment: Alignment.topLeft,
-                  // ScreenUtilInit resets .w/.sp/.h relative to fakeW×fakeH
                   child: ScreenUtilInit(
                     designSize: Size(fakeW, fakeH),
                     minTextAdapt: true,
@@ -324,27 +368,19 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                       data: MediaQuery.of(context).copyWith(
                         size: Size(fakeW, fakeH),
                       ),
-                      child: SizedBox(
-                        width:  fakeW,
-                        height: fakeH,
-                        child: BlocProvider<LanguageCubit>(
-                          create: (_) {
-                            final cubit = LanguageCubit();
-                            // Set language to match _isAr
-                            if (cubit.state.isArabic != _isAr) {
-                              cubit.setLanguage(_isAr ? 'ar' : 'en');
-                            }
-                            return cubit;
-                          },
+                      child: Directionality(
+                        textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
+                        child: SizedBox(
+                          width: fakeW,
+                          height: fakeH,
                           child: Container(
                             color: AppColors.background,
                             child: SingleChildScrollView(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  // Use the actual HomePage widget's body content
-                                  // We'll render it directly here
-                                  _buildActualHomeContent(data ?? _emptyHomePageModel()),
+                                  _buildActualHomeContent(
+                                      data ?? _emptyHomePageModel(), isAr),
                                 ],
                               ),
                             ),
@@ -362,7 +398,6 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
     );
   }
 
-  // Helper to create an empty model if needed
   HomePageModel _emptyHomePageModel() {
     return HomePageModel(
       title: BiText(en: '', ar: ''),
@@ -378,19 +413,15 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
     );
   }
 
-  // Build the actual home page content (hero + cards)
-  Widget _buildActualHomeContent(HomePageModel data) {
+  // ── All content builders now receive isAr directly ────────────────────────
+  Widget _buildActualHomeContent(HomePageModel data, bool isAr) {
     return Builder(
       builder: (context) {
         final double w = MediaQuery.of(context).size.width;
-        final isAr = context.read<LanguageCubit>().state.isArabic;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Hero Section - exact copy from home_page.dart
             _buildHeroSection(data, w, isAr),
-            // Hero Cards Section - exact copy from home_page.dart
             _buildHeroCardsSection(data, w, isAr),
             SizedBox(height: 32.h),
           ],
@@ -398,6 +429,9 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
       },
     );
   }
+
+  // ── Everything below stays the same — isAr is passed through, ─────────────
+  //    no more reading from a removed _isAr field or local cubit.
 
   Widget _buildHeroSection(HomePageModel data, double w, bool isAr) {
     final Color primary = _hexColor(data.branding.primaryColor);
@@ -407,7 +441,9 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
         ? (data.title.ar.isNotEmpty ? data.title.ar : data.title.en)
         : data.title.en;
     final String descText = isAr
-        ? (data.shortDescription.ar.isNotEmpty ? data.shortDescription.ar : data.shortDescription.en)
+        ? (data.shortDescription.ar.isNotEmpty
+        ? data.shortDescription.ar
+        : data.shortDescription.en)
         : data.shortDescription.en;
 
     return Container(

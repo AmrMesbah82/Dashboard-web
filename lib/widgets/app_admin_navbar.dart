@@ -42,8 +42,14 @@ Color _hexColor(String hex, Color fallback) {
 }
 
 void _pushPage(BuildContext context, Widget page) {
+  final cubit = context.read<HomeCmsCubit>();
   Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (_) => page),
+    MaterialPageRoute(
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: page,
+      ),
+    ),
   );
 }
 

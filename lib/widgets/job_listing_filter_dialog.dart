@@ -5,10 +5,14 @@
 // Fields: Departments, Locations, Employment Type, Years of Experience, Date
 // Uses: CustomDropdownFormFieldInvMaster, _DatePickerField
 // FIXED: Date picker now uses DatePicker().showDatePicker() from core/widget/date_picker.dart
+// UPDATED: Dropdown hover color uses CMS primary color from Firebase
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:web_app_admin/controller/home_cubit.dart';
+import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
 import 'package:web_app_admin/core/widget/date_pic.dart';
@@ -24,6 +28,23 @@ class _C {
   static const Color label   = Color(0xFF333333);
   static const Color hint    = Color(0xFFAAAAAA);
   static const Color resetBg = Color(0xFFEEEEEE);
+}
+
+// ── CMS primary color helper ──────────────────────────────────────────────────
+Color _cmsHexColor(String hex) {
+  try {
+    final clean = hex.replaceAll('#', '');
+    if (clean.length == 6) return Color(int.parse('FF$clean', radix: 16));
+  } catch (_) {}
+  return const Color(0xFF008037);
+}
+
+Color _primaryFromState(HomeCmsState state) {
+  return switch (state) {
+    HomeCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
+    HomeCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
+    _                          => const Color(0xFF008037),
+  };
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -96,9 +117,6 @@ const _kLocations = [
 const _kEmpTypes = [
   {'key': 'full_time',  'value': 'Full-Time'},
   {'key': 'part_time',  'value': 'Part-Time'},
-  {'key': 'contract',   'value': 'Contract'},
-  {'key': 'internship', 'value': 'Internship'},
-  {'key': 'freelance',  'value': 'Freelance'},
 ];
 const _kYearsOfExp = [
   {'key': '0_1',  'value': '0 – 1 year'},
@@ -172,13 +190,12 @@ class _JobListingFilterDialogState
     ),
   );
 
-  // ── FIXED: Uses your custom DatePicker widget ─────────────────────────────
   Future<void> _pickDate() async {
     final result = await DatePicker().showDatePicker(
       context,
-      [_date],                              // initial value list
-      _date ?? DateTime.now(),              // currentDate
-      CalendarDatePicker2Type.single,       // single date selection
+      [_date],
+      _date ?? DateTime.now(),
+      CalendarDatePicker2Type.single,
     );
 
     if (result != null && result.isNotEmpty && result.first != null) {
@@ -186,12 +203,13 @@ class _JobListingFilterDialogState
     }
   }
 
-  // ── Dropdown helper ───────────────────────────────────────────────────────
+  // ── Dropdown helper — reads primary from CMS ──────────────────────────────
   Widget _dd({
     required String hint,
     required String? value,
     required List<Map<String, String>> items,
     required ValueChanged<String?> onChanged,
+    required Color primary,
   }) {
     return CustomDropdownFormFieldInvMaster(
       selectedValue: value,
@@ -200,8 +218,9 @@ class _JobListingFilterDialogState
       widthIcon:     22,
       heightIcon:    22,
       height:        50,
-      dropdownColor: Color(0xFFF5F5F5),
+      dropdownColor: const Color(0xFFF5F5F5),
       borderRadius:  8,
+      primaryColor:  primary,   // ← CMS branding color
       hint: Text(
         hint,
         style: TextStyle(
@@ -213,7 +232,6 @@ class _JobListingFilterDialogState
     );
   }
 
-  // ── Date label using DateTimeHelper ────────────────────────────────────────
   String get _dateStr {
     if (_date == null) return '';
     return DateTimeHelper.formatDate(_date!);
@@ -221,133 +239,144 @@ class _JobListingFilterDialogState
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 920.w),
-        padding: EdgeInsets.all(28.w),
-        decoration: BoxDecoration(
-          color:  _C.cardBg,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+      builder: (context, cmsState) {
+        final Color primary = _primaryFromState(cmsState);
 
-            // ── Header ────────────────────────────────────────────────────
-            Row(
-              children: [
-                Container(
-                  width: 40.sp, height: 40.sp,
-                  decoration: const BoxDecoration(
-                    color: _C.primary, shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.tune_rounded,
-                      color: Colors.white, size: 20.sp),
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  'Filter',
-                  style: TextStyle(
-                    fontSize:   22.sp,
-                    fontWeight: FontWeight.w700,
-                    color:      _C.label,
-                  ),
-                ),
-              ],
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 920.w),
+            padding: EdgeInsets.all(28.w),
+            decoration: BoxDecoration(
+              color:        _C.cardBg,
+              borderRadius: BorderRadius.circular(16.r),
             ),
-            SizedBox(height: 24.h),
-
-            // ── Row 1: Departments | Locations ────────────────────────────
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _dd(
-                    hint: 'Departments', value: _dept,
-                    items: widget.departments,
-                    onChanged: (v) => setState(() => _dept = v))),
-                SizedBox(width: 16.w),
-                Expanded(child: _dd(
-                    hint: 'Locations', value: _loc,
-                    items: widget.locations,
-                    onChanged: (v) => setState(() => _loc = v))),
-              ],
-            ),
-            SizedBox(height: 14.h),
 
-            // ── Row 2: Employment Type | Years Of Experience ──────────────
-            Row(
-              children: [
-                Expanded(child: _dd(
-                    hint: 'Employment Type', value: _emp,
-                    items: widget.employmentTypes,
-                    onChanged: (v) => setState(() => _emp = v))),
-                SizedBox(width: 16.w),
-                Expanded(child: _dd(
-                    hint: 'Years Of Experience', value: _yoe,
-                    items: widget.yearsOfExperienceList,
-                    onChanged: (v) => setState(() => _yoe = v))),
-              ],
-            ),
-            SizedBox(height: 14.h),
-
-            // ── Row 3: Date (half-width) ──────────────────────────────────
-            FractionallySizedBox(
-              widthFactor: 0.49,
-              child: _DatePickerField(
-                dateLabel: _dateStr,
-                onTap:     _pickDate,
-              ),
-            ),
-            SizedBox(height: 28.h),
-
-            // ── Action buttons ────────────────────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 52.h,
-                    child: TextButton(
-                      onPressed: _reset,
-                      style: TextButton.styleFrom(
-                        backgroundColor: _C.resetBg,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r)),
+                // ── Header ──────────────────────────────────────────────
+                Row(
+                  children: [
+                    Container(
+                      width: 40.sp, height: 40.sp,
+                      decoration: BoxDecoration(
+                        color: primary,        // ← CMS color
+                        shape: BoxShape.circle,
                       ),
-                      child: Text('Reset',
-                          style: TextStyle(
-                              fontSize:   15.sp,
-                              fontWeight: FontWeight.w600,
-                              color:      _C.label)),
+                      child: Icon(Icons.tune_rounded,
+                          color: Colors.white, size: 20.sp),
                     ),
+                    SizedBox(width: 12.w),
+                    Text(
+                      'Filter',
+                      style: TextStyle(
+                        fontSize:   22.sp,
+                        fontWeight: FontWeight.w700,
+                        color:      _C.label,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+
+                // ── Row 1: Departments | Locations ───────────────────────
+                Row(
+                  children: [
+                    Expanded(child: _dd(
+                        hint: 'Departments', value: _dept,
+                        items: widget.departments,
+                        primary: primary,
+                        onChanged: (v) => setState(() => _dept = v))),
+                    SizedBox(width: 16.w),
+                    Expanded(child: _dd(
+                        hint: 'Locations', value: _loc,
+                        items: widget.locations,
+                        primary: primary,
+                        onChanged: (v) => setState(() => _loc = v))),
+                  ],
+                ),
+                SizedBox(height: 14.h),
+
+                // ── Row 2: Employment Type | Years Of Experience ─────────
+                Row(
+                  children: [
+                    Expanded(child: _dd(
+                        hint: 'Employment Type', value: _emp,
+                        items: widget.employmentTypes,
+                        primary: primary,
+                        onChanged: (v) => setState(() => _emp = v))),
+                    SizedBox(width: 16.w),
+                    Expanded(child: _dd(
+                        hint: 'Experience Level', value: _yoe,
+                        items: widget.yearsOfExperienceList,
+                        primary: primary,
+                        onChanged: (v) => setState(() => _yoe = v))),
+                  ],
+                ),
+                SizedBox(height: 14.h),
+
+                // ── Row 3: Date (half-width) ─────────────────────────────
+                FractionallySizedBox(
+                  widthFactor: 0.49,
+                  child: _DatePickerField(
+                    dateLabel: _dateStr,
+                    onTap:     _pickDate,
                   ),
                 ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: SizedBox(
-                    height: 52.h,
-                    child: ElevatedButton(
-                      onPressed: _apply,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _C.primary,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r)),
+                SizedBox(height: 28.h),
+
+                // ── Action buttons ───────────────────────────────────────
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 52.h,
+                        child: TextButton(
+                          onPressed: _reset,
+                          style: TextButton.styleFrom(
+                            backgroundColor: Color(0xFFD9D9D9),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.r)),
+                          ),
+                          child: Text('Reset',
+                              style: TextStyle(
+                                  fontSize:   15.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color:      Colors.black)),
+                        ),
                       ),
-                      child: Text('Apply',
-                          style: TextStyle(
-                              fontSize:   15.sp,
-                              fontWeight: FontWeight.w600,
-                              color:      Colors.white)),
                     ),
-                  ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: SizedBox(
+                        height: 52.h,
+                        child: ElevatedButton(
+                          onPressed: _apply,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primary,  // ← CMS color
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.r)),
+                          ),
+                          child: Text('Apply',
+                              style: TextStyle(
+                                  fontSize:   15.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color:      Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -357,7 +386,7 @@ class _JobListingFilterDialogState
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _DatePickerField extends StatelessWidget {
-  final String    dateLabel; // empty → show placeholder
+  final String       dateLabel;
   final VoidCallback onTap;
 
   const _DatePickerField({
@@ -375,7 +404,7 @@ class _DatePickerField extends StatelessWidget {
         height: 50.h,
         padding: EdgeInsets.symmetric(horizontal: 10.w),
         decoration: BoxDecoration(
-          color:  Color(0xFFF5F5F5),
+          color:        const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
@@ -390,7 +419,12 @@ class _DatePickerField extends StatelessWidget {
                 ),
               ),
             ),
-            CustomSvg(assetPath: "assets/images/calender.svg",width: 20.w,height: 20.h,fit: BoxFit.scaleDown,)
+            CustomSvg(
+              assetPath: 'assets/images/calender.svg',
+              width:  20.w,
+              height: 20.h,
+              fit:    BoxFit.fill,
+            ),
           ],
         ),
       ),

@@ -1,9 +1,16 @@
 // ******************* FILE INFO *******************
 // File Name: home_repository_impl.dart
 // Description: Firebase implementation of HomeRepository.
-//   • Firestore  → document: cms/home_page
-//   • Storage    → bucket path: home_cms/...
+//              Dual-document architecture:
+//              - Published → `cms/home_page`
+//              - Draft     → `cms/home_page_draft`
+//
+//              "Save For Later" writes to the _draft doc only.
+//              "Publish" writes to the published doc and deletes the draft.
+//              "Schedule" writes to the _draft doc with publishStatus = 'scheduled'.
 // Created by: Amr Mesbah
+// Last Update: 20/04/2026
+// UPDATED: Dual-document draft system ✅
 
 import 'dart:typed_data';
 
@@ -22,156 +29,84 @@ class HomeRepositoryImpl implements HomeRepository {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  static const String _collection = 'cms';
-  static const String _document   = 'home_page';
+  static const String _collection    = 'cms';
+  static const String _publishedDoc  = 'home_page';
+  static const String _draftDoc      = 'home_page_draft';
 
-  DocumentReference<Map<String, dynamic>> get _docRef =>
-      _firestore.collection(_collection).doc(_document);
+  DocumentReference<Map<String, dynamic>> get _publishedRef =>
+      _firestore.collection(_collection).doc(_publishedDoc);
 
-  // ── Fetch (cache-first) ──────────────────────────────────────────────────
+  DocumentReference<Map<String, dynamic>> get _draftRef =>
+      _firestore.collection(_collection).doc(_draftDoc);
 
-  // ── Fetch (cache-first) ──────────────────────────────────────────────────
+  // ═════════════════════════════════════════════════════════════════════════
+  //  PUBLISHED DOCUMENT
+  // ═════════════════════════════════════════════════════════════════════════
 
   @override
   Future<HomePageModel> fetchHomePage() async {
     print('🔵 [Repo] fetchHomePage() called (cache-first)');
     try {
-      final snapshot = await _docRef.get();
+      final snapshot = await _publishedRef.get();
       print('   snapshot.exists = ${snapshot.exists}');
-      print('   snapshot.metadata.isFromCache = ${snapshot.metadata.isFromCache}');
       if (!snapshot.exists || snapshot.data() == null) {
         print('⚠️  [Repo] fetchHomePage() → no document, returning defaultModel');
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
-      print('   sanitized keys = ${data.keys.toList()}');
-      print('   raw title = ${data['title']}');
-      print('   raw sections length = ${(data['sections'] as List?)?.length ?? 0}');
-      if ((data['sections'] as List?)?.isNotEmpty == true) {
-        final s0 = (data['sections'] as List)[0] as Map<String, dynamic>;
-        print('   raw sections[0].imageUrl = ${s0['imageUrl']}');
-        print('   raw sections[0].iconUrl  = ${s0['iconUrl']}');
-      }
       final model = HomePageModel.fromMap(data);
       print('🟢 [Repo] fetchHomePage() → parsed OK');
-      print('   model.title.en = ${model.title.en}');
-      print('   model.sections[0].imageUrl = ${model.sections.isNotEmpty ? model.sections[0].imageUrl : "NO SECTIONS"}');
       return model;
     } catch (e, st) {
-      print('🔴 [Repo] fetchHomePage() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [Repo] fetchHomePage() ERROR: $e\n   StackTrace: $st');
       return HomePageModel.defaultModel;
     }
   }
-
-// ── Fetch FRESH (server only, bypasses cache) ────────────────────────────
 
   @override
   Future<HomePageModel> fetchHomePageFresh() async {
     print('🔵 [Repo] fetchHomePageFresh() called (Source.server)');
     try {
-      final snapshot = await _docRef.get(const GetOptions(source: Source.server));
+      final snapshot = await _publishedRef.get(const GetOptions(source: Source.server));
       print('   snapshot.exists = ${snapshot.exists}');
-      print('   snapshot.metadata.isFromCache = ${snapshot.metadata.isFromCache}');
       if (!snapshot.exists || snapshot.data() == null) {
         print('⚠️  [Repo] fetchHomePageFresh() → no document, returning defaultModel');
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
-      print('   sanitized keys = ${data.keys.toList()}');
-      print('   raw title = ${data['title']}');
-      print('   raw sections length = ${(data['sections'] as List?)?.length ?? 0}');
-      if ((data['sections'] as List?)?.isNotEmpty == true) {
-        final s0 = (data['sections'] as List)[0] as Map<String, dynamic>;
-        print('   raw sections[0].imageUrl = ${s0['imageUrl']}');
-        print('   raw sections[0].iconUrl  = ${s0['iconUrl']}');
-      }
-      print('   raw branding.logoUrl = ${(data['branding'] as Map?)?['logoUrl']}');
       final model = HomePageModel.fromMap(data);
       print('🟢 [Repo] fetchHomePageFresh() → parsed OK');
       print('   model.title.en        = ${model.title.en}');
-      print('   model.sections length = ${model.sections.length}');
-      print('   model.sections[0].imageUrl = ${model.sections.isNotEmpty ? model.sections[0].imageUrl : "NO SECTIONS"}');
-      print('   model.sections[0].iconUrl  = ${model.sections.isNotEmpty ? model.sections[0].iconUrl  : "NO SECTIONS"}');
-      print('   model.branding.logoUrl = ${model.branding.logoUrl}');
+      print('   model.publishStatus   = ${model.publishStatus}');
       return model;
     } catch (e, st) {
-      print('🔴 [Repo] fetchHomePageFresh() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [Repo] fetchHomePageFresh() ERROR: $e\n   StackTrace: $st');
       return HomePageModel.defaultModel;
     }
   }
 
-// ── Sanitize raw Firestore map ────────────────────────────────────────────
-
-  Map<String, dynamic> _sanitize(Map<String, dynamic> data) {
-    final copy = Map<String, dynamic>.from(data);
-    // lastUpdatedAt comes back as a Firestore Timestamp object from Source.server
-    // but fromMap() tries to cast it as String → crash. Just drop it.
-    copy.remove('lastUpdatedAt');
-    print('   [Repo] _sanitize() → removed lastUpdatedAt, remaining keys = ${copy.keys.toList()}');
-    return copy;
-  }
-
-  // ── Save ─────────────────────────────────────────────────────────────────
-
   @override
   Future<void> saveHomePage(HomePageModel model) async {
     print('🔵 [Repo] saveHomePage() called');
-    print('   model.title.en = ${model.title.en}');
-    print('   model.sections length = ${model.sections.length}');
-    if (model.sections.isNotEmpty) {
-      print('   model.sections[0].imageUrl = ${model.sections[0].imageUrl}');
-      print('   model.sections[0].iconUrl  = ${model.sections[0].iconUrl}');
-    }
-    print('   model.branding.logoUrl = ${model.branding.logoUrl}');
+    print('   model.title.en       = ${model.title.en}');
+    print('   model.publishStatus  = ${model.publishStatus}');
     try {
       final map = {
         ...model.toMap(),
         'lastUpdatedAt': FieldValue.serverTimestamp(),
       };
-      print('   toMap() sections[0] = ${(map['sections'] as List?)?.isNotEmpty == true ? (map['sections'] as List)[0] : "EMPTY"}');
-      await _docRef.set(map);
+      await _publishedRef.set(map);
       print('🟢 [Repo] saveHomePage() → Firestore .set() completed');
     } catch (e, st) {
-      print('🔴 [Repo] saveHomePage() ERROR: $e');
-      print('   StackTrace: $st');
+      print('🔴 [Repo] saveHomePage() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
-
-  // ── Upload ───────────────────────────────────────────────────────────────
-
-  @override
-  Future<String> uploadImage({
-    required Uint8List bytes,
-    required String storagePath,
-  }) async {
-    print('🔵 [Repo] uploadImage() storagePath=$storagePath bytes=${bytes.length}');
-    try {
-      final ref  = _storage.ref().child(storagePath);
-      final mime = _detectMime(bytes);
-      print('   detected MIME = $mime');
-      final task = await ref.putData(bytes, SettableMetadata(contentType: mime));
-      final url  = await task.ref.getDownloadURL();
-      print('🟢 [Repo] uploadImage() → url=$url');
-      return url;
-    } catch (e, st) {
-      print('🔴 [Repo] uploadImage() ERROR: $e');
-      print('   StackTrace: $st');
-      rethrow;
-    }
-  }
-
-  // ── Watch ────────────────────────────────────────────────────────────────
 
   @override
   Stream<HomePageModel> watchHomePage() {
     print('🔵 [Repo] watchHomePage() stream created');
-    return _docRef.snapshots().map((snap) {
-      print('📡 [Repo] watchHomePage() snapshot received');
-      print('   snap.exists = ${snap.exists}');
-      print('   snap.metadata.isFromCache = ${snap.metadata.isFromCache}');
+    return _publishedRef.snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return HomePageModel.defaultModel;
       try {
         return HomePageModel.fromMap(snap.data()!);
@@ -182,7 +117,112 @@ class HomeRepositoryImpl implements HomeRepository {
     });
   }
 
-  // ── MIME sniff ────────────────────────────────────────────────────────────
+  // ═════════════════════════════════════════════════════════════════════════
+  //  DRAFT DOCUMENT
+  // ═════════════════════════════════════════════════════════════════════════
+
+  @override
+  Future<HomePageModel?> fetchDraft() async {
+    print('🟡 [Repo] fetchDraft() called');
+    try {
+      final snapshot = await _draftRef.get(const GetOptions(source: Source.server));
+      if (snapshot.exists && snapshot.data() != null) {
+        final data = _sanitize(snapshot.data()!);
+        print('🟢 [Repo] fetchDraft() → draft found');
+        return HomePageModel.fromMap(data);
+      }
+      print('🟡 [Repo] fetchDraft() → no draft exists');
+      return null;
+    } catch (e, st) {
+      print('🔴 [Repo] fetchDraft() ERROR: $e\n   StackTrace: $st');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveDraft(HomePageModel model) async {
+    print('🟡 [Repo] saveDraft() called');
+    print('   model.publishStatus = ${model.publishStatus}');
+    try {
+      final map = {
+        ...model.toMap(),
+        'lastUpdatedAt': FieldValue.serverTimestamp(),
+      };
+      await _draftRef.set(map);
+      print('🟢 [Repo] saveDraft() → Firestore .set() completed');
+    } catch (e, st) {
+      print('🔴 [Repo] saveDraft() ERROR: $e\n   StackTrace: $st');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteDraft() async {
+    print('🟡 [Repo] deleteDraft() called');
+    try {
+      final snap = await _draftRef.get();
+      if (snap.exists) {
+        await _draftRef.delete();
+        print('🟢 [Repo] deleteDraft() → deleted');
+      } else {
+        print('🟡 [Repo] deleteDraft() → no draft to delete');
+      }
+    } catch (e, st) {
+      print('🔴 [Repo] deleteDraft() ERROR: $e\n   StackTrace: $st');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> promoteDraft() async {
+    print('🟡 [Repo] promoteDraft() called');
+    try {
+      final draft = await fetchDraft();
+      if (draft == null) {
+        print('🟡 [Repo] promoteDraft() → no draft to promote');
+        return;
+      }
+      final publishedModel = draft.copyWith(
+        publishStatus: 'published',
+        clearScheduledPublishDate: true,
+      );
+      await saveHomePage(publishedModel);
+      await deleteDraft();
+      print('🟢 [Repo] promoteDraft() → DONE');
+    } catch (e, st) {
+      print('🔴 [Repo] promoteDraft() ERROR: $e\n   StackTrace: $st');
+      rethrow;
+    }
+  }
+
+  // ═════════════════════════════════════════════════════════════════════════
+  //  ASSETS
+  // ═════════════════════════════════════════════════════════════════════════
+
+  @override
+  Future<String> uploadImage({
+    required Uint8List bytes,
+    required String storagePath,
+  }) async {
+    print('🔵 [Repo] uploadImage() storagePath=$storagePath bytes=${bytes.length}');
+    try {
+      final ref  = _storage.ref().child(storagePath);
+      final mime = _detectMime(bytes);
+      final task = await ref.putData(bytes, SettableMetadata(contentType: mime));
+      final url  = await task.ref.getDownloadURL();
+      print('🟢 [Repo] uploadImage() → url=$url');
+      return url;
+    } catch (e, st) {
+      print('🔴 [Repo] uploadImage() ERROR: $e\n   StackTrace: $st');
+      rethrow;
+    }
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  Map<String, dynamic> _sanitize(Map<String, dynamic> data) {
+    return Map<String, dynamic>.from(data);
+  }
 
   String _detectMime(Uint8List b) {
     if (b.length < 4) return 'application/octet-stream';

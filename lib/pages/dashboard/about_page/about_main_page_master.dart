@@ -2,6 +2,9 @@
 // File Name: about_main_page_master.dart
 // Screen 1 — About Us CMS: Main view page
 // Sub-tabs: About Us | Our Strategy | Terms of Service
+// FIXED: Dynamic last-updated date (from model.lastUpdatedAt)
+// FIXED: Tab bar restyled to match ServicesMainPageMaster pattern
+// UPDATED: Added Navigation Label accordion section to About Us tab
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
@@ -35,6 +38,8 @@ import 'package:web_app_admin/widgets/app_navbar.dart';
 import '../../../core/widget/svg_image.dart';
 import '../../../repo/application/application_repo_imp.dart';
 import '../../../repo/job_list/job_listing_repo_imp.dart';
+import '../../../widgets/app_admin_navbar.dart';
+import '../main_page/home_main_page.dart';
 import 'strategy_page/strategy_main_page.dart';
 import 'strategy_page/strategy_preview_page.dart';
 
@@ -44,7 +49,7 @@ class _C {
   static const Color cardBg    = Color(0xFFFFFFFF);
   static const Color labelText = Color(0xFF333333);
   static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back = Color(0xFFF1F2ED);
+  static const Color back      = Color(0xFFF1F2ED);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -104,6 +109,19 @@ class _AboutMainPageMasterDashboardState
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // Date formatter
+  // ══════════════════════════════════════════════════════════════════════════
+
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '—';
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${d.day} ${months[d.month]} ${d.year}';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // XHR loaders
   // ══════════════════════════════════════════════════════════════════════════
 
@@ -143,7 +161,6 @@ class _AboutMainPageMasterDashboardState
     }
   }
 
-  // ── Detect SVG from raw bytes ──
   bool _isSvgBytes(Uint8List b) {
     if (b.length < 5) return false;
     final header = String.fromCharCodes(
@@ -151,7 +168,6 @@ class _AboutMainPageMasterDashboardState
     return header.startsWith('<svg') || header.startsWith('<?xml');
   }
 
-  // ── Render bytes auto-detecting SVG vs raster ──
   Widget _renderBytes(Uint8List b, {bool isSvg = false, BoxFit fit = BoxFit.cover}) {
     if (isSvg || _isSvgBytes(b)) {
       return SvgPicture.memory(b, fit: fit);
@@ -159,7 +175,6 @@ class _AboutMainPageMasterDashboardState
     return Image.memory(b, fit: fit);
   }
 
-  // ── Universal XHR image widget ─────────────────────────────────────────────
   Widget _networkImage({
     required String url,
     bool isSvg = false,
@@ -188,7 +203,6 @@ class _AboutMainPageMasterDashboardState
         if (snapshot.hasData) {
           return _renderBytes(snapshot.data!, isSvg: isSvg, fit: fit);
         }
-        // error fallback
         return Icon(
           isSvg ? Icons.description_outlined : Icons.broken_image,
           color: isSvg ? Colors.grey[400] : Colors.red[300],
@@ -198,30 +212,9 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Admin-aware navbar tap handler ────────────────────────────────────────
-  void _onNavbarItemTap(String publicRoute) {
-    switch (publicRoute) {
-      case '/':
-        context.go('/admin/dashboard');
-      case '/services':
-        Navigator.push(context, MaterialPageRoute(
-          builder: (_) => const ServicesMainPageMaster(),
-        ));
-      case '/about':
-        break;
-      case '/contact':
-        context.go('/admin/contact-cms');
-      case '/careers':
-        context.go('/admin/careers-cms');
-      default:
-        context.go('/admin/dashboard');
-    }
-  }
-
   // ── Preview button handler — respects active tab ──────────────────────────
   void _onPreviewTap(AboutPageModel aboutModel) {
     switch (_tabIndex) {
-    // ── Tab 0: About Us ──
       case 0:
         final cubit = context.read<AboutCubit>();
         Navigator.push(context, MaterialPageRoute(
@@ -231,7 +224,6 @@ class _AboutMainPageMasterDashboardState
           ),
         ));
 
-    // ── Tab 1: Our Strategy ──
       case 1:
         final strategyState = _strategyCubit.state;
         final OurStrategyModel? sm = switch (strategyState) {
@@ -252,7 +244,6 @@ class _AboutMainPageMasterDashboardState
           ),
         ));
 
-    // ── Tab 2: Terms of Service ──
       case 2:
         final termsState = _termsCubit.state;
         final TermsOfServiceModel? tm = switch (termsState) {
@@ -307,6 +298,12 @@ class _AboutMainPageMasterDashboardState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  AppAdminNavbar(
+                    activeLabel: 'Web Page',
+                    homePage: HomeMainPage(),
+                    webPage: HomeMainPage(),
+                    jobListingPage: HomeMainPage(),
+                  ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 3),
                   SizedBox(height: 20.h),
@@ -320,71 +317,12 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Global sub-navbar ──────────────────────────────────────────────────────
-  Widget _subNavBar() => Container(
-    width: 1000.w,
-    decoration: BoxDecoration(
-        color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_subNavLabels.length, (i) {
-        final active = _subNavIndex == i;
-        return GestureDetector(
-          onTap: () {
-            setState(() => _subNavIndex = i);
-            switch (i) {
-              case 0: context.go('/admin/dashboard');
-              case 1:
-                Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<HomeCmsCubit>(),
-                    child: const HomeMainPageMaster(),
-                  ),
-                ));
-              case 2: break;
-              case 3:
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => BlocProvider(
-                    create: (_) => AboutCubit()..load(),
-                    child: const AboutMainPageMasterDashboard(),
-                  ),
-                ));
-              case 4: context.go('/admin/contact-cms');
-              case 5:
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => BlocProvider(
-                    create: (_) => CareersCmsCubit(
-            jobRepo: JobListingRepoImp(),
-            appRepo: ApplicationRepoImp(), // your application repo implementation
-            )..load(),
-                    child: const CareersMainPageMaster(),
-                  ),
-                ));
-            }
-          },
-          child: Container(
-            margin: EdgeInsets.only(right: 4.w),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: active ? _C.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: Text(_subNavLabels[i],
-              style: StyleText.fontSize14Weight500.copyWith(
-                color: active ? Colors.white : _C.labelText,
-              ),
-            ),
-          ),
-        );
-      }),
-    ),
-  );
-
   // ── Page body ──────────────────────────────────────────────────────────────
   Widget _body(AboutPageModel model) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Title + Preview Screen ───────────────────────────────────────────
         Row(children: [
           Text('About Us',
               style: StyleText.fontSize45Weight600.copyWith(
@@ -405,28 +343,11 @@ class _AboutMainPageMasterDashboardState
         ]),
         SizedBox(height: 14.h),
 
-        // Sub-tabs
-        Row(
-          children: List.generate(_tabLabels.length, (i) {
-            final active = _tabIndex == i;
-            return GestureDetector(
-              onTap: () => setState(() => _tabIndex = i),
-              child: Padding(
-                padding: EdgeInsets.only(right: 28.w),
-                child: Text(_tabLabels[i],
-                    style: active
-                        ? StyleText.fontSize16Weight600.copyWith(
-                        color: _C.primary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: _C.primary)
-                        : StyleText.fontSize16Weight400
-                        .copyWith(color: _C.hintText)),
-              ),
-            );
-          }),
-        ),
+        // ── Tab bar ─────────────────────────────────────────────────────────
+        _buildTabBar(),
         SizedBox(height: 12.h),
 
+        // ── Tab content ──────────────────────────────────────────────────────
         if (_tabIndex == 0) _aboutUsTab(model),
         if (_tabIndex == 1)
           BlocProvider.value(
@@ -444,6 +365,45 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
+  // ── Tab bar ────────────────────────────────────────────────────────────────
+  Widget _buildTabBar() {
+    return Row(
+      children: List.generate(_tabLabels.length, (i) {
+        final isActive = _tabIndex == i;
+        return Padding(
+          padding: EdgeInsets.only(right: 24.w),
+          child: GestureDetector(
+            onTap: () => setState(() => _tabIndex = i),
+            child: IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 6.h),
+                    child: Text(
+                      _tabLabels[i],
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isActive ? _C.primary : _C.hintText,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 2,
+                    color: isActive ? _C.primary : Colors.transparent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // TAB 0 — About Us
   // ══════════════════════════════════════════════════════════════════════════
@@ -451,7 +411,11 @@ class _AboutMainPageMasterDashboardState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _lastUpdatedRow(onEdit: () => navigateTo(context, AboutEditPageMaster())),
+        // ── Last updated row ─────────────────────────────────────────────
+        _lastUpdatedRow(
+          lastUpdated: model.lastUpdatedAt,
+          onEdit: () => navigateTo(context, AboutEditPageMaster()),
+        ),
         SizedBox(height: 16.h),
 
         // ① Headings
@@ -459,7 +423,6 @@ class _AboutMainPageMasterDashboardState
           key: 'headings',
           title: 'Headings',
           children: [
-
             SizedBox(height: 16.h),
             Row(children: [
               Expanded(child: _readField('Title',
@@ -471,7 +434,15 @@ class _AboutMainPageMasterDashboardState
         ),
         SizedBox(height: 12.h),
 
-
+        // ② Navigation Label
+        _accordion(
+          key: 'navigationLabel',
+          title: 'Navigation Label',
+          children: [
+            _navigationLabelReadView(model.navigationLabel),
+          ],
+        ),
+        SizedBox(height: 12.h),
 
         // ③ Vision
         _accordion(
@@ -529,6 +500,37 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
+  // ── Navigation Label read view ─────────────────────────────────────────────
+  Widget _navigationLabelReadView(AboutNavigationLabel navLabel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 16.h),
+        // Icon preview
+        Row(
+          children: [
+            _iconPreviewCircle(label: 'Icon', url: navLabel.iconUrl),
+          ],
+        ),
+        SizedBox(height: 16.h),
+        // Bilingual title
+        Row(children: [
+          Expanded(
+            child: _readField(
+              'Title',
+              navLabel.title.en.isEmpty ? 'Text Here' : navLabel.title.en,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: _readFieldRtl('العنوان', navLabel.title.ar),
+          ),
+        ]),
+        SizedBox(height: 8.h),
+      ],
+    );
+  }
+
   // ── Section read view (Vision / Mission) ──────────────────────────────────
   Widget _sectionReadView({
     required String iconUrl, required String svgUrl,
@@ -538,9 +540,7 @@ class _AboutMainPageMasterDashboardState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         SizedBox(height: 16.h),
-
         Row(children: [
           _iconPreviewCircle(label: 'Icon', url: iconUrl),
           SizedBox(width: 24.w),
@@ -560,7 +560,6 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Icon preview circle — now uses XHR loader ─────────────────────────────
   Widget _iconPreviewCircle({
     required String label,
     required String url,
@@ -574,10 +573,9 @@ class _AboutMainPageMasterDashboardState
         SizedBox(height: 6.h),
         Container(
           width: 56.w, height: 56.w,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFFEEEEEE),
-
+            color: Colors.white,
           ),
           child: ClipOval(
             child: Padding(
@@ -595,7 +593,6 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Values grid (4 per row) ────────────────────────────────────────────────
   Widget _valuesGrid(List<AboutValueItem> items) {
     final rows = <List<AboutValueItem>>[];
     for (int i = 0; i < items.length; i += 4) {
@@ -621,12 +618,11 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Value mini card — now uses XHR loader ─────────────────────────────────
   Widget _valueMiniCard(AboutValueItem item) {
     return Container(
       padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
-          color: _C.sectionBg, borderRadius: BorderRadius.circular(8.r)),
+          color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -666,16 +662,21 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Last Updated + Edit Details ────────────────────────────────────────────
-  Widget _lastUpdatedRow({required VoidCallback onEdit}) {
+  // ── Last Updated row ───────────────────────────────────────────────────────
+  Widget _lastUpdatedRow({
+    required VoidCallback onEdit,
+    DateTime? lastUpdated,
+  }) {
     return Row(
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
               color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
-          child: Text('Last Updated On 12 Jul 2026',
-              style: StyleText.fontSize13Weight500.copyWith(color: _C.primary)),
+          child: Text(
+            'Last Updated On ${_fmtDate(lastUpdated)}',
+            style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+          ),
         ),
         const Spacer(),
         GestureDetector(
@@ -690,9 +691,10 @@ class _AboutMainPageMasterDashboardState
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Edit Details',
                     style: StyleText.fontSize14Weight500
-                        .copyWith(color: _C.primary)),
+                        .copyWith(color: Colors.black)),
                 SizedBox(width: 6.w),
-                CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
+                CustomSvg(
+                    assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
                     fit: BoxFit.scaleDown, color: _C.primary),
               ]),
@@ -723,11 +725,7 @@ class _AboutMainPageMasterDashboardState
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                    topLeft: Radius.circular(6.r),
-                    topRight: Radius.circular(6.r))
-                    : BorderRadius.circular(6.r),
+                borderRadius:  BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(child: Text(title,
@@ -737,7 +735,7 @@ class _AboutMainPageMasterDashboardState
                     isOpen
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
-                    color: Colors.white, size: 20.sp),
+                    color: Colors.white, size: 25.sp),
               ]),
             ),
           ),

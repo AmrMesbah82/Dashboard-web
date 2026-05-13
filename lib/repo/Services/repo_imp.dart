@@ -4,6 +4,8 @@
 //   • Firestore  → document: cms/service_page
 //   • Storage    → bucket path: service_cms/...
 // Created by: Amr Mesbah
+// FIXED: _sanitize() now converts lastUpdatedAt Timestamp → ISO string
+//        instead of removing it, so ServicePageModel.fromMap() can parse it
 
 import 'dart:typed_data';
 
@@ -44,8 +46,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
       final data  = _sanitize(snapshot.data()!);
       final model = ServicePageModel.fromMap(data);
       print('🟢 [ServiceRepo] fetchServicePage() → parsed OK');
-      print('   model.title.en        = ${model.title.en}');
+      print('   model.title.en            = ${model.title.en}');
       print('   model.journeyItems.length = ${model.journeyItems.length}');
+      print('   model.lastUpdatedAt       = ${model.lastUpdatedAt}');
       return model;
     } catch (e, st) {
       print('🔴 [ServiceRepo] fetchServicePage() ERROR: $e');
@@ -72,8 +75,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
       print('🟢 [ServiceRepo] fetchServicePageFresh() → parsed OK');
       print('   model.title.en            = ${model.title.en}');
       print('   model.journeyItems.length = ${model.journeyItems.length}');
+      print('   model.lastUpdatedAt       = ${model.lastUpdatedAt}');
       if (model.journeyItems.isNotEmpty) {
-        print('   journeyItems[0].iconUrl = ${model.journeyItems[0].iconUrl}');
+        print('   journeyItems[0].iconUrl  = ${model.journeyItems[0].iconUrl}');
         print('   journeyItems[0].title.en = ${model.journeyItems[0].title.en}');
       }
       return model;
@@ -96,6 +100,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
         ...model.toMap(),
         'lastUpdatedAt': FieldValue.serverTimestamp(),
       };
+      // ✅ Remove the model's own lastUpdatedAt ISO string if present,
+      //    since we're replacing it with FieldValue.serverTimestamp()
+      // (toMap() may include it as an ISO string — serverTimestamp wins)
       await _docRef.set(map);
       print('🟢 [ServiceRepo] saveServicePage() → Firestore .set() completed');
     } catch (e, st) {
@@ -148,12 +155,27 @@ class ServiceRepositoryImpl implements ServiceRepository {
     });
   }
 
-  // ── Sanitize raw Firestore map ────────────────────────────────────────────
+  // ── ✅ FIXED: Sanitize raw Firestore map ──────────────────────────────────
+  // Previously this removed lastUpdatedAt entirely, so the model never got it.
+  // Now it converts Firestore Timestamp → ISO string so fromMap() can parse it.
 
   Map<String, dynamic> _sanitize(Map<String, dynamic> data) {
     final copy = Map<String, dynamic>.from(data);
-    copy.remove('lastUpdatedAt');
-    print('   [ServiceRepo] _sanitize() → removed lastUpdatedAt, remaining keys = ${copy.keys.toList()}');
+
+    // ✅ Convert Firestore Timestamp to ISO string instead of removing it
+    final rawTs = copy['lastUpdatedAt'];
+    if (rawTs != null && rawTs.runtimeType.toString().contains('Timestamp')) {
+      try {
+        final dt = (rawTs as dynamic).toDate() as DateTime;
+        copy['lastUpdatedAt'] = dt.toIso8601String();
+        print('   [ServiceRepo] _sanitize() → converted lastUpdatedAt Timestamp → ${copy['lastUpdatedAt']}');
+      } catch (e) {
+        print('   [ServiceRepo] _sanitize() → failed to convert lastUpdatedAt: $e, removing');
+        copy.remove('lastUpdatedAt');
+      }
+    }
+
+    print('   [ServiceRepo] _sanitize() → remaining keys = ${copy.keys.toList()}');
     return copy;
   }
 

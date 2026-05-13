@@ -2,12 +2,15 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
+
 
 class CustomDropdownFormFieldInvMaster extends StatefulWidget {
   final String? selectedValue;
   final double? widthIcon;
+  final Color? primaryColor; // ← add this
   final Color? dropdownColor;
   final double? heightIcon;
   final List<Map<String, String>> items;
@@ -32,6 +35,7 @@ class CustomDropdownFormFieldInvMaster extends StatefulWidget {
     required this.widthIcon,
     required this.heightIcon,
     this.validator,
+    this.primaryColor, // ← add this
     this.width,
     this.height,
     this.spaceHeight,
@@ -114,11 +118,7 @@ class _CustomDropdownFormFieldInvMasterState
   }
 
   // ── Arrow icon ────────────────────────────────────────────────────────────
-  Widget _arrowIcon() => Icon(
-    Icons.keyboard_arrow_down_rounded,
-    size: (widget.widthIcon ?? 18).sp,
-    color: AppColors.secondaryBlack,
-  );
+  Widget _arrowIcon() => CustomSvg(assetPath: "assets/arrowdown.svg",width: 20.w,height: 20.h,);
 
   @override
   Widget build(BuildContext context) {
@@ -169,9 +169,9 @@ class _CustomDropdownFormFieldInvMasterState
                     width: widget.width?.w,
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     decoration: BoxDecoration(
-                      color: widget.dropdownColor ?? AppColors.card,
+                      color: widget.dropdownColor ?? Color(0xFFF1F2ED),
                       borderRadius:
-                      BorderRadius.circular(4.r),
+                      BorderRadius.circular(widget.borderRadius.r),
                       border: Border.all(color: Colors.transparent),
                     ),
                   ),
@@ -205,10 +205,9 @@ class _CustomDropdownFormFieldInvMasterState
                   menuItemStyleData: MenuItemStyleData(
                     height: fieldHeight.h,
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    overlayColor:
-                    MaterialStateProperty.resolveWith<Color?>((states) {
+                    overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
                       if (states.contains(MaterialState.hovered)) {
-                        return AppColors.primary.withOpacity(0.1);
+                        return (widget.primaryColor ?? AppColors.primary).withOpacity(0.1); // ← fix
                       }
                       return null;
                     }),

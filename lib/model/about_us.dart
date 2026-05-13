@@ -1,7 +1,8 @@
 // ******************* FILE INFO *******************
 // File Name: about_us.dart  (model)
 // Created by: Amr Mesbah
-// Updated: added OurStrategyModel + TermsOfServiceModel
+// Updated: added OurStrategyModel + TermsOfServiceModel + strategicHouse ENG/ARB image fields
+// FIXED: added lastUpdatedAt to AboutPageModel (mirrors ServicePageModel pattern)
 
 import 'dart:typed_data';
 
@@ -175,6 +176,10 @@ class AboutPageModel {
   final AboutSection mission;
   final List<AboutValueItem> values;
 
+  /// ADDED: tracks the last time this document was saved to Firestore.
+  /// Stored as ISO-8601 string in the DB; parsed on load.
+  final DateTime? lastUpdatedAt;
+
   const AboutPageModel({
     this.publishStatus = 'draft',
     this.title = const AboutBilingualText(),
@@ -182,6 +187,7 @@ class AboutPageModel {
     this.vision = const AboutSection(),
     this.mission = const AboutSection(),
     this.values = const [],
+    this.lastUpdatedAt,                          // ← NEW
   });
 
   factory AboutPageModel.empty() => const AboutPageModel();
@@ -198,6 +204,10 @@ class AboutPageModel {
       values: rawValues
           .map((e) => AboutValueItem.fromMap(e as Map<String, dynamic>))
           .toList(),
+      // ← NEW: parse from stored ISO-8601 string, null-safe
+      lastUpdatedAt: map['lastUpdatedAt'] != null
+          ? DateTime.tryParse(map['lastUpdatedAt'] as String)
+          : null,
     );
   }
 
@@ -208,6 +218,8 @@ class AboutPageModel {
     'vision': vision.toMap(),
     'mission': mission.toMap(),
     'values': values.map((v) => v.toMap()).toList(),
+    // ← NEW: always write current timestamp on every save
+    'lastUpdatedAt': DateTime.now().toIso8601String(),
   };
 
   AboutPageModel copyWith({
@@ -217,6 +229,7 @@ class AboutPageModel {
     AboutSection? vision,
     AboutSection? mission,
     List<AboutValueItem>? values,
+    DateTime? lastUpdatedAt,                     // ← NEW
   }) =>
       AboutPageModel(
         publishStatus: publishStatus ?? this.publishStatus,
@@ -225,6 +238,7 @@ class AboutPageModel {
         vision: vision ?? this.vision,
         mission: mission ?? this.mission,
         values: values ?? this.values,
+        lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,  // ← NEW
       );
 }
 
@@ -272,11 +286,17 @@ class OurStrategyModel {
   final String publishStatus;
   final AboutNavigationLabel navigationLabel;
   final StrategySection vision;
+  final String strategicHouseEnUrl;
+  final String strategicHouseArUrl;
+  final DateTime? lastUpdatedAt;          // ← ADD
 
   const OurStrategyModel({
     this.publishStatus = 'draft',
     this.navigationLabel = const AboutNavigationLabel(),
     this.vision = const StrategySection(),
+    this.strategicHouseEnUrl = '',
+    this.strategicHouseArUrl = '',
+    this.lastUpdatedAt,                   // ← ADD
   });
 
   factory OurStrategyModel.empty() => const OurStrategyModel();
@@ -285,25 +305,35 @@ class OurStrategyModel {
     publishStatus: (map['publishStatus'] as String?) ?? 'draft',
     navigationLabel: AboutNavigationLabel.fromMap(
         map['navigationLabel'] as Map<String, dynamic>?),
-    vision:
-    StrategySection.fromMap(map['vision'] as Map<String, dynamic>?),
+    vision: StrategySection.fromMap(map['vision'] as Map<String, dynamic>?),
+    strategicHouseEnUrl: (map['strategicHouseEnUrl'] as String?) ?? '',
+    strategicHouseArUrl: (map['strategicHouseArUrl'] as String?) ?? '',
+    // lastUpdatedAt intentionally omitted — injected by repo after Timestamp extraction
   );
 
   Map<String, dynamic> toMap() => {
     'publishStatus': publishStatus,
     'navigationLabel': navigationLabel.toMap(),
     'vision': vision.toMap(),
+    'strategicHouseEnUrl': strategicHouseEnUrl,
+    'strategicHouseArUrl': strategicHouseArUrl,
   };
 
   OurStrategyModel copyWith({
     String? publishStatus,
     AboutNavigationLabel? navigationLabel,
     StrategySection? vision,
+    String? strategicHouseEnUrl,
+    String? strategicHouseArUrl,
+    DateTime? lastUpdatedAt,              // ← ADD
   }) =>
       OurStrategyModel(
         publishStatus: publishStatus ?? this.publishStatus,
         navigationLabel: navigationLabel ?? this.navigationLabel,
         vision: vision ?? this.vision,
+        strategicHouseEnUrl: strategicHouseEnUrl ?? this.strategicHouseEnUrl,
+        strategicHouseArUrl: strategicHouseArUrl ?? this.strategicHouseArUrl,
+        lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,   // ← ADD
       );
 }
 
@@ -315,8 +345,8 @@ class OurStrategyModel {
 class TermsSection {
   final String svgUrl;
   final AboutBilingualText description;
-  final String attachEnUrl; // downloadable PDF/document URL (English)
-  final String attachArUrl; // downloadable PDF/document URL (Arabic)
+  final String attachEnUrl;
+  final String attachArUrl;
 
   const TermsSection({
     this.svgUrl = '',
@@ -364,12 +394,14 @@ class TermsOfServiceModel {
   final AboutNavigationLabel navigationLabel;
   final TermsSection termsAndConditions;
   final TermsSection privacyPolicy;
+  final DateTime? lastUpdatedAt;          // ← ADD
 
   const TermsOfServiceModel({
     this.publishStatus = 'draft',
     this.navigationLabel = const AboutNavigationLabel(),
     this.termsAndConditions = const TermsSection(),
     this.privacyPolicy = const TermsSection(),
+    this.lastUpdatedAt,                   // ← ADD
   });
 
   factory TermsOfServiceModel.empty() => const TermsOfServiceModel();
@@ -383,6 +415,7 @@ class TermsOfServiceModel {
             map['termsAndConditions'] as Map<String, dynamic>?),
         privacyPolicy: TermsSection.fromMap(
             map['privacyPolicy'] as Map<String, dynamic>?),
+        // lastUpdatedAt intentionally omitted — injected by repo after Timestamp extraction
       );
 
   Map<String, dynamic> toMap() => {
@@ -397,12 +430,14 @@ class TermsOfServiceModel {
     AboutNavigationLabel? navigationLabel,
     TermsSection? termsAndConditions,
     TermsSection? privacyPolicy,
+    DateTime? lastUpdatedAt,              // ← ADD
   }) =>
       TermsOfServiceModel(
         publishStatus: publishStatus ?? this.publishStatus,
         navigationLabel: navigationLabel ?? this.navigationLabel,
         termsAndConditions: termsAndConditions ?? this.termsAndConditions,
         privacyPolicy: privacyPolicy ?? this.privacyPolicy,
+        lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,   // ← ADD
       );
 }
 

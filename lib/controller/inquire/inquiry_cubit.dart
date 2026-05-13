@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
-// FILE 5: inquiry_cubit.dart
+// FILE: inquiry_cubit.dart
 // Path: lib/controller/inquiry/inquiry_cubit.dart
+// UPDATED: Added filter methods for status, entity type, location, month
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,10 @@ class InquiryCubit extends Cubit<InquiryState> {
 
   List<InquiryModel> _allInquiries = [];
   String _searchQuery = '';
+  String? _statusFilter;
+  String? _entityTypeFilter;
+  String? _locationFilter;
+  int? _monthFilter;
 
   List<InquiryModel> get allInquiries => _allInquiries;
 
@@ -33,10 +38,43 @@ class InquiryCubit extends Cubit<InquiryState> {
     }
   }
 
+  // ── Filter setters ──────────────────────────────────────────────────────
+
   void setSearch(String query) {
     _searchQuery = query;
     _emitLoaded();
   }
+
+  void setStatusFilter(String? status) {
+    _statusFilter = status;
+    _emitLoaded();
+  }
+
+  void setEntityTypeFilter(String? entityType) {
+    _entityTypeFilter = entityType;
+    _emitLoaded();
+  }
+
+  void setLocationFilter(String? location) {
+    _locationFilter = location;
+    _emitLoaded();
+  }
+
+  void setMonthFilter(int? month) {
+    _monthFilter = month;
+    _emitLoaded();
+  }
+
+  void clearAllFilters() {
+    _searchQuery = '';
+    _statusFilter = null;
+    _entityTypeFilter = null;
+    _locationFilter = null;
+    _monthFilter = null;
+    _emitLoaded();
+  }
+
+  // ── Detail / Update ─────────────────────────────────────────────────────
 
   Future<void> loadDetail(String id) async {
     try {
@@ -99,6 +137,13 @@ class InquiryCubit extends Cubit<InquiryState> {
   void backToList() => _emitLoaded();
 
   void _emitLoaded() {
-    emit(InquiryLoaded(inquiries: _allInquiries, searchQuery: _searchQuery));
+    emit(InquiryLoaded(
+      inquiries: _allInquiries,
+      searchQuery: _searchQuery,
+      statusFilter: _statusFilter,
+      entityTypeFilter: _entityTypeFilter,
+      locationFilter: _locationFilter,
+      monthFilter: _monthFilter,
+    ));
   }
 }

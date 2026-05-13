@@ -5,7 +5,13 @@
 /// Pages 1–3 — Read-only overview (Figma screens 1, 2, 3)
 /// Sub-navbar: Main(active) | Home | Services | About Us | Contact Us | Careers
 /// Status tabs: Published | Scheduled | Draft
-/// Accordions: Headings, Navigation Button, Section 1-Left … Section 4-Right Corner
+/// FIXED: Tabs now show real content filtered by publishStatus
+/// FIXED: Scheduled tab shows scheduled date info
+/// FIXED: Draft tab shows draft content with "last saved" info
+/// ADDED: Read-only "Headings" accordion (Title EN/AR + Short Desc EN/AR)
+/// ADDED: Read-only "Navigation Button" accordion (button list with name/route/status)
+/// FIXED: Handle HomeCmsDraftSaved / HomeCmsDraftDeleted states ✅
+/// FIXED: Re-load data on initState to get fresh state after navigation ✅
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,16 +25,19 @@ import 'package:web_app_admin/controller/home_cubit.dart';
 import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/model/home_model.dart';
+import 'package:web_app_admin/pages/careers_main_dashboard.dart';
 import 'package:web_app_admin/pages/dashboard/about_page/about_main_page_master.dart';
 import 'package:web_app_admin/pages/dashboard/career_page/careers_main_page.dart';
 import 'package:web_app_admin/pages/dashboard/contact_page/contact_us_main_page.dart';
 import 'package:web_app_admin/pages/dashboard/home_page/home_preview_page.dart';
+import 'package:web_app_admin/pages/dashboard/job_list/job_listing_main_page.dart';
 import 'package:web_app_admin/pages/dashboard/main_page/home_main_page.dart';
 import 'package:web_app_admin/pages/dashboard/services_page/services_main/services_main_page.dart';
 import 'package:web_app_admin/theme/app_wight.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
+import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
 import '../../../core/custom_svg.dart';
@@ -43,8 +52,18 @@ class _C {
   static const Color border    = Color(0xFFE0E0E0);
   static const Color labelText = Color(0xFF333333);
   static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back = Color(0xFFF1F2ED);
+  static const Color back      = Color(0xFFF1F2ED);
+  static const Color scheduled = Color(0xFFFF8F00);
 }
+
+/// Available route labels for display in the read-only view
+const Map<String, String> _kRouteLabelMap = {
+  '/':         'Home',
+  '/services': 'Services',
+  '/about':    'About',
+  '/contact':  'Contact Us',
+  '/careers':  'Careers',
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 class HomeMainPageMaster extends StatefulWidget {
@@ -53,18 +72,44 @@ class HomeMainPageMaster extends StatefulWidget {
   State<HomeMainPageMaster> createState() => _HomeMainPageMasterState();
 }
 
-class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
+class _HomeMainPageMasterState extends State<HomeMainPageMaster>
+    with SingleTickerProviderStateMixin {
   int _subNavIndex = 1; // "Home" tab is active
   final List<String> _subNavLabels = [
     'Main', 'Home', 'Services', 'About Us', 'Contact Us', 'Careers'
   ];
 
-  int _statusIndex = 0;
   final List<String> _statusLabels = ['Published', 'Scheduled', 'Draft'];
 
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {}); // rebuild to update tab underline styles
+      }
+    });
+
+    // ✅ Re-load data when this page is created (e.g. after navigating back
+    //    from edit page). This ensures we always show the latest state.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeCmsCubit>().load();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   final Map<String, bool> _open = {
-    'headings': true,
-    'navBtn':   true,
+    'headings':   true,
+    'navButtons': true,
+    'navBtn':     true,
     's1': true, 's2': true, 's3': true, 's4': true,
   };
 
@@ -76,42 +121,6 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
     return _C.primary;
   }
 
-  // ── Admin-aware navbar tap handler ────────────────────────────────────────
-  // The AppNavbar routes are public paths (/, /services, /careers …).
-  // We intercept them here and navigate to the correct admin pages instead.
-  void _onNavbarItemTap(String publicRoute) {
-    // 🔴 DEBUG
-    print('🔴 _onNavbarItemTap called with: $publicRoute');
-
-    switch (publicRoute) {
-      case '/':
-        context.go('/admin/dashboard');
-      case '/services':
-        Navigator.push(context, MaterialPageRoute(
-            builder: (_) => const ServicesMainPageMaster()));
-      case '/about':
-        Navigator.push(context, MaterialPageRoute(
-            builder: (_) => BlocProvider(
-                create: (_) => AboutCubit()..load(),
-                child: const AboutMainPageMasterDashboard())));
-      case '/contact':
-        context.go('/admin/contact-cms');
-      case '/careers':
-      // 🔴 DEBUG
-        print('🔴 Navigating to CareersMainPage (admin)');
-        Navigator.push(context, MaterialPageRoute(
-            builder: (_) => BlocProvider(
-                create: (_) => CareersCmsCubit(
-                  jobRepo: JobListingRepoImp(),
-                  appRepo: ApplicationRepoImp(), // your application repo implementation
-                )..load(),
-                child: const CareersMainPageMaster())));
-      default:
-      // 🔴 DEBUG
-        print('🔴 DEFAULT HIT — route was: $publicRoute');
-        context.go('/admin/dashboard');
-    }
-  }
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCmsCubit, HomeCmsState>(
@@ -122,9 +131,32 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
             body: Center(child: CircularProgressIndicator(color: _C.primary)),
           );
         }
+
+        // ✅ Extract data from ALL possible data-carrying states
         HomePageModel? data;
-        if (state is HomeCmsLoaded) data = state.data;
-        if (state is HomeCmsSaved)  data = state.data;
+        if (state is HomeCmsLoaded)       data = state.data;
+        if (state is HomeCmsSaved)        data = state.data;
+        if (state is HomeCmsDraftSaved)   data = state.data;
+        if (state is HomeCmsSaving)       data = state.data;
+
+        // ✅ For HomeCmsDraftDeleted, re-load to get the published data
+        if (state is HomeCmsDraftDeleted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.read<HomeCmsCubit>().load();
+          });
+          return const Scaffold(
+            backgroundColor: _C.back,
+            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+          );
+        }
+
+        // ✅ For HomeCmsError, try to use lastData
+        if (state is HomeCmsError) {
+          data = state.lastData;
+        }
+
+        // ✅ Fallback: use cubit's current model
+        data ??= context.read<HomeCmsCubit>().current;
 
         return Scaffold(
           backgroundColor: _C.back,
@@ -134,6 +166,13 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  AppAdminNavbar(
+                    activeLabel:    'Web Page',
+                    homePage:       CareersMainPageDashboard(),
+                    webPage:        HomeMainPage(),
+                    jobListingPage: JobListingMainPage(),
+                  ),
+
                   SizedBox(height: 20.h),
                   AdminSubNavBar(
                     activeIndex: 1,
@@ -142,10 +181,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
                   SizedBox(height: 20.h),
                   Container(
                     width: 1000.w,
-                    child: data == null
-                        ? const Center(
-                        child: CircularProgressIndicator(color: _C.primary))
-                        : _body(data),
+                    child: _body(data),
                   ),
                 ],
               ),
@@ -171,7 +207,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
               case 0:
                 context.go('/admin/dashboard');
               case 1:
-                break; // already here
+                break;
               case 2:
                 Navigator.push(
                   context,
@@ -179,7 +215,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
                       builder: (_) => const ServicesMainPageMaster()),
                 );
               case 3:
-                context.go('/admin/about-cms'); // ✅ use router — AboutCubit provided there
+                context.go('/admin/about-cms');
               case 4:
                 context.go('/admin/contact-cms');
               case 5:
@@ -207,6 +243,15 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
 
   Widget _body(HomePageModel data) {
     final primary = _hexColor(data.branding.primaryColor);
+
+    // ✅ Auto-select the tab matching the current publishStatus
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final targetIndex = _statusIndexFromModel(data.publishStatus);
+      if (_tabController.index != targetIndex && !_tabController.indexIsChanging) {
+        _tabController.animateTo(targetIndex);
+      }
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -222,15 +267,17 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
             GestureDetector(
               onTap: () => navigateTo(context, HomePreviewPageMaster()),
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 20.w, vertical: 10.h),
+                width: 165.w,
+                height: 45.h,
                 decoration: BoxDecoration(
                   color:        primary,
                   borderRadius: BorderRadius.circular(6.r),
                 ),
-                child: Text('Preview Screen',
-                  style: StyleText.fontSize14Weight500
-                      .copyWith(color: Colors.white),
+                child: Center(
+                  child: Text('Preview Screen',
+                    style: StyleText.fontSize14Weight500
+                        .copyWith(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -238,27 +285,45 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
         ),
         SizedBox(height: 14.h),
 
-        // ── Published / Scheduled / Draft tabs ──────────────────────────────
-        Row(
-          children: List.generate(_statusLabels.length, (i) {
-            final active = _statusIndex == i;
-            return GestureDetector(
-              onTap: () => setState(() => _statusIndex = i),
-              child: Padding(
+        // ── Published / Scheduled / Draft tabs ───────────────────────────────
+        Container(
+          height: 40.h,
+          child: Row(
+            children: List.generate(_statusLabels.length, (i) {
+              final isActive = _tabController.index == i;
+              return Padding(
                 padding: EdgeInsets.only(right: 24.w),
-                child: Text(_statusLabels[i],
-                  style: active
-                      ? StyleText.fontSize14Weight600.copyWith(
-                    color:           primary,
-                    decoration:      TextDecoration.underline,
-                    decorationColor: primary,
-                  )
-                      : StyleText.fontSize14Weight400
-                      .copyWith(color: _C.hintText),
+                child: GestureDetector(
+                  onTap: () {
+                    _tabController.animateTo(i);
+                    setState(() {});
+                  },
+                  child: IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 0.h),
+                          child: Text(
+                            _statusLabels[i],
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                              color: isActive ? _C.primary : _C.hintText,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 2,
+                          color: isActive ? _C.primary : Colors.transparent,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
         SizedBox(height: 12.h),
 
@@ -271,24 +336,30 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
                 color:        _C.cardBg,
                 borderRadius: BorderRadius.circular(4.r),
               ),
-              child: Text('Last Updated On 12 Jul 2026',
-                style: StyleText.fontSize13Weight500.copyWith(color: primary),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _buildLastUpdatedText(data),
+                    style: StyleText.fontSize13Weight500.copyWith(color: primary),
+                  ),
+                ],
               ),
             ),
             const Spacer(),
             GestureDetector(
               onTap: () => navigateTo(context, HomeEditPageMaster()),
               child: Container(
-                width: 130.w, height: 36.h,
+                width: 205.w, height: 40.h,
                 decoration: BoxDecoration(
                   color: AppColors.card,
-                  borderRadius: BorderRadius.circular(4.r),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Center(
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text('Edit Details',
+                    Text('Edit Home Page',
                         style: StyleText.fontSize14Weight500
-                            .copyWith(color: _C.primary)),
+                            .copyWith(color: Colors.black)),
                     SizedBox(width: 6.w),
                     CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                         width: 20.w, height: 20.h,
@@ -301,90 +372,358 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
         ),
         SizedBox(height: 16.h),
 
-        // // ── Headings ─────────────────────────────────────────────────────────
-        // _accordion(key: 'headings', title: 'Headings', children: [
-        //   Row(children: [
-        //     Expanded(
-        //       child: _readField('Title',
-        //           data.title.en.isEmpty ? 'Text Here' : data.title.en),
-        //     ),
-        //     SizedBox(width: 16.w),
-        //     Expanded(child: _readFieldRtl('العنوان', data.title.ar)),
-        //   ]),
-        //   SizedBox(height: 10.h),
-        //   _readField('Short Description',
-        //       data.shortDescription.en.isEmpty
-        //           ? 'Text Here'
-        //           : data.shortDescription.en,
-        //       height: 72),
-        //   SizedBox(height: 10.h),
-        //   _readFieldRtl('وصف مختصر', data.shortDescription.ar, height: 72),
-        // ]),
-        // SizedBox(height: 10.h),
+        // ── TabBarView for content ───────────────────────────────────────────
+        SizedBox(
+          height: 900.h,
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // ✅ Published content
+              _buildStatusContent(data, 'published'),
+              // ✅ Scheduled content
+              _buildStatusContent(data, 'scheduled'),
+              // ✅ Draft content
+              _buildStatusContent(data, 'draft'),
+            ],
+          ),
+        ),
+        SizedBox(height: 40.h),
+      ],
+    );
+  }
 
-        // // ── Navigation Button ─────────────────────────────────────────────────
-        // _accordion(key: 'navBtn', title: 'Navigation Button', children: [
-        //   ...data.navButtons.asMap().entries.map((e) {
-        //     final btn = e.value;
-        //     return Padding(
-        //       padding: EdgeInsets.only(bottom: 16.h),
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           Text('${_ordinal(e.key + 1)} Button',
-        //             style: StyleText.fontSize13Weight600
-        //                 .copyWith(color: _C.labelText),
-        //           ),
-        //           SizedBox(height: 8.h),
-        //           Row(children: [
-        //             Expanded(
-        //               child: _readField('Button Name',
-        //                   btn.name.en.isEmpty ? 'Text Here' : btn.name.en),
-        //             ),
-        //             SizedBox(width: 16.w),
-        //             Expanded(
-        //                 child: _readFieldRtl('عنوان الزر', btn.name.ar)),
-        //           ]),
-        //           SizedBox(height: 8.h),
-        //           _readField('Button Navigation',
-        //               btn.route.isEmpty ? 'Services' : btn.route),
-        //         ],
-        //       ),
-        //     );
-        //   }),
-        // ]),
-        // SizedBox(height: 10.h),
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
-        // ── Sections ─────────────────────────────────────────────────────────
-        _accordion(
+  /// Maps publishStatus string to tab index
+  int _statusIndexFromModel(String status) {
+    switch (status) {
+      case 'published': return 0;
+      case 'scheduled': return 1;
+      case 'draft':     return 2;
+      default:          return 0;
+    }
+  }
+
+  String _buildLastUpdatedText(HomePageModel data) {
+    if (data.lastUpdatedAt != null) {
+      final d = data.lastUpdatedAt!;
+      final months = [
+        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      ];
+      return 'Last Updated On ${d.day} ${months[d.month]} ${d.year}';
+    }
+    return 'Last Updated On —';
+  }
+
+  /// Small colored badge for publish status
+  Widget _statusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    String label;
+
+    switch (status) {
+      case 'published':
+        bgColor = _C.primary.withOpacity(0.15);
+        textColor = _C.primary;
+        label = 'Published';
+        break;
+      case 'scheduled':
+        bgColor = _C.scheduled.withOpacity(0.15);
+        textColor = _C.scheduled;
+        label = 'Scheduled';
+        break;
+      case 'draft':
+      default:
+        bgColor = Colors.grey.shade200;
+        textColor = Colors.grey.shade700;
+        label = 'Draft';
+        break;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(4.r),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  /// ✅ Shows real content when the model's status matches the tab,
+  ///    otherwise shows a helpful placeholder message
+  Widget _buildStatusContent(HomePageModel data, String targetStatus) {
+    final isCurrentStatus = data.publishStatus == targetStatus;
+
+    if (!isCurrentStatus) {
+      String message;
+      String subMessage;
+      IconData icon;
+
+      switch (targetStatus) {
+        case 'published':
+          message = 'No published version yet';
+          subMessage = 'Click "Edit Details" → "Publish" to publish your home page.';
+          icon = Icons.public;
+          break;
+        case 'scheduled':
+          message = 'No scheduled version';
+          subMessage = 'Set a publish date in the editor and click "Schedule" to schedule.';
+          icon = Icons.schedule;
+          break;
+        case 'draft':
+        default:
+          message = 'No draft saved';
+          subMessage = 'Click "Edit Details" → "Save For Later" to save a draft.';
+          icon = Icons.drafts_outlined;
+          break;
+      }
+
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48.sp, color: _C.hintText),
+            SizedBox(height: 16.h),
+            Text(
+              message,
+              style: StyleText.fontSize16Weight600.copyWith(
+                color: _C.labelText,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              subMessage,
+              style: StyleText.fontSize12Weight400.copyWith(
+                color: _C.hintText,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ✅ Show real content — this status matches the model
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ✅ If scheduled, show the scheduled date at the top
+          if (targetStatus == 'scheduled' && data.scheduledPublishDate != null) ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: _C.scheduled.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6.r),
+                border: Border.all(color: _C.scheduled.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.schedule, color: _C.scheduled, size: 18.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Scheduled to publish on '
+                        '${data.scheduledPublishDate!.day}/'
+                        '${data.scheduledPublishDate!.month}/'
+                        '${data.scheduledPublishDate!.year}',
+                    style: StyleText.fontSize13Weight500.copyWith(
+                      color: _C.scheduled,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12.h),
+          ],
+
+          // ✅ If draft, show a small info bar
+          if (targetStatus == 'draft') ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(6.r),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.drafts_outlined, color: Colors.grey.shade600, size: 18.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'This is a saved draft — not yet visible to the public.',
+                    style: StyleText.fontSize13Weight500.copyWith(
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12.h),
+          ],
+
+          // ── Headings accordion (read-only) ─────────────────────────────
+          _accordion(
+            key: 'headings',
+            title: 'Headings',
+            children: [
+              SizedBox(height: 15.h),
+              _headingsReadOnly(data),
+            ],
+          ),
+          SizedBox(height: 10.h),
+
+          // ── Navigation Button accordion (read-only) ────────────────────
+          _accordion(
+            key: 'navButtons',
+            title: 'Navigation Button',
+            children: [
+              SizedBox(height: 15.h),
+              _navButtonsReadOnly(data),
+            ],
+          ),
+          SizedBox(height: 10.h),
+
+          // ── Sections 1–4 ───────────────────────────────────────────────
+          _accordion(
             key: 's1',
             title: 'Section 1 - Left',
             children: [
-
               SizedBox(height: 15.h),
-              _sectionView(data, 0)]),
-        SizedBox(height: 10.h),
-        _accordion(
+              _sectionView(data, 0),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          _accordion(
             key: 's2',
             title: 'Section 2 - Left Corner',
             children: [
               SizedBox(height: 15.h),
-              _sectionView(data, 1)]),
-        SizedBox(height: 10.h),
-        _accordion(
+              _sectionView(data, 1),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          _accordion(
             key: 's3',
             title: 'Section 3 - Right',
             children: [
               SizedBox(height: 15.h),
-              _sectionView(data, 2)]),
-        SizedBox(height: 10.h),
-        _accordion(
+              _sectionView(data, 2),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          _accordion(
             key: 's4',
             title: 'Section 4 - Right Corner',
             children: [
               SizedBox(height: 15.h),
-              _sectionView(data, 3)]),
-        SizedBox(height: 40.h),
+              _sectionView(data, 3),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Headings read-only section ────────────────────────────────────────────
+  Widget _headingsReadOnly(HomePageModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          Expanded(child: _readField('Title', data.title.en.isNotEmpty ? data.title.en : 'Text Here')),
+          SizedBox(width: 16.w),
+          Expanded(child: _readFieldRtl('العنوان', data.title.ar)),
+        ]),
+        SizedBox(height: 16.h),
+        _readField('Short Description',
+            data.shortDescription.en.isNotEmpty ? data.shortDescription.en : 'Text Here',
+            height: 80),
+        SizedBox(height: 16.h),
+        _readFieldRtl('وصف مختصر', data.shortDescription.ar, height: 80),
+      ],
+    );
+  }
+
+  // ── Navigation Button read-only section ───────────────────────────────────
+  Widget _navButtonsReadOnly(HomePageModel data) {
+    if (data.navButtons.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.h),
+        child: Center(
+          child: Text(
+            'No navigation buttons configured',
+            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...List.generate(data.navButtons.length, (i) {
+          final btn = data.navButtons[i];
+          final routeLabel = _kRouteLabelMap[btn.route] ?? btn.route;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    '${_ordinal(i + 1)} Button',
+                    style: StyleText.fontSize14Weight600
+                        .copyWith(color: _C.labelText),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: btn.status
+                          ? _C.primary.withOpacity(0.12)
+                          : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      btn.status ? 'Active' : 'Hidden',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: btn.status ? _C.primary : Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              Row(children: [
+                Expanded(child: _readField('Button Name',
+                    btn.name.en.isNotEmpty ? btn.name.en : 'Text Here')),
+                SizedBox(width: 16.w),
+                Expanded(child: _readFieldRtl('عنوان الزر', btn.name.ar)),
+              ]),
+              SizedBox(height: 10.h),
+              _readField('Button Navigation',
+                  routeLabel.isNotEmpty ? routeLabel : 'Not set'),
+              if (i < data.navButtons.length - 1) ...[
+                SizedBox(height: 14.h),
+                Divider(color: _C.border, thickness: 1),
+                SizedBox(height: 10.h),
+              ],
+            ],
+          );
+        }),
       ],
     );
   }
@@ -410,6 +749,42 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
             SizedBox(height: 6.h),
             _imgCircle(sec?.iconUrl ?? '', isAdd: true),
           ]),
+          const Spacer(),
+          if (sec != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(height: 6.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                  decoration: BoxDecoration(
+                    color: sec.visibility
+                        ? _C.primary.withOpacity(0.12)
+                        : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        sec.visibility ? Icons.visibility : Icons.visibility_off,
+                        size: 12.sp,
+                        color: sec.visibility ? _C.primary : Colors.grey.shade600,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        sec.visibility ? 'Visible' : 'Hidden',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                          color: sec.visibility ? _C.primary : Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
         ]),
         SizedBox(height: 14.h),
         _readField('Description', sec?.description.en ?? 'Text Here',
@@ -455,7 +830,6 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
     final isOpen = _open[key] ?? true;
     return Container(
       decoration: BoxDecoration(
-
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Column(
@@ -469,12 +843,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster> {
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: isOpen
-                    ? BorderRadius.only(
-                  topLeft:  Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
                 Expanded(

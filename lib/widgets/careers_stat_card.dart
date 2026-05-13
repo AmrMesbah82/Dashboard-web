@@ -34,7 +34,7 @@ class CareersStatCardsRow extends StatelessWidget {
         final isLast = entry.key == cards.length - 1;
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(right: isLast ? 0 : 10.w),
+            padding: EdgeInsets.only(right: isLast ? 0 : 12.w),
             child: _StatCard(data: entry.value),
           ),
         );
@@ -56,7 +56,6 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: const Color(0xFFE8E8E8), width: 1),
       ),
       child: Row(
         children: [

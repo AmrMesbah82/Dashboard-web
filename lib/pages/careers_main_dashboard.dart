@@ -25,6 +25,7 @@ import 'package:web_app_admin/widgets/careers_stat_card.dart';
 import 'package:web_app_admin/widgets/funnel_chart_widget.dart';
 import 'package:web_app_admin/widgets/segmented_score_bar_widget.dart';
 
+import '../theme/appcolors.dart';
 import 'dashboard/job_list/job_listing_main_page.dart';
 import 'dashboard/main_page/home_main_page.dart';
 
@@ -70,12 +71,15 @@ class CareersMainPageDashboard extends StatefulWidget {
 }
 
 class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
+  // ── NEW: controls whether the hero SVG image is visible ──
+  bool _heroImageVisible = true;
+
   @override
   void initState() {
     super.initState();
     final cubit = context.read<CareersCmsCubit>();
     if (cubit.state is CareersCmsInitial) {
-      cubit.loadRealData(); // ← was loadDemo()
+      cubit.loadRealData();
     }
   }
 
@@ -117,7 +121,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     homePage:       CareersMainPageDashboard(),
                     webPage:        HomeMainPage(),
                     jobListingPage: JobListingMainPage(),
-
                   ),
                   SizedBox(height: 20.h),
 
@@ -130,21 +133,71 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ── Hero Section ─────────────────────────
 
+                          // ── Title Row with Hide / Collapse toggle ──
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              CustomSvg(assetPath: "assets/images/dashboard_image.svg",width: 300.w,height: 300.h,fit: BoxFit.fill,),
+                              Text(
+                                "Bayanatz Jobs",
+                                style: StyleText.fontSize14Weight500.copyWith(
+                                  fontSize: 44.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF008037),
+                                ),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _heroImageVisible = !_heroImageVisible;
+                                  });
+                                },
+                                child: IntrinsicWidth(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        _heroImageVisible ? "Hide" : "Collapse",
+                                        style: StyleText.fontSize20Weight500.copyWith(
+                                          color: const Color(0xFF1877F2),
+                                          decoration: TextDecoration.none,
+                                        ),
+                                      ),
+                                      SizedBox(height: 2.h),
+                                      Container(
+                                        height: 1.5,
+                                        color: const Color(0xFF1877F2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
+
+                          // ── Hero SVG — shown/hidden based on toggle ──
+                          if (_heroImageVisible) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomSvg(
+                                  assetPath: "assets/images/dashboard_image.svg",
+                                  width: 300.w,
+                                  height: 300.h,
+                                  fit: BoxFit.fill,
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          SizedBox(height: 20.h),
 
                           // ── Dashboard Title ─────────────────────
                           Center(
                             child: Text(
                               'Dashboard',
-                              style:
-                              StyleText.fontSize18Weight500.copyWith(
+                              style: StyleText.fontSize18Weight500.copyWith(
                                 color: _C.labelText,
                               ),
                             ),
@@ -242,10 +295,12 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  // TODO: Toggle careers visibility
+                  setState(() {
+                    _heroImageVisible = !_heroImageVisible;
+                  });
                 },
                 child: Text(
-                  'Hide',
+                  _heroImageVisible ? 'Hide' : 'Collapse',
                   style: StyleText.fontSize13Weight500.copyWith(
                     color: _C.primary,
                     decoration: TextDecoration.underline,
@@ -256,22 +311,22 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
           ),
           SizedBox(height: 20.h),
 
-          // Illustration
-          Center(
-            child: SvgPicture.asset(
-              'assets/images/dashboard_image.svg',
-              width: 500.w,
-              height: 250.h,
-              fit: BoxFit.contain,
-              placeholderBuilder: (_) => SizedBox(
+          // Illustration — only shown when not hidden
+          if (_heroImageVisible)
+            Center(
+              child: SvgPicture.asset(
+                'assets/images/dashboard_image.svg',
+                width: 500.w,
                 height: 250.h,
-                child: const Center(
-                  child:
-                  CircularProgressIndicator(color: _C.primary),
+                fit: BoxFit.contain,
+                placeholderBuilder: (_) => SizedBox(
+                  height: 250.h,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: _C.primary),
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -299,12 +354,14 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
   Widget _buildApplicationsReceivedChart(CareersDashboardData dash) {
     return _chartCard(
       title: 'Applications Received',
-      subtitle: 'Total: 1000',
+      subtitle: '',
       height: 280,
       child: Expanded(
         child: BarChart(
           BarChartData(
             maxY: _niceMax(dash.appReceivedValues),
+            alignment: BarChartAlignment.spaceAround,  // ← add this
+
             barGroups: dash.appReceivedValues.asMap().entries.map((e) {
               return BarChartGroupData(
                 x: e.key,
@@ -321,15 +378,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
             }).toList(),
             titlesData: FlTitlesData(
               leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 35.sp,
-                  interval: _niceInterval(_niceMax(dash.appReceivedValues)),
-                  getTitlesWidget: (v, _) => Text(
-                    v.toInt().toString(),
-                    style: TextStyle(fontSize: 10.sp, color: Colors.grey),
-                  ),
-                ),
+                sideTitles: SideTitles(showTitles: false),
               ),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
@@ -340,25 +389,21 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     if (i >= 0 && i < dash.appReceivedLabels.length) {
                       return Text(
                         dash.appReceivedLabels[i],
-                        style: TextStyle(
-                            fontSize: 9.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 9.sp, color: Colors.grey),
                       );
                     }
                     return const SizedBox.shrink();
                   },
                 ),
               ),
-              rightTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:   AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             borderData: FlBorderData(show: false),
             gridData: FlGridData(
-              show: true,
+              show: false,
               drawVerticalLine: false,
-              horizontalInterval:
-              _niceInterval(_niceMax(dash.appReceivedValues)),
+              horizontalInterval: _niceInterval(_niceMax(dash.appReceivedValues)),
               getDrawingHorizontalLine: (_) => FlLine(
                 color: const Color(0xFFEFF3F9),
                 strokeWidth: 1,
@@ -466,18 +511,15 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     if (i >= 0 && i < dash.jobPostingLabels.length) {
                       return Text(
                         dash.jobPostingLabels[i],
-                        style: TextStyle(
-                            fontSize: 9.sp, color: Colors.grey),
+                        style: TextStyle(fontSize: 9.sp, color: Colors.grey),
                       );
                     }
                     return const SizedBox.shrink();
                   },
                 ),
               ),
-              rightTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:   AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             borderData: FlBorderData(show: false),
             gridData: FlGridData(
@@ -526,13 +568,15 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       'Draft': _ChartColors.draft,
     };
 
+    final total = dash.jobStatusTotal > 0 ? dash.jobStatusTotal : 1;
+
     return _chartCard(
       title: 'Job Status',
       height: 280,
       child: Expanded(
         child: Row(
           children: [
-            // Legend
+            // Legend with counts
             Expanded(
               flex: 2,
               child: Column(
@@ -540,7 +584,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: dash.jobStatus.entries.map((e) {
                   return Padding(
-                    padding: EdgeInsets.only(bottom: 6.sp),
+                    padding: EdgeInsets.only(bottom: 8.sp),
                     child: Row(
                       children: [
                         Container(
@@ -552,10 +596,19 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                           ),
                         ),
                         SizedBox(width: 6.sp),
+                        Expanded(
+                          child: Text(
+                            e.key,
+                            style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                          ),
+                        ),
                         Text(
-                          e.key,
+                          e.value.toInt().toString(),
                           style: TextStyle(
-                              fontSize: 12.sp, color: Colors.black87),
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
                       ],
                     ),
@@ -564,7 +617,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               ),
             ),
 
-            // Pie chart
+            // Pie chart with percentage labels
             Expanded(
               flex: 3,
               child: Stack(
@@ -575,12 +628,19 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                       sectionsSpace: 2,
                       centerSpaceRadius: 40.sp,
                       sections: dash.jobStatus.entries.map((e) {
+                        final percent = (e.value / total * 100).round();
                         return PieChartSectionData(
                           value: e.value,
                           color: statusColors[e.key] ?? Colors.grey,
                           radius: 28.sp,
-                          title: '',
-                          showTitle: false,
+                          title: '$percent%',
+                          showTitle: true,
+                          titleStyle: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          titlePositionPercentageOffset: 0.55,
                         );
                       }).toList(),
                     ),
@@ -589,12 +649,9 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Total\nDepartments',
+                        'Total\nDepartment',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 9.sp,
-                          color: Colors.black54,
-                        ),
+                        style: TextStyle(fontSize: 9.sp, color: Colors.black54),
                       ),
                       Text(
                         dash.jobStatusTotal.toString(),
@@ -679,8 +736,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     children: [
                       Text(
                         'Total Applicants',
-                        style: TextStyle(
-                            fontSize: 9.sp, color: Colors.black54),
+                        style: TextStyle(fontSize: 9.sp, color: Colors.black54),
                       ),
                       Text(
                         _formatLargeNumber(dash.totalApplications),
@@ -736,104 +792,111 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
   Widget _buildJobsPerformanceChart(CareersDashboardData dash) {
     final legends = [
-      _LegendItem('Applications', _ChartColors.green),
-      _LegendItem('Interviews', _ChartColors.orange),
-      _LegendItem('Hires', _ChartColors.teal),
+      _LegendItem('Applications', const Color(0xFF1B5E20)),
+      _LegendItem('Interviews', const Color(0xFF2E7D32)),
+      _LegendItem('Hires', const Color(0xFF00897B)),
     ];
 
-    final allValues = [
-      ...dash.performanceApplications,
-      ...dash.performanceInterviews,
-      ...dash.performanceHires,
+    final rowColors = [
+      const Color(0xFF1B5E20),
+      const Color(0xFF2E7D32),
+      const Color(0xFF00897B),
     ];
-    final maxY = _niceMax(allValues);
 
     return _chartCard(
       title: 'Jobs Performance',
       height: 280,
       legendItems: legends,
       child: Expanded(
-        child: BarChart(
-          BarChartData(
-            maxY: maxY,
-            alignment: BarChartAlignment.spaceAround,
-            barGroups:
-            List.generate(dash.performanceRoles.length, (i) {
-              return BarChartGroupData(
-                x: i,
-                barsSpace: 3.sp,
-                barRods: [
-                  BarChartRodData(
-                      toY: dash.performanceApplications[i],
-                      width: 14.sp,
-                      color: _ChartColors.green,
-                      borderRadius: BorderRadius.circular(2.r)),
-                  BarChartRodData(
-                      toY: dash.performanceInterviews[i],
-                      width: 14.sp,
-                      color: _ChartColors.orange,
-                      borderRadius: BorderRadius.circular(2.r)),
-                  BarChartRodData(
-                      toY: dash.performanceHires[i],
-                      width: 14.sp,
-                      color: _ChartColors.teal,
-                      borderRadius: BorderRadius.circular(2.r)),
-                ],
-              );
-            }),
-            titlesData: FlTitlesData(
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30.sp,
-                  interval: _niceInterval(maxY),
-                  getTitlesWidget: (v, _) => Text(
-                    v.toInt().toString(),
-                    style:
-                    TextStyle(fontSize: 10.sp, color: Colors.grey),
-                  ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final roleCount = dash.performanceRoles.length;
+            if (roleCount == 0) {
+              return Center(
+                child: Text(
+                  'No data',
+                  style: TextStyle(fontSize: 12.sp, color: _C.hintText),
                 ),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 36.sp,
-                  getTitlesWidget: (v, _) {
-                    final i = v.toInt();
-                    if (i >= 0 && i < dash.performanceRoles.length) {
-                      return SizedBox(
-                        width: 70.sp,
-                        child: Text(
-                          dash.performanceRoles[i],
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 8.sp, color: Colors.grey),
+              );
+            }
+
+            final rowValues = [
+              dash.performanceApplications,
+              dash.performanceInterviews,
+              dash.performanceHires,
+            ];
+
+            final cellSpacing = 4.sp;
+            final labelHeight = 30.h;
+            final availableHeight = constraints.maxHeight - labelHeight - 8.sp;
+            final rowCount = rowValues.length;
+            final cellHeight =
+                (availableHeight - (cellSpacing * (rowCount - 1))) / rowCount;
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(roleCount, (colIndex) {
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 3.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: List.generate(rowCount, (rowIndex) {
+                              final value =
+                              rowIndex < rowValues.length && colIndex < rowValues[rowIndex].length
+                                  ? rowValues[rowIndex][colIndex].toInt()
+                                  : 0;
+
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: rowIndex < rowCount - 1 ? cellSpacing : 0,
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: cellHeight.clamp(24.0, 60.0),
+                                  decoration: BoxDecoration(
+                                    color: rowColors[rowIndex],
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      value.toString(),
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
                         ),
                       );
-                    }
-                    return const SizedBox.shrink();
-                  },
+                    }),
+                  ),
                 ),
-              ),
-              rightTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles:
-              AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            ),
-            borderData: FlBorderData(show: false),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: _niceInterval(maxY),
-              getDrawingHorizontalLine: (_) => FlLine(
-                color: const Color(0xFFEFF3F9),
-                strokeWidth: 1,
-              ),
-            ),
-            barTouchData: BarTouchData(enabled: false),
-          ),
+                SizedBox(height: 8.sp),
+                Row(
+                  children: List.generate(roleCount, (i) {
+                    return Expanded(
+                      child: Text(
+                        dash.performanceRoles[i],
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 9.sp, color: Colors.grey),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -849,12 +912,9 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
         dash.jobOfferRejected;
 
     final items = [
-      _PieItem('Approved', dash.jobOfferApproved.toDouble(),
-          _ChartColors.green),
-      _PieItem('Pending', dash.jobOfferPending.toDouble(),
-          _ChartColors.yellow),
-      _PieItem('Rejected', dash.jobOfferRejected.toDouble(),
-          _ChartColors.red),
+      _PieItem('Approved', dash.jobOfferApproved.toDouble(), _ChartColors.green),
+      _PieItem('Pending',  dash.jobOfferPending.toDouble(),  _ChartColors.yellow),
+      _PieItem('Rejected', dash.jobOfferRejected.toDouble(), _ChartColors.red),
     ];
 
     return _chartCard(
@@ -863,7 +923,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       child: Expanded(
         child: Row(
           children: [
-            // Labels + values
             Expanded(
               flex: 2,
               child: Column(
@@ -886,8 +945,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                         Expanded(
                           child: Text(
                             item.label,
-                            style: TextStyle(
-                                fontSize: 12.sp, color: Colors.black87),
+                            style: TextStyle(fontSize: 12.sp, color: Colors.black87),
                           ),
                         ),
                         Text(
@@ -906,7 +964,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
             ),
             SizedBox(width: 10.sp),
 
-            // Pie
             Expanded(
               flex: 3,
               child: Stack(
@@ -939,8 +996,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                       ),
                       Text(
                         'Total',
-                        style: TextStyle(
-                            fontSize: 10.sp, color: Colors.black54),
+                        style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                       ),
                     ],
                   ),
@@ -981,8 +1037,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
   Widget _buildEmploymentTypesChart(CareersDashboardData dash) {
     final entries = dash.employmentTypes.entries.toList();
-    final total =
-    entries.fold<double>(0, (sum, e) => sum + e.value);
+    final total = entries.fold<double>(0, (sum, e) => sum + e.value);
     final typeColors = [
       _ChartColors.darkGreen,
       _ChartColors.green,
@@ -996,7 +1051,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       child: Expanded(
         child: Row(
           children: [
-            // Horizontal bars
             Expanded(
               flex: 3,
               child: Column(
@@ -1004,10 +1058,8 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                 children: entries.asMap().entries.map((entry) {
                   final i = entry.key;
                   final e = entry.value;
-                  final percent =
-                  total > 0 ? (e.value / total * 100) : 0.0;
-                  final barColor =
-                  i < typeColors.length ? typeColors[i] : typeColors.last;
+                  final percent = total > 0 ? (e.value / total * 100) : 0.0;
+                  final barColor = i < typeColors.length ? typeColors[i] : typeColors.last;
 
                   return Padding(
                     padding: EdgeInsets.only(bottom: 10.sp),
@@ -1031,19 +1083,16 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                                 height: 14.sp,
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF0F0F0),
-                                  borderRadius:
-                                  BorderRadius.circular(4.r),
+                                  borderRadius: BorderRadius.circular(4.r),
                                 ),
                               ),
                               FractionallySizedBox(
-                                widthFactor:
-                                (percent / 100).clamp(0.0, 1.0),
+                                widthFactor: (percent / 100).clamp(0.0, 1.0),
                                 child: Container(
                                   height: 14.sp,
                                   decoration: BoxDecoration(
                                     color: barColor,
-                                    borderRadius:
-                                    BorderRadius.circular(4.r),
+                                    borderRadius: BorderRadius.circular(4.r),
                                   ),
                                 ),
                               ),
@@ -1055,10 +1104,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                           width: 70.sp,
                           child: Text(
                             e.key,
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: Colors.black54,
-                            ),
+                            style: TextStyle(fontSize: 11.sp, color: Colors.black54),
                           ),
                         ),
                       ],
@@ -1069,7 +1115,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
             ),
             SizedBox(width: 10.sp),
 
-            // Small pie
             Expanded(
               flex: 2,
               child: PieChart(
@@ -1081,9 +1126,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     final e = entry.value;
                     return PieChartSectionData(
                       value: e.value,
-                      color: i < typeColors.length
-                          ? typeColors[i]
-                          : typeColors.last,
+                      color: i < typeColors.length ? typeColors[i] : typeColors.last,
                       radius: 50.sp,
                       title: '',
                     );
@@ -1108,7 +1151,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       child: Expanded(
         child: Row(
           children: [
-            // Legend
             Expanded(
               flex: 2,
               child: Column(
@@ -1130,7 +1172,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               ),
             ),
 
-            // Pie
             Expanded(
               flex: 3,
               child: PieChart(
@@ -1164,7 +1205,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
   //  SHARED HELPERS
   // ═════════════════════════════════════════════════════════════════════════════
 
-  /// Reusable chart card container
   Widget _chartCard({
     required String title,
     required double height,
@@ -1182,7 +1222,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title row
           Row(
             children: [
               Expanded(
@@ -1213,9 +1252,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                       SizedBox(width: 4.sp),
                       Text(
                         l.label,
-                        style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.black54),
+                        style: TextStyle(fontSize: 10.sp, color: Colors.black54),
                       ),
                     ],
                   ))
@@ -1227,8 +1264,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
             SizedBox(height: 4.sp),
             Text(
               subtitle,
-              style:
-              TextStyle(fontSize: 11.sp, color: Colors.black45),
+              style: TextStyle(fontSize: 11.sp, color: Colors.black45),
             ),
           ],
           SizedBox(height: 12.sp),
@@ -1238,7 +1274,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
     );
   }
 
-  /// Calculate nice max for Y axis
   double _niceMax(List<double> values) {
     if (values.isEmpty) return 10;
     final dataMax = values.reduce((a, b) => a > b ? a : b);
@@ -1252,7 +1287,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
     return ((intMax / 100).ceil() * 100).toDouble();
   }
 
-  /// Calculate nice interval for Y axis
   double _niceInterval(double maxY) {
     if (maxY <= 5) return 1;
     if (maxY <= 10) return 2;
@@ -1264,7 +1298,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
     return (maxY / 5).ceilToDouble();
   }
 
-  /// Format large numbers: 114765 → "114,765"
   String _formatLargeNumber(int n) {
     final s = n.toString();
     final buffer = StringBuffer();
@@ -1275,7 +1308,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
     return buffer.toString();
   }
 
-  /// Parse hex color string to Color
   Color _hexToColor(String hex) {
     try {
       final clean = hex.replaceAll('#', '');

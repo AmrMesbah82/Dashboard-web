@@ -5,7 +5,11 @@
 // UPDATED: All fields use CustomValidatedTextFieldMaster
 // UPDATED: All dropdowns use CustomDropdownFormFieldInvMaster
 // FIXED: Removed stuck spinner on status change
+// UPDATED: Pipeline aligned to end, dynamic primaryColor from CMS,
+//          grey text for read-only fields, clickable resume/cover letter
 // ═══════════════════════════════════════════════════════════════════
+
+import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +17,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/controller/application/application_cubit.dart';
 import 'package:web_app_admin/controller/application/application_state.dart';
+import 'package:web_app_admin/controller/home_cubit.dart';
+import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
@@ -33,6 +39,7 @@ class _C {
   static const Color labelText = Color(0xFF333333);
   static const Color hintText = Color(0xFFAAAAAA);
   static const Color red = Color(0xFFE53935);
+  static const Color fieldValueGrey = Color(0xFF888888);
 }
 
 // ── Tag dropdown items ────────────────────────────────────────────────────────
@@ -47,6 +54,20 @@ const Map<String, Color> _kTagColors = {
   'Adequate': Color(0xFFF57F17),
   'Strong': Color(0xFF2E7D32),
 };
+
+// ── Helper: extract CMS primary color ─────────────────────────────────────────
+Color _primaryFromCmsState(HomeCmsState state) {
+  final String hex = switch (state) {
+    HomeCmsLoaded(:final data) => data.branding.primaryColor,
+    HomeCmsSaved(:final data) => data.branding.primaryColor,
+    _ => '',
+  };
+  try {
+    final clean = hex.replaceAll('#', '');
+    if (clean.length == 6) return Color(int.parse('FF$clean', radix: 16));
+  } catch (_) {}
+  return _C.primary; // fallback to static green
+}
 
 class ApplicationDetailPage extends StatefulWidget {
   final String jobId;
@@ -85,19 +106,16 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     if (_didLoad) return;
     _didLoad = true;
     _currentApp = app;
-    _technicalCtrl.text = app.technicalSkills > 0
-        ? app.technicalSkills.toString()
-        : '';
-    _communicationCtrl.text = app.communicationSkills > 0
-        ? app.communicationSkills.toString()
-        : '';
-    _experienceCtrl.text = app.experienceBackground > 0
-        ? app.experienceBackground.toString()
-        : '';
-    _cultureFitCtrl.text = app.cultureFit > 0 ? app.cultureFit.toString() : '';
-    _leadershipCtrl.text = app.leadershipPotential > 0
-        ? app.leadershipPotential.toString()
-        : '';
+    _technicalCtrl.text =
+    app.technicalSkills > 0 ? app.technicalSkills.toString() : '';
+    _communicationCtrl.text =
+    app.communicationSkills > 0 ? app.communicationSkills.toString() : '';
+    _experienceCtrl.text =
+    app.experienceBackground > 0 ? app.experienceBackground.toString() : '';
+    _cultureFitCtrl.text =
+    app.cultureFit > 0 ? app.cultureFit.toString() : '';
+    _leadershipCtrl.text =
+    app.leadershipPotential > 0 ? app.leadershipPotential.toString() : '';
     _commentsCtrl.text = app.comments;
     _selectedTag = app.tag.isNotEmpty ? app.tag : null;
   }
@@ -450,7 +468,6 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ── BlocListener: reset _didLoad when status updates so UI re-seeds ──
     return BlocListener<ApplicationCubit, ApplicationState>(
       listener: (context, state) {
         if (state is ApplicationUpdated) {
@@ -458,174 +475,189 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           _currentApp = state.application;
         }
       },
-      child: BlocBuilder<ApplicationCubit, ApplicationState>(
-        builder: (context, state) {
-          ApplicationModel? app;
-          if (state is ApplicationDetailLoaded) app = state.application;
-          if (state is ApplicationUpdated) app = state.application;
+      child: BlocBuilder<HomeCmsCubit, HomeCmsState>(
+        builder: (context, cmsState) {
+          // ── Extract dynamic primary color from CMS/Firebase ──
+          final Color cmsPrimary = _primaryFromCmsState(cmsState);
 
-          // ── Fallback: keep using cached app while cubit is in loading/intermediate state ──
-          if (app == null && _currentApp != null) {
-            app = _currentApp;
-          }
+          return BlocBuilder<ApplicationCubit, ApplicationState>(
+            builder: (context, state) {
+              ApplicationModel? app;
+              if (state is ApplicationDetailLoaded) app = state.application;
+              if (state is ApplicationUpdated) app = state.application;
 
-          if (app == null) {
-            return const Scaffold(
-              backgroundColor: _C.back,
-              body: Center(
-                child: CircularProgressIndicator(color: _C.primary),
-              ),
-            );
-          }
+              if (app == null && _currentApp != null) {
+                app = _currentApp;
+              }
 
-          _seedControllers(app);
-          _currentApp = app;
+              if (app == null) {
+                return Scaffold(
+                  backgroundColor: _C.back,
+                  body: Center(
+                    child: CircularProgressIndicator(color: cmsPrimary),
+                  ),
+                );
+              }
 
-          final dropdownItems = _getDropdownItems(app.status);
-          final completedChips = _buildCompletedStageChips(app.status);
-          final bool hasNextOptions = dropdownItems.isNotEmpty;
+              _seedControllers(app);
+              _currentApp = app;
 
-          return Scaffold(
-            backgroundColor: _C.back,
-            body: SingleChildScrollView(
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    AppAdminNavbar(
-                      activeLabel: 'Applications',
-                      homePage: CareersMainPageDashboard(),
-                      webPage: HomeMainPage(),
-                      jobListingPage: JobListingMainPage(),
-                    ),
+              final dropdownItems = _getDropdownItems(app.status);
+              final completedChips = _buildCompletedStageChips(app.status);
+              final bool hasNextOptions = dropdownItems.isNotEmpty;
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 20.h,
-                      ),
-                      child: SizedBox(
-                        width: 1000.w,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // ── Title ──
-                            Text(
-                              'Applications',
-                              style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: 12.h),
+              return Scaffold(
+                backgroundColor: _C.back,
+                body: SingleChildScrollView(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      children: [
+                        AppAdminNavbar(
+                          activeLabel: 'Applications',
+                          homePage: CareersMainPageDashboard(),
+                          webPage: HomeMainPage(),
+                          jobListingPage: JobListingMainPage(),
+                        ),
 
-                            // ══════════════════════════════════════════════
-                            // ── STATUS PIPELINE ──
-                            // ══════════════════════════════════════════════
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  ...completedChips,
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w,
+                            vertical: 20.h,
+                          ),
+                          child: SizedBox(
+                            width: 1000.w,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Title ──
+                                Text(
+                                  'Applications',
+                                  style: StyleText.fontSize45Weight600.copyWith(
+                                    color: cmsPrimary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 12.h),
 
-                                  if (completedChips.isNotEmpty &&
-                                      hasNextOptions) ...[
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 4.w,
-                                      ),
-                                      child: Icon(
-                                        Icons.chevron_right,
-                                        size: 18.sp,
-                                        color: _C.hintText,
-                                      ),
-                                    ),
-                                  ],
+                                // ══════════════════════════════════════════
+                                // ── STATUS PIPELINE (aligned to end) ──
+                                // ══════════════════════════════════════════
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ...completedChips,
 
-                                  if (hasNextOptions)
-                                    SizedBox(
-                                      width: 200.w,
-                                      child: CustomDropdownFormFieldInvMaster(
-                                        selectedValue: null,
-                                        items: dropdownItems,
-                                        widthIcon: 18,
-                                        heightIcon: 18,
-                                        height: 36,
-                                        dropdownColor: Colors.white,
-                                        hint: Text(
-                                          _getDropdownHint(app!.status),
-                                          style: TextStyle(
-                                            fontSize: 12.sp,
-                                            color: _C.labelText,
+                                        if (completedChips.isNotEmpty &&
+                                            hasNextOptions) ...[
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 4.w,
+                                            ),
+                                            child: Icon(
+                                              Icons.chevron_right,
+                                              size: 18.sp,
+                                              color: _C.hintText,
+                                            ),
                                           ),
-                                        ),
-                                        onChanged: (selectedKey) {
-                                          if (selectedKey == null) return;
-                                          final newStatus =
-                                          _mapKeyToStatus(selectedKey);
-                                          if (newStatus != null) {
-                                            _onStatusChange(app!, newStatus);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 24.h),
+                                        ],
 
-                            // ── Personal Information Card ──
-                            _buildPersonalInfoCard(app),
-                            SizedBox(height: 24.h),
-
-                            // ── Tags + Scoring Card ──
-                            _buildTagsScoringCard(app),
-                            SizedBox(height: 24.h),
-
-                            // ── Save button ──
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap: _isSaving ? null : _saveScoring,
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 30.w,
-                                    vertical: 12.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _C.primary,
-                                    borderRadius: BorderRadius.circular(6.r),
-                                  ),
-                                  child: _isSaving
-                                      ? SizedBox(
-                                    width: 16.sp,
-                                    height: 16.sp,
-                                    child:
-                                    const CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                      : Text(
-                                    'Save Scoring',
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                        if (hasNextOptions)
+                                          SizedBox(
+                                            width: 200.w,
+                                            child:
+                                            CustomDropdownFormFieldInvMaster(
+                                              selectedValue: null,
+                                              items: dropdownItems,
+                                              widthIcon: 18,
+                                              heightIcon: 18,
+                                              height: 36,
+                                              primaryColor: cmsPrimary,
+                                              dropdownColor: Colors.white,
+                                              hint: Text(
+                                                _getDropdownHint(app!.status),
+                                                style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: _C.labelText,
+                                                ),
+                                              ),
+                                              onChanged: (selectedKey) {
+                                                if (selectedKey == null) return;
+                                                final newStatus =
+                                                _mapKeyToStatus(
+                                                    selectedKey);
+                                                if (newStatus != null) {
+                                                  _onStatusChange(
+                                                      app!, newStatus);
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
+                                SizedBox(height: 24.h),
+
+                                // ── Personal Information Card ──
+                                _buildPersonalInfoCard(app),
+                                SizedBox(height: 24.h),
+
+                                // ── Tags + Scoring Card ──
+                                _buildTagsScoringCard(app, cmsPrimary),
+                                SizedBox(height: 24.h),
+
+                                // ── Save button ──
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: GestureDetector(
+                                    onTap: _isSaving ? null : _saveScoring,
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 30.w,
+                                        vertical: 12.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: cmsPrimary,
+                                        borderRadius:
+                                        BorderRadius.circular(6.r),
+                                      ),
+                                      child: _isSaving
+                                          ? SizedBox(
+                                        width: 16.sp,
+                                        height: 16.sp,
+                                        child:
+                                        const CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                          : Text(
+                                        'Save Scoring',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 40.h),
+                              ],
                             ),
-                            SizedBox(height: 40.h),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),
@@ -692,12 +724,12 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           Row(
             children: [
               Expanded(
-                child: _fileCard('Resume*', app.resumeName, app.resumeUrl),
+                child: _fileCard('Resume', app.resumeName, app.resumeUrl),
               ),
               SizedBox(width: 16.w),
               Expanded(
                 child: _fileCard(
-                  'Cover Letter*',
+                  'Cover Letter',
                   app.coverLetterName,
                   app.coverLetterUrl,
                 ),
@@ -713,7 +745,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
   //  TAGS + SCORING INTERVIEW CARD
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildTagsScoringCard(ApplicationModel app) {
+  Widget _buildTagsScoringCard(ApplicationModel app, Color cmsPrimary) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.sp),
@@ -739,6 +771,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   widthIcon: 18,
                   heightIcon: 18,
                   height: 36,
+                  primaryColor: cmsPrimary,
                   dropdownColor: Color(0xFFF1F2ED),
                   itemColors: _kTagColors,
                   showColorDots: true,
@@ -767,7 +800,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   height: 36,
                   onlyDigits: true,
                   submitted: false,
-                  primaryColor: _C.primary,
+                  primaryColor: cmsPrimary,
                   fillColor: Color(0xFFF1F2ED),
                 ),
               ),
@@ -780,7 +813,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   height: 36,
                   onlyDigits: true,
                   submitted: false,
-                  primaryColor: _C.primary,
+                  primaryColor: cmsPrimary,
                   fillColor: Color(0xFFF1F2ED),
                 ),
               ),
@@ -797,7 +830,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   height: 36,
                   onlyDigits: true,
                   submitted: false,
-                  primaryColor: _C.primary,
+                  primaryColor: cmsPrimary,
                   fillColor: Color(0xFFF1F2ED),
                 ),
               ),
@@ -810,7 +843,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   height: 36,
                   onlyDigits: true,
                   submitted: false,
-                  primaryColor: _C.primary,
+                  primaryColor: cmsPrimary,
                   fillColor: Color(0xFFF1F2ED),
                 ),
               ),
@@ -827,7 +860,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   height: 36,
                   onlyDigits: true,
                   submitted: false,
-                  primaryColor: _C.primary,
+                  primaryColor: cmsPrimary,
                   fillColor: Color(0xFFF1F2ED),
                 ),
               ),
@@ -843,7 +876,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
             height: 100,
             maxLines: 5,
             submitted: false,
-            primaryColor: _C.primary,
+            primaryColor: cmsPrimary,
             fillColor: Color(0xFFF1F2ED),
           ),
         ],
@@ -864,6 +897,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     ),
   );
 
+  // ── Read-only field with GREY value text ──
   Widget _readOnlyField(String label, String value) {
     return CustomValidatedTextFieldMaster(
       label: label,
@@ -874,10 +908,16 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       submitted: false,
       primaryColor: _C.primary,
       fillColor: const Color(0xFFF1F2ED),
+      textStyle: StyleText.fontSize12Weight500.copyWith(
+        color: _C.fieldValueGrey
+      ),
     );
   }
 
+  // ── File card: clickable, opens URL in new tab ──
   Widget _fileCard(String label, String fileName, String fileUrl) {
+    final bool hasFile = fileUrl.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -890,42 +930,61 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           ),
         ),
         SizedBox(height: 6.h),
-        Container(
-          height: 50.h,
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(
-            color: _C.cardBg,
-            borderRadius: BorderRadius.circular(6.r),
-            border: Border.all(color: _C.border),
-          ),
-          child: Row(
-            children: [
-              CustomSvg(
-                assetPath: "assets/images/pdf 1.svg",
-                width: 30.w,
-                height: 30.h,
-                fit: BoxFit.fill,
+        MouseRegion(
+          cursor: hasFile ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          child: GestureDetector(
+            onTap: hasFile ? () => html.window.open(fileUrl, '_blank') : null,
+            child: Container(
+              height: 50.h,
+              padding: EdgeInsets.symmetric(horizontal: 12.w),
+              decoration: BoxDecoration(
+                color: _C.cardBg,
+                borderRadius: BorderRadius.circular(6.r),
+                border: Border.all(color: _C.border),
               ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      fileName.isEmpty ? 'No file' : fileName,
-                      style: TextStyle(fontSize: 11.sp, color: _C.labelText),
-                      overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  CustomSvg(
+                    assetPath: "assets/images/pdf 1.svg",
+                    width: 30.w,
+                    height: 30.h,
+                    fit: BoxFit.fill,
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          fileName.isEmpty ? 'No file' : fileName,
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: hasFile ? Colors.blue.shade700 : _C.hintText,
+                            decoration: hasFile
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (fileName.isNotEmpty)
+                          Text(
+                            'Click to open',
+                            style:
+                            TextStyle(fontSize: 9.sp, color: _C.hintText),
+                          ),
+                      ],
                     ),
-                    if (fileName.isNotEmpty)
-                      Text(
-                        '62 KB',
-                        style: TextStyle(fontSize: 9.sp, color: _C.hintText),
-                      ),
-                  ],
-                ),
+                  ),
+                  if (hasFile)
+                    Icon(
+                      Icons.open_in_new_rounded,
+                      size: 14.sp,
+                      color: _C.hintText,
+                    ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],

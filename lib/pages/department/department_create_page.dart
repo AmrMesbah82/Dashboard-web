@@ -103,7 +103,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SvgPicture.asset(imagePath,
+              SvgPicture.asset("assets/images/department_icon.svg",
                   height: 120.h, fit: BoxFit.contain),
               SizedBox(height: 20.h),
               Text(
@@ -128,16 +128,15 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                     child: Container(
                       height: 44.h,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
+                        color: Color(0xFF797979),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Center(
                         child: Text(
                           'Back',
-                          style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: _C.labelText),
+                          style: StyleText.fontSize16Weight500.copyWith(
+                            color: Colors.white
+                          )
                         ),
                       ),
                     ),
@@ -229,7 +228,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                               children: [_editableSection()],
                             ),
 
-                            SizedBox(height: 24.h),
+                            SizedBox(height: 10.h),
 
                             // ── Discard / Create ──
                             Row(
@@ -430,48 +429,60 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
           ),
           SizedBox(height: 20.h),
 
+
           // ── Department Name EN ──
-          CustomValidatedTextFieldMaster(
-            label: 'Department Name',
-            hint: 'Text Here',
-            controller: _nameEnController,
-            height: 36,
-            maxLines: 1,
-            textDirection: TextDirection.ltr,
-            textAlign: TextAlign.start,
-            showCharCount: false,
-            maxLength: 200,
-            minLength: 0,
-            submitted: _submitted,
-            primaryColor: _C.primary,
-            fillColor: _C.cardBg,
-            textStyle: StyleText.fontSize12Weight400
-                .copyWith(color: _C.labelText),
-            hintStyle: StyleText.fontSize12Weight400
-                .copyWith(color: _C.hintText),
-          ),
+          Row(
+            children: [
+              Expanded(
+                child: CustomValidatedTextFieldMaster(
+                  label: 'Department Name',
+                  hint: 'Text Here',
+                  controller: _nameEnController,
+                  height: 36,
+                  maxLines: 1,
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.start,
+                  showCharCount: false,
+                  maxLength: 200,
+                  minLength: 0,
+                  submitted: _submitted,
+                  primaryColor: _C.primary,
+                  fillColor: _C.cardBg,
+                  textStyle: StyleText.fontSize12Weight400
+                      .copyWith(color: _C.labelText),
+                  hintStyle: StyleText.fontSize12Weight400
+                      .copyWith(color: _C.hintText),
+                ),
+              ),
 
-          SizedBox(height: 16.h),
+              SizedBox(width: 15.h),
 
-          // ── Department Name AR ──
-          CustomValidatedTextFieldMaster(
-            label: 'اسم القسم',
-            hint: 'ادخل النص هنا',
-            controller: _nameArController,
-            height: 36,
-            maxLines: 1,
-            textDirection: TextDirection.rtl,
-            textAlign: TextAlign.start,
-            showCharCount: false,
-            maxLength: 200,
-            minLength: 0,
-            submitted: _submitted,
-            primaryColor: _C.primary,
-            fillColor: _C.cardBg,
-            textStyle: StyleText.fontSize12Weight400
-                .copyWith(color: _C.labelText),
-            hintStyle: StyleText.fontSize12Weight400
-                .copyWith(color: _C.hintText),
+              // ── Department Name AR ──
+              Expanded(
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: CustomValidatedTextFieldMaster(
+                    label: 'اسم القسم',
+                    hint: 'ادخل النص هنا',
+                    controller: _nameArController,
+                    height: 36,
+                    maxLines: 1,
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.start,
+                    showCharCount: false,
+                    maxLength: 200,
+                    minLength: 0,
+                    submitted: _submitted,
+                    primaryColor: _C.primary,
+                    fillColor: _C.cardBg,
+                    textStyle: StyleText.fontSize12Weight400
+                        .copyWith(color: _C.labelText),
+                    hintStyle: StyleText.fontSize12Weight400
+                        .copyWith(color: _C.hintText),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

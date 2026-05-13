@@ -6,23 +6,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:web_app_admin/controller/department/department_cubit.dart';
 import 'package:web_app_admin/controller/department/department_state.dart';
+import 'package:web_app_admin/controller/home_cubit.dart';
+import 'package:web_app_admin/controller/home_state.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_cubit.dart';
 import 'package:web_app_admin/controller/job_list/job_listing_state.dart';
+import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/model/department_model.dart';
 import 'package:web_app_admin/model/job_listing_model.dart';
 import 'package:web_app_admin/pages/careers_main_dashboard.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
-import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 
 import '../dashboard/job_list/job_listing_main_page.dart';
 import '../dashboard/main_page/home_main_page.dart';
 
 import 'department_create_page.dart';
+import 'department_detail_page.dart';   // ← NEW
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -44,22 +48,18 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
   void initState() {
     super.initState();
     context.read<DepartmentCubit>().loadDepartments();
-    // Make sure jobs are loaded so we can compute counts
     final jobCubit = context.read<JobListingCubit>();
-    if (jobCubit.allJobs.isEmpty) {
-      jobCubit.loadJobs();
-    }
+    if (jobCubit.allJobs.isEmpty) jobCubit.loadJobs();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<DepartmentCubit, DepartmentState>(
       listener: (context, state) {
-        if (state is DepartmentCreated) {
-          // Refresh after coming back from create page
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+        if (state is DepartmentCreated ||
+            state is DepartmentUpdated ||
+            state is DepartmentDeleted) {
+          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
           context.read<DepartmentCubit>().loadDepartments();
         }
       },
@@ -78,7 +78,6 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
             departments = state.lastDepartments!;
           }
 
-          // Get all jobs to compute counts
           final allJobs = context.read<JobListingCubit>().allJobs;
 
           return Scaffold(
@@ -97,17 +96,17 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                     SizedBox(height: 20.h),
 
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.w, vertical: 20.h),
                       child: SizedBox(
                         width: 1000.w,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── Title ──
                             Text(
                               'Our Departments',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color:      _C.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -123,7 +122,7 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: _C.primary,
+                                    color:        _C.primary,
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Row(
@@ -149,10 +148,11 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                               Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(40.sp),
-                                  child: Text(
-                                    'No departments yet',
-                                    style: TextStyle(
-                                        fontSize: 14.sp, color: _C.hintText),
+                                  child: CustomSvg(
+                                    assetPath: '',
+                                    width:  150.w,
+                                    height: 150.h,
+                                    fit:    BoxFit.fill,
                                   ),
                                 ),
                               )
@@ -175,7 +175,8 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
   }
 
   // ── Grid (3 columns) ──────────────────────────────────────────────────────
-  Widget _buildGrid(List<DepartmentModel> depts, List<JobPostModel> allJobs) {
+  Widget _buildGrid(
+      List<DepartmentModel> depts, List<JobPostModel> allJobs) {
     final rows = (depts.length / 3).ceil();
     return Column(
       children: List.generate(rows, (rowIndex) {
@@ -187,13 +188,21 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: List.generate(3, (colIndex) {
                 final i = start + colIndex;
-                if (i >= depts.length) return const Expanded(child: SizedBox());
+                if (i >= depts.length) {
+                  return const Expanded(child: SizedBox());
+                }
                 return Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: colIndex < 2 ? 12.w : 0),
+                    padding:
+                    EdgeInsets.only(right: colIndex < 2 ? 12.w : 0),
                     child: _DepartmentCard(
                       department: depts[i],
-                      allJobs: allJobs,
+                      allJobs:    allJobs,
+                      // ── tap → detail page ──
+                      onTap: () => navigateTo(
+                        context,
+                        DepartmentDetailPage(department: depts[i]),
+                      ),
                     ),
                   ),
                 );
@@ -210,137 +219,193 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
 //  DEPARTMENT CARD
 // ═════════════════════════════════════════════════════════════════════════════
 
-class _DepartmentCard extends StatelessWidget {
-  final DepartmentModel department;
+class _DepartmentCard extends StatefulWidget {
+  final DepartmentModel    department;
   final List<JobPostModel> allJobs;
+  final VoidCallback       onTap;
 
   const _DepartmentCard({
     required this.department,
     required this.allJobs,
+    required this.onTap,
   });
 
   @override
+  State<_DepartmentCard> createState() => _DepartmentCardState();
+}
+
+class _DepartmentCardState extends State<_DepartmentCard> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    // Compute job counts for this department
-    final deptJobs = allJobs
+    final deptJobs = widget.allJobs
         .where((j) =>
-    j.department.toLowerCase() == department.nameEn.toLowerCase())
+    j.department.toLowerCase() ==
+        widget.department.nameEn.toLowerCase())
         .toList();
 
-    final totalCount = deptJobs.length;
-    final activeCount =
+    final totalCount    = deptJobs.length;
+    final activeCount   =
         deptJobs.where((j) => j.status == JobStatus.active).length;
     final inactiveCount =
         deptJobs.where((j) => j.status == JobStatus.inactive).length;
 
-    final createdText = department.createdAt != null
-        ? 'Created At: ${department.createdAt!.day} ${_monthName(department.createdAt!.month)} ${department.createdAt!.year}'
+    final createdText = widget.department.createdAt != null
+        ? 'Created At: ${widget.department.createdAt!.day} '
+        '${_monthName(widget.department.createdAt!.month)} '
+        '${widget.department.createdAt!.year}'
         : 'Created At: —';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-            child: Row(
-              children: [
-                // ── Department icon ──
-                Container(
-                  width: 30.sp,
-                  height: 30.sp,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F0F0),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(Icons.business_rounded,
-                      size: 18.sp, color: _C.primary),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: Text(
-                    department.nameEn.isEmpty
-                        ? 'Department Name'
-                        : department.nameEn,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                      color: _C.labelText,
+    return MouseRegion(
+      cursor:   SystemMouseCursors.click,
+      onEnter:  (_) => setState(() => _hovered = true),
+      onExit:   (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color:        Colors.white,
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: _hovered
+                ? [
+              BoxShadow(
+                color:      _C.primary.withOpacity(0.15),
+                blurRadius: 12,
+                offset:     const Offset(0, 4),
+              )
+            ]
+                : [],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
+                child: Row(
+                  children: [
+                    // ── Company logo ──
+                    BlocBuilder<HomeCmsCubit, HomeCmsState>(
+                      builder: (context, state) {
+                        final String logoUrl = switch (state) {
+                          HomeCmsLoaded(:final data) => data.branding.logoUrl,
+                          HomeCmsSaved(:final data)  => data.branding.logoUrl,
+                          _                          => '',
+                        };
+                        return Container(
+                          width:  30.sp,
+                          height: 30.sp,
+                          decoration: BoxDecoration(
+                            color:        const Color(0xFFF0F0F0),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: logoUrl.isNotEmpty
+                                ? SvgPicture.network(
+                              logoUrl,
+                              width:  30.sp,
+                              height: 30.sp,
+                              fit:    BoxFit.fill,
+                              placeholderBuilder: (_) => Icon(
+                                Icons.business_rounded,
+                                size:  18.sp,
+                                color: _C.primary,
+                              ),
+                            )
+                                : Icon(Icons.business_rounded,
+                                size:  18.sp, color: _C.primary),
+                          ),
+                        );
+                      },
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: Text(
+                        widget.department.nameEn.isEmpty
+                            ? 'Department Name'
+                            : widget.department.nameEn,
+                        style: TextStyle(
+                          fontSize:   15.sp,
+                          fontWeight: FontWeight.w700,
+                          color:      _C.labelText,
+                        ),
+                        maxLines:  1,
+                        overflow:  TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // ── Arrow indicator ──
+                    Icon(Icons.arrow_forward_ios_rounded,
+                        size: 12.sp, color: _C.hintText),
+                  ],
+                ),
+              ),
+              SizedBox(height: 14.h),
+
+              // ── Stats ──
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _statRow('Total Job Post:', totalCount,
+                        'assets/images/job_list/totoal_job.svg'),
+                    SizedBox(height: 6.h),
+                    _statRow('Active Job:', activeCount,
+                        'assets/images/job_list/active_job.svg'),
+                    SizedBox(height: 6.h),
+                    _statRow('Inactive Job:', inactiveCount,
+                        'assets/images/job_list/inactive_job.svg'),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // ── Bottom bar ──
+              Container(
+                width:   double.infinity,
+                padding: EdgeInsets.symmetric(
+                    horizontal: 16.w, vertical: 12.h),
+                decoration: BoxDecoration(
+                  color: _C.primary,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft:  Radius.circular(10.r),
+                    bottomRight: Radius.circular(10.r),
                   ),
                 ),
-              ],
-            ),
-          ),
-          SizedBox(height: 14.h),
-
-          // ── Stats ──
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _statRow('Total Job Post:', totalCount),
-                SizedBox(height: 6.h),
-                _statRow('Active Job:', activeCount),
-                SizedBox(height: 6.h),
-                _statRow('Inactive Job:', inactiveCount),
-              ],
-            ),
-          ),
-
-          const Spacer(),
-
-          // ── Bottom bar ──
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: _C.primary,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10.r),
-                bottomRight: Radius.circular(10.r),
+                child: Text(
+                  createdText,
+                  style: TextStyle(
+                    fontSize:   12.sp,
+                    color:      Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              createdText,
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _statRow(String label, int count) {
+  Widget _statRow(String label, int count, String svgPath) {
     return Row(
       children: [
-        Icon(Icons.circle, size: 6.sp, color: _C.primary),
+        CustomSvg(
+            assetPath: svgPath,
+            width:     14.sp,
+            height:    14.sp,
+            fit:       BoxFit.contain),
         SizedBox(width: 8.w),
-        Text(
-          '$label ',
-          style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w500,
-              color: _C.labelText),
-        ),
-        Text(
-          '$count',
-          style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: _C.labelText),
-        ),
+        Text('$label ',
+            style: StyleText.fontSize12Weight500
+                .copyWith(color: AppColors.text)),
+        Text('$count',
+            style: StyleText.fontSize12Weight500
+                .copyWith(color: AppColors.secondaryText)),
       ],
     );
   }
