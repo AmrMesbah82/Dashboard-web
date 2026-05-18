@@ -1,0 +1,273 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/abou_us/presentation/controller/about_us_cubit.dart';
+import '../../features/abou_us/presentation/ui/pages/about_main_page_master.dart';
+import '../../features/careers/presentation/controller/careers_cms_cubit.dart';
+import '../../features/careers/presentation/ui/pages/careers_edit_page.dart';
+import '../../features/careers/presentation/ui/pages/careers_main_dashboard.dart';
+import '../../features/careers/presentation/ui/pages/careers_main_page.dart';
+import '../../features/careers/presentation/ui/pages/careers_preview_page.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_cms_edit_page.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_cms_preview_page.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_main_page.dart';
+import '../../features/home/presentation/controller/home_cubit.dart';
+import '../../features/home/presentation/ui/pages/home_main_page.dart';
+import '../../features/job/data/repo_imp/application_repo_imp.dart';
+import '../../features/job/data/repo_imp/job_listing_repo_imp.dart';
+import '../../features/main/presentation/ui/pages/home_edit_page.dart';
+import '../../features/main/presentation/ui/pages/home_main_page.dart';
+import '../../features/main/presentation/ui/pages/home_preview_page.dart';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE + ANGLE + FADE PAGE TRANSITION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum SlideDirection { fromRight, fromLeft, fromBottom }
+
+CustomTransitionPage<T> animatedPage<T>({
+  required LocalKey key,
+  required Widget child,
+  SlideDirection slideDirection = SlideDirection.fromRight,
+  Duration duration = const Duration(milliseconds: 650),
+  Curve curve = Curves.easeOutCubic,
+}) {
+  return CustomTransitionPage<T>(
+    key: key,
+    child: child,
+    transitionDuration: duration,
+    reverseTransitionDuration: const Duration(milliseconds: 400),
+    transitionsBuilder: (context, animation, secondaryAnimation, pageChild) {
+      final Offset beginOffset = switch (slideDirection) {
+        SlideDirection.fromRight => const Offset(0.12, 0.0),
+        SlideDirection.fromLeft => const Offset(-0.12, 0.0),
+        SlideDirection.fromBottom => const Offset(0.0, 0.08),
+      };
+
+      final slideAnim = Tween<Offset>(
+        begin: beginOffset,
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: animation, curve: curve));
+
+      final fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.0, 0.55, curve: Curves.easeIn),
+        ),
+      );
+
+      final skewSign = slideDirection == SlideDirection.fromLeft ? 1.0 : -1.0;
+      final skewAnim = Tween<double>(
+        begin: skewSign * 0.05,
+        end: 0.0,
+      ).animate(CurvedAnimation(parent: animation, curve: curve));
+
+      final scaleAnim = Tween<double>(
+        begin: 0.97,
+        end: 1.0,
+      ).animate(CurvedAnimation(parent: animation, curve: curve));
+
+      final exitFade = Tween<double>(begin: 1.0, end: 0.92).animate(
+        CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeIn),
+      );
+
+      return FadeTransition(
+        opacity: exitFade,
+        child: FadeTransition(
+          opacity: fadeAnim,
+          child: SlideTransition(
+            position: slideAnim,
+            child: AnimatedBuilder(
+              animation: animation,
+              builder: (_, child) => Transform(
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.0008)
+                  ..rotateY(skewAnim.value)
+                  ..scale(scaleAnim.value),
+                alignment: Alignment.center,
+                child: child,
+              ),
+              child: pageChild,
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      // ── Public pages ───────────────────────────────────────────────────────
+      GoRoute(
+        path: '/',
+        name: 'home',
+        builder: (context, state) => const CareersMainPageDashboard(),
+      ),
+
+      // ── About Us CMS ───────────────────────────────────────────────────────
+      // GoRoute(
+      //   path: '/admin/about-edit',
+      //   name: 'about-edit',
+      //   pageBuilder: (context, state) => animatedPage(
+      //     key: state.pageKey,
+      //     child: const AboutEditPage(),
+      //     slideDirection: SlideDirection.fromBottom,
+      //   ),
+      // ),
+
+      // ── Home CMS (HomeMainPageMaster) ──────────────────────────────────────────
+      GoRoute(
+        path: '/admin/home-page',
+        name: 'home-page',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: BlocProvider.value(
+            value: context
+                .read<HomeCmsCubit>(), // ✅ reuse global cubit from main.dart
+            child: const HomeMainPageMaster(),
+          ),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/about-cms',
+        name: 'about-cms',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (_) => AboutCubit()..load(),
+            child: const AboutMainPageMasterDashboard(),
+          ),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      // ── Dashboard (Main / Edit / Preview) ─────────────────────────────────
+      GoRoute(
+        path: '/admin/dashboard',
+        name: 'home_main',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const HomeMainPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/dashboard/edit',
+        name: 'home_edit',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const HomeEditPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/dashboard/preview',
+        name: 'home_preview',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const HomePreviewPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      // ── Contact Submissions ────────────────────────────────────────────────
+
+      // ── Contact Us CMS ─────────────────────────────────────────────────────
+      GoRoute(
+        path: '/admin/contact-cms',
+        name: 'contact-cms',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const ContactUsMainPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/contact-cms/edit',
+        name: 'contact-cms-edit',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const ContactUsCmsEditPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/contact-cms/preview',
+        name: 'contact-cms-preview',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: const ContactUsCmsPreviewPage(),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      // ── Careers CMS ────────────────────────────────────────────────────────
+
+      // ✅ AFTER
+      GoRoute(
+        path: '/admin/careers-cms',
+        name: 'careers-cms',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (_) => CareersCmsCubit(
+              jobRepo: JobListingRepoImp(),
+              appRepo:
+                  ApplicationRepoImp(), // your application repo implementation
+            )..load(),
+            child: const CareersMainPageMaster(),
+          ),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/careers-cms/edit',
+        name: 'careers-cms-edit',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (_) => CareersCmsCubit(
+              jobRepo: JobListingRepoImp(),
+              appRepo:
+                  ApplicationRepoImp(), // your application repo implementation
+            )..load(),
+            child: const CareersEditPage(),
+          ),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+
+      GoRoute(
+        path: '/admin/careers-cms/preview',
+        name: 'careers-cms-preview',
+        pageBuilder: (context, state) => animatedPage(
+          key: state.pageKey,
+          child: BlocProvider(
+            create: (_) => CareersCmsCubit(
+              jobRepo: JobListingRepoImp(),
+              appRepo:
+                  ApplicationRepoImp(), // your application repo implementation
+            )..load(),
+            child: const CareersPreviewPage(),
+          ),
+          slideDirection: SlideDirection.fromBottom,
+        ),
+      ),
+    ],
+  );
+}
