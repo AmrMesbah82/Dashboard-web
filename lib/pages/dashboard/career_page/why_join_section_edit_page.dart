@@ -26,6 +26,8 @@ import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 
 import '../../../core/custom_dialog.dart';
+import '../../../widgets/app_admin_navbar.dart';
+import '../main_page/home_main_page.dart';
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -137,17 +139,18 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
   bool _validateAllFields() {
     if (_items.isEmpty) return false;
 
-    for (final item in _items) {
-      // Check required text fields
-      if (item.titleEn.text.trim().isEmpty) return false;
-      if (item.titleAr.text.trim().isEmpty) return false;
+    for (var i = 0; i < _items.length; i++) {
+      final item = _items[i];
+
+      // Icon & Title only required on first item
+      if (i == 0) {
+        if (!item.icon.hasImage) return false;
+        if (item.titleEn.text.trim().isEmpty) return false;
+        if (item.titleAr.text.trim().isEmpty) return false;
+      }
+
       if (item.descEn.text.trim().isEmpty) return false;
       if (item.descAr.text.trim().isEmpty) return false;
-
-      // Check icon (required)
-      if (!item.icon.hasImage) return false;
-
-      // Check SVG (required)
       if (!item.svg.hasImage) return false;
     }
 
@@ -363,7 +366,12 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 20.h),
+                      AppAdminNavbar(
+                        activeLabel: 'Web Page',
+                        homePage: HomeMainPage(),
+                        webPage: HomeMainPage(),
+                        jobListingPage: HomeMainPage(),
+                      ),
                       AdminSubNavBar(activeIndex: 5),
                       SizedBox(height: 20.h),
 
@@ -477,96 +485,69 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
     );
   }
 
-  // ── Single item edit widget ─────────────────────────────────────────────────
   Widget _itemEditWidget(int index, _ItemEdit item) {
-    final iconHasError = _submitted && !item.icon.hasImage;
-    final svgHasError = _submitted && !item.svg.hasImage;
+    final iconHasError = _submitted && index == 0 && !item.icon.hasImage;
+    final svgHasError  = _submitted && !item.svg.hasImage;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (index > 0) ...[
-          Divider(color: const Color(0xFFE8E8E8), height: 1),
-          SizedBox(height: 12.h),
         ] else
           SizedBox(height: 12.h),
 
-        // ── Icon ───────────────────────────────────────────────────────────
-        Row(
-          children: [
-            Text('Icon',
-                style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
-            Text(' *',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                )),
-          ],
-        ),
-        SizedBox(height: 6.h),
-        _imgBox(
-          picked: item.icon,
-          isAdd:  true,
-          hasError: iconHasError,
-          onPick: () async {
-            final p = await _pickImage();
-            if (p != null) setState(() => item.icon = p);
-          },
-        ),
-        if (iconHasError) ...[
-          SizedBox(height: 4.h),
-          Text(
-            'Icon (SVG) is required',
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: Colors.red,
-            ),
+        // ── Icon + Title — FIRST ITEM ONLY ────────────────────────────────────
+        if (index == 0) ...[
+          Row(
+            children: [
+              Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+            ],
           ),
-        ],
-        SizedBox(height: 14.h),
-
-        // ── Title EN / AR ──────────────────────────────────────────────────
-        Row(
-          children: [
-            Expanded(
-              child: CustomValidatedTextFieldMaster(
-                label:         'Title',
-                hint:          'Text Here',
-                controller:    item.titleEn,
-                height:        36,
-                fillColor:     Colors.white,
-                submitted:     _submitted,
-                textDirection: TextDirection.ltr,
-                textAlign:     TextAlign.left,
-                primaryColor:  _C.primary,
-                isRequired:    true,
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
+          SizedBox(height: 6.h),
+          _imgBox(
+            picked: item.icon,
+            isAdd: true,
+            hasError: iconHasError,
+            onPick: () async {
+              final p = await _pickImage();
+              if (p != null) setState(() => item.icon = p);
+            },
+          ),
+          if (iconHasError) ...[
+            SizedBox(height: 4.h),
+            Text('Icon (SVG) is required', style: TextStyle(fontSize: 11.sp, color: Colors.red)),
+          ],
+          SizedBox(height: 14.h),
+          Row(
+            children: [
+              Expanded(
                 child: CustomValidatedTextFieldMaster(
-                  label:         'العنوان',
-                  hint:          'أدخل النص هنا',
-                  controller:    item.titleAr,
-                  height:        36,
-                  fillColor:     Colors.white,
-                  submitted:     _submitted,
-                  textDirection: TextDirection.rtl,
-                  textAlign:     TextAlign.right,
-                  primaryColor:  _C.primary,
-                  isRequired:    true,
+
+                  label: 'Title', hint: 'Text Here', controller: item.titleEn,
+                  height: 36, fillColor: Colors.white, submitted: _submitted,
+                  textDirection: TextDirection.ltr, textAlign: TextAlign.left,
+                  primaryColor: _C.primary, isRequired: true,
                 ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 14.h),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: CustomValidatedTextFieldMaster(
+                    label: 'العنوان', hint: 'أدخل النص هنا', controller: item.titleAr,
+                    height: 36, fillColor: Colors.white, submitted: _submitted,
+                    textDirection: TextDirection.rtl, textAlign: TextAlign.right,
+                    primaryColor: _C.primary, isRequired: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 14.h),
+        ],
 
-        // ── SVG + Remove row ───────────────────────────────────────────────
+        // ── SVG + Remove row — ALL ITEMS ──────────────────────────────────────
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -575,15 +556,8 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               children: [
                 Row(
                   children: [
-                    Text('SVG',
-                        style: StyleText.fontSize12Weight500
-                            .copyWith(color: _C.labelText)),
-                    Text(' *',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                        )),
+                    Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+                    Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 SizedBox(height: 6.h),
@@ -597,70 +571,44 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                 ),
                 if (svgHasError) ...[
                   SizedBox(height: 4.h),
-                  Text(
-                    'SVG image is required',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.red,
-                    ),
-                  ),
+                  Text('SVG image is required', style: TextStyle(fontSize: 11.sp, color: Colors.red)),
                 ],
               ],
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {
-                setState(() => _items.removeAt(index));
-              },
+              onTap: () => setState(() => _items.removeAt(index)),
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 14.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color:        _C.remove,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  'Remove',
-                  style: StyleText.fontSize12Weight500
-                      .copyWith(color: Colors.white),
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                decoration: BoxDecoration(color: _C.remove, borderRadius: BorderRadius.circular(4.r)),
+                child: Text('Remove', style: StyleText.fontSize12Weight500.copyWith(color: Colors.white)),
               ),
             ),
           ],
         ),
         SizedBox(height: 14.h),
 
-        // ── Description EN ─────────────────────────────────────────────────
+        // ── Description EN — ALL ITEMS ────────────────────────────────────────
         CustomValidatedTextFieldMaster(
-          label:         'Description',
-          hint:          'Text Here',
-          controller:    item.descEn,
-          height:        80,
-          maxLines:      3,
-          fillColor:     Colors.white,
-          submitted:     _submitted,
-          textDirection: TextDirection.ltr,
-          textAlign:     TextAlign.left,
-          primaryColor:  _C.primary,
-          isRequired:    true,
+          showCharCount: true,
+          maxLength: 500,
+          label: 'Description', hint: 'Text Here', controller: item.descEn,
+          height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
+          textDirection: TextDirection.ltr, textAlign: TextAlign.left,
+          primaryColor: _C.primary, isRequired: true,
         ),
         SizedBox(height: 8.h),
 
-        // ── الوصف AR ───────────────────────────────────────────────────────
+        // ── الوصف AR — ALL ITEMS ──────────────────────────────────────────────
         Directionality(
           textDirection: TextDirection.rtl,
           child: CustomValidatedTextFieldMaster(
-            label:         'الوصف',
-            hint:          'أدخل النص هنا',
-            controller:    item.descAr,
-            height:        80,
-            maxLines:      3,
-            fillColor:     Colors.white,
-            submitted:     _submitted,
-            textDirection: TextDirection.rtl,
-            textAlign:     TextAlign.right,
-            primaryColor:  _C.primary,
-            isRequired:    true,
+            showCharCount: true,
+            maxLength: 500,
+            label: 'الوصف', hint: 'أدخل النص هنا', controller: item.descAr,
+            height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
+            textDirection: TextDirection.rtl, textAlign: TextAlign.right,
+            primaryColor: _C.primary, isRequired: true,
           ),
         ),
         SizedBox(height: 16.h),
@@ -701,10 +649,6 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: hasError ? Colors.red : Colors.transparent,
-            width: hasError ? 1.5 : 0,
-          ),
         ),
         child: ClipOval(
           child: Padding(
@@ -785,12 +729,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: _C.primary,
-                borderRadius: _accordionOpen
-                    ? BorderRadius.only(
-                  topLeft:  Radius.circular(6.r),
-                  topRight: Radius.circular(6.r),
-                )
-                    : BorderRadius.circular(6.r),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: Row(
                 children: [
@@ -854,7 +793,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 300.w),
           Expanded(
             child: GestureDetector(
               onTap: _isSaving ? null : () => _handlePublish(cubit),
@@ -903,7 +842,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 300.w),
           Expanded(child: Container()),
         ],
       ),

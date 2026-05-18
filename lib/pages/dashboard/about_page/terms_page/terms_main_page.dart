@@ -1,7 +1,7 @@
 // ******************* FILE INFO *******************
 // File Name: terms_main_page.dart
 // Screen 1 of 3 — Terms of Service CMS: Main view (read-only accordions)
-// Used as _tabIndex == 2 body in AboutMainPageMasterDashboard
+// UPDATED: Navigation Label accordion restored (was commented out)
 
 import 'dart:async';
 import 'dart:html' as html;
@@ -80,7 +80,7 @@ class _TermsMainViewState extends State<TermsMainView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _lastUpdatedRow(
-              lastUpdated: model.lastUpdatedAt,             // ← ADD
+              lastUpdated: model.lastUpdatedAt,
               onEdit: () => navigateTo(
                 context,
                 BlocProvider.value(
@@ -91,29 +91,39 @@ class _TermsMainViewState extends State<TermsMainView> {
             ),
             SizedBox(height: 16.h),
 
-            // // ① Navigation Label
-            // _accordion(
-            //   key: 'navigationLabel',
-            //   title: 'Navigation Label',
-            //   children: [
-            //     _iconPreviewCircle(
-            //         label: 'Icon', url: model.navigationLabel.iconUrl),
-            //     SizedBox(height: 12.h),
-            //     Row(children: [
-            //       Expanded(
-            //           child: _readField(
-            //               'Title',
-            //               model.navigationLabel.title.en.isEmpty
-            //                   ? 'Text Here'
-            //                   : model.navigationLabel.title.en)),
-            //       SizedBox(width: 16.w),
-            //       Expanded(
-            //           child: _readFieldRtl(
-            //               'العنوان', model.navigationLabel.title.ar)),
-            //     ]),
-            //   ],
-            // ),
-            // SizedBox(height: 12.h),
+            // ① Navigation Label
+            _accordion(
+              key: 'navigationLabel',
+              title: 'Navigation Label',
+              children: [
+                SizedBox(height: 15.h),
+                _iconPreviewCircle(
+                  label: 'Icon',
+                  url: model.navigationLabel.iconUrl,
+                  isSvg: true,
+                ),
+                SizedBox(height: 12.h),
+                Row(children: [
+                  Expanded(
+                    child: _readField(
+                      'Title',
+                      model.navigationLabel.title.en.isEmpty
+                          ? 'Text Here'
+                          : model.navigationLabel.title.en,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: _readFieldRtl(
+                      'العنوان',
+                      model.navigationLabel.title.ar,
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 12.h),
+              ],
+            ),
+            SizedBox(height: 12.h),
 
             // ② Terms and Conditions
             _accordion(
@@ -148,6 +158,7 @@ class _TermsMainViewState extends State<TermsMainView> {
                           'Attach Ar Document',
                           model.termsAndConditions.attachArUrl)),
                 ]),
+                SizedBox(height: 12.h),
               ],
             ),
             SizedBox(height: 12.h),
@@ -185,6 +196,7 @@ class _TermsMainViewState extends State<TermsMainView> {
                           'Attach Ar Document',
                           model.privacyPolicy.attachArUrl)),
                 ]),
+                SizedBox(height: 12.h),
               ],
             ),
             SizedBox(height: 40.h),
@@ -196,7 +208,7 @@ class _TermsMainViewState extends State<TermsMainView> {
 
   Widget _lastUpdatedRow({
     required VoidCallback onEdit,
-    DateTime? lastUpdated,                        // ← ADD
+    DateTime? lastUpdated,
   }) {
     String fmtDate(DateTime? d) {
       if (d == null) return '—';
@@ -214,7 +226,7 @@ class _TermsMainViewState extends State<TermsMainView> {
           decoration: BoxDecoration(
               color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
           child: Text(
-            'Last Updated On ${fmtDate(lastUpdated)}',  // ← dynamic
+            'Last Updated On ${fmtDate(lastUpdated)}',
             style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
           ),
         ),
@@ -231,7 +243,7 @@ class _TermsMainViewState extends State<TermsMainView> {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Edit Details',
                     style: StyleText.fontSize14Weight500
-                        .copyWith(color: _C.primary)),
+                        .copyWith(color: Colors.black)),
                 SizedBox(width: 6.w),
                 CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
@@ -305,16 +317,16 @@ class _TermsMainViewState extends State<TermsMainView> {
         SizedBox(height: 6.h),
         Container(
           width: 56.w, height: 56.w,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFEEEEEE),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
           ),
           child: url.isEmpty
               ? Icon(
               isSvg
                   ? Icons.description_outlined
                   : Icons.image_outlined,
-              color: Colors.grey[500],
+              color: Colors.grey,
               size: 24.sp)
               : ClipOval(
             child: Padding(
@@ -362,16 +374,12 @@ class _TermsMainViewState extends State<TermsMainView> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: hasFile ? _C.primary : const Color(0xFFDDDDDD),
-                width: 1,
-              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // ── PDF SVG icon ──────────────────────────────────────────
                 SvgPicture.asset(
                   'assets/images/pdf 1.svg',
                   width: 28.w,
@@ -379,8 +387,6 @@ class _TermsMainViewState extends State<TermsMainView> {
                   fit: BoxFit.contain,
                 ),
                 SizedBox(width: 10.w),
-
-                // ── Filename + size ───────────────────────────────────────
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,14 +402,12 @@ class _TermsMainViewState extends State<TermsMainView> {
                       ),
                       if (hasFile) ...[
                         SizedBox(height: 2.h),
-                        // ── Fetch size asynchronously ─────────────────────
                         FutureBuilder<String>(
                           future: _fetchFileSize(url),
                           builder: (context, snapshot) {
                             final sizeLabel = snapshot.data ?? '...';
                             return Text(
                               sizeLabel,
-                              // WITH this:
                               style: StyleText.fontSize12Weight400.copyWith(
                                 color: _C.hintText,
                               ),

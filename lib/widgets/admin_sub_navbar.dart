@@ -7,11 +7,7 @@
 //          Nothing shown until real URL arrives — no static placeholder flicker.
 //
 // Usage:
-//   // Pages that HAVE HomeCmsCubit in their BlocProvider tree
-//   AdminSubNavBar(activeIndex: 0, homeCubit: context.read<HomeCmsCubit>())
-//
-//   // Pages that do NOT have HomeCmsCubit
-//   AdminSubNavBar(activeIndex: 3)
+//   AdminSubNavBar(activeIndex: 0)
 //
 // Index map:
 //   0 = Main  1 = Home  2 = Services  3 = About Us  4 = Contact Us  5 = Careers
@@ -47,17 +43,34 @@ class AdminSubNavBar extends StatelessWidget {
   void _onTap(BuildContext context, int i) {
     if (i == activeIndex) return;
 
+    // Services page is pushed via rootNavigator (outside GoRouter tree).
+    // When navigating AWAY from Services, pop it first so it is cleanly
+    // removed before GoRouter takes over, preventing the disposed-view crash.
+    void goRoute(String location) {
+      if (activeIndex == 2) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      context.go(location);
+    }
+
     switch (i) {
-      case 0: context.go('/admin/dashboard');
-      case 1: context.go('/admin/home-page');
+      case 0: goRoute('/admin/dashboard');
+      case 1: goRoute('/admin/home-page');
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ServicesMainPageMaster()),
+      // Services has no GoRouter route — push via rootNavigator and wrap
+      // with InheritedGoRouter so context.go() works inside the pushed page.
+        final router = GoRouter.of(context);
+        Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(
+            builder: (_) => _WithGoRouter(
+              router: router,
+              child: const ServicesMainPageMaster(),
+            ),
+          ),
         );
-      case 3: context.go('/admin/about-cms');
-      case 4: context.go('/admin/contact-cms');
-      case 5: context.go('/admin/careers-cms');
+      case 3: goRoute('/admin/about-cms');
+      case 4: goRoute('/admin/contact-cms');
+      case 5: goRoute('/admin/careers-cms');
     }
   }
 
@@ -70,14 +83,10 @@ class AdminSubNavBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(4.r),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start, // logo anchors to start
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // ── Logo ──────────────────────────────────────────────────────────
           _AdminNavLogo(),
-
           SizedBox(width: 140.w),
-
-          // ── Tab buttons ───────────────────────────────────────────────────
           ...List.generate(_labels.length, (i) {
             final active = activeIndex == i;
             return GestureDetector(
@@ -107,18 +116,32 @@ class AdminSubNavBar extends StatelessWidget {
   }
 }
 
-// ── Admin Nav Logo ─────────────────────────────────────────────────────────────
-// Mirrors _BayanatzLogo from app_navbar.dart exactly:
-//   • Reads logoUrl from HomeCmsCubit state.
-//   • Shows an empty SizedBox (transparent) until the URL is available.
-//   • No static asset placeholder — no flicker.
+// ── Re-injects the GoRouter instance into a subtree pushed outside the
+//    GoRouter widget tree (via rootNavigator: true).
+//
+//    GoRouter.of(context) and context.go() both look for InheritedGoRouter
+//    up the tree. Without it, they throw. Wrapping with InheritedGoRouter
+//    (go_router's own exported InheritedWidget) restores that lookup so
+//    all navigation calls inside ServicesMainPageMaster work normally.
+class _WithGoRouter extends StatelessWidget {
+  final GoRouter router;
+  final Widget   child;
 
+  const _WithGoRouter({required this.router, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return InheritedGoRouter(goRouter: router, child: child);
+  }
+}
+
+// ── Admin Nav Logo ─────────────────────────────────────────────────────────────
 class _AdminNavLogo extends StatelessWidget {
   const _AdminNavLogo();
 
   @override
   Widget build(BuildContext context) {
-    const double sz = 40; // fixed px — no ScreenUtil needed for a square logo
+    const double sz = 40;
 
     return BlocBuilder<HomeCmsCubit, HomeCmsState>(
       builder: (context, state) {
@@ -128,10 +151,7 @@ class _AdminNavLogo extends StatelessWidget {
           _                          => '',
         };
 
-        // Nothing shown until we have a real URL — no static flicker.
-        if (logoUrl.isEmpty) {
-          return SizedBox(width: sz.w, height: sz.w);
-        }
+        if (logoUrl.isEmpty) return SizedBox(width: sz.w, height: sz.w);
 
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -146,7 +166,6 @@ class _AdminNavLogo extends StatelessWidget {
                   width:  sz.w,
                   height: sz.w,
                   fit:    BoxFit.fill,
-                  // No placeholderBuilder — renders nothing until SVG is ready.
                 ),
               ),
             ),

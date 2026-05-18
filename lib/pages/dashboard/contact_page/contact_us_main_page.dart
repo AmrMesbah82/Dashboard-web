@@ -171,7 +171,7 @@ width: 165.w,
             GestureDetector(
               onTap: () => context.push('/admin/contact-cms/edit'),
               child: Container(
-                width: 205.w, height: 40.h,
+                width: 150.w, height: 40.h,
                 decoration: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(4.r),

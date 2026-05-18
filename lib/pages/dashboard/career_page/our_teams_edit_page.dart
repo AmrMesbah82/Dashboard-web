@@ -9,7 +9,8 @@
 //               Remove button per item
 //   • "Add Team" button (top-right, green)
 //   • Preview / Save / Discard bottom buttons
-// UPDATED: Added validation, SVG-only restriction, and publish confirmation dialog
+// UPDATED: Added validation, SVG-only restriction, publish confirmation dialog,
+//          and _isDirty flag to prevent re-seeding from cubit on local edits
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -125,12 +126,17 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
   bool _submitted     = false;
   bool _isSaving      = false;
   bool _accordionOpen = true;
+  bool _isDirty       = false; // ← prevents cubit re-seeding on local edits
   int? _seededHash;
 
   final List<_TeamItemEdit> _items = [];
 
   // ── Seed from model ─────────────────────────────────────────────────────────
   void _seedFromModel(OurTeamsModel data) {
+    // If the user has made local structural changes (add/remove items or
+    // deliverables), don't let the cubit wipe those changes on rebuild.
+    if (_isDirty) return;
+
     final hash = Object.hashAll([
       data.items.length,
       ...data.items.map((i) =>
@@ -170,18 +176,14 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
     if (_items.isEmpty) return false;
 
     for (final item in _items) {
-      // Check required text fields
       if (item.headingEn.text.trim().isEmpty) return false;
       if (item.headingAr.text.trim().isEmpty) return false;
       if (item.titleEn.text.trim().isEmpty) return false;
       if (item.titleAr.text.trim().isEmpty) return false;
       if (item.descEn.text.trim().isEmpty) return false;
       if (item.descAr.text.trim().isEmpty) return false;
-
-      // Check icon (required)
       if (!item.icon.hasImage) return false;
 
-      // Check deliverables
       for (final d in item.deliverables) {
         if (d.enCtrl.text.trim().isEmpty) return false;
         if (d.arCtrl.text.trim().isEmpty) return false;
@@ -260,7 +262,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
       }
 
       for (var i = 0; i < _items.length; i++) {
-        final local    = _items[i];
+        final local     = _items[i];
         final cubitItem = cubit.current.items[i];
 
         cubit.updateHeading(cubitItem.id,
@@ -296,8 +298,11 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
       await cubit.save();
 
       if (mounted) {
-        setState(() => _isSaving = false);
-        _seededHash = null;
+        setState(() {
+          _isSaving    = false;
+          _seededHash  = null;
+          _isDirty     = false; // ← reset so fresh data re-seeds after save
+        });
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Our Teams saved!',
@@ -344,7 +349,6 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
       return;
     }
 
-    // Show confirmation dialog
     await showPublishConfirmDialog(
       context: context,
       title: 'PUBLISH OUR TEAMS',
@@ -394,7 +398,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
             Scaffold(
               backgroundColor: _C.sectionBg,
               body: SingleChildScrollView(
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: Column(
                     children: [
@@ -402,12 +406,12 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                       AdminSubNavBar(activeIndex: 5),
                       SizedBox(height: 20.h),
 
-                      Container(
+                      SizedBox(
                         width: 1000.w,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── Page title + Add Team ─────────────────────────
+                            // ── Page title + Add Team ───────────────────────
                             Row(
                               children: [
                                 Text(
@@ -422,6 +426,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                                   onTap: () {
                                     final newId = const Uuid().v4();
                                     setState(() {
+                                      _isDirty = true; // ← mark dirty
                                       _items.add(_TeamItemEdit(id: newId));
                                     });
                                   },
@@ -443,19 +448,18 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                             ),
                             SizedBox(height: 20.h),
 
-                            // ── Accordion ─────────────────────────────────────
+                            // ── Accordion ───────────────────────────────────
                             _accordion(
                               title: 'Our Team',
                               children: [
                                 ..._items.asMap().entries.map(
-                                      (e) => _itemWidget(
-                                      e.key, e.value),
+                                      (e) => _itemWidget(e.key, e.value),
                                 ),
                               ],
                             ),
                             SizedBox(height: 20.h),
 
-                            // ── Bottom buttons ────────────────────────────────
+                            // ── Bottom buttons ──────────────────────────────
                             _bottomButtons(cubit),
                             SizedBox(height: 40.h),
                           ],
@@ -467,7 +471,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               ),
             ),
 
-            // ── Saving overlay ───────────────────────────────────────────────
+            // ── Saving overlay ──────────────────────────────────────────────
             if (_isSaving)
               Container(
                 color: Colors.black.withOpacity(0.45),
@@ -480,7 +484,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                       borderRadius: BorderRadius.circular(16.r),
                       boxShadow: [
                         BoxShadow(
-                            color:     Colors.black.withOpacity(.15),
+                            color:      Colors.black.withOpacity(.15),
                             blurRadius: 24),
                       ],
                     ),
@@ -511,226 +515,229 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
   Widget _itemWidget(int index, _TeamItemEdit item) {
     final iconHasError = _submitted && !item.icon.hasImage;
 
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (index > 0) ...[
-            Divider(color: const Color(0xFFE8E8E8), height: 1),
-            SizedBox(height: 12.h),
-          ] else
-            SizedBox(height: 12.h),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (index > 0) ...[
+          Divider(color: const Color(0xFFE8E8E8), height: 1),
+          SizedBox(height: 12.h),
+        ] else
+          SizedBox(height: 12.h),
 
-          // ── Heading EN / AR ────────────────────────────────────────────────
-          Row(children: [
-            Expanded(
-              child: CustomValidatedTextFieldMaster(
-                label:         'Heading',
-                hint:          'Text Here',
-                controller:    item.headingEn,
-                height:        36,
-                fillColor:     Colors.white,
-                submitted:     _submitted,
-                textDirection: TextDirection.ltr,
-                textAlign:     TextAlign.left,
-                primaryColor:  _C.primary,
-                isRequired:    true,
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: CustomValidatedTextFieldMaster(
-                  label:         'العنوان',
-                  hint:          'أدخل النص هنا',
-                  controller:    item.headingAr,
-                  height:        36,
-                  fillColor:     Colors.white,
-                  submitted:     _submitted,
-                  textDirection: TextDirection.rtl,
-                  textAlign:     TextAlign.right,
-                  primaryColor:  _C.primary,
-                  isRequired:    true,
-                ),
-              ),
-            ),
-          ]),
-          SizedBox(height: 14.h),
-
-          // ── Icon + Remove row ──────────────────────────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text('Icon',
-                          style: StyleText.fontSize12Weight500
-                              .copyWith(color: _C.labelText)),
-                      Text(' *',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                          )),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  _imgBox(
-                    picked: item.icon,
-                    hasError: iconHasError,
-                    onPick: () async {
-                      final p = await _pickSvg();
-                      if (p != null) setState(() => item.icon = p);
-                    },
-                  ),
-                  if (iconHasError) ...[
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Icon (SVG) is required',
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        color: _C.errorRed,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {
-                  setState(() => _items.removeAt(index));
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 14.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color:        _C.remove,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Text(
-                    'Remove',
-                    style: StyleText.fontSize12Weight500
-                        .copyWith(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 14.h),
-
-          // ── Title EN / AR ──────────────────────────────────────────────────
-          Row(children: [
-            Expanded(
-              child: CustomValidatedTextFieldMaster(
-                label:         'Title',
-                hint:          'Text Here',
-                controller:    item.titleEn,
-                height:        36,
-                fillColor:     Colors.white,
-                submitted:     _submitted,
-                textDirection: TextDirection.ltr,
-                textAlign:     TextAlign.left,
-                primaryColor:  _C.primary,
-                isRequired:    true,
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: CustomValidatedTextFieldMaster(
-                  label:         'العنوان',
-                  hint:          'أدخل النص هنا',
-                  controller:    item.titleAr,
-                  height:        36,
-                  fillColor:     Colors.white,
-                  submitted:     _submitted,
-                  textDirection: TextDirection.rtl,
-                  textAlign:     TextAlign.right,
-                  primaryColor:  _C.primary,
-                  isRequired:    true,
-                ),
-              ),
-            ),
-          ]),
-          SizedBox(height: 14.h),
-
-          // ── Description EN ─────────────────────────────────────────────────
-          CustomValidatedTextFieldMaster(
-            label:         'Description',
-            hint:          'Text Here',
-            controller:    item.descEn,
-            height:        80,
-            maxLines:      3,
-            fillColor:     Colors.white,
-            submitted:     _submitted,
-            textDirection: TextDirection.ltr,
-            textAlign:     TextAlign.left,
-            primaryColor:  _C.primary,
-            isRequired:    true,
-          ),
-          SizedBox(height: 8.h),
-
-          // ── الوصف AR ───────────────────────────────────────────────────────
-          Directionality(
-            textDirection: TextDirection.rtl,
+        // ── Heading EN / AR ─────────────────────────────────────────────────
+        Row(children: [
+          Expanded(
             child: CustomValidatedTextFieldMaster(
-              label:         'الوصف',
-              hint:          'أدخل النص هنا',
-              controller:    item.descAr,
-              height:        80,
-              maxLines:      3,
+              label:         'Heading',
+              hint:          'Text Here',
+              controller:    item.headingEn,
+              height:        36,
               fillColor:     Colors.white,
               submitted:     _submitted,
-              textDirection: TextDirection.rtl,
-              textAlign:     TextAlign.right,
+              textDirection: TextDirection.ltr,
+              textAlign:     TextAlign.left,
               primaryColor:  _C.primary,
               isRequired:    true,
             ),
           ),
-          SizedBox(height: 14.h),
-
-          // ── Deliverables list ──────────────────────────────────────────────
-          ...item.deliverables.asMap().entries.map((e) =>
-              _deliverableRow(e.key, e.value, item)),
-          SizedBox(height: 8.h),
-
-          // ── + Deliverables button ──────────────────────────────────────────
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                item.deliverables
-                    .add(_DeliverableEdit(id: const Uuid().v4()));
-              });
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 14.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color:        const Color(0xFF797979),
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, color: Colors.white, size: 16.sp),
-                  SizedBox(width: 6.w),
-                  Text(
-                    'Deliverables',
-                    style: StyleText.fontSize13Weight500
-                        .copyWith(color: Colors.white),
-                  ),
-                ],
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: CustomValidatedTextFieldMaster(
+                label:         'العنوان',
+                hint:          'أدخل النص هنا',
+                controller:    item.headingAr,
+                height:        36,
+                fillColor:     Colors.white,
+                submitted:     _submitted,
+                textDirection: TextDirection.rtl,
+                textAlign:     TextAlign.right,
+                primaryColor:  _C.primary,
+                isRequired:    true,
               ),
             ),
           ),
-          SizedBox(height: 16.h),
-        ],
-      ),
+        ]),
+        SizedBox(height: 14.h),
+
+        // ── Icon + Remove row ────────────────────────────────────────────────
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text('Icon',
+                        style: StyleText.fontSize12Weight500
+                            .copyWith(color: _C.labelText)),
+                    Text(' *',
+                        style: TextStyle(
+                          color:      Colors.red,
+                          fontSize:   12.sp,
+                          fontWeight: FontWeight.w600,
+                        )),
+                  ],
+                ),
+                SizedBox(height: 6.h),
+                _imgBox(
+                  picked:   item.icon,
+                  hasError: iconHasError,
+                  onPick: () async {
+                    final p = await _pickSvg();
+                    if (p != null) {
+                      setState(() {
+                        _isDirty   = true; // ← mark dirty on icon change
+                        item.icon  = p;
+                      });
+                    }
+                  },
+                ),
+                if (iconHasError) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    'Icon (SVG) is required',
+                    style: TextStyle(fontSize: 11.sp, color: _C.errorRed),
+                  ),
+                ],
+              ],
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDirty = true; // ← mark dirty on remove
+                  _items.removeAt(index);
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 14.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  color:        _C.remove,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  'Remove',
+                  style: StyleText.fontSize12Weight500
+                      .copyWith(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 14.h),
+
+        // ── Title EN / AR ────────────────────────────────────────────────────
+        Row(children: [
+          Expanded(
+            child: CustomValidatedTextFieldMaster(
+              label:         'Title',
+              hint:          'Text Here',
+              controller:    item.titleEn,
+              height:        36,
+              fillColor:     Colors.white,
+              submitted:     _submitted,
+              textDirection: TextDirection.ltr,
+              textAlign:     TextAlign.left,
+              primaryColor:  _C.primary,
+              isRequired:    true,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: CustomValidatedTextFieldMaster(
+                label:         'العنوان',
+                hint:          'أدخل النص هنا',
+                controller:    item.titleAr,
+                height:        36,
+                fillColor:     Colors.white,
+                submitted:     _submitted,
+                textDirection: TextDirection.rtl,
+                textAlign:     TextAlign.right,
+                primaryColor:  _C.primary,
+                isRequired:    true,
+              ),
+            ),
+          ),
+        ]),
+        SizedBox(height: 14.h),
+
+        // ── Description EN ───────────────────────────────────────────────────
+        CustomValidatedTextFieldMaster(
+          label:         'Description',
+          hint:          'Text Here',
+          controller:    item.descEn,
+          height:        80,
+          maxLines:      3,
+          fillColor:     Colors.white,
+          submitted:     _submitted,
+          textDirection: TextDirection.ltr,
+          textAlign:     TextAlign.left,
+          primaryColor:  _C.primary,
+          isRequired:    true,
+        ),
+        SizedBox(height: 8.h),
+
+        // ── الوصف AR ─────────────────────────────────────────────────────────
+        Directionality(
+          textDirection: TextDirection.rtl,
+          child: CustomValidatedTextFieldMaster(
+            label:         'الوصف',
+            hint:          'أدخل النص هنا',
+            controller:    item.descAr,
+            height:        80,
+            maxLines:      3,
+            fillColor:     Colors.white,
+            submitted:     _submitted,
+            textDirection: TextDirection.rtl,
+            textAlign:     TextAlign.right,
+            primaryColor:  _C.primary,
+            isRequired:    true,
+          ),
+        ),
+        SizedBox(height: 14.h),
+
+        // ── Deliverables list ────────────────────────────────────────────────
+        ...item.deliverables.asMap().entries.map(
+              (e) => _deliverableRow(e.key, e.value, item),
+        ),
+        SizedBox(height: 8.h),
+
+        // ── + Deliverables button ────────────────────────────────────────────
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isDirty = true; // ← mark dirty on add deliverable
+              item.deliverables.add(_DeliverableEdit(id: const Uuid().v4()));
+            });
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color:        const Color(0xFF797979),
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, color: Colors.white, size: 16.sp),
+                SizedBox(width: 6.w),
+                Text(
+                  'Deliverables',
+                  style: StyleText.fontSize13Weight500
+                      .copyWith(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 16.h),
+      ],
     );
   }
 
@@ -775,13 +782,16 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
           ),
           SizedBox(width: 8.w),
           GestureDetector(
-            onTap: () => setState(() => item.deliverables.removeAt(index)),
+            onTap: () => setState(() {
+              _isDirty = true; // ← mark dirty on remove deliverable
+              item.deliverables.removeAt(index);
+            }),
             child: Container(
               width:  20.w,
               height: 20.h,
-              decoration: BoxDecoration(
-                color:   Colors.red,
-                shape:  BoxShape.circle,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
               ),
               child: Icon(Icons.remove, color: Colors.white, size: 14.sp),
             ),
@@ -804,10 +814,6 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: hasError ? _C.errorRed : Colors.transparent,
-            width: hasError ? 1.5 : 0,
-          ),
         ),
         child: ClipOval(
           child: Padding(
@@ -827,10 +833,6 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          border: Border.all(
-            color: hasError ? _C.errorRed : Colors.transparent,
-            width: hasError ? 1.5 : 0,
-          ),
         ),
         child: ClipOval(
           child: Padding(
@@ -850,12 +852,10 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
       content = Container(
         width: 60.w, height: 60.h,
         decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9),
+          color: hasError
+              ? _C.errorRed.withOpacity(0.08)
+              : const Color(0xFFD9D9D9),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: hasError ? _C.errorRed : Colors.transparent,
-            width: hasError ? 1.5 : 0,
-          ),
         ),
         child: Center(
           child: Icon(
@@ -880,9 +880,8 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               width:  25.w,
               height: 25.h,
               decoration: BoxDecoration(
-                color:  _C.primary,
-                shape:  BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                color: _C.primary,
+                shape: BoxShape.circle,
               ),
               child: Center(
                 child: CustomSvg(
@@ -917,7 +916,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color:        _C.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
@@ -983,7 +982,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 ),
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 300.w),
             Expanded(
               child: GestureDetector(
                 onTap: _isSaving ? null : () => _handlePublish(cubit),
@@ -1037,8 +1036,8 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 ),
               ),
             ),
-            SizedBox(width: 16.w),
-            Expanded(child: Container()),
+            SizedBox(width: 300.w),
+            Expanded(child: const SizedBox()),
           ],
         ),
       ],

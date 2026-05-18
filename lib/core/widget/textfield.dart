@@ -2,7 +2,7 @@
 // File Name: custom_textformfield.dart
 // Description: this is custom Text field can reuse
 // Created by: Amr Mesbah
-// Last Update: 28/3/2026
+// Last Update: 16/5/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,7 +23,6 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   final TextDirection textDirection;
   final TextAlign textAlign;
   final bool onlyDigits;
-  final bool submitted;
   final TextStyle? textStyle;
   final TextStyle? hintStyle;
   final Color? fillColor;
@@ -36,14 +35,11 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   /// Hard character cap (default 500)
   final int maxLength;
 
-  /// Minimum character requirement (default 0 = no minimum)
-  final int minLength;
-
-  /// Custom validator function (optional)
-  final String? Function(String?)? validator;
-
-  /// Whether this field is required
+  // Kept for call-site compatibility — ignored internally
+  final bool submitted;
   final bool isRequired;
+  final int minLength;
+  final String? Function(String?)? validator;
 
   const CustomValidatedTextFieldMaster({
     super.key,
@@ -59,15 +55,15 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
     this.textDirection = TextDirection.ltr,
     this.textAlign = TextAlign.start,
     this.onlyDigits = false,
-    this.submitted = false,
     this.textStyle,
     this.hintStyle,
     this.fillColor,
     this.primaryColor,
     this.maxLength = 500,
+    this.submitted = false,
+    this.isRequired = false,
     this.minLength = 0,
     this.validator,
-    this.isRequired = false,
   });
 
   @override
@@ -112,59 +108,13 @@ class _CustomValidatedTextFieldMasterState
         .join();
   }
 
-  String? _getValidationError() {
-    final String text = widget.controller.text;
-    final bool isEmpty = text.trim().isEmpty;
-
-    // Check custom validator first
-    if (widget.validator != null) {
-      final customError = widget.validator!(widget.controller.text);
-      if (customError != null) return customError;
-    }
-
-    // Check if field is required and empty
-    if (widget.isRequired && widget.submitted && isEmpty) {
-      return widget.textDirection == TextDirection.rtl
-          ? "هذا الحقل مطلوب"
-          : "This field is required.";
-    }
-
-    // Check min length
-    if (widget.submitted && !isEmpty && widget.minLength > 0 && text.trim().length < widget.minLength) {
-      return widget.textDirection == TextDirection.rtl
-          ? "الحد الأدنى ${widget.minLength} حرف"
-          : "Minimum ${widget.minLength} characters required.";
-    }
-
-    // Language validation for English fields
-    final bool hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
-    final bool hasEnglish = RegExp(r'[a-zA-Z]').hasMatch(text);
-
-    if (widget.textDirection == TextDirection.ltr && hasArabic && text.isNotEmpty) {
-      return "Please use English characters only.";
-    }
-
-    // Language validation for Arabic fields
-    if (widget.textDirection == TextDirection.rtl && hasEnglish && text.isNotEmpty) {
-      return "الرجاء استخدام الأحرف العربية فقط.";
-    }
-
-    // Digits only validation
-    if (widget.onlyDigits && text.isNotEmpty && !RegExp(r'^\d+$').hasMatch(text)) {
-      return "Only numbers are allowed.";
-    }
-
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final Color resolvedPrimary = widget.primaryColor ?? Color(0xFF008037);
-    final String? errorText = _getValidationError();
-    final bool showError = errorText != null;
+    final Color resolvedPrimary = widget.primaryColor ?? const Color(0xFF008037);
 
     final bool lightMode = Theme.of(context).brightness == Brightness.light;
-    final bool showCounter = widget.showCharCount && !showError && widget.controller.text.isNotEmpty;
+    final bool showCounter =
+        widget.showCharCount && widget.controller.text.isNotEmpty;
 
     final Color resolvedFill = widget.fillColor ??
         (lightMode ? const Color(0xFFF1F2ED) : AppColors.background);
@@ -177,13 +127,10 @@ class _CustomValidatedTextFieldMasterState
     final int currentLen = widget.controller.text.characters.length;
     final borderRadius = BorderRadius.circular(4.r);
 
-    // Calculate proper content padding
     EdgeInsetsGeometry contentPadding;
     if (widget.maxLines > 1) {
-      // For multi-line fields, use fixed vertical padding
       contentPadding = EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w);
     } else {
-      // For single line fields, center vertically
       contentPadding = EdgeInsets.symmetric(
         vertical: (widget.height - 20).h / 2,
         horizontal: 12.w,
@@ -194,25 +141,12 @@ class _CustomValidatedTextFieldMasterState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.label != null) ...[
-          Row(
-            children: [
-              Text(
-                widget.label!,
-                textDirection: widget.textDirection,
-                style: StyleText.fontSize12Weight600.copyWith(
-                  color: const Color(0xFF1A1A1A),
-                ),
-              ),
-              if (widget.isRequired)
-                Text(
-                  ' *',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-            ],
+          Text(
+            widget.label!,
+            textDirection: widget.textDirection,
+            style: StyleText.fontSize12Weight600.copyWith(
+              color: const Color(0xFF1A1A1A),
+            ),
           ),
           SizedBox(height: 6.h),
         ],
@@ -232,17 +166,15 @@ class _CustomValidatedTextFieldMasterState
                 cursorColor: resolvedPrimary,
               ),
             ),
-            child: TextFormField(
-
+            child: TextField(
               controller: widget.controller,
               maxLines: widget.maxLines,
               enabled: widget.enabled,
               textDirection: widget.textDirection,
               textAlign: widget.textAlign,
               cursorColor: resolvedPrimary,
-              autovalidateMode: AutovalidateMode.always,
-              validator: (_) => showError ? errorText : null,
-              keyboardType: widget.onlyDigits ? TextInputType.number : TextInputType.text,
+              keyboardType:
+              widget.onlyDigits ? TextInputType.number : TextInputType.text,
               style: widget.textStyle ??
                   StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
               onChanged: (value) {
@@ -254,12 +186,13 @@ class _CustomValidatedTextFieldMasterState
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
               autofillHints: const [],
               decoration: InputDecoration(
-                errorStyle: const TextStyle(height: 0, fontSize: 0),
                 hoverColor: Colors.transparent,
                 hintText: widget.hint,
                 hintStyle: widget.hintStyle ??
                     StyleText.fontSize12Weight400.copyWith(
-                      color: lightMode ? const Color(0xFF9E9E9E) : ColorAppDark.titleKey,
+                      color: lightMode
+                          ? const Color(0xFF9E9E9E)
+                          : ColorAppDark.titleKey,
                     ),
                 filled: true,
                 fillColor: resolvedFill,
@@ -268,69 +201,41 @@ class _CustomValidatedTextFieldMasterState
                 contentPadding: contentPadding,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: borderRadius,
-                  borderSide: const BorderSide(color: Colors.transparent, width: 1),
+                  borderSide:
+                  const BorderSide(color: Colors.transparent, width: 1),
                 ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: borderRadius,
-                  borderSide: const BorderSide(color: Colors.transparent, width: 1),
+                  borderSide:
+                  const BorderSide(color: Colors.transparent, width: 1),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: borderRadius,
                   borderSide: BorderSide(color: resolvedPrimary, width: 1.5),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: borderRadius,
-                  borderSide: BorderSide(color: Colors.red, width: 1),
-                ),
-                focusedErrorBorder: OutlineInputBorder(
-                  borderRadius: borderRadius,
-                  borderSide: BorderSide(color: Colors.red, width: 1.5),
                 ),
               ),
             ),
           ),
         ),
 
-        // // Fixed-height lane: error OR counter OR nothing
-        // SizedBox(
-        //   height: 20.h,
-        //   child: showError
-        //       ? Padding(
-        //     padding: EdgeInsets.only(top: 4.h, left: 4.w, right: 4.w),
-        //     child: Container(
-        //       width: double.infinity,
-        //       child: Text(
-        //         errorText,
-        //         textAlign: widget.textDirection == TextDirection.rtl
-        //             ? TextAlign.right
-        //             : TextAlign.left,
-        //         textDirection: widget.textDirection,
-        //         style: TextStyle(
-        //           fontSize: 10.sp,
-        //           fontWeight: FontWeight.w500,
-        //           height: 1.1,
-        //           color: Colors.red,
-        //         ),
-        //       ),
-        //     ),
-        //   )
-        //       : (showCounter
-        //       ? Align(
-        //     alignment: widget.textDirection == TextDirection.rtl
-        //         ? Alignment.centerLeft
-        //         : Alignment.centerRight,
-        //     child: Text(
-        //       widget.textDirection == TextDirection.rtl
-        //           ? "${_toArabicNum(currentLen)}/${_toArabicNum(widget.maxLength)}"
-        //           : "$currentLen/${widget.maxLength}",
-        //       style: TextStyle(
-        //         fontSize: 10.sp,
-        //         color: const Color(0xFF9E9E9E),
-        //       ),
-        //     ),
-        //   )
-        //       : const SizedBox.shrink()),
-        // ),
+        if (showCounter)
+          Align(
+            alignment: widget.textDirection == TextDirection.rtl
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 4.h, right: 4.w, left: 4.w),
+              child: Text(
+                widget.textDirection == TextDirection.rtl
+                    ? "${_toArabicNum(currentLen)}/${_toArabicNum(widget.maxLength)}"
+                    : "$currentLen/${widget.maxLength}",
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: const Color(0xFF9E9E9E),
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -493,7 +493,12 @@ class _AboutMainPageMasterDashboardState
                 ),
               )
             else
-              _valuesGrid(model.values),
+              Column(
+                children: [
+                  SizedBox(height: 15.h),
+                  _valuesGrid(model.values),
+                ],
+              ),
           ],
         ),
       ],

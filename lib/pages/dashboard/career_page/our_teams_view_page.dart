@@ -207,11 +207,6 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (index > 0) ...[
-            Divider(color: const Color(0xFFE8E8E8), height: 1),
-            SizedBox(height: 12.h),
-          ] else
-            SizedBox(height: 12.h),
 
           // Heading EN / AR
           Row(children: [
@@ -255,17 +250,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                     'المخرجات', item.deliverables.ar)),
           ]),
 
-          // Deliverable tags
-          if (item.deliverableItems.isNotEmpty) ...[
-            SizedBox(height: 10.h),
-            Wrap(
-              spacing:    6.w,
-              runSpacing: 6.h,
-              children: item.deliverableItems
-                  .map((d) => _deliverableChip(d.label.en))
-                  .toList(),
-            ),
-          ],
+
           SizedBox(height: 16.h),
         ],
       ),

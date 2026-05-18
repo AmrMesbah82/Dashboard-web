@@ -3,6 +3,7 @@
 // Updated: Our Teams tab now uses OurTeamsCubit + OurTeamsViewPage
 // FIXED: Properly load data in Main tab and handle empty statistics
 // ADDED: Character counters (0/500 EN, ٥٠٠/٠ AR) on description fields
+// FIXED: Tab bar now always visible when switching between tabs
 
 import 'dart:async';
 import 'dart:html' as html;
@@ -116,7 +117,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
         print('🟢 Main page: statistics count = ${data.statistics.length}');
 
         return Scaffold(
-          backgroundColor: _C.sectionBg,
+          backgroundColor: Color(0xFFF1F2ED),
           body: SingleChildScrollView(
             child: Container(
               width: double.infinity,
@@ -139,7 +140,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                         SizedBox(height: 20.h),
                         Container(
                           width: 1000.w,
-                          child: _buildTabBody(data),
+                          child: _buildFullTabLayout(data),
                         ),
                         SizedBox(height: 40.h),
                       ],
@@ -151,6 +152,68 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           ),
         );
       },
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // ALWAYS-VISIBLE HEADER: title + preview button + tab bar
+  // ════════════════════════════════════════════════════════════════════════════
+  Widget _buildFullTabLayout(CareersCmsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Title + Preview button (always visible) ──────────────────────────
+        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Text('Careers',
+              style: StyleText.fontSize45Weight600.copyWith(
+                  color: _C.primary, fontWeight: FontWeight.w700)),
+          const Spacer(),
+          GestureDetector(
+            onTap: () => context.pushNamed('careers-cms-preview'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              decoration: BoxDecoration(
+                  color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+              child: Text('Preview Screen',
+                  style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
+            ),
+          ),
+        ]),
+        SizedBox(height: 14.h),
+
+        // ── Tab bar (always visible) ─────────────────────────────────────────
+        Container(
+          width: 1000.w,
+          child: Row(
+            children: List.generate(_careersTabLabels.length, (i) {
+              final active = _careersTab == i;
+              return GestureDetector(
+                onTap: () => setState(() => _careersTab = i),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: active ? _C.primary : Colors.transparent,
+                        width: 2.5,
+                      ),
+                    ),
+                  ),
+                  child: Text(_careersTabLabels[i],
+                      style: StyleText.fontSize15Weight500.copyWith(
+                        color: active ? _C.primary : _C.labelText,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                      )),
+                ),
+              );
+            }),
+          ),
+        ),
+        SizedBox(height: 16.h),
+
+        // ── Tab body ─────────────────────────────────────────────────────────
+        _buildTabBody(data),
+      ],
     );
   }
 
@@ -203,10 +266,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
             children: [
               Row(
                 children: [
-                  Text(sectionTitle,
-                      style: StyleText.fontSize45Weight600.copyWith(
-                        color: _C.primary, fontWeight: FontWeight.w700,
-                      )),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => Navigator.push(context, MaterialPageRoute(
@@ -336,60 +395,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // MAIN TAB BODY
+  // MAIN TAB BODY  (title/preview/tab-bar removed – now in _buildFullTabLayout)
   // ══════════════════════════════════════════════════════════════════════════
   Widget _mainBody(CareersCmsModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Text('Careers',
-              style: StyleText.fontSize45Weight600.copyWith(
-                  color: _C.primary, fontWeight: FontWeight.w700)),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => context.pushNamed('careers-cms-preview'),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                  color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
-              child: Text('Preview Screen',
-                  style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
-            ),
-          ),
-        ]),
-        SizedBox(height: 14.h),
-
-        // ── Tab bar ──────────────────────────────────────────
-        Container(
-          width: 1000.w,
-          child: Row(
-            children: List.generate(_careersTabLabels.length, (i) {
-              final active = _careersTab == i;
-              return GestureDetector(
-                onTap: () => setState(() => _careersTab = i),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: active ? _C.primary : Colors.transparent,
-                        width: 2.5,
-                      ),
-                    ),
-                  ),
-                  child: Text(_careersTabLabels[i],
-                      style: StyleText.fontSize15Weight500.copyWith(
-                        color: active ? _C.primary : _C.labelText,
-                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      )),
-                ),
-              );
-            }),
-          ),
-        ),
-        SizedBox(height: 16.h),
-
         Row(children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
@@ -428,7 +439,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           key: 'overview',
           title: 'Careers Overview',
           children: [
-            // ── English description  →  shows  0/500  below ──────────────
             _readField(
               'Description',
               data.overview.description.en,
@@ -436,7 +446,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
               maxLength: 500,
             ),
             SizedBox(height: 10.h),
-            // ── Arabic description  →  shows  ٥٠٠/٠  below ───────────────
             _readFieldRtl(
               'الوصف',
               data.overview.description.ar,
@@ -564,7 +573,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
 
   // ── Read-only fields ─────────────────────────────────────────────────────────
 
-  /// Pass [maxLength] to show a  `current/max`  counter below the field (LTR).
   Widget _readField(String label, String value,
       {double height = 36, int? maxLength}) {
     final current = value.length;
@@ -588,7 +596,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      // ── LTR counter: 0/500 ──────────────────────────────────────────────
       if (maxLength != null) ...[
         SizedBox(height: 4.h),
         Align(
@@ -602,8 +609,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
     ]);
   }
 
-  /// Pass [maxLength] to show a  `٥٠٠/٠`  counter below the field (RTL).
-  /// The format is  max/current  so it reads naturally right-to-left.
   Widget _readFieldRtl(String label, String value,
       {double height = 36, int? maxLength}) {
     final current = value.length;
@@ -630,11 +635,9 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        // ── RTL counter: ٥٠٠/٠  (max first, then current) ─────────────────
         if (maxLength != null) ...[
           SizedBox(height: 4.h),
           Align(
-            // In RTL context, centerLeft = the "end" side where counters live
             alignment: Alignment.centerLeft,
             child: Text(
               '${_toArabicNumerals(maxLength)}/${_toArabicNumerals(current)}',
@@ -649,8 +652,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
-  /// Converts digits in [n] to Eastern Arabic numerals.
-  /// e.g.  500 → '٥٠٠',  0 → '٠'
   String _toArabicNumerals(int n) {
     const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
     return n.toString().split('').map((c) {
@@ -732,20 +733,7 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Text('Careers',
-                  style: StyleText.fontSize45Weight600.copyWith(
-                      color: _C.primary, fontWeight: FontWeight.w700)),
-              const Spacer(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                    color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
-                child: Text('Preview Screen',
-                    style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
-              ),
-            ]),
-            SizedBox(height: 16.h),
+
 
             Row(children: [
               Expanded(

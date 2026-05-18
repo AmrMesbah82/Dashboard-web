@@ -892,11 +892,10 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
             SizedBox(height: 24.h),
 
             // ── Title ─────────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   widget.title,
                   style: StyleText.fontSize16Weight600.copyWith(
                     color: AppColors.text,
@@ -904,22 +903,21 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
                     letterSpacing: 0.3,
                   ),
                 ),
-              ),
+              ],
             ),
             SizedBox(height: 10.h),
 
             // ── Subtitle ──────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   widget.subtitle,
                   style: StyleText.fontSize13Weight400.copyWith(
                     color: AppColors.text.withOpacity(0.6),
                   ),
                 ),
-              ),
+              ],
             ),
             SizedBox(height: 32.h),
 

@@ -10,6 +10,9 @@
 // UPDATED: Added Navigation Label section (between Headings and Vision)
 // UPDATED: Publish button disabled until all fields valid. Error text only
 //          appears after first submit attempt. Button reactively enables/disables.
+// FIXED:   Vision onPickIcon was writing to _missionIconBytes → now _visionIconBytes
+// FIXED:   Mission onPickIcon was writing to _visionIconBytes → now _missionIconBytes
+// FIXED:   Navigation Label onTap called _pickSvgFile() → now _pickImageIcon()
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
@@ -30,9 +33,13 @@ import 'package:web_app_admin/model/about_us.dart';
 import 'package:web_app_admin/theme/appcolors.dart';
 import 'package:web_app_admin/theme/new_theme.dart';
 import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
+import 'package:web_app_admin/widgets/app_admin_navbar.dart';
 import 'package:web_app_admin/widgets/app_navbar.dart';
 
 import '../../../core/custom_dialog.dart';
+import '../../careers_main_dashboard.dart';
+import '../job_list/job_listing_main_page.dart';
+import '../main_page/home_main_page.dart';
 import 'about_main_page_master.dart';
 import 'about_preview_page.dart';
 
@@ -142,6 +149,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   // File pickers
   // ══════════════════════════════════════════════════════════════════════════
 
+  /// Picks any image format (PNG, JPG, WEBP, SVG).
   Future<Uint8List?> _pickImageIcon() async {
     final completer = Completer<Uint8List?>();
     final input = html.FileUploadInputElement()
@@ -174,6 +182,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     return completer.future;
   }
 
+  /// Picks SVG files only.
   Future<Uint8List?> _pickSvgFile() async {
     final completer = Completer<Uint8List?>();
     final input = html.FileUploadInputElement()..accept = '.svg,image/svg+xml';
@@ -274,7 +283,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         method: 'GET',
         responseType: 'arraybuffer',
       );
-      if (response.status == 150 && response.response != null) {
+      if (response.status == 200 && response.response != null) {
         return (response.response as ByteBuffer).asUint8List();
       }
       throw Exception('HTTP ${response.status}');
@@ -291,7 +300,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         responseType: 'arraybuffer',
         mimeType: 'image/svg+xml',
       );
-      if (response.status == 150 && response.response != null) {
+      if (response.status == 200 && response.response != null) {
         return (response.response as ByteBuffer).asUint8List();
       }
       throw Exception('HTTP ${response.status}');
@@ -401,7 +410,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   Map<String, Uint8List> _collectUploads() {
     final uploads = <String, Uint8List>{};
     if (_navIconBytes != null)
-      uploads['about_cms/navigation/icon'] = _navIconBytes!;
+      uploads['about_cms/navLabel/icon'] = _navIconBytes!;
     if (_visionIconBytes != null)
       uploads['about_cms/vision/icon'] = _visionIconBytes!;
     if (_visionSvgBytes != null)
@@ -565,7 +574,6 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   // ── Save / Publish with custom dialog ─────────────────────────────────────
   Future<void> _save(String status) async {
-    // Mark submitted so error text appears under empty fields
     setState(() => _submitted = true);
     await Future.delayed(const Duration(milliseconds: 50));
 
@@ -584,14 +592,12 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         imageUploads: uploads.isEmpty ? null : uploads,
       );
 
-      if (mounted) {
-  
-
-        if (status == 'published') {
-          await Future.delayed(const Duration(milliseconds: 1500));
-          if (mounted) context.go('/');
-        }
-      }
+      // if (mounted) {
+      //   if (status == 'published') {
+      //     await Future.delayed(const Duration(milliseconds: 1500));
+      //     if (mounted) context.go('/');
+      //   }
+      // }
     } catch (e) {
       if (mounted) {
         showConfirmDialog(
@@ -686,7 +692,12 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               width: double.infinity,
               child: Column(
                 children: [
-                  SizedBox(height: 20.h),
+                  AppAdminNavbar(
+                    activeLabel: 'Web Page',
+                    homePage: CareersMainPageDashboard(),
+                    webPage: HomeMainPage(),
+                    jobListingPage: JobListingMainPage(),
+                  ),
                   AdminSubNavBar(activeIndex: 3),
                   SizedBox(
                     width: 1000.w,
@@ -710,18 +721,21 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   // ── Form ───────────────────────────────────────────────────────────────────
   Widget _buildForm() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(height: 24.h),
-        Text(
-          'Editing About Us',
-          style: StyleText.fontSize45Weight600.copyWith(
-            color: _kGreen,
-            fontWeight: FontWeight.w700,
-          ),
+        Row(
+          children: [
+            Text(
+              'Editing About Us',
+              style: StyleText.fontSize45Weight600.copyWith(
+                color: _kGreen,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 24.h),
-
 
         // ── Navigation Label ──
         _accordion(
@@ -736,6 +750,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         ),
 
         SizedBox(height: 15.h),
+
         // ── Headings ──
         _accordion(
           title: 'Headings',
@@ -747,9 +762,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           ),
         ),
 
-
         SizedBox(height: 15.h),
-
 
         // ── Vision ──
         _accordion(
@@ -763,9 +776,11 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               svgBytes: _visionSvgBytes,
               iconUrl: _visionIconUrl,
               svgUrl: _visionSvgUrl,
+              // ✅ FIX 1: was setting _missionIconBytes — now correctly sets _visionIconBytes
               onPickIcon: () async {
-                final b = await _pickSvgFile();
-                if (b != null) setState(() => _missionIconBytes = b);              },
+                final b = await _pickImageIcon();
+                if (b != null) setState(() => _visionIconBytes = b);
+              },
               onPickSvg: () async {
                 final b = await _pickSvgFile();
                 if (b != null) setState(() => _visionSvgBytes = b);
@@ -791,9 +806,10 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               svgBytes: _missionSvgBytes,
               iconUrl: _missionIconUrl,
               svgUrl: _missionSvgUrl,
+              // ✅ FIX 2: was setting _visionIconBytes — now correctly sets _missionIconBytes
               onPickIcon: () async {
-                final b = await _pickSvgFile();
-                if (b != null) setState(() => _visionIconBytes = b);
+                final b = await _pickImageIcon();
+                if (b != null) setState(() => _missionIconBytes = b);
               },
               onPickSvg: () async {
                 final b = await _pickSvgFile();
@@ -839,7 +855,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           onTap: onToggle,
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 14.h),
             decoration: BoxDecoration(
               color: _kGreenSolid,
               borderRadius: BorderRadius.circular(12.r),
@@ -849,12 +865,9 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+                  style: StyleText.fontSize16Weight400.copyWith(
+                      color: Colors.white
+                  )
                 ),
                 Icon(
                   isOpen
@@ -881,7 +894,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           children: [
             _fieldLabel('Title'),
             Spacer(),
-            _fieldLabelAr("العنوان")
+            _fieldLabelAr("العنوان"),
           ],
         ),
         SizedBox(height: 8.h),
@@ -900,13 +913,13 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Icon upload — only show error after submit attempt
+        // ✅ FIX 3: was calling _pickSvgFile() — now correctly calls _pickImageIcon()
         _imageUploadCircle(
           label: 'Icon',
           bytes: _navIconBytes,
           url: _navIconUrl,
           onTap: () async {
-           final b = await _pickSvgFile();
+            final b = await _pickImageIcon();
             if (b != null) setState(() => _navIconBytes = b);
           },
           isSvg: false,
@@ -918,7 +931,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           children: [
             _fieldLabel('Title'),
             Spacer(),
-            _fieldLabelAr("العنوان")
+            _fieldLabelAr("العنوان"),
           ],
         ),
         SizedBox(height: 8.h),
@@ -956,8 +969,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               url: iconUrl,
               onTap: onPickIcon,
               isSvg: false,
-              showError:
-              _submitted && iconBytes == null && iconUrl.isEmpty,
+              showError: _submitted && iconBytes == null && iconUrl.isEmpty,
             ),
             SizedBox(width: 24.w),
             _imageUploadCircle(
@@ -966,8 +978,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               url: svgUrl,
               onTap: onPickSvg,
               isSvg: true,
-              showError:
-              _submitted && svgBytes == null && svgUrl.isEmpty,
+              showError: _submitted && svgBytes == null && svgUrl.isEmpty,
             ),
           ],
         ),
@@ -980,8 +991,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           fillColor: Colors.white,
           height: 100,
           maxLines: 4,
-          maxLength: 150,
-          showCharCount: true,
+          maxLength: 10000,
+          showCharCount: false,
           submitted: _submitted,
           isRequired: true,
           textDirection: TextDirection.ltr,
@@ -998,8 +1009,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           controller: subArCtrl,
           height: 100,
           maxLines: 4,
-          maxLength: 150,
-          showCharCount: true,
+          maxLength: 10000,
+          showCharCount: false,
           submitted: _submitted,
           isRequired: true,
           textDirection: TextDirection.rtl,
@@ -1017,7 +1028,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           height: 100,
           maxLines: 4,
           maxLength: 500,
-          showCharCount: true,
+          showCharCount: false,
           submitted: _submitted,
           isRequired: true,
           textDirection: TextDirection.ltr,
@@ -1035,7 +1046,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           fillColor: Colors.white,
           maxLines: 4,
           maxLength: 500,
-          showCharCount: true,
+          showCharCount: false,
           submitted: _submitted,
           isRequired: true,
           textDirection: TextDirection.rtl,
@@ -1135,7 +1146,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                 isSvg: false,
                 showError: showIconError,
                 onTap: () async {
-                  final b = await _pickSvgFile();
+                  final b = await _pickImageIcon();
                   if (b != null) setState(() => v.iconBytes = b);
                 },
               ),
@@ -1168,7 +1179,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             children: [
               _fieldLabel('Title'),
               Spacer(),
-              _fieldLabelAr("العنوان")
+              _fieldLabelAr("العنوان"),
             ],
           ),
           SizedBox(height: 8.h),
@@ -1187,8 +1198,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             height: 100,
             fillColor: Colors.white,
             maxLines: 4,
-            maxLength: 150,
-            showCharCount: true,
+            maxLength: 10000,
+            showCharCount: false,
             submitted: _submitted,
             isRequired: true,
             textDirection: TextDirection.ltr,
@@ -1205,8 +1216,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             fillColor: Colors.white,
             height: 100,
             maxLines: 4,
-            maxLength: 150,
-            showCharCount: true,
+            maxLength: 10000,
+            showCharCount: false,
             submitted: _submitted,
             isRequired: true,
             textDirection: TextDirection.rtl,
@@ -1221,7 +1232,6 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   // ── Action buttons ─────────────────────────────────────────────────────────
   Widget _actionButtons() {
-    /// Compute validity live — buttons react as user types / uploads
     final bool formValid = _isFormValid;
 
     return Column(
@@ -1260,8 +1270,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                   showConfirmDialog(
                     context: context,
                     title: 'Discard Changes',
-                    subtitle:
-                    'Are you sure you want to discard all changes?',
+                    subtitle: 'Are you sure you want to discard all changes?',
                     confirmLabel: 'Discard',
                     cancelLabel: 'Cancel',
                     onConfirm: () => context.pop(),
@@ -1295,7 +1304,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
     showPublishConfirmDialog(
       context: context,
-      title: 'EDITING ABOUT US DETAILS ',
+      title: 'EDITING ABOUT US DETAILS',
       subtitle: 'Do you want to save the changes made to this About Us?',
       confirmLabel: 'Publish',
       onConfirm: () => _save('published'),
@@ -1344,6 +1353,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           shape: BoxShape.circle,
         ),
         child: ClipOval(
+
           child: Padding(
             padding: EdgeInsets.all(15.r),
             child: _isSvgMemory(bytes!, isSvg)
@@ -1395,11 +1405,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                   return Image.memory(data,
                       width: 30.w, height: 30.h, fit: BoxFit.contain);
                 }
-                return Icon(
-                  isSvg ? Icons.description_outlined : Icons.broken_image,
-                  color: Colors.grey[400],
-                  size: 22.sp,
-                );
+                return Center(child: CustomSvg(assetPath: "assets/control/camera.svg",width: 20.w,height: 20.h,fit: BoxFit.fill,color: Colors.grey,));
               },
             ),
           ),
@@ -1410,15 +1416,11 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
         width: 60.w,
         height: 60.h,
         decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9),
+          color:  Colors.white,
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: Icon(
-            isSvg ? Icons.description_outlined : Icons.add,
-            color: Colors.grey,
-            size: 22.sp,
-          ),
+          child: CustomSvg(assetPath: "assets/control/camera.svg",width: 20.w,height: 20.h,color: Colors.grey,)
         ),
       );
     }
@@ -1428,12 +1430,9 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontFamily: 'Cairo',
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          style: StyleText.fontSize14Weight400.copyWith(
+              color: AppColors.text
+          )
         ),
         SizedBox(height: 8.h),
         Stack(
@@ -1538,28 +1537,21 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 
   Widget _fieldLabel(String text) => Text(
     text,
-    style: TextStyle(
-      fontFamily: 'Cairo',
-      fontSize: 13.sp,
-      fontWeight: FontWeight.w600,
-      color: Colors.black87,
-    ),
+    style: StyleText.fontSize14Weight400.copyWith(
+      color: AppColors.text
+    )
   );
 
   Widget _fieldLabelAr(String text) => Align(
     alignment: Alignment.centerRight,
     child: Text(
       text,
-      style: TextStyle(
-        fontFamily: 'Cairo',
-        fontSize: 13.sp,
-        fontWeight: FontWeight.w600,
-        color: Colors.black87,
-      ),
+      style: StyleText.fontSize14Weight400.copyWith(
+          color: AppColors.text
+      )
     ),
   );
 
-  /// Updated _btn — supports null onTap for disabled state.
   Widget _btn({
     required String label,
     required Color color,

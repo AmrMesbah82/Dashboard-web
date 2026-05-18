@@ -23,6 +23,8 @@ import 'package:web_app_admin/widgets/admin_sub_navbar.dart';
 import 'package:web_app_admin/widgets/delete_intern_dialog.dart';
 
 import '../../../core/custom_dialog.dart';
+import '../../../widgets/app_admin_navbar.dart';
+import '../main_page/home_main_page.dart';
 
 class _C {
   static const Color primary   = Color(0xFF008037);
@@ -474,7 +476,14 @@ class _AddInternPageState extends State<AddInternPage> {
                     width: double.infinity,
                     child: Column(
                       children: [
-                        SizedBox(height: 20.h),
+
+
+                        AppAdminNavbar(
+                          activeLabel: 'Web Page',
+                          homePage: HomeMainPage(),
+                          webPage: HomeMainPage(),
+                          jobListingPage: HomeMainPage(),
+                        ),
                         AdminSubNavBar(activeIndex: 5),
                         SizedBox(height: 30.h),
 
@@ -670,7 +679,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 16.w),
+                                      SizedBox(width: 300.w),
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: busy ? null : _handlePublish,
@@ -686,15 +695,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                               BorderRadius.circular(8.r),
                                             ),
                                             child: Center(
-                                              child: _isSaving
-                                                  ? SizedBox(
-                                                width:  20.w,
-                                                height: 20.h,
-                                                child: const CircularProgressIndicator(
-                                                    color:       Colors.white,
-                                                    strokeWidth: 2),
-                                              )
-                                                  : Text(
+                                              child: Text(
                                                 _isEdit ? 'Save' : 'Publish',
                                                 style: StyleText
                                                     .fontSize16Weight600
@@ -767,17 +768,9 @@ class _AddInternPageState extends State<AddInternPage> {
       children: [
         Row(
           children: [
-            Text('Photo (PNG/JPG)',
+            Text('Photo',
                 style: StyleText.fontSize12Weight500
                     .copyWith(color: _C.labelText)),
-            if (!_isEdit) ...[
-              Text(' *',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  )),
-            ],
           ],
         ),
         SizedBox(height: 6.h),
@@ -792,10 +785,6 @@ class _AddInternPageState extends State<AddInternPage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: const Color(0xFFE0E0E0),
-                  border: Border.all(
-                    color: hasError ? _C.errorRed : Colors.transparent,
-                    width: hasError ? 1.5 : 0,
-                  ),
                   image: _photoBytes != null
                       ? DecorationImage(
                     image: MemoryImage(_photoBytes!),
@@ -818,11 +807,7 @@ class _AddInternPageState extends State<AddInternPage> {
                 child: hasPhoto
                     ? null
                     : Center(
-                  child: Icon(
-                    Icons.person,
-                    color: hasError ? _C.errorRed : Colors.grey,
-                    size: 32.sp,
-                  ),
+                  child: CustomSvg( color: Colors.grey, assetPath: 'assets/control/camera.svg',width: 30.w,height: 30.h,fit: BoxFit.fill,)
                 ),
               ),
               // Camera badge

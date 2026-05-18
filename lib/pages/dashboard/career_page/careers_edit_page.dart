@@ -6,6 +6,9 @@
 // UPDATED: Publish button disabled on validation errors / empty fields
 // UPDATED: After confirm dialog → navigates to CareersMainPageMaster
 // UPDATED: Pattern matches ServicesMainEditPage (BlocConsumer, _hasChanges, _isFormValid)
+// UPDATED: Removed loading overlay and spinner from Publish button
+// FIXED: Preview button navigates to preview page correctly (flag prevents
+//        BlocConsumer from intercepting the save and redirecting to main page)
 
 import 'dart:async';
 import 'dart:html' as html;
@@ -58,15 +61,16 @@ class _CareersEditPageState extends State<CareersEditPage> {
   final Map<String, Map<String, TextEditingController>> _statCtrls = {};
   final Map<String, bool> _open = {'overview': true, 'statistics': true};
 
-  bool _saving     = false;
-  bool _ready      = false;
-  bool _submitted  = false;
-  bool _hasChanges = false;
-  bool _isSaving   = false;
+  bool _ready              = false;
+  bool _submitted          = false;
+  bool _hasChanges         = false;
+  bool _isSaving           = false;
+
+  /// When true the BlocConsumer listener will navigate to preview instead of
+  /// CareersMainPageMaster after a successful cubit save.
+  bool _navigatingToPreview = false;
 
   // ── Icon tracking ──────────────────────────────────────────────────────────
-  // _statIcons    : newly picked SVG bytes (pending upload)
-  // _statIconUrls : current URL (existing from Firestore or just uploaded)
   final Map<String, Uint8List?> _statIcons    = {};
   final Map<String, String>     _statIconUrls = {};
 
@@ -117,8 +121,8 @@ class _CareersEditPageState extends State<CareersEditPage> {
 
     for (final s in model.statistics) {
       _initStatCtrl(s);
-      _statIcons[s.id]    = null;       // no new bytes yet
-      _statIconUrls[s.id] = s.iconUrl;  // restore saved URL from Firestore
+      _statIcons[s.id]    = null;
+      _statIconUrls[s.id] = s.iconUrl;
     }
   }
 
@@ -249,7 +253,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
       if (ctrls['titleAr']!.text.trim().isEmpty)     return false;
       if (ctrls['shortDescEn']!.text.trim().isEmpty) return false;
       if (ctrls['shortDescAr']!.text.trim().isEmpty) return false;
-      // Icon valid if new bytes picked OR existing URL already saved
       final hasIcon = (_statIcons[stat.id] != null) ||
           (_statIconUrls[stat.id]?.isNotEmpty ?? false);
       if (!hasIcon) return false;
@@ -260,8 +263,8 @@ class _CareersEditPageState extends State<CareersEditPage> {
   bool get _isPublishEnabled => _hasChanges && !_isSaving && _isFormValid;
 
   String get _publishTooltip {
-    if (_isSaving)    return '';
-    if (!_hasChanges) return 'No changes to publish';
+    if (_isSaving)     return '';
+    if (!_hasChanges)  return 'No changes to publish';
     if (!_isFormValid) return 'Please fix validation errors before publishing';
     return '';
   }
@@ -299,7 +302,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
           shortDescription: BilingualText(
               en: m['shortDescEn']!.text.trim(),
               ar: m['shortDescAr']!.text.trim()),
-          // ✅ This is the key line — save the URL into the model
           iconUrl: _statIconUrls[s.id] ?? s.iconUrl,
         );
       }).toList(),
@@ -333,13 +335,15 @@ class _CareersEditPageState extends State<CareersEditPage> {
     });
   }
 
-  // ── Actions ────────────────────────────────────────────────────────────────
+  // ── Publish: save to Firestore → BlocConsumer navigates to main page ────────
   Future<void> _performSave() async {
-    setState(() { _saving = true; _isSaving = true; });
+    if (!mounted) return;
+    _navigatingToPreview = false; // explicit: this is a publish, not preview
+    setState(() => _isSaving = true);
     try {
-      final model = await _buildDraftWithUploads(); // ← uploads SVGs first
+      final model = await _buildDraftWithUploads();
       await context.read<CareersCmsCubit>().save(model);
-      // Navigation is handled by BlocConsumer on CareersCmsSaved
+      // BlocConsumer listener handles navigation on CareersCmsSaved
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -350,7 +354,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
         );
       }
     } finally {
-      if (mounted) setState(() { _saving = false; _isSaving = false; });
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -368,14 +372,33 @@ class _CareersEditPageState extends State<CareersEditPage> {
     );
   }
 
+  // ── Preview: upload icons, save to cubit, then push preview route ───────────
+  //
+  // The key problem: BlocConsumer listens for CareersCmsSaved and normally
+  // pushAndRemoveUntil → CareersMainPageMaster.  We set _navigatingToPreview=true
+  // BEFORE calling save so the listener knows to pushNamed('careers-cms-preview')
+  // instead of replacing the stack.
   Future<void> _preview() async {
-    setState(() { _saving = true; _submitted = true; });
+    // Mark intent BEFORE the async gap so the listener sees it synchronously
+    // when the saved state arrives.
+    _navigatingToPreview = true;
+    setState(() => _submitted = true);
+
     try {
       final model = await _buildDraftWithUploads();
       await context.read<CareersCmsCubit>().save(model);
-      if (mounted) context.pushNamed('careers-cms-preview');
-    } finally {
-      if (mounted) setState(() => _saving = false);
+      // Navigation is handled by BlocConsumer listener below
+    } catch (e) {
+      // Reset flag so future publishes still navigate to main page
+      _navigatingToPreview = false;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load preview: $e'),
+            backgroundColor: _C.red,
+          ),
+        );
+      }
     }
   }
 
@@ -412,6 +435,8 @@ class _CareersEditPageState extends State<CareersEditPage> {
         height:        height,
         maxLines:      maxLines,
         fillColor:     Colors.white,
+        showCharCount: true,
+        maxLength:     500,
         textDirection: TextDirection.rtl,
         textAlign:     TextAlign.right,
         primaryColor:  _C.primary,
@@ -434,6 +459,8 @@ class _CareersEditPageState extends State<CareersEditPage> {
       hint:          hint,
       fillColor:     Colors.white,
       controller:    ctrl,
+      maxLength:     500,
+      showCharCount: true,
       height:        height,
       maxLines:      maxLines,
       textDirection: TextDirection.ltr,
@@ -463,22 +490,18 @@ class _CareersEditPageState extends State<CareersEditPage> {
       }
     }
 
-    // Decide what to render inside the circle
     Widget iconContent;
     if (newBytes != null) {
-      // Freshly picked — show from memory bytes
       iconContent = Padding(
         padding: EdgeInsets.all(8.r),
         child: SvgPicture.memory(newBytes, fit: BoxFit.contain),
       );
     } else if (savedUrl.isNotEmpty) {
-      // Previously saved — show from Firebase Storage URL
       iconContent = Padding(
         padding: EdgeInsets.all(8.r),
         child: SvgPicture.network(savedUrl, fit: BoxFit.contain),
       );
     } else {
-      // Empty — show camera placeholder
       iconContent = Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -537,11 +560,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
             ),
           ],
         ),
-        if (hasError) ...[
-          SizedBox(height: 4.h),
-          Text('SVG icon is required',
-              style: TextStyle(fontSize: 11.sp, color: _C.red)),
-        ],
       ],
     );
   }
@@ -558,10 +576,18 @@ class _CareersEditPageState extends State<CareersEditPage> {
 
     return BlocConsumer<CareersCmsCubit, CareersCmsState>(
       listener: (context, state) {
-        // ── Navigate to CareersMainPageMaster on successful save ─────────────
         if (state is CareersCmsSaved) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
+            if (!mounted) return;
+
+            if (_navigatingToPreview) {
+              // ── Preview path ─────────────────────────────────────────────
+              // Push preview on top of the edit page so the user can come back.
+              _navigatingToPreview = false; // reset for any subsequent publish
+              context.pushNamed('careers-cms-preview');
+            } else {
+              // ── Publish path ─────────────────────────────────────────────
+              // Replace the entire navigation stack with the main page.
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                     builder: (_) => const CareersMainPageMaster()),
@@ -570,7 +596,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
             }
           });
         }
+
         if (state is CareersCmsError) {
+          _navigatingToPreview = false; // reset on error
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: _C.red),
           );
@@ -579,188 +607,183 @@ class _CareersEditPageState extends State<CareersEditPage> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: _C.back,
-          body: Stack(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppAdminNavbar(
-                        activeLabel:    'Web Page',
-                        homePage:       HomeMainPage(),
-                        webPage:        HomeMainPage(),
-                        jobListingPage: HomeMainPage(),
-                      ),
-                      SizedBox(height: 20.h),
-                      AdminSubNavBar(activeIndex: 5),
-                      SizedBox(height: 20.h),
-                      Container(
-                        width:   1000.w,
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Editing Main Details',
-                              style: StyleText.fontSize45Weight600.copyWith(
-                                  color:      _C.primary,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                            SizedBox(height: 20.h),
+          body: SizedBox(
+            width: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppAdminNavbar(
+                    activeLabel:    'Web Page',
+                    homePage:       HomeMainPage(),
+                    webPage:        HomeMainPage(),
+                    jobListingPage: HomeMainPage(),
+                  ),
+                  SizedBox(height: 20.h),
+                  AdminSubNavBar(activeIndex: 5),
+                  SizedBox(height: 20.h),
+                  Container(
+                    width:   1000.w,
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Editing Careers Details',
+                          style: StyleText.fontSize45Weight600.copyWith(
+                              color:      _C.primary,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 20.h),
 
-                            // ── Careers Overview ───────────────────────────
-                            _accordion(
-                              key:   'overview',
-                              title: 'Careers Overview',
-                              children: [
-                                SizedBox(height: 15.h),
-                                _enField(
-                                  label: 'Description', hint: 'Text Here',
-                                  ctrl: _overviewDescEnCtrl,
-                                  height: 80, maxLines: 4,
-                                ),
-                                SizedBox(height: 10.h),
-                                _arField(
-                                  label: 'الوصف', hint: 'أكتب هنا',
-                                  ctrl: _overviewDescArCtrl,
-                                  height: 80, maxLines: 4,
-                                ),
-                                SizedBox(height: 16.h),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: _enField(
-                                        label: 'Action Button',
-                                        hint:  'Text Here',
-                                        ctrl:  _overviewBtnEnCtrl,
-                                      ),
-                                    ),
-                                    SizedBox(width: 16.w),
-                                    Expanded(
-                                      child: _arField(
-                                        label: 'زر الإجراء',
-                                        hint:  'أدخل النص',
-                                        ctrl:  _overviewBtnArCtrl,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                        // ── Careers Overview ───────────────────────────
+                        _accordion(
+                          key:   'overview',
+                          title: 'Careers Overview',
+                          children: [
+                            SizedBox(height: 15.h),
+                            _enField(
+                              label: 'Description', hint: 'Text Here',
+                              ctrl: _overviewDescEnCtrl,
+                              height: 80, maxLines: 4,
                             ),
                             SizedBox(height: 10.h),
-
-                            // ── Career Statistics ──────────────────────────
-                            _accordion(
-                              key:   'statistics',
-                              title: 'Career Statistics',
+                            _arField(
+                              label: 'الوصف', hint: 'أكتب هنا',
+                              ctrl: _overviewDescArCtrl,
+                              height: 80, maxLines: 4,
+                            ),
+                            SizedBox(height: 16.h),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(height: 15.h),
-                                ..._draft.statistics.asMap().entries.map((e) {
-                                  final i    = e.key;
-                                  final stat = e.value;
-                                  final m    = _statCtrls[stat.id]!;
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      if (i > 0) SizedBox(height: 12.h),
-                                      Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('${_ord(i + 1)} Statistics',
-                                              style: StyleText.fontSize16Weight600
-                                                  .copyWith(color: _C.labelText)),
-                                          GestureDetector(
-                                            onTap: () => _removeStat(stat.id),
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10.w, vertical: 4.h),
-                                              decoration: BoxDecoration(
-                                                color:        _C.red,
-                                                borderRadius: BorderRadius.circular(4.r),
-                                              ),
-                                              child: Text('Remove',
-                                                  style: StyleText.fontSize12Weight500
-                                                      .copyWith(color: Colors.white)),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      _iconUploadWidget(statId: stat.id, label: 'Icon'),
-                                      SizedBox(height: 12.h),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: _enField(
-                                              label: 'Title', hint: 'Text Here',
-                                              ctrl: m['titleEn']!,
-                                            ),
-                                          ),
-                                          SizedBox(width: 16.w),
-                                          Expanded(
-                                            child: _arField(
-                                              label: 'العنوان', hint: 'أدخل النص',
-                                              ctrl: m['titleAr']!,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10.h),
-                                      _enField(
-                                        label: 'Short Description', hint: 'Text Here',
-                                        ctrl: m['shortDescEn']!, height: 60, maxLines: 3,
-                                      ),
-                                      SizedBox(height: 8.h),
-                                      _arField(
-                                        label: 'وصف مختصر', hint: 'أكتب هنا',
-                                        ctrl: m['shortDescAr']!, height: 60, maxLines: 3,
-                                      ),
-                                      SizedBox(height: 12.h),
-                                    ],
-                                  );
-                                }),
-
-                                GestureDetector(
-                                  onTap: _addStat,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w, vertical: 7.h),
-                                    decoration: BoxDecoration(
-                                      color:        const Color(0xFF797979),
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.add, size: 14.sp, color: Colors.white),
-                                        SizedBox(width: 4.w),
-                                        Text('Statistics',
-                                            style: StyleText.fontSize12Weight500
-                                                .copyWith(color: Colors.white)),
-                                      ],
-                                    ),
+                                Expanded(
+                                  child: _enField(
+                                    label: 'Action Button',
+                                    hint:  'Text Here',
+                                    ctrl:  _overviewBtnEnCtrl,
+                                  ),
+                                ),
+                                SizedBox(width: 16.w),
+                                Expanded(
+                                  child: _arField(
+                                    label: 'زر الإجراء',
+                                    hint:  'أدخل النص',
+                                    ctrl:  _overviewBtnArCtrl,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 24.h),
-
-                            _actionButtons(),
-                            SizedBox(height: 40.h),
                           ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 10.h),
+
+                        // ── Career Statistics ──────────────────────────
+                        _accordion(
+                          key:   'statistics',
+                          title: 'Career Statistics',
+                          children: [
+                            SizedBox(height: 15.h),
+                            ..._draft.statistics.asMap().entries.map((e) {
+                              final i    = e.key;
+                              final stat = e.value;
+                              final m    = _statCtrls[stat.id]!;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (i > 0) SizedBox(height: 12.h),
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('${_ord(i + 1)} Statistics',
+                                          style: StyleText.fontSize16Weight600
+                                              .copyWith(color: _C.labelText)),
+                                      GestureDetector(
+                                        onTap: () => _removeStat(stat.id),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 4.h),
+                                          decoration: BoxDecoration(
+                                            color:        _C.red,
+                                            borderRadius: BorderRadius.circular(4.r),
+                                          ),
+                                          child: Text('Remove',
+                                              style: StyleText.fontSize12Weight500
+                                                  .copyWith(color: Colors.white)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 10.h),
+                                  _iconUploadWidget(statId: stat.id, label: 'Icon'),
+                                  SizedBox(height: 12.h),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _enField(
+                                          label: 'Title', hint: 'Text Here',
+                                          ctrl: m['titleEn']!,
+                                        ),
+                                      ),
+                                      SizedBox(width: 16.w),
+                                      Expanded(
+                                        child: _arField(
+                                          label: 'العنوان', hint: 'أدخل النص',
+                                          ctrl: m['titleAr']!,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 10.h),
+                                  _enField(
+                                    label: 'Short Description', hint: 'Text Here',
+                                    ctrl: m['shortDescEn']!, height: 60, maxLines: 3,
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  _arField(
+                                    label: 'وصف مختصر', hint: 'أكتب هنا',
+                                    ctrl: m['shortDescAr']!, height: 60, maxLines: 3,
+                                  ),
+                                  SizedBox(height: 12.h),
+                                ],
+                              );
+                            }),
+
+                            GestureDetector(
+                              onTap: _addStat,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 14.w, vertical: 7.h),
+                                decoration: BoxDecoration(
+                                  color:        const Color(0xFF797979),
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.add, size: 14.sp, color: Colors.white),
+                                    SizedBox(width: 4.w),
+                                    Text('Statistics',
+                                        style: StyleText.fontSize12Weight500
+                                            .copyWith(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 24.h),
+
+                        _actionButtons(),
+                        SizedBox(height: 40.h),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              if (_saving) _buildSavingOverlay(),
-            ],
+            ),
           ),
         );
       },
@@ -774,19 +797,19 @@ class _CareersEditPageState extends State<CareersEditPage> {
         Row(children: [
           Expanded(
             child: _btn(
-                label: 'Preview',
-                color: const Color(0xFF608570),
-                onTap: _preview),
+              label: 'Preview',
+              color: const Color(0xFF608570),
+              onTap: _preview,
+            ),
           ),
           SizedBox(width: 300.w),
           Expanded(
             child: Tooltip(
               message: _publishTooltip,
               child: _btn(
-                label:   'Publish',
-                color:   _C.primary,
-                onTap:   _isPublishEnabled ? _handlePublish : null,
-                loading: _saving,
+                label: 'Publish',
+                color: _C.primary,
+                onTap: _isPublishEnabled ? _handlePublish : null,
               ),
             ),
           ),
@@ -795,9 +818,10 @@ class _CareersEditPageState extends State<CareersEditPage> {
         Row(children: [
           Expanded(
             child: _btn(
-                label: 'Discard',
-                color: const Color(0xFF797979),
-                onTap: _discard),
+              label: 'Discard',
+              color: const Color(0xFF797979),
+              onTap: _discard,
+            ),
           ),
           SizedBox(width: 300.w),
           Expanded(child: const SizedBox()),
@@ -850,7 +874,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
           ),
         ),
         if (isOpen)
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children),
       ]),
     );
   }
@@ -860,7 +886,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
     required String label,
     required Color  color,
     VoidCallback?   onTap,
-    bool            loading = false,
   }) {
     final bool disabled = onTap == null;
     return GestureDetector(
@@ -873,41 +898,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
           borderRadius: BorderRadius.circular(6.r),
         ),
         alignment: Alignment.center,
-        child: loading
-            ? const SizedBox(
-            width: 20, height: 20,
-            child: CircularProgressIndicator(
-                color: Colors.white, strokeWidth: 2))
-            : Text(label,
-            style: StyleText.fontSize14Weight600
-                .copyWith(color: Colors.white)),
-      ),
-    );
-  }
-
-  // ── Saving overlay ─────────────────────────────────────────────────────────
-  Widget _buildSavingOverlay() {
-    return Container(
-      color: Colors.black54,
-      child: Center(
-        child: Container(
-          width: 180.w, height: 100.h,
-          decoration: BoxDecoration(
-            color:        Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(color: _C.primary),
-              SizedBox(height: 12.h),
-              Text('Saving...',
-                  style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize:   14.sp,
-                      color:      Colors.black87)),
-            ],
-          ),
+        child: Text(
+          label,
+          style: StyleText.fontSize14Weight600.copyWith(color: Colors.white),
         ),
       ),
     );
