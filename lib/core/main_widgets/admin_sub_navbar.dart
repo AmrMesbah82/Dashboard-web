@@ -20,7 +20,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
-import '../../features/services/presentation/ui/pages/services_main/services_main_page.dart';
+import '../../features/services/presentation/ui/pages/services_main/services_main.dart';
 import '../theme/new_theme.dart';
 
 

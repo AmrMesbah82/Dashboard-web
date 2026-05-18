@@ -3,22 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/abou_us/presentation/controller/about_us_cubit.dart';
-import '../../features/abou_us/presentation/ui/pages/about_main_page_master.dart';
-import '../../features/careers/presentation/controller/careers_cms_cubit.dart';
-import '../../features/careers/presentation/ui/pages/careers_edit_page.dart';
-import '../../features/careers/presentation/ui/pages/careers_main_dashboard.dart';
+import '../../features/abou_us/presentation/ui/pages/about_us_main.dart';
+import '../../features/careers/presentation/controller/careers_cubit.dart';
+import '../../features/careers/presentation/ui/pages/careers_edit.dart';
+import '../../features/careers/presentation/ui/pages/careers_main.dart';
 import '../../features/careers/presentation/ui/pages/careers_main_page.dart';
-import '../../features/careers/presentation/ui/pages/careers_preview_page.dart';
-import '../../features/contact_us/presentation/ui/pages/contact_us_cms_edit_page.dart';
-import '../../features/contact_us/presentation/ui/pages/contact_us_cms_preview_page.dart';
-import '../../features/contact_us/presentation/ui/pages/contact_us_main_page.dart';
+import '../../features/careers/presentation/ui/pages/careers_preview.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_edit.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_preview.dart';
+import '../../features/contact_us/presentation/ui/pages/contact_us_main.dart';
 import '../../features/home/presentation/controller/home_cubit.dart';
-import '../../features/home/presentation/ui/pages/home_main_page.dart';
+import '../../features/home/presentation/ui/pages/home_main.dart';
 import '../../features/job/data/repo_imp/application_repo_imp.dart';
 import '../../features/job/data/repo_imp/job_listing_repo_imp.dart';
-import '../../features/main/presentation/ui/pages/home_edit_page.dart';
-import '../../features/main/presentation/ui/pages/home_main_page.dart';
-import '../../features/main/presentation/ui/pages/home_preview_page.dart';
+import '../../features/main/presentation/ui/pages/main_edit.dart';
+import '../../features/main/presentation/ui/pages/main_main.dart';
+import '../../features/main/presentation/ui/pages/main_preview.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SLIDE + ANGLE + FADE PAGE TRANSITION

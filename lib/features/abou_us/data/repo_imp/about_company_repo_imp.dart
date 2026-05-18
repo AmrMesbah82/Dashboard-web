@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════════════════════
-// FILE 3: about_company_repo_imp.dart
+// FILE 3: about_us_company_repo_imp.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../job/domain/repo/about_company_repo.dart';
-import '../model/about_company_model.dart';
+
+import '../../../abou_us/data/model/about_us_company_model.dart';
+import '../../../abou_us/domain/repo/about_us_company_repo.dart';
 
 class AboutCompanyRepoImp implements AboutCompanyRepo {
   final FirebaseFirestore _firestore;

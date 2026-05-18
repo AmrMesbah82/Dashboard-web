@@ -7,9 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 
-import '../../data/model/about_us.dart';
-import '../../data/repo_imp/about_repo_imp.dart';
-import '../../domain/repo/about_repo.dart';
+import '../../data/model/about_us_model.dart';
+import '../../data/repo_imp/about_us_repo_imp.dart';
+import '../../domain/repo/about_us_repo.dart';
 import 'about_us_state.dart';
 
 // ── Safe emit — never throws "Cannot emit after close" ────────────────────────
@@ -279,4 +279,4 @@ class TermsCubit extends Cubit<TermsState> {
   }
 }
 
-// NOTE: DocUpload class lives in model/about_us.dart — do NOT redeclare it here.
+// NOTE: DocUpload class lives in model/about_us_model.dart — do NOT redeclare it here.

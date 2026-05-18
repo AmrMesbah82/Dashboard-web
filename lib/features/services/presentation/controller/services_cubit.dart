@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_app_admin/features/services/presentation/controller/services_state.dart';
 
 import '../../data/model/services_model.dart';
-import '../../data/repo_imp/repo_imp.dart';
-import '../../domain/repo/repo.dart';
+import '../../data/repo_imp/services_repo_imp.dart';
+import '../../domain/repo/services_repo.dart';
 
 
 

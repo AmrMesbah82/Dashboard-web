@@ -4,7 +4,7 @@
 
 
 
-import '../../data/model/contact_model_location.dart';
+import '../../data/model/contact_us_model_location.dart';
 
 abstract class ContactUsCmsState {}
 

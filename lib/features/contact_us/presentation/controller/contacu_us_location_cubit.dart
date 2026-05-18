@@ -5,8 +5,8 @@
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/model/contact_model_location.dart';
-import '../../data/repo_imp/contacu_us_repo_im.dart';
+import '../../data/model/contact_us_model_location.dart';
+import '../../data/repo_imp/contact_us_location_repo_im.dart';
 import '../../domain/repo/contact_us_location.dart';
 import 'contacu_us_location_state.dart';
 

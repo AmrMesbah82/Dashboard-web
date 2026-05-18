@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════════════
-// FILE 2: about_company_repo.dart
+// FILE 2: about_us_company_repo.dart
 // ═══════════════════════════════════════════════════════════════════
 
 
-import '../../data/model/about_company_model.dart';
+import '../../../abou_us/data/model/about_us_company_model.dart';
 
 abstract class AboutCompanyRepo {
   Future<AboutCompanyModel?> fetchAboutCompany();

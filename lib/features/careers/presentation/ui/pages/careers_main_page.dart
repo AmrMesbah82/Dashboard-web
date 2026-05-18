@@ -14,8 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_section_edit_page.dart';
-import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_section_preview_page.dart';
+import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_edit.dart';
+import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
 
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -23,19 +23,19 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/widget/button.dart';
-import '../../../../main/presentation/ui/pages/home_main_page.dart';
-import '../../../data/model/careers_cms_model.dart';
+import '../../../../main/presentation/ui/pages/main_main.dart';
+import '../../../data/model/careers_model.dart';
 import '../../../data/model/careers_section_model.dart';
 import '../../../data/model/intern_model.dart';
-import '../../controller/careers_cms_cubit.dart';
-import '../../controller/careers_cms_state.dart';
+import '../../controller/careers_cubit.dart';
+import '../../controller/careers_state.dart';
 import '../../controller/careers_section_cubit.dart';
 import '../../controller/careers_section_state.dart';
 import '../../controller/intern_cubit.dart';
 import '../../controller/intern_state.dart';
 import '../../controller/our_teams_cubit.dart';
-import 'add_intern_page.dart';
-import 'our_teams_view_page.dart';
+import 'add_intern.dart';
+import 'our_teams_main.dart';
 
 
 

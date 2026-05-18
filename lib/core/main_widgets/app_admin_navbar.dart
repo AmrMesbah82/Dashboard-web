@@ -6,8 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
-import '../../features/inquire/presentation/ui/pages/inquiry_main_page.dart';
-import '../../features/job/presentation/ui/pages/application_main_page.dart';
+import '../../features/inquire/presentation/ui/pages/inquiry_main.dart';
+import '../../features/job/presentation/ui/pages/application_main.dart';
 import '../theme/app_wight.dart';
 import '../theme/appcolors.dart';
 
