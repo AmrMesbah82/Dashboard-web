@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:web_app_admin/theme/appcolors.dart';
-import 'package:web_app_admin/theme/text.dart';
+
+
+import '../theme/appcolors.dart';
+import '../theme/text.dart';
 
 
 class DatePicker {

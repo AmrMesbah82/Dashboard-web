@@ -6,8 +6,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:web_app_admin/controller/home_cubit.dart';
-import 'package:web_app_admin/controller/home_state.dart';
+
+
+import '../../features/home/presentation/controller/home_cubit.dart';
+import '../../features/home/presentation/controller/home_state.dart';
 
 // ── Default fallback colors (used before CMS loads) ──────────────────────────
 const Color _kDefaultPrimary   = Color(0xFF008037);

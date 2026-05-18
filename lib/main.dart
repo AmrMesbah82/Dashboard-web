@@ -5,34 +5,38 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:web_app_admin/controller/about_company/AboutCompanyCubit.dart';
-import 'package:web_app_admin/controller/about_us/about_us_cubit.dart';
-import 'package:web_app_admin/controller/career/careers_cms_cubit.dart';
-import 'package:web_app_admin/controller/career/careers_section_cubit.dart';
-import 'package:web_app_admin/controller/contact_us/contacu_us_location_cubit.dart';
-import 'package:web_app_admin/controller/contact_us/contatc_us_cubit.dart';
-import 'package:web_app_admin/controller/home_cubit.dart';
+
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:web_app_admin/pages/dashboard/inquire/inquiry_main_page.dart';
-import 'package:web_app_admin/repo/Services/repo_imp.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:web_app_admin/repo/application/application_repo_imp.dart';
-import 'package:web_app_admin/repo/blog/blog_repo_impl.dart';
-import 'package:web_app_admin/repo/department/department_repo_imp.dart';
-import 'package:web_app_admin/repo/home_repository_impl.dart';
-import 'package:web_app_admin/repo/inquire/inquiry_repo_imp.dart';
-import 'package:web_app_admin/repo/job_list/about_company_repo_imp.dart';
-import 'package:web_app_admin/repo/job_list/job_listing_repo_imp.dart';
-import 'controller/application/application_cubit.dart';
-import 'controller/blog/blog_cubit.dart';
-import 'controller/department/department_cubit.dart';
-import 'controller/inquire/inquiry_cubit.dart';
-import 'controller/job_list/job_listing_cubit.dart';
-import 'controller/lang_state.dart';
-import 'controller/services/services_cubit.dart';
+
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+import 'features/abou_us/presentation/controller/AboutCompanyCubit.dart';
+import 'features/abou_us/presentation/controller/about_us_cubit.dart';
+import 'features/careers/presentation/controller/careers_cms_cubit.dart';
+import 'features/careers/presentation/controller/careers_section_cubit.dart';
+import 'features/contact_us/presentation/controller/contacu_us_location_cubit.dart';
+import 'features/contact_us/presentation/controller/contatc_us_cubit.dart';
+import 'features/departments/data/repo_imp/department_repo_imp.dart';
+import 'features/departments/presentation/controller/department_cubit.dart';
+import 'features/home/data/repo_imp/home_repository_impl.dart';
+import 'features/home/presentation/controller/home_cubit.dart';
+import 'features/home/presentation/controller/lang_state.dart';
+import 'features/inquire/data/repo_imp/inquiry_repo_imp.dart';
+import 'features/inquire/presentation/controller/inquiry_cubit.dart';
+import 'features/inquire/presentation/ui/pages/inquiry_main_page.dart';
+import 'features/job/data/repo_imp/about_company_repo_imp.dart';
+import 'features/job/data/repo_imp/application_repo_imp.dart';
+import 'features/job/data/repo_imp/job_listing_repo_imp.dart';
+import 'features/job/presentation/controller/application_cubit.dart';
+import 'features/job/presentation/controller/job_listing_cubit.dart';
+import 'features/services/data/repo_imp/blog_repo_impl.dart';
+import 'features/services/data/repo_imp/repo_imp.dart';
+import 'features/services/presentation/controller/blog_cubit.dart';
+import 'features/services/presentation/controller/services_cubit.dart';
 import 'firebase_options.dart';
-import 'router/app_router.dart';
-import 'theme/app_theme.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

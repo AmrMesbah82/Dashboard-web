@@ -7,8 +7,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
-import 'package:web_app_admin/theme/appcolors.dart';
-import 'package:web_app_admin/theme/new_theme.dart';
+
+
+import '../theme/appcolors.dart';
+import '../theme/new_theme.dart';
 
 class CustomValidatedTextFieldMaster extends StatefulWidget {
   final String? label;

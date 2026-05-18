@@ -7,8 +7,10 @@ import 'package:flutter/services.dart'; // Add this import
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:web_app_admin/theme/appcolors.dart';
-import 'package:web_app_admin/theme/text.dart';
+
+
+import '../theme/appcolors.dart';
+import '../theme/text.dart';
 
 
 

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:web_app_admin/core/theme/appcolors.dart';
+import 'package:web_app_admin/core/theme/text.dart';
 
 
-import '../theme/appcolors.dart';
-import '../theme/text.dart';
+
 
 /// A customizable segmented tabs widget that can be reused throughout the app
 ///
