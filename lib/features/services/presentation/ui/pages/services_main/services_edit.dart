@@ -15,9 +15,11 @@ import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_main.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../../job/presentation/ui/pages/job_listing_main.dart';
@@ -28,14 +30,14 @@ import '../../../controller/services_state.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF1A1A1A);
-  static const Color grey      = Color(0xFF9E9E9E);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF1A1A1A);
+//   static const Color grey      = Color(0xFF9E9E9E);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 class ServicesMainEditPage extends StatefulWidget {
   final ServicePageModel model;
@@ -311,7 +313,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       // ── Use BlocConsumer so listener handles navigation on success ──────────
       body: BlocConsumer<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
@@ -375,7 +377,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                             Text(
                               'Editing Services Details',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -416,7 +418,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -457,7 +459,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                         controller:    _titleEnCtrl,
                         hint:          'Text Here',
                         submitted:     _submitted,
-                        primaryColor:  _C.primary,
+                        primaryColor:  ColorPick.primary,
                         fillColor:     Colors.white,
                         textDirection: TextDirection.ltr,
                         height:        36,
@@ -471,7 +473,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                         controller:    _titleArCtrl,
                         hint:          'أدخل النص هنا',
                         submitted:     _submitted,
-                        primaryColor:  _C.primary,
+                        primaryColor:  ColorPick.primary,
                         fillColor:     Colors.white,
                         textDirection: TextDirection.rtl,
                         textAlign:     TextAlign.right,
@@ -490,7 +492,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                     controller:    _descEnCtrl,
                     hint:          'Text Here',
                     submitted:     false,
-                    primaryColor:  _C.primary,
+                    primaryColor:  ColorPick.primary,
                     fillColor:     Colors.white,
                     textDirection: TextDirection.ltr,
                     maxLines:      4,
@@ -510,7 +512,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                     controller:    _descArCtrl,
                     hint:          'أدخل النص هنا',
                     submitted:     false,
-                    primaryColor:  _C.primary,
+                    primaryColor:  ColorPick.primary,
                     fillColor:     Colors.white,
                     textDirection: TextDirection.rtl,
                     textAlign:     TextAlign.right,
@@ -586,8 +588,8 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                         ? _showPublishConfirmDialog
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:         _C.primary,
-                      disabledBackgroundColor: _C.grey,
+                      backgroundColor:         ColorPick.primary,
+                      disabledBackgroundColor: ColorPick.back,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r)),
                     ),
@@ -633,7 +635,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: _C.primary),
+              const CircularProgressIndicator(color: ColorPick.primary),
               SizedBox(height: 12.h),
               Text(
                 'Saving...',
@@ -648,5 +650,5 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
   }
 
   TextStyle _labelStyle() =>
-      StyleText.fontSize12Weight600.copyWith(color: _C.labelText);
+      StyleText.fontSize12Weight600.copyWith(color: AppColors.text);
 }

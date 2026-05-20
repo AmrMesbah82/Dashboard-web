@@ -21,8 +21,10 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/search.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/job_listing_filter_dialog.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../abou_us/presentation/ui/pages/about_us_company_main.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
@@ -51,15 +53,7 @@ class _Svg {
   static const String inactive  = '$_base/Inactive.svg';
 }
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color tagGreen  = Color(0xFF008037);
-}
+
 
 class JobListingMainPage extends StatefulWidget {
   const JobListingMainPage({super.key});
@@ -129,8 +123,8 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
         builder: (context, state) {
           if (state is JobListingInitial || state is JobListingLoading) {
             return const Scaffold(
-              backgroundColor: _C.back,
-              body: Center(child: CircularProgressIndicator(color: _C.primary)),
+              backgroundColor: ColorPick.background,
+              body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
             );
           }
 
@@ -152,7 +146,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
           final logoUrl = _getLogoUrl(context);
 
           return Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.background,
             body: SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
@@ -195,11 +189,11 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                       space: 6,
                                       radius: 6,
                                       width: 130.w,
-                                      color: _C.primary,
+                                      color: ColorPick.primary,
                                       image: 'assets/images/job_list/about.svg',
                                       widthImage: 16.w,
                                       heightImage: 16.h,
-                                      colorBorder: _C.primary,
+                                      colorBorder: ColorPick.primary,
                                       svgColor: Colors.white,
                                     ),
                                     SizedBox(height: 15.h),
@@ -213,11 +207,11 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                       width: 120.w,
                                       space: 6,
                                       radius: 6,
-                                      color: _C.primary,
+                                      color: ColorPick.primary,
                                       image: 'assets/images/job_list/department.svg',
                                       widthImage: 16.w,
                                       heightImage: 16.h,
-                                      colorBorder: _C.primary,
+                                      colorBorder: ColorPick.primary,
                                       svgColor: Colors.white,
                                     ),
                                   ],
@@ -230,11 +224,11 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                   height: 36.h,
                                   space: 6,
                                   radius: 6,
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   image: 'assets/images/job_list/post_job.svg',
                                   widthImage: 16.w,
                                   heightImage: 16.h,
-                                  colorBorder: _C.primary,
+                                  colorBorder: ColorPick.primary,
                                   svgColor: Colors.white,
                                   padding: EdgeInsets.symmetric(horizontal: 14.w),
                                 ),
@@ -255,7 +249,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                       child: Container(
                                         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                                         decoration: BoxDecoration(
-                                          color: isActive ? _C.primary : _C.cardBg,
+                                          color: isActive ? ColorPick.primary : ColorPick.white,
                                           borderRadius: BorderRadius.circular(8.r),
                                         ),
                                         child: Text(
@@ -263,7 +257,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                           style: TextStyle(
                                             fontSize: 13.sp,
                                             fontWeight: FontWeight.w500,
-                                            color: isActive ? Colors.white : _C.labelText,
+                                            color: isActive ? Colors.white : AppColors.text,
                                           ),
                                         ),
                                       ),
@@ -290,7 +284,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                   width: 100.w,
                                   height: 36.h,
                                   radius: 6,
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   textColor: Colors.white,
                                   textStyle: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
                                 ),
@@ -334,9 +328,9 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w600,
-                                          color: _C.primary,
+                                          color: ColorPick.primary,
                                           decoration: TextDecoration.underline,
-                                          decorationColor: _C.primary,
+                                          decorationColor: ColorPick.primary,
                                         ),
                                       ),
                                     ),
@@ -464,7 +458,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: _C.primary.withOpacity(0.1),
+        color: ColorPick.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Row(
@@ -475,13 +469,13 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
             style: TextStyle(
               fontSize: 11.sp,
               fontWeight: FontWeight.w500,
-              color: _C.primary,
+              color: ColorPick.primary,
             ),
           ),
           SizedBox(width: 6.w),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(Icons.close, size: 14.sp, color: _C.primary),
+            child: Icon(Icons.close, size: 14.sp, color: ColorPick.primary),
           ),
         ],
       ),
@@ -497,7 +491,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
         Text(
           'Bayanatz Jobs',
           style: StyleText.fontSize28Weight600.copyWith(
-            color: _C.labelText,
+            color: AppColors.text,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -693,16 +687,16 @@ class _JobCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: RichText(
                     text: TextSpan(
-                      style: TextStyle(fontSize: 12.sp, color: _C.labelText),
+                      style: TextStyle(fontSize: 12.sp, color: AppColors.text),
                       children: [
                         const TextSpan(text: 'Requirements.....'),
                         TextSpan(
                           text: 'View',
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: _C.primary,
+                            color: ColorPick.primary,
                             decoration: TextDecoration.underline,
-                            decorationColor: _C.primary,
+                            decorationColor: ColorPick.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -792,7 +786,7 @@ class _JobCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: _C.tagGreen,
+        color: ColorPick.primary,
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Row(

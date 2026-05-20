@@ -23,6 +23,7 @@ import 'package:web_app_admin/core/custom_dialog.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
@@ -36,18 +37,7 @@ import '../services_main/services_main.dart';
 import 'blog_preview.dart';
 
 
-class _C {
-  static const Color primary    = Color(0xFF008037);
-  static const Color sectionBg  = Color(0xFFF5F5F5);
-  static const Color cardBg     = Color(0xFFFFFFFF);
-  static const Color labelText  = Color(0xFF1A1A1A);
-  static const Color grey       = Color(0xFF9E9E9E);
-  static const Color hintText   = Color(0xFFAAAAAA);
-  static const Color border     = Color(0xFFDDE8DD);
-  static const Color back       = Color(0xFFF1F2ED);
-  static const Color error      = Color(0xFFD32F2F);
-  static const Color draftBadge = Color(0xFFF59E0B);
-}
+
 
 void _log(String message, {String level = '🔵'}) {
   debugPrint('$level [BlogCreateEditPage] $message');
@@ -485,7 +475,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Center(
@@ -509,19 +499,19 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                     Text(
                       _isEdit ? 'Edit Important Reads' : 'Create New Important Reads',
                       style: StyleText.fontSize45Weight600.copyWith(
-                          color: _C.primary, fontWeight: FontWeight.w700),
+                          color: ColorPick.primary, fontWeight: FontWeight.w700),
                     ),
                     if (_isEditingDraft) ...[
                       SizedBox(width: 12.w),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: _C.draftBadge.withOpacity(0.15),
+                          color: ColorPick.discard.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text('EDITING DRAFT',
                             style: StyleText.fontSize12Weight600
-                                .copyWith(color: _C.draftBadge)),
+                                .copyWith(color: ColorPick.discard)),
                       ),
                     ],
                   ],
@@ -531,7 +521,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                     padding: EdgeInsets.only(top: 4.h),
                     child: Text(
                       'You are editing a saved draft. The published version is still live.',
-                      style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                      style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
                     ),
                   ),
                 SizedBox(height: 24.h),
@@ -578,7 +568,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                   color:  AppColors.card,
                   shape:  BoxShape.circle,
                   border: imageError
-                      ? Border.all(color: _C.error, width: 1.5)
+                      ? Border.all(color: ColorPick.red, width: 1.5)
                       : null,
                 ),
                 child: _imageBytes != null
@@ -622,7 +612,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                 child: Container(
                   width: 25.w, height: 25.h,
                   decoration: BoxDecoration(
-                    color:  _C.primary,
+                    color:  ColorPick.primary,
                     shape:  BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
@@ -655,7 +645,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
               isRequired:    true,
               submitted:     _submitted,
               fillColor:     Colors.white,
-              primaryColor:  _C.primary,
+              primaryColor:  ColorPick.primary,
               textDirection: TextDirection.ltr,
               height:        40,
             ),
@@ -668,7 +658,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
               submitted:     _submitted,
               fillColor:     Colors.white,
               isRequired:    true,
-              primaryColor:  _C.primary,
+              primaryColor:  ColorPick.primary,
               textDirection: TextDirection.rtl,
               textAlign:     TextAlign.right,
               height:        40,
@@ -687,7 +677,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           maxLength: 150,
           showCharCount: true,
           isRequired:    true,
-          primaryColor:  _C.primary,
+          primaryColor:  ColorPick.primary,
           textDirection: TextDirection.ltr,
           maxLines:      4,
           height:        100,
@@ -705,7 +695,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           submitted:     _submitted,
           maxLength: 150,
           showCharCount: true,
-          primaryColor:  _C.primary,
+          primaryColor:  ColorPick.primary,
           textDirection: TextDirection.rtl,
           textAlign:     TextAlign.right,
           maxLines:      4,
@@ -730,7 +720,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
             fillColor:     Colors.white,
             submitted:     _submitted,
             isRequired:    true,
-            primaryColor:  _C.primary,
+            primaryColor:  ColorPick.primary,
             textDirection: TextDirection.ltr,
             height:        40,
           ),
@@ -742,7 +732,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
             fillColor:     Colors.white,
             hint:          'أكتب هنا',
             submitted:     _submitted,
-            primaryColor:  _C.primary,
+            primaryColor:  ColorPick.primary,
             isRequired:    true,
             textDirection: TextDirection.rtl,
             textAlign:     TextAlign.right,
@@ -767,7 +757,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
             hint:          'Text Here',
             isRequired:    true,
             submitted:     _submitted,
-            primaryColor:  _C.primary,
+            primaryColor:  ColorPick.primary,
             fillColor:     Colors.white,
             textDirection: TextDirection.ltr,
             height:        40,
@@ -781,7 +771,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
             submitted:     _submitted,
             fillColor:     Colors.white,
             isRequired:    true,
-            primaryColor:  _C.primary,
+            primaryColor:  ColorPick.primary,
             textDirection: TextDirection.rtl,
             textAlign:     TextAlign.right,
             height:        40,
@@ -823,13 +813,13 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           if (prefix.isNotEmpty)
             Text('$prefix  ',
                 style: StyleText.fontSize13Weight500
-                    .copyWith(color: _C.labelText, fontWeight: FontWeight.w600)),
+                    .copyWith(color: AppColors.text, fontWeight: FontWeight.w600)),
           Text('$typeLabel *',
               style: StyleText.fontSize12Weight500.copyWith(color: Colors.black)),
           const Spacer(),
           GestureDetector(
             onTap: () => _removeBlock(idx),
-            child: Icon(Icons.close, size: 18.sp, color: _C.error),
+            child: Icon(Icons.close, size: 18.sp, color: ColorPick.red),
           ),
         ]),
         SizedBox(height: 6.h),
@@ -840,7 +830,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           submitted:     _submitted,
           isRequired:    true,
           maxLength: 10000,
-          primaryColor:  _C.primary,
+          primaryColor:  ColorPick.primary,
           textDirection: TextDirection.ltr,
           maxLines:      enMaxLines,
           height:        enHeight,
@@ -857,7 +847,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           hint:          'أكتب هنا',
           isRequired:    true,
           submitted:     _submitted,
-          primaryColor:  _C.primary,
+          primaryColor:  ColorPick.primary,
           maxLength: 10000,
           textDirection: TextDirection.rtl,
           textAlign:     TextAlign.right,
@@ -905,8 +895,8 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                 // null onPressed = visually + functionally disabled
                 onPressed: _isPublishEnabled ? _publish : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:         _C.primary,
-                  disabledBackgroundColor: _C.grey,
+                  backgroundColor:         ColorPick.primary,
+                  disabledBackgroundColor: AppColors.secondaryText,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -979,7 +969,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _C.primary,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Row(children: [
@@ -1018,7 +1008,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
   );
 
   TextStyle _labelStyle() =>
-      StyleText.fontSize12Weight600.copyWith(color: _C.labelText);
+      StyleText.fontSize12Weight600.copyWith(color: AppColors.text);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1077,7 +1067,7 @@ class _XhrCircleImageState extends State<_XhrCircleImage> {
       return SizedBox(
         width: widget.size, height: widget.size,
         child: Icon(Icons.broken_image_outlined,
-            size: 24.sp, color: _C.hintText),
+            size: 24.sp, color: AppColors.secondaryText),
       );
     }
     if (_svgString == null) {
@@ -1085,7 +1075,7 @@ class _XhrCircleImageState extends State<_XhrCircleImage> {
         width: widget.size, height: widget.size,
         child: const Center(
           child: CircularProgressIndicator(
-              strokeWidth: 2, color: _C.primary),
+              strokeWidth: 2, color: ColorPick.primary),
         ),
       );
     }

@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/calender_widget.dart';
@@ -40,14 +41,7 @@ import 'job_listing_edit.dart';
 import 'job_listing_main.dart';
 
 // ── Colors ───────────────────────────────────────────────────────────────────
-class _C {
-  static const Color primary = Color(0xFF008037);
-  static const Color back = Color(0xFFF1F2ED);
-  static const Color cardBg = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText = Color(0xFFAAAAAA);
-  static const Color border = Color(0xFFE0E0E0);
-}
+
 
 class _Ch {
   static const Color green = Color(0xFF008037);
@@ -337,7 +331,7 @@ class _TableSettingDialogContentState
                     width: 32.sp,
                     height: 32.sp,
                     decoration: BoxDecoration(
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: CustomSvg(
@@ -353,7 +347,7 @@ class _TableSettingDialogContentState
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
-                      color: _C.labelText,
+                      color: AppColors.text,
                     ),
                   ),
                   const Spacer(),
@@ -476,7 +470,7 @@ class _TableSettingDialogContentState
                       child: Container(
                         height: 44.h,
                         decoration: BoxDecoration(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Center(
@@ -516,7 +510,7 @@ class _TableSettingDialogContentState
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
-                color: _C.labelText,
+                color: AppColors.text,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -529,7 +523,7 @@ class _TableSettingDialogContentState
             padding: 3.sp,
             borderRadius: 20.sp,
             toggleSize: 16.sp,
-            activeColor: _C.primary,
+            activeColor: ColorPick.primary,
             inactiveColor: Colors.grey.withOpacity(.16),
             value: value,
             onToggle: (v) {
@@ -667,7 +661,7 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
         }
       },
       child: Scaffold(
-        backgroundColor: _C.back,
+        backgroundColor: ColorPick.background,
         body: SingleChildScrollView(
           child: SizedBox(
             width: double.infinity,
@@ -693,7 +687,7 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
                         Text(
                           'Job Post Details',
                           style: StyleText.fontSize28Weight600.copyWith(
-                            color: _C.primary,
+                            color: ColorPick.primary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -727,7 +721,7 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
                                           style: TextStyle(
                                             fontSize: 13.sp,
                                             fontWeight: FontWeight.w600,
-                                            color: _C.primary,
+                                            color: ColorPick.primary,
                                           ),
                                         ),
                                         SizedBox(width: 6.w),
@@ -751,7 +745,7 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
                             child: Padding(
                               padding: EdgeInsets.all(40.sp),
                               child: const CircularProgressIndicator(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                               ),
                             ),
                           )
@@ -815,13 +809,13 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
                         fontWeight: isActive
                             ? FontWeight.w700
                             : FontWeight.w500,
-                        color: isActive ? _C.primary : _C.hintText,
+                        color: isActive ? ColorPick.primary : AppColors.secondaryText,
                       ),
                     ),
                   ),
                   Container(
                     height: 2,
-                    color: isActive ? _C.primary : Colors.transparent,
+                    color: isActive ? ColorPick.primary : Colors.transparent,
                   ),
                 ],
               ),
@@ -1207,7 +1201,7 @@ class _DashboardTab extends StatelessWidget {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(40.sp),
-          child: const CircularProgressIndicator(color: _C.primary),
+          child: const CircularProgressIndicator(color: ColorPick.primary),
         ),
       );
     if (applications.isEmpty)
@@ -1216,7 +1210,7 @@ class _DashboardTab extends StatelessWidget {
           padding: EdgeInsets.all(40.sp),
           child: Text(
             'No applications yet for this job.',
-            style: TextStyle(fontSize: 14.sp, color: _C.hintText),
+            style: TextStyle(fontSize: 14.sp, color: AppColors.secondaryText),
           ),
         ),
       );
@@ -2319,7 +2313,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
       return Center(
         child: Padding(
           padding: EdgeInsets.all(40.sp),
-          child: const CircularProgressIndicator(color: _C.primary),
+          child: const CircularProgressIndicator(color: ColorPick.primary),
         ),
       );
 
@@ -2355,7 +2349,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                 height: 36,
                 hint: Text(
                   'Stage',
-                  style: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                  style: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                 ),
                 itemColors: _stageColors,
                 showColorDots: true,
@@ -2374,7 +2368,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                 height: 36,
                 hint: Text(
                   'Status',
-                  style: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                  style: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                 ),
                 itemColors: _statusColors,
                 showColorDots: true,
@@ -2405,8 +2399,8 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: _selectedCalendarDate != null
-                                ? _C.labelText
-                                : _C.hintText,
+                                ? AppColors.text
+                                : AppColors.secondaryText,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -2423,7 +2417,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                           child: Icon(
                             Icons.close,
                             size: 14.sp,
-                            color: _C.hintText,
+                            color: AppColors.secondaryText,
                           ),
                         ),
                       if (_selectedCalendarDate == null)
@@ -2436,7 +2430,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
             SizedBox(width: 12.w),
             // ── TABLE SETTING BUTTON — uses Material InkWell for reliable tap on Web ──
             Material(
-              color: _C.primary,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.circular(6.r),
               child: InkWell(
                 onTap: _openTableSettingDialog,
@@ -2480,7 +2474,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
             width: 135.w,
             space: 6.w,
             radius: 6.r,
-            color: _C.primary,
+            color: ColorPick.primary,
             image: 'assets/images/export.svg',
             widthImage: 16.sp,
             heightImage: 16.sp,
@@ -2510,7 +2504,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                   columnWidths: columnWidths,
                   children: [
                     TableRow(
-                      decoration: const BoxDecoration(color: _C.primary),
+                      decoration: const BoxDecoration(color: ColorPick.primary),
                       children: headerLabels
                           .map(
                             (name) => Padding(
@@ -2537,7 +2531,7 @@ class _ApplicantDetailsTabState extends State<_ApplicantDetailsTab> {
                                 'No applicants match the selected filters.',
                                 style: TextStyle(
                                   fontSize: 13.sp,
-                                  color: _C.hintText,
+                                  color: AppColors.secondaryText,
                                 ),
                               ),
                             ),
@@ -2607,7 +2601,7 @@ class _SectionCardState extends State<_SectionCard> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: _open
                     ? BorderRadius.only(
                   topLeft: Radius.circular(6.r),

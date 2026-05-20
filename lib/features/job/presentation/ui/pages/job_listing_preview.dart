@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../abou_us/presentation/ui/pages/about_us_company_edit.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
@@ -19,16 +21,7 @@ import '../../controller/job_listing_state.dart';
 import 'job_listing_main.dart';
 
 
-class _C {
-  static const Color primary      = Color(0xFF008037);
-  static const Color back         = Color(0xFFF1F2ED);
-  static const Color cardBg       = Color(0xFFFFFFFF);
-  static const Color border       = Color(0xFFE0E0E0);
-  static const Color labelText    = Color(0xFF333333);
-  static const Color hintText     = Color(0xFF999999);
-  static const Color sectionBg    = Color(0xFFF5FAF5); // light green tint for sections
-  static const Color dividerColor = Color(0xFFE8E8E8);
-}
+
 
 class JobListingPreviewPage extends StatefulWidget {
   final String jobId;
@@ -73,20 +66,20 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
           }
           if (state is JobListingError) {
             return Scaffold(
-              backgroundColor: _C.back,
+              backgroundColor: ColorPick.background,
               body: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.error_outline, color: const Color(0xFFE53935), size: 48.sp),
                     SizedBox(height: 16.h),
-                    Text(state.message, style: TextStyle(fontSize: 14.sp, color: _C.hintText)),
+                    Text(state.message, style: TextStyle(fontSize: 14.sp, color: AppColors.secondaryText)),
                     SizedBox(height: 16.h),
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-                        decoration: BoxDecoration(color: _C.primary, borderRadius: BorderRadius.circular(8.r)),
+                        decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(8.r)),
                         child: Text('Back', style: TextStyle(fontSize: 14.sp, color: Colors.white, fontWeight: FontWeight.w600)),
                       ),
                     ),
@@ -96,8 +89,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
             );
           }
           return const Scaffold(
-            backgroundColor: _C.back,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         },
       );
@@ -124,7 +117,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
     }
 
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: SingleChildScrollView(
         child: SizedBox(
           width: double.infinity,
@@ -150,7 +143,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                       style: TextStyle(
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w700,
-                        color: _C.primary,
+                        color: ColorPick.primary,
                       ),
                     ),
                     SizedBox(height: 20.h),
@@ -177,9 +170,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                         width: contentWidth,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: _C.cardBg,
+                            color: ColorPick.white,
                             borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(color: _C.border),
                           ),
                           child: Directionality(
                             textDirection:
@@ -193,7 +185,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20.w, vertical: 14.h),
                                   decoration: BoxDecoration(
-                                    color: _C.primary,
+                                    color: ColorPick.primary,
                                     borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(12.r),
                                       topRight: Radius.circular(12.r),
@@ -240,15 +232,10 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                         style: TextStyle(
                                           fontSize: 18.sp,
                                           fontWeight: FontWeight.w600,
-                                          color: _C.labelText,
+                                          color: AppColors.text,
                                         ),
                                       ),
                                       SizedBox(height: 16.h),
-                                      Divider(
-                                          color: _C.dividerColor,
-                                          thickness: 1),
-                                      SizedBox(height: 16.h),
-
                                       // ── Info grid ──────────────
                                       _infoRow(
                                         'Hire Date:',
@@ -299,7 +286,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                               style: TextStyle(
                                                 fontSize: 13.sp,
                                                 fontWeight: FontWeight.w500,
-                                                color: _C.hintText,
+                                                color: AppColors.secondaryText,
                                               ),
                                             ),
                                             SizedBox(width: 12.w),
@@ -322,9 +309,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                                     BorderRadius
                                                         .circular(
                                                         6.r),
-                                                    border: Border.all(
-                                                        color: _C
-                                                            .dividerColor),
+
+
                                                   ),
                                                   child: Text(
                                                     isAr
@@ -332,8 +318,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                                                         : s.name.en,
                                                     style: TextStyle(
                                                       fontSize: 12.sp,
-                                                      color: _C
-                                                          .labelText,
+                                                      color: AppColors.text,
+                                                          
                                                     ),
                                                   ),
                                                 ))
@@ -418,7 +404,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                             child: Container(
                               height: 48.h,
                               decoration: BoxDecoration(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Center(
@@ -461,12 +447,12 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
           mode,
           style: isActive
               ? StyleText.fontSize16Weight600.copyWith(
-            color: _C.primary,
+            color: ColorPick.primary,
             decoration:      TextDecoration.underline,
-            decorationColor: _C.primary,
+            decorationColor: ColorPick.primary,
           )
               : StyleText.fontSize16Weight400.copyWith(
-            color: _C.hintText,
+            color: AppColors.secondaryText,
           ),
         ),
       ),
@@ -484,17 +470,17 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: isActive ? _C.primary : _C.cardBg,
+          color: isActive ? ColorPick.primary : ColorPick.white,
           borderRadius: BorderRadius.circular(4.r),
           border:
-          Border.all(color: isActive ? _C.primary : _C.dividerColor),
+          Border.all(color: isActive ? ColorPick.primary : AppColors.secondaryText),
         ),
         child: Text(
           lang,
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : _C.hintText,
+            color: isActive ? Colors.white : AppColors.secondaryText,
           ),
         ),
       ),
@@ -517,14 +503,14 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   TextSpan(
                     text: '$label1 ',
                     style: TextStyle(
-                        fontSize: 13.sp, color: _C.hintText, height: 1.6),
+                        fontSize: 13.sp, color: AppColors.secondaryText, height: 1.6),
                   ),
                   TextSpan(
                     text: value1,
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       height: 1.6,
                     ),
                   ),
@@ -540,14 +526,14 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   TextSpan(
                     text: '$label2 ',
                     style: TextStyle(
-                        fontSize: 13.sp, color: _C.hintText, height: 1.6),
+                        fontSize: 13.sp, color: AppColors.secondaryText, height: 1.6),
                   ),
                   TextSpan(
                     text: value2,
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       height: 1.6,
                     ),
                   ),
@@ -566,15 +552,15 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
           TextSpan(
             text: '$label ',
             style:
-            TextStyle(fontSize: 13.sp, color: _C.hintText, height: 1.6),
+            TextStyle(fontSize: 13.sp, color: AppColors.secondaryText, height: 1.6),
           ),
           TextSpan(
             text: value,
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
-              color: _C.primary,
-              decorationColor: _C.primary,
+              color: ColorPick.primary,
+              decorationColor: ColorPick.primary,
               height: 1.6,
             ),
           ),
@@ -594,7 +580,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
       width: double.infinity,
       padding: EdgeInsets.all(20.sp),
       decoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Column(
@@ -605,7 +591,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: _C.primary,
+              color: ColorPick.primary,
             ),
           ),
           SizedBox(height: 14.h),
@@ -624,7 +610,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
       width: double.infinity,
       padding: EdgeInsets.all(20.sp),
       decoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Column(
@@ -635,7 +621,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
-              color: _C.primary,
+              color: ColorPick.primary,
             ),
           ),
           SizedBox(height: 16.h),
@@ -659,7 +645,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: _C.labelText,
+                          color: AppColors.text,
                         ),
                       ),
                     ),
@@ -672,7 +658,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                           : Text(
                         '-',
                         style: TextStyle(
-                            fontSize: 13.sp, color: _C.hintText),
+                            fontSize: 13.sp, color: AppColors.secondaryText),
                       ),
                     ),
                   ],
@@ -706,8 +692,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                 child: Container(
                   width: 5.sp,
                   height: 5.sp,
-                  decoration: const BoxDecoration(
-                    color: _C.labelText,
+                  decoration:  BoxDecoration(
+                    color: AppColors.text,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -718,7 +704,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   line.trim(),
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: _C.labelText,
+                    color: AppColors.text,
                     height: 1.6,
                   ),
                 ),
@@ -758,7 +744,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
-                    color: _C.labelText,
+                    color: AppColors.text,
                     height: 1.6,
                   ),
                 ),
@@ -766,7 +752,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                   text: value,
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: _C.labelText,
+                    color: AppColors.text,
                     height: 1.6,
                   ),
                 ),
@@ -778,7 +764,7 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
             trimmed,
             style: TextStyle(
               fontSize: 13.sp,
-              color: _C.labelText,
+              color: AppColors.text,
               height: 1.6,
             ),
           );
@@ -794,8 +780,8 @@ class _JobListingPreviewPageState extends State<JobListingPreviewPage> {
                 child: Container(
                   width: 5.sp,
                   height: 5.sp,
-                  decoration: const BoxDecoration(
-                    color: _C.labelText,
+                  decoration:  BoxDecoration(
+                    color: AppColors.text,
                     shape: BoxShape.circle,
                   ),
                 ),

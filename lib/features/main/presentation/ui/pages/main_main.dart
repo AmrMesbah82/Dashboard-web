@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/navigator.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -22,15 +23,15 @@ import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 // ── Helper: strip leading slash for display ───────────────────────────────────
 String _displayRoute(String route) {
@@ -66,8 +67,8 @@ class _HomeMainPageState extends State<HomeMainPage> {
       builder: (context, state) {
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -76,7 +77,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
         if (state is HomeCmsSaved)  data = state.data;
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -104,7 +105,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                               Text(
                                 'Main',
                                 style: StyleText.fontSize45Weight600.copyWith(
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -114,7 +115,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                                   decoration: BoxDecoration(
-                                    color: _C.primary,
+                                    color: ColorPick.primary,
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
@@ -135,12 +136,12 @@ class _HomeMainPageState extends State<HomeMainPage> {
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: _C.cardBg,
+                                    color: ColorPick.background,
                                     borderRadius: BorderRadius.circular(4.r),
                                   ),
                                   child: Text(
                                     'Last Updated On 12 Jul 2026',
-                                    style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+                                    style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
                                   ),
                                 ),
                               ),
@@ -150,7 +151,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color: _C.cardBg,
+                                    color: ColorPick.background,
                                     borderRadius: BorderRadius.circular(4.r),
                                   ),
                                   child: Row(
@@ -158,10 +159,10 @@ class _HomeMainPageState extends State<HomeMainPage> {
                                     children: [
                                       Text(
                                         'Edit Main',
-                                        style: StyleText.fontSize14Weight500.copyWith(color: _C.primary),
+                                        style: StyleText.fontSize14Weight500.copyWith(color: ColorPick.primary),
                                       ),
                                       SizedBox(width: 8.w),
-                                      Icon(Icons.edit_outlined, size: 14.sp, color: _C.primary),
+                                      Icon(Icons.edit_outlined, size: 14.sp, color: ColorPick.primary),
                                     ],
                                   ),
                                 ),
@@ -196,7 +197,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                               children: [_readOnlyLinksSection(data)],
                             ),
                           ] else ...[
-                            const Center(child: CircularProgressIndicator(color: _C.primary)),
+                            const Center(child: CircularProgressIndicator(color: ColorPick.primary)),
                           ],
 
                           SizedBox(height: 40.h),
@@ -231,7 +232,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
@@ -264,7 +265,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 15.h),
-        Text('Logo', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text('Logo', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         Container(
           width: 70.w, height: 70.h,
@@ -318,7 +319,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
         child: Center(
           child: Text(
             'No navigation items configured',
-            style: StyleText.fontSize13Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText),
           ),
         ),
       );
@@ -343,12 +344,12 @@ class _HomeMainPageState extends State<HomeMainPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.drag_indicator_rounded,
-                        size: 16.sp, color: _C.hintText),
+                        size: 16.sp, color: AppColors.secondaryText),
                     SizedBox(width: 6.w),
                     Text(
                       'Item ${i + 1}',
                       style: StyleText.fontSize13Weight600
-                          .copyWith(color: _C.labelText),
+                          .copyWith(color: AppColors.text),
                     ),
                   ],
                 ),
@@ -358,13 +359,13 @@ class _HomeMainPageState extends State<HomeMainPage> {
                   children: [
                     Text('Status: ',
                         style: StyleText.fontSize11Weight400
-                            .copyWith(color: _C.labelText)),
+                            .copyWith(color: AppColors.text)),
                     Container(
                       width: 32.w,
                       height: 18.h,
                       decoration: BoxDecoration(
                         color: btn.status
-                            ? _C.primary
+                            ? ColorPick.primary
                             : Colors.grey.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
@@ -429,7 +430,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
         padding: EdgeInsets.only(bottom: 10.h),
         child: Row(
           children: [
-            Icon(Icons.drag_indicator_rounded, size: 18.sp, color: _C.hintText),
+            Icon(Icons.drag_indicator_rounded, size: 18.sp, color: AppColors.secondaryText),
             SizedBox(width: 8.w),
             Expanded(child: _readFieldWithStatus('Title', item.title.en, item.status)),
             SizedBox(width: 8.w),
@@ -457,7 +458,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
             ],
             Text(
               '${i + 1}${_ord(i + 1)} Column',
-              style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText),
+              style: StyleText.fontSize13Weight600.copyWith(color: AppColors.text),
             ),
             SizedBox(height: 8.h),
             Row(children: [
@@ -519,7 +520,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 15.h),
-        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         Container(
           width: 60.w, height: 60.h,
@@ -549,7 +550,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
   Widget _readField(String label, String value) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+      Text(label, style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
       SizedBox(height: 4.h),
       Container(
         width: double.infinity, height: 36.h,
@@ -557,7 +558,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
         decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
         alignment: Alignment.centerLeft,
         child: Text(value,
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
             overflow: TextOverflow.ellipsis),
       ),
     ],
@@ -568,7 +569,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           width: double.infinity, height: 36.h,
@@ -577,7 +578,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
           alignment: Alignment.centerRight,
           child: Text(
             value.isEmpty ? 'أدخل النص هنا' : value,
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
             overflow: TextOverflow.ellipsis,
             textDirection: TextDirection.rtl,
           ),
@@ -592,13 +593,13 @@ class _HomeMainPageState extends State<HomeMainPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+          Text(label, style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
           Row(mainAxisSize: MainAxisSize.min, children: [
-            Text('Status: ', style: StyleText.fontSize11Weight400.copyWith(color: _C.labelText)),
+            Text('Status: ', style: StyleText.fontSize11Weight400.copyWith(color: AppColors.text)),
             Container(
               width: 32.w, height: 18.h,
               decoration: BoxDecoration(
-                color: status ? _C.primary : Colors.grey.withOpacity(0.3),
+                color: status ? ColorPick.primary : Colors.grey.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Align(
@@ -621,7 +622,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
         alignment: Alignment.centerLeft,
         child: Text(
           value.isEmpty ? 'Text Here' : value,
-          style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+          style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -641,7 +642,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text(label, style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           height: 36.h,
@@ -654,7 +655,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
             ),
             SizedBox(width: 8.w),
             Text(hex.isEmpty ? '#D9D9D9' : hex,
-                style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText)),
+                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText)),
           ]),
         ),
       ],

@@ -19,6 +19,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_edit.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 
@@ -46,22 +47,22 @@ void _log(String message, {String level = '🔵'}) {
   debugPrint('$level [ServicesMainPageMaster] $message');
 }
 
-class _C {
-  static const Color primary    = Color(0xFF008037);
-  static const Color sectionBg  = Color(0xFFF5F5F5);
-  static const Color cardBg     = Color(0xFFFFFFFF);
-  static const Color border     = Color(0xFFDDE8DD);
-  static const Color labelText  = Color(0xFF333333);
-  static const Color hintText   = Color(0xFFAAAAAA);
-  static const Color greenLight = Color(0xFFE8F5EE);
-  static const Color back       = Color(0xFFF1F2ED);
-
-  // status badge colors
-  static const Color activeColor   = Color(0xFF008037);
-  static const Color inactiveColor = Color(0xFFFF8C00);
-  static const Color draftColor    = Color(0xFF666666);
-  static const Color removedColor  = Color(0xFFCC0000);
-}
+// class _C {
+//   static const Color primary    = Color(0xFF008037);
+//   static const Color sectionBg  = Color(0xFFF5F5F5);
+//   static const Color cardBg     = Color(0xFFFFFFFF);
+//   static const Color border     = Color(0xFFDDE8DD);
+//   static const Color labelText  = Color(0xFF333333);
+//   static const Color hintText   = Color(0xFFAAAAAA);
+//   static const Color greenLight = Color(0xFFE8F5EE);
+//   static const Color back       = Color(0xFFF1F2ED);
+//
+//   // status badge colors
+//   static const Color activeColor   = Color(0xFF008037);
+//   static const Color inactiveColor = Color(0xFFFF8C00);
+//   static const Color draftColor    = Color(0xFF666666);
+//   static const Color removedColor  = Color(0xFFCC0000);
+// }
 
 // ── Blog status enum ──────────────────────────────────────────────────────────
 enum _PostStatus { all, posted, inactive, draft, removed }
@@ -146,8 +147,8 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
       builder: (context, state) {
         if (state is ServiceCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -158,7 +159,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         };
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -197,7 +198,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           children: [
             Text('Services',
               style: StyleText.fontSize45Weight600.copyWith(
-                color: _C.primary, fontWeight: FontWeight.w700,
+                color: ColorPick.primary, fontWeight: FontWeight.w700,
               ),
             ),
             const Spacer(),
@@ -231,7 +232,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                   width: 165.w,
                   height: 45.h,
                   decoration: BoxDecoration(
-                    color: _C.primary,
+                    color: ColorPick.primary,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(
@@ -284,13 +285,13 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                         fontWeight: isActive
                             ? FontWeight.w700
                             : FontWeight.w500,
-                        color: isActive ? _C.primary : _C.hintText,
+                        color: isActive ? ColorPick.primary : AppColors.secondaryText,
                       ),
                     ),
                   ),
                   Container(
                     height: 2,
-                    color: isActive ? _C.primary : Colors.transparent,
+                    color: isActive ? ColorPick.primary : Colors.transparent,
                   ),
                 ],
               ),
@@ -391,7 +392,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                   padding: EdgeInsets.symmetric(vertical: 24.h),
                   child: Text('No journey items yet.',
                       style: StyleText.fontSize13Weight400
-                          .copyWith(color: _C.hintText)),
+                          .copyWith(color: AppColors.secondaryText)),
                 ),
               )
             else
@@ -417,7 +418,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           return const Center(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 60),
-              child: CircularProgressIndicator(color: _C.primary),
+              child: CircularProgressIndicator(color: ColorPick.primary),
             ),
           );
         }
@@ -492,11 +493,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           cursorColor: Color(0xFF008037),
         controller: _searchCtrl,
         style: StyleText.fontSize13Weight400
-            .copyWith(color: _C.labelText),
+            .copyWith(color: AppColors.text),
         decoration: InputDecoration(
         hintText:       'Search',
         hintStyle:      StyleText.fontSize13Weight400
-            .copyWith(color: _C.hintText),
+            .copyWith(color: AppColors.secondaryText),
         border:         InputBorder.none,
         isDense:        true,
         contentPadding: EdgeInsets.zero,
@@ -541,7 +542,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         padding: EdgeInsets.symmetric(
         horizontal: 12.w, vertical: 7.h),
         decoration: BoxDecoration(
-        color: isActive ? _C.primary : AppColors.card,
+        color: isActive ? ColorPick.primary : AppColors.card,
         borderRadius: BorderRadius.circular(4.r),
         ),
         child: Row(
@@ -553,7 +554,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         decoration: BoxDecoration(
         color: isActive
         ? Colors.white.withOpacity(0.25)
-            : _C.primary,
+            : ColorPick.primary,
         shape: BoxShape.circle,
         ),
         child: Center(
@@ -571,7 +572,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ],
         Text(s.label,
         style: StyleText.fontSize13Weight500.copyWith(
-        color: isActive ? Colors.white : _C.labelText,
+        color: isActive ? Colors.white : AppColors.text,
         ),
         ),
         ],
@@ -590,11 +591,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         padding: EdgeInsets.symmetric(vertical: 40.h),
         child: Column(children: [
         Icon(Icons.article_outlined,
-        size: 40.sp, color: _C.hintText),
+        size: 40.sp, color: AppColors.secondaryText),
         SizedBox(height: 8.h),
         Text('No posts found.',
         style: StyleText.fontSize13Weight400
-            .copyWith(color: _C.hintText)),
+            .copyWith(color: AppColors.secondaryText)),
         ]),
         ),
         )
@@ -713,14 +714,14 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         height: 40.h,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
-          color: outlined ? _C.cardBg : _C.primary,
+          color: outlined ? ColorPick.background : ColorPick.primary,
           borderRadius: BorderRadius.circular(6.r),
-          border: outlined ? Border.all(color: _C.primary) : null,
+          border: outlined ? Border.all(color: ColorPick.primary) : null,
         ),
         child: Center(
           child: Text(label,
             style: StyleText.fontSize13Weight500.copyWith(
-              color: outlined ? _C.primary : Colors.white,
+              color: outlined ? ColorPick.primary : Colors.white,
             ),
           ),
         ),
@@ -738,12 +739,12 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: _C.cardBg,
+            color: ColorPick.background,
             borderRadius: BorderRadius.circular(4.r),
           ),
           child: Text(
             'Last Updated On ${_fmtDate(lastUpdated)}',
-            style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+            style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
           ),
         ),
         const Spacer(),
@@ -763,7 +764,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                 SizedBox(width: 6.w),
                 CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
-                    fit: BoxFit.scaleDown, color: _C.primary),
+                    fit: BoxFit.scaleDown, color: ColorPick.primary),
               ]),
             ),
           ),
@@ -815,7 +816,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           Container(
             width: 28.w, height: 28.w,
             decoration: BoxDecoration(
-              color: _C.greenLight,
+              color: ColorPick.preview,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: item.iconUrl.isNotEmpty
@@ -831,7 +832,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               ),
             )
                 : Icon(Icons.miscellaneous_services_outlined,
-                size: 16.sp, color: _C.primary),
+                size: 16.sp, color: ColorPick.primary),
           ),
           SizedBox(height: 6.h),
           Text(
@@ -871,7 +872,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r)
               ),
               child: Row(children: [
@@ -899,7 +900,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
     children: [
       SizedBox(height: 20.h),
       Text(label,
-          style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+          style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
       SizedBox(height: 4.h),
       Container(
         width: double.infinity, height: height.h,
@@ -911,7 +912,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ),
         alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
         child: Text(value,
-          style:    StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+          style:    StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
           maxLines: height > 36 ? 4 : 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -929,7 +930,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
             SizedBox(height: 20.h),
             Text(label,
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 4.h),
             Container(
               width: double.infinity, height: height.h,
@@ -944,7 +945,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
               child: Text(
                 value.isEmpty ? 'أكتب هنا' : value,
                 style: StyleText.fontSize12Weight400
-                    .copyWith(color: _C.hintText),
+                    .copyWith(color: AppColors.secondaryText),
                 textDirection: TextDirection.rtl,
                 maxLines:      height > 36 ? 4 : 1,
                 overflow:      TextOverflow.ellipsis,
@@ -970,11 +971,11 @@ class _BlogCard extends StatelessWidget {
   });
 
   Color get _statusColor => switch (post.status) {
-    'published' => _C.activeColor,
-    'inactive'  => _C.inactiveColor,
-    'draft'     => _C.draftColor,
-    'removed'   => _C.removedColor,
-    _           => _C.draftColor,
+    'published' => ColorPick.activeColor,
+    'inactive'  => ColorPick.inactiveColor,
+    'draft'     => ColorPick.draftColor,
+    'removed'   => ColorPick.removedColor,
+    _           => ColorPick.draftColor,
   };
 
   String get _statusLabel => switch (post.status) {
@@ -1027,7 +1028,7 @@ class _BlogCard extends StatelessWidget {
                   child: Text(
                     '$_datePrefix ${_fmtDate(post.createdAt)}',
                     style: StyleText.fontSize11Weight400
-                        .copyWith(color: _C.hintText),
+                        .copyWith(color: AppColors.secondaryText),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -1061,7 +1062,7 @@ class _BlogCard extends StatelessWidget {
                             ? post.question.en
                             : 'Untitled',
                         style: StyleText.fontSize13Weight600.copyWith(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           fontWeight: FontWeight.w700,
                         ),
                         maxLines: 2,
@@ -1073,7 +1074,7 @@ class _BlogCard extends StatelessWidget {
                             ? post.shortDescription.en
                             : 'Short Description...',
                         style: StyleText.fontSize12Weight400
-                            .copyWith(color: _C.hintText),
+                            .copyWith(color: AppColors.secondaryText),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1106,11 +1107,11 @@ class _BlogCard extends StatelessWidget {
                 //   child: Container(
                 //     padding: EdgeInsets.all(6.r),
                 //     decoration: BoxDecoration(
-                //       color: _C.sectionBg,
+                //       color: ColorPick.background,
                 //       borderRadius: BorderRadius.circular(4.r),
                 //     ),
                 //     child: Icon(Icons.edit_outlined,
-                //         size: 16.sp, color: _C.labelText),
+                //         size: 16.sp, color: AppColors.text),
                 //   ),
                 // ),
                 // SizedBox(width: 8.w),
@@ -1120,7 +1121,7 @@ class _BlogCard extends StatelessWidget {
                 //   child: Container(
                 //     padding: EdgeInsets.all(6.r),
                 //     decoration: BoxDecoration(
-                //       color: _C.sectionBg,
+                //       color: ColorPick.background,
                 //       borderRadius: BorderRadius.circular(4.r),
                 //     ),
                 //     child: Icon(Icons.delete_outline,
@@ -1134,7 +1135,7 @@ class _BlogCard extends StatelessWidget {
                     padding: EdgeInsets.symmetric(
                         horizontal: 14.w, vertical: 7.h),
                     decoration: BoxDecoration(
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
@@ -1155,10 +1156,10 @@ class _BlogCard extends StatelessWidget {
   Widget _imgPlaceholder() => Container(
     width: 100.w, height: 80.h,
     decoration: BoxDecoration(
-      color: _C.sectionBg,
+      color: ColorPick.background,
       borderRadius: BorderRadius.circular(8.r),
     ),
-    child: Icon(Icons.image_outlined, size: 24.sp, color: _C.hintText),
+    child: Icon(Icons.image_outlined, size: 24.sp, color: AppColors.secondaryText),
   );
 }
 
@@ -1261,11 +1262,11 @@ class _XhrImageState extends State<_XhrImage> {
       return Container(
         width: widget.width, height: widget.height,
         decoration: BoxDecoration(
-          color: _C.sectionBg,
+          color: ColorPick.background,
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Icon(Icons.broken_image_outlined,
-            size: 24.sp, color: _C.hintText),
+            size: 24.sp, color: AppColors.secondaryText),
       );
     }
 
@@ -1275,7 +1276,7 @@ class _XhrImageState extends State<_XhrImage> {
         width: widget.width, height: widget.height,
         child: const Center(
           child: CircularProgressIndicator(
-              strokeWidth: 2, color: _C.primary),
+              strokeWidth: 2, color: ColorPick.primary),
         ),
       );
     }
@@ -1302,9 +1303,9 @@ class _XhrImageState extends State<_XhrImage> {
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => Container(
           width: widget.width, height: widget.height,
-          color: _C.sectionBg,
+          color: ColorPick.background,
           child: Icon(Icons.broken_image_outlined,
-              size: 24.sp, color: _C.hintText),
+              size: 24.sp, color: AppColors.secondaryText),
         ),
       );
     }
@@ -1313,10 +1314,10 @@ class _XhrImageState extends State<_XhrImage> {
     return Container(
       width: widget.width, height: widget.height,
       decoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: ColorPick.background,
         borderRadius: BorderRadius.circular(8.r),
       ),
-      child: Icon(Icons.image_outlined, size: 24.sp, color: _C.hintText),
+      child: Icon(Icons.image_outlined, size: 24.sp, color: AppColors.secondaryText),
     );
   }
 }

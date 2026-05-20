@@ -11,5 +11,10 @@ class ColorPick {
   static const Color red     = Color(0xFFD31426);
   static const Color scheduled = Color(0xFFFF8F00);
 
+  static const Color activeColor   = Color(0xFF008037);
+  static const Color inactiveColor = Color(0xFFFF8C00);
+  static const Color draftColor    = Color(0xFF666666);
+  static const Color removedColor  = Color(0xFFCC0000);
+
 
 }

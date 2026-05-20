@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../../core/main_widgets/app_navbar.dart';
+import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../../core/two_tab.dart';
 import '../../../../../main/presentation/ui/pages/main_main.dart';
@@ -19,15 +21,15 @@ import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 import '../services_main/services_main.dart'; // ← same import as edit page
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color grey      = Color(0xFF9E9E9E);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFF797979);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color grey      = Color(0xFF9E9E9E);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFF797979);
+// }
 
 enum _Device { desktop, tablet, mobile }
 
@@ -102,7 +104,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.sectionBg,
+      backgroundColor: ColorPick.white,
       body: BlocListener<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
           // Error feedback (save can fail inside the dialog too)
@@ -147,7 +149,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
                   Text(
                     'Preview Services Details',
                     style: StyleText.fontSize45Weight600.copyWith(
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       fontWeight: FontWeight.w700,
                       fontSize: _getResponsiveTitleSize(),
                     ),
@@ -186,11 +188,11 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
       tabs: ['ENG', 'AR'],
       selectedIndex: _isAr ? 1 : 0,
       onTabSelected: (i) => setState(() => _isAr = i == 1),
-      selectedColor:       _C.primary,
+      selectedColor:       ColorPick.primary,
       unselectedColor:     Colors.transparent,
       selectedTextColor:   Colors.white,
-      unselectedTextColor: _C.labelText,
-      containerColor:      _C.border.withOpacity(0.45),
+      unselectedTextColor: AppColors.text,
+      containerColor:      ColorPick.white.withOpacity(0.45),
       equalWidth: false,
       containerPadding: EdgeInsets.symmetric(horizontal: 8.sp, vertical: 4.sp),
     );
@@ -225,7 +227,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
             child: ElevatedButton(
               onPressed: _onBack,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _C.grey,
+                backgroundColor: ColorPick.back,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r)),
               ),
@@ -242,7 +244,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
             child: ElevatedButton(
               onPressed: _onSave,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _C.primary,
+                backgroundColor: ColorPick.primary,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r)),
               ),
@@ -282,13 +284,13 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
                       style: TextStyle(
                         fontSize:   screenWidth < 600 ? 13.sp : 15.sp,
                         fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                        color:      isActive ? _C.primary : _C.hintText,
+                        color:      isActive ? ColorPick.primary : AppColors.secondaryText,
                       ),
                     ),
                   ),
                   Container(
                     height: 2,
-                    color: isActive ? _C.primary : Colors.transparent,
+                    color: isActive ? ColorPick.primary : Colors.transparent,
                   ),
                 ],
               ),
@@ -311,7 +313,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -373,7 +375,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
             Text(
               title,
               style: StyleText.fontSize45Weight600.copyWith(
-                color:    _C.primary,
+                color:    ColorPick.primary,
                 fontSize: _device == _Device.mobile ? 22.sp : 28.sp,
               ),
             ),
@@ -381,7 +383,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
             Text(
               desc,
               style: StyleText.fontSize14Weight400.copyWith(
-                color:    _C.hintText,
+                color:    AppColors.secondaryText,
                 fontSize: _device == _Device.mobile ? 12.sp : 14.sp,
                 height:   1.7,
               ),

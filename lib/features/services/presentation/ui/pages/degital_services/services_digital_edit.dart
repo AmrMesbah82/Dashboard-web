@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/text.dart';
 import '../../../../data/model/services_model.dart';
@@ -62,7 +63,7 @@ class _ServicesDigitalJourneyPageState
                   style:
                   AppTextStyles.font28BlackSemiBoldCairo.copyWith(
                     fontSize:   22.sp,
-                    color:      const Color(0xFF008037),
+                    color:      ColorPick.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -118,7 +119,7 @@ class _DJSectionCardState extends State<_DJSectionCard> {
       decoration: BoxDecoration(
         color:        Colors.white,
         borderRadius: BorderRadius.circular(10.r),
-        border:       Border.all(color: const Color(0xFFDDE8DD)),
+        border:       Border.all(color: ColorPick.white),
       ),
       child: Column(
         children: [
@@ -128,7 +129,7 @@ class _DJSectionCardState extends State<_DJSectionCard> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: BoxDecoration(
-                color: const Color(0xFF008037),
+                color: ColorPick.primary,
                 borderRadius: _open
                     ? BorderRadius.only(
                   topLeft:  Radius.circular(10.r),
@@ -178,7 +179,7 @@ class _DJSectionCardState extends State<_DJSectionCard> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 14.w, vertical: 7.h),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF008037),
+                            color: ColorPick.primary,
                             borderRadius: BorderRadius.circular(7.r),
                           ),
                           child: Text('Edit Details',
@@ -282,7 +283,7 @@ class _JourneyMiniCard extends StatelessWidget {
               ),
             )
                 : Icon(Icons.miscellaneous_services_outlined,
-                size: 16.sp, color: const Color(0xFF008037)),
+                size: 16.sp, color: ColorPick.primary),
           ),
           SizedBox(height: 6.h),
           Text(

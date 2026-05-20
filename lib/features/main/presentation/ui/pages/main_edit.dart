@@ -22,6 +22,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -40,18 +41,18 @@ import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 import 'main_preview.dart'; // adjust import path as needed
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color divider   = Color(0xFFE8E8E8);
-  static const Color remove    = Color(0xFFE53935);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color error     = Color(0xFFE53935);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color divider   = Color(0xFFE8E8E8);
+//   static const Color remove    = Color(0xFFE53935);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color error     = Color(0xFFE53935);
+// }
 
 // ── Route dropdown used only for nav-section route picker ──────────────────
 const List<Map<String, String>> _kRoutes = [
@@ -136,7 +137,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
       final hex = widget.controller.text.replaceAll('#', '');
       if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {}
-    return _C.primary;
+    return ColorPick.primary;
   }
 
   static String _colorToHex(Color c) =>
@@ -175,7 +176,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
       children: [
         if (widget.label != null) ...[
           Text(widget.label!,
-              style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
           SizedBox(height: 5.h),
         ],
         CompositedTransformTarget(
@@ -189,7 +190,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
               onTap: _openPicker,
               decoration: InputDecoration(
                 hintText:  widget.hintText,
-                hintStyle: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                hintStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
                 filled: true, fillColor: AppColors.card,
                 isDense: true, counterText: '',
                 prefixIcon: Padding(
@@ -199,7 +200,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
                     decoration: BoxDecoration(
                       color: _currentColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: _C.border),
+                      border: Border.all(color: ColorPick.white),
                     ),
                   ),
                 ),
@@ -209,7 +210,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
                     borderSide: const BorderSide(color: Colors.transparent)),
                 focusedBorder:  OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4.r),
-                    borderSide: BorderSide(color: _C.primary, width: 1)),
+                    borderSide: BorderSide(color: ColorPick.primary, width: 1)),
                 disabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4.r),
                     borderSide: const BorderSide(color: Colors.transparent)),
@@ -271,7 +272,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                 decoration: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: _C.border),
+                  border: Border.all(color: ColorPick.white),
                   boxShadow: [
                     BoxShadow(
                         color: Colors.black.withOpacity(.2),
@@ -284,7 +285,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                   children: [
                     Text('Select Color',
                         style: StyleText.fontSize16Weight600
-                            .copyWith(color: _C.labelText)),
+                            .copyWith(color: AppColors.text)),
                     SizedBox(height: 16.h),
                     LayoutBuilder(builder: (context, constraints) {
                       final double pickerW =
@@ -317,11 +318,11 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(6.r),
-                              border: Border.all(color: _C.border),
+                              border: Border.all(color: ColorPick.white),
                             ),
                             child: Text('Cancel',
                                 style: StyleText.fontSize14Weight500
-                                    .copyWith(color: _C.labelText)),
+                                    .copyWith(color: AppColors.text)),
                           ),
                         ),
                         SizedBox(width: 12.w),
@@ -331,7 +332,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 24.w, vertical: 10.h),
                             decoration: BoxDecoration(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 borderRadius: BorderRadius.circular(6.r)),
                             child: Text('Apply',
                                 style: StyleText.fontSize14Weight500
@@ -420,7 +421,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
       final hex = _primaryColor.text.replaceAll('#', '');
       if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {}
-    return _C.primary;
+    return ColorPick.primary;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1039,14 +1040,14 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
+            backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: _C.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SizedBox(
             width: double.infinity,
             height: double.infinity,
@@ -1081,7 +1082,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                                   Text(
                                     'Editing Main Details',
                                     style: StyleText.fontSize45Weight600.copyWith(
-                                      color: _C.primary,
+                                      color: ColorPick.primary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -1231,8 +1232,8 @@ class _HomeEditPageState extends State<HomeEditPage> {
                   height: 44.h,
                   decoration: BoxDecoration(
                     color: canPublish
-                        ? _C.primary
-                        : _C.primary.withOpacity(0.35),
+                        ? ColorPick.primary
+                        : ColorPick.primary.withOpacity(0.35),
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(
@@ -1274,7 +1275,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -1322,7 +1323,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
           padding: EdgeInsets.only(top: 4.h),
           child: Text(
             'Logo SVG image is required',
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.error),
+            style: StyleText.fontSize12Weight400.copyWith(color: ColorPick.red),
           ),
         ),
       SizedBox(height: 14.h),
@@ -1359,7 +1360,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
           label: 'English Font',
           hint: Text('Select font',
               style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText)),
+                  .copyWith(color: AppColors.secondaryText)),
           selectedValue: _engFont,
           dropdownColor: Colors.white,
           items: _kFonts,
@@ -1371,7 +1372,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
           label: 'Arabic Font',
           hint: Text('Select font',
               style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText)),
+                  .copyWith(color: AppColors.secondaryText)),
           selectedValue: _arFont,
           dropdownColor: Colors.white,
           items: _kFonts,
@@ -1395,7 +1396,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _C.primary,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Row(children: [
@@ -1459,7 +1460,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
                         child: Icon(Icons.menu_rounded,
-                            size: 20.sp, color: _C.hintText),
+                            size: 20.sp, color: AppColors.secondaryText),
                       ),
                     ),
                   ),
@@ -1504,14 +1505,14 @@ class _HomeEditPageState extends State<HomeEditPage> {
                   children: [
                     Text('Status ',
                         style: StyleText.fontSize12Weight500
-                            .copyWith(color: _C.labelText)),
+                            .copyWith(color: AppColors.text)),
                     FlutterSwitch(
                       width: 35.sp,
                       height: 20.sp,
                       padding: 3.sp,
                       borderRadius: 20.sp,
                       toggleSize: 16.sp,
-                      activeColor: _C.primary,
+                      activeColor: ColorPick.primary,
                       inactiveColor: Colors.grey.withOpacity(.16),
                       value: _navStatus[index],
                       onToggle: (val) {
@@ -1570,7 +1571,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         children: [
           Text('${colIndex + 1}${_ord(colIndex + 1)} Column',
               style: StyleText.fontSize14Weight600
-                  .copyWith(color: _C.labelText)),
+                  .copyWith(color: AppColors.text)),
           _removeBtn(
               label: 'Remove',
               onTap: () => setState(() {
@@ -1591,7 +1592,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               label: 'Group Title',
               hint: Text('Select navigation item',
                   style: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText)),
+                      .copyWith(color: AppColors.secondaryText)),
               selectedValue: col['route'] as String?,
               items: navDropdownItems,
               widthIcon: 18,
@@ -1640,11 +1641,11 @@ class _HomeEditPageState extends State<HomeEditPage> {
                       readOnly: true,
                       textAlign: TextAlign.right,
                       style: StyleText.fontSize12Weight400
-                          .copyWith(color: _C.labelText),
+                          .copyWith(color: AppColors.text),
                       decoration: InputDecoration(
                         hintText: 'الاسم بالعربي',
                         hintStyle: StyleText.fontSize12Weight400
-                            .copyWith(color: _C.hintText),
+                            .copyWith(color: AppColors.secondaryText),
                         filled: true,
                         fillColor: Colors.white,
                         isDense: true,
@@ -1655,7 +1656,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.r),
                             borderSide:
-                            BorderSide(color: _C.primary, width: 1)),
+                            BorderSide(color: ColorPick.primary, width: 1)),
                         disabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.r),
                             borderSide:
@@ -1700,7 +1701,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                           label: 'Navigate To',
                           hint: Text('Select destination',
                               style: StyleText.fontSize12Weight400
-                                  .copyWith(color: _C.hintText)),
+                                  .copyWith(color: AppColors.secondaryText)),
                           selectedValue: label['route'] as String?,
                           items: _kLabelDestinations,
                           dropdownColor: Colors.white,
@@ -1733,7 +1734,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                         width: 16.w,
                         height: 16.h,
                         decoration: const BoxDecoration(
-                            color: _C.remove, shape: BoxShape.circle),
+                            color: ColorPick.red, shape: BoxShape.circle),
                         child: Icon(Icons.remove,
                             color: Colors.white, size: 16.sp),
                       ),
@@ -1848,7 +1849,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
-                  color: _C.remove,
+                  color: ColorPick.red,
                   borderRadius: BorderRadius.circular(4.r)),
               child: Text('Remove',
                   style: StyleText.fontSize11Weight400
@@ -1877,7 +1878,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               child: Text(
                 'SVG icon required',
                 style: StyleText.fontSize12Weight400
-                    .copyWith(color: _C.error),
+                    .copyWith(color: ColorPick.red),
               ),
             ),
           const Spacer(),
@@ -1905,7 +1906,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
               children: [
                 Text('Visibility',
                     style: StyleText.fontSize10Weight500
-                        .copyWith(color: _C.labelText)),
+                        .copyWith(color: AppColors.text)),
                 SizedBox(width: 6.w),
                 FlutterSwitch(
                   width: 38.sp,
@@ -1913,7 +1914,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                   padding: 3.sp,
                   borderRadius: 17.sp,
                   toggleSize: 16.sp,
-                  activeColor: _C.primary,
+                  activeColor: ColorPick.primary,
                   inactiveColor: Colors.grey.withOpacity(.16),
                   value: _links[i].visibility,
                   onToggle: (val) =>
@@ -1935,7 +1936,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
           decoration: BoxDecoration(
-              color: _C.remove, borderRadius: BorderRadius.circular(4.r)),
+              color: ColorPick.red, borderRadius: BorderRadius.circular(4.r)),
           child: Text(label,
               style: StyleText.fontSize12Weight500
                   .copyWith(color: Colors.white)),
@@ -1961,7 +1962,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
   );
 
   Widget _sectionLabel(String text) => Text(text,
-      style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText));
+      style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text));
 
   Widget _imgBox({
     required _PickedImage picked,
@@ -2023,7 +2024,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
           child: Container(
             width: 24.w, height: 24.h,
             decoration: BoxDecoration(
-              color: _C.primary,
+              color: ColorPick.primary,
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),

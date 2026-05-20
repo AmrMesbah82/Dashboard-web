@@ -22,23 +22,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../data/model/services_model.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 import 'services_digital_preview.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFDDE8DD);
-  static const Color labelText = Color(0xFF1A1A1A);
-  static const Color grey      = Color(0xFF9E9E9E);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFDDE8DD);
+//   static const Color labelText = Color(0xFF1A1A1A);
+//   static const Color grey      = Color(0xFF9E9E9E);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 class ServicesDigitalJourneyEditPage extends StatefulWidget {
   final ServicePageModel model;
@@ -501,7 +503,7 @@ class _ServicesDigitalJourneyEditPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: BlocListener<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
           if (state is ServiceCmsError) {
@@ -543,7 +545,7 @@ class _ServicesDigitalJourneyEditPageState
                           Text(
                             'Editing Digital Journey Details',
                             style: StyleText.fontSize45Weight600.copyWith(
-                              color: _C.primary,
+                              color: ColorPick.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -578,7 +580,7 @@ class _ServicesDigitalJourneyEditPageState
                                         hint: 'Text Here',
                                         isRequired: true,
                                         submitted: _submitted,
-                                        primaryColor: _C.primary,
+                                        primaryColor: ColorPick.primary,
                                         fillColor: Colors.white,
                                         textDirection: TextDirection.ltr,
                                         height: 36,
@@ -591,7 +593,7 @@ class _ServicesDigitalJourneyEditPageState
                                         hint: 'أدخل النص هنا',
                                         isRequired: true,
                                         submitted: _submitted,
-                                        primaryColor: _C.primary,
+                                        primaryColor: ColorPick.primary,
                                         fillColor: Colors.white,
                                         textDirection: TextDirection.rtl,
                                         textAlign: TextAlign.right,
@@ -672,18 +674,18 @@ class _ServicesDigitalJourneyEditPageState
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircularProgressIndicator(color: _C.primary),
+                        const CircularProgressIndicator(color: ColorPick.primary),
                         SizedBox(height: 20.h),
                         Text(
                           'Saving...',
                           style: StyleText.fontSize14Weight600
-                              .copyWith(color: _C.primary),
+                              .copyWith(color: ColorPick.primary),
                         ),
                         SizedBox(height: 6.h),
                         Text(
                           'Uploading icons & saving data',
                           style: StyleText.fontSize12Weight400
-                              .copyWith(color: _C.grey),
+                              .copyWith(color: ColorPick.back),
                         ),
                       ],
                     ),
@@ -761,7 +763,7 @@ class _ServicesDigitalJourneyEditPageState
                   hint: 'Text Here',
                   isRequired: true,
                   submitted: _submitted,
-                  primaryColor: _C.primary,
+                  primaryColor: ColorPick.primary,
                   fillColor: Colors.white,
                   textDirection: TextDirection.ltr,
                   height: 36,
@@ -774,7 +776,7 @@ class _ServicesDigitalJourneyEditPageState
                   hint: 'أدخل النص هنا',
                   isRequired: true,
                   submitted: _submitted,
-                  primaryColor: _C.primary,
+                  primaryColor: ColorPick.primary,
                   fillColor: Colors.white,
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.right,
@@ -792,7 +794,7 @@ class _ServicesDigitalJourneyEditPageState
               hint: 'Text Here',
               isRequired: true,
               submitted: _submitted,
-              primaryColor: _C.primary,
+              primaryColor: ColorPick.primary,
               textDirection: TextDirection.ltr,
               maxLines: 4,
               height: 100,
@@ -812,7 +814,7 @@ class _ServicesDigitalJourneyEditPageState
               isRequired: true,
               submitted: _submitted,
               fillColor: Colors.white,
-              primaryColor: _C.primary,
+              primaryColor: ColorPick.primary,
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.right,
               maxLines: 4,
@@ -845,7 +847,7 @@ class _ServicesDigitalJourneyEditPageState
               padding:
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -917,8 +919,8 @@ class _ServicesDigitalJourneyEditPageState
                     )
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _C.primary,
-                      disabledBackgroundColor: _C.grey,
+                      backgroundColor: ColorPick.primary,
+                      disabledBackgroundColor: ColorPick.back,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.r)),
                     ),
@@ -965,7 +967,7 @@ class _ServicesDigitalJourneyEditPageState
           child: SizedBox(
             width: 24.w,
             height: 24.h,
-            child: CircularProgressIndicator(strokeWidth: 2, color: _C.primary),
+            child: CircularProgressIndicator(strokeWidth: 2, color: ColorPick.primary),
           ),
         ),
       );
@@ -995,7 +997,7 @@ class _ServicesDigitalJourneyEditPageState
                         width: 20.w,
                         height: 20.h,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: _C.primary),
+                            strokeWidth: 2, color: ColorPick.primary),
                       ),
                     ),
                     errorBuilder: (_, __, ___) =>
@@ -1014,7 +1016,7 @@ class _ServicesDigitalJourneyEditPageState
                 width: 25.w,
                 height: 25.h,
                 decoration: BoxDecoration(
-                  color: _C.primary,
+                  color: ColorPick.primary,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -1052,7 +1054,7 @@ class _ServicesDigitalJourneyEditPageState
               width: 25.w,
               height: 25.h,
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
@@ -1067,7 +1069,7 @@ class _ServicesDigitalJourneyEditPageState
   }
 
   TextStyle _labelStyle() =>
-      StyleText.fontSize12Weight600.copyWith(color: _C.labelText);
+      StyleText.fontSize12Weight600.copyWith(color: AppColors.text);
 }
 
 // ── Per-item controller holder ─────────────────────────────────────────────

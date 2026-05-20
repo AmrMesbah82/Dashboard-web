@@ -29,6 +29,7 @@ import 'package:web_app_admin/core/widget/textfield.dart';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
@@ -51,15 +52,7 @@ Color _cmsHexColor(String hex) {
   return const Color(0xFF008037);
 }
 
-class _C {
-  static const Color primary = Color(0xFF008037);
-  static const Color back = Color(0xFFF1F2ED);
-  static const Color cardBg = Color(0xFFFFFFFF);
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText = Color(0xFFAAAAAA);
-  static const Color remove = Color(0xFFE53935);
-}
+
 
 const List<Map<String, String>> _kDepartments = [
   {'key': 'Design', 'value': 'Design'},
@@ -460,7 +453,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
-                  color: _C.labelText,
+                  color: AppColors.text,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -469,7 +462,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.sp,
-                  color: _C.hintText,
+                  color: AppColors.secondaryText,
                   height: 1.5,
                 ),
               ),
@@ -491,7 +484,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
-                              color: _C.labelText,
+                              color: AppColors.text,
                             ),
                           ),
                         ),
@@ -505,7 +498,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                       child: Container(
                         height: 44.h,
                         decoration: BoxDecoration(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Center(
@@ -578,7 +571,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('End date cannot be before start date'),
-          backgroundColor: _C.remove,
+          backgroundColor: ColorPick.red,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -602,7 +595,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
         if (state is JobListingError) {
           setState(() => _isSaving = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: _C.remove),
+            SnackBar(content: Text(state.message), backgroundColor: ColorPick.red),
           );
         }
         if (state is JobListingSaved) {
@@ -610,7 +603,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: _C.back,
+        backgroundColor: ColorPick.background,
         body: Stack(
           children: [
             SingleChildScrollView(
@@ -636,7 +629,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                                 ? 'Editing Job Post Details'
                                 : 'Create New Job Post',
                             style: StyleText.fontSize24Weight600.copyWith(
-                              color: _C.primary,
+                              color: ColorPick.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -653,7 +646,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                                       vertical: 8.h,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _C.remove,
+                                      color: ColorPick.red,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Text(
@@ -672,7 +665,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: _C.labelText,
+                                    color: AppColors.text,
                                   ),
                                 ),
                                 SizedBox(width: 10.w),
@@ -680,7 +673,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                                   scale: 0.85,
                                   child: FlutterSwitch(
                                     value: _isActive,
-                                    activeColor: _C.primary,
+                                    activeColor: ColorPick.primary,
                                     activeToggleColor: Colors.white,
                                     inactiveColor: Colors.grey.shade400,
                                     inactiveToggleColor: Colors.white,
@@ -736,7 +729,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
               Container(
                 color: Colors.black26,
                 child: const Center(
-                  child: CircularProgressIndicator(color: _C.primary),
+                  child: CircularProgressIndicator(color: ColorPick.primary),
                 ),
               ),
           ],
@@ -773,7 +766,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                   hint: Text(
                     'Select Department',
                     style: StyleText.fontSize12Weight400.copyWith(
-                      color: _C.hintText,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                   selectedValue: _department,
@@ -794,7 +787,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                   hint: Text(
                     'Select Work Type',
                     style: StyleText.fontSize12Weight400.copyWith(
-                      color: _C.hintText,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                   selectedValue: _workType,
@@ -818,7 +811,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                   hint: Text(
                     'Select Employment Type',
                     style: StyleText.fontSize12Weight400.copyWith(
-                      color: _C.hintText,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                   selectedValue: _employmentType,
@@ -852,7 +845,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                             hint: Text(
                               'Duration',
                               style: StyleText.fontSize12Weight400.copyWith(
-                                color: _C.hintText,
+                                color: AppColors.secondaryText,
                               ),
                             ),
                             primaryColor: _cmsPrimary(context),
@@ -882,7 +875,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                   hint: Text(
                     'Select Experience Level',
                     style: StyleText.fontSize12Weight400.copyWith(
-                      color: _C.hintText,
+                      color: AppColors.secondaryText,
                     ),
                   ),
                   primaryColor: _cmsPrimary(context),
@@ -910,7 +903,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                         hint: Text(
                           'Currency',
                           style: StyleText.fontSize12Weight400.copyWith(
-                            color: _C.hintText,
+                            color: AppColors.secondaryText,
                           ),
                         ),
                         selectedValue: _currency,
@@ -990,7 +983,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                       width: 24.sp,
                       height: 24.sp,
                       decoration: const BoxDecoration(
-                        color: _C.remove,
+                        color: ColorPick.red,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1098,7 +1091,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
-                        color: _C.labelText,
+                        color: AppColors.text,
                       ),
                     ),
                     GestureDetector(
@@ -1110,7 +1103,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                         width: 24.sp,
                         height: 24.sp,
                         decoration: const BoxDecoration(
-                          color: _C.remove,
+                          color: ColorPick.red,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -1228,7 +1221,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
-              color: _C.labelText,
+              color: AppColors.text,
             ),
           ),
           SizedBox(height: 8.h),
@@ -1289,7 +1282,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
           label: label,
           hint: Text(
             'Select Date',
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
           ),
           selectedValue: displayValue,
           items: items,
@@ -1315,7 +1308,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
               style: TextStyle(fontSize: 12.sp),
               decoration: InputDecoration(
                 hintText: 'Document Name',
-                hintStyle: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                hintStyle: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                 filled: true,
                 fillColor: AppColors.background,
                 isDense: true,
@@ -1344,7 +1337,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
             height: 36,
             hint: Text(
               'Type',
-              style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+              style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
             ),
             onChanged: (v) => setState(() => _requiredDocs[i]['type'] = v),
           ),
@@ -1371,7 +1364,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
               }),
             ),
             SizedBox(width: 16.w),
-            Expanded(child: _actionButton('Publish', _C.primary, _publish)),
+            Expanded(child: _actionButton('Publish', ColorPick.primary, _publish)),
           ],
         ),
         SizedBox(height: 10.h),
@@ -1382,7 +1375,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                 'Discard',
                 Colors.grey.shade300,
                     () => context.pop(),
-                textColor: _C.labelText,
+                textColor: AppColors.text,
               ),
             ),
             SizedBox(width: 16.w),
@@ -1448,7 +1441,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
                   topLeft: Radius.circular(6.r),
@@ -1482,7 +1475,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
           if (isOpen)
             Container(
               decoration: BoxDecoration(
-                color: _C.cardBg,
+                color: ColorPick.white,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(6.r),
                   bottomRight: Radius.circular(6.r),
@@ -1519,8 +1512,8 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
       submitted:     _submitted,
       primaryColor:  _cmsPrimary(context),
       fillColor:     AppColors.background,
-      textStyle:     TextStyle(fontSize: 12.sp, color: _C.labelText),
-      hintStyle:     TextStyle(fontSize: 12.sp, color: _C.hintText),
+      textStyle:     TextStyle(fontSize: 12.sp, color: AppColors.text),
+      hintStyle:     TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
     );
   }
 
@@ -1545,8 +1538,8 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
       submitted:     _submitted,
       primaryColor:  _cmsPrimary(context),
       fillColor:     AppColors.background,
-      textStyle:     TextStyle(fontSize: 12.sp, color: _C.labelText),
-      hintStyle:     TextStyle(fontSize: 12.sp, color: _C.hintText),
+      textStyle:     TextStyle(fontSize: 12.sp, color: AppColors.text),
+      hintStyle:     TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
     );
   }
 

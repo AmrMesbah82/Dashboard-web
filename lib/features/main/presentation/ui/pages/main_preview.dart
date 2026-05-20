@@ -12,10 +12,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/custom_dialog.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/app_footer.dart';
 import '../../../../../core/main_widgets/app_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/two_tab.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
@@ -25,15 +27,15 @@ import '../../../../home/presentation/controller/lang_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 enum _PreviewDevice { desktop, tablet, mobile }
 
@@ -75,8 +77,8 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -89,7 +91,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
             return Stack(
               children: [
                 Scaffold(
-                  backgroundColor: _C.back,
+                  backgroundColor: ColorPick.background,
                   body: SingleChildScrollView(
                     child: SizedBox(
                       width: double.infinity,
@@ -116,7 +118,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                 Text(
                                   'Preview Main Details',
                                   style: StyleText.fontSize45Weight600.copyWith(
-                                    color: _C.primary,
+                                    color: ColorPick.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -142,12 +144,12 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                             .read<LanguageCubit>()
                                             .setLanguage(i == 1 ? 'ar' : 'en');
                                       },
-                                      selectedColor:       _C.primary,
+                                      selectedColor:       ColorPick.primary,
                                       unselectedColor:     Colors.transparent,
                                       selectedTextColor:   Colors.white,
-                                      unselectedTextColor: _C.labelText,
+                                      unselectedTextColor: AppColors.text,
                                       containerColor:
-                                      _C.border.withOpacity(0.45),
+                                      ColorPick.white.withOpacity(0.45),
                                       equalWidth: false,
                                       containerPadding: EdgeInsets.symmetric(
                                           horizontal: 8.sp, vertical: 4.sp),
@@ -207,8 +209,8 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                           height: 44.h,
                                           decoration: BoxDecoration(
                                             color: _isSaving
-                                                ? _C.primary.withOpacity(0.5)
-                                                : _C.primary,
+                                                ? ColorPick.primary.withOpacity(0.5)
+                                                : ColorPick.primary,
                                             borderRadius:
                                             BorderRadius.circular(6.r),
                                           ),
@@ -248,7 +250,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                   Container(
                     color: Colors.black.withOpacity(0.35),
                     child: const Center(
-                        child: CircularProgressIndicator(color: _C.primary)),
+                        child: CircularProgressIndicator(color: ColorPick.primary)),
                   ),
               ],
             );
@@ -267,11 +269,11 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
         label,
         style: active
             ? StyleText.fontSize14Weight600.copyWith(
-          color:           _C.primary,
+          color:           ColorPick.primary,
           decoration:      TextDecoration.underline,
-          decorationColor: _C.primary,
+          decorationColor: ColorPick.primary,
         )
-            : StyleText.fontSize14Weight400.copyWith(color: _C.hintText),
+            : StyleText.fontSize14Weight400.copyWith(color: AppColors.text),
       ),
     );
   }
@@ -373,7 +375,7 @@ class _MobilePhoneShell extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color:        _C.back,
+        color:        ColorPick.background,
         borderRadius: BorderRadius.circular(8.r),
       ),
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
@@ -385,7 +387,7 @@ class _MobilePhoneShell extends StatelessWidget {
             decoration: BoxDecoration(
               color:        Colors.white,
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: _C.border, width: 2),
+              border: Border.all(color: ColorPick.white, width: 2),
               boxShadow: [
                 BoxShadow(
                   color:      Colors.black.withOpacity(0.12),

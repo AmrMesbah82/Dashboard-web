@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
@@ -20,15 +21,15 @@ import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 
 
-class _C {
-  static const Color primary    = Color(0xFF008037);
-  static const Color sectionBg  = Color(0xFFF5F5F5);
-  static const Color cardBg     = Color(0xFFFFFFFF);
-  static const Color labelText  = Color(0xFF333333);
-  static const Color hintText   = Color(0xFFAAAAAA);
-  static const Color greenLight = Color(0xFFE8F5EE);
-  static const Color back       = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary    = Color(0xFF008037);
+//   static const Color sectionBg  = Color(0xFFF5F5F5);
+//   static const Color cardBg     = Color(0xFFFFFFFF);
+//   static const Color labelText  = Color(0xFF333333);
+//   static const Color hintText   = Color(0xFFAAAAAA);
+//   static const Color greenLight = Color(0xFFE8F5EE);
+//   static const Color back       = Color(0xFFF1F2ED);
+// }
 
 class ServicesDigitalJourneyPreviewPage extends StatefulWidget {
   final ServicePageModel model;
@@ -58,7 +59,7 @@ class _ServicesDigitalJourneyPreviewPageState
     final model = widget.model;
 
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: BlocListener<ServiceCmsCubit, ServiceCmsState>(
         listener: (context, state) {
           if (state is ServiceCmsSaved) {
@@ -90,7 +91,7 @@ class _ServicesDigitalJourneyPreviewPageState
                       Text(
                         'Preview Digital Journey Details',
                         style: StyleText.fontSize45Weight600.copyWith(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -130,7 +131,7 @@ class _ServicesDigitalJourneyPreviewPageState
                               child: ElevatedButton(
                                 onPressed: _onSave,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _C.primary,
+                                  backgroundColor: ColorPick.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.r),
                                   ),
@@ -174,7 +175,7 @@ class _ServicesDigitalJourneyPreviewPageState
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
@@ -238,7 +239,7 @@ class _ServicesDigitalJourneyPreviewPageState
                         padding: EdgeInsets.symmetric(vertical: 24.h),
                         child: Text('No journey items yet.',
                             style: StyleText.fontSize13Weight400
-                                .copyWith(color: _C.hintText)),
+                                .copyWith(color: AppColors.secondaryText)),
                       ),
                     )
                   else
@@ -285,7 +286,7 @@ class _ServicesDigitalJourneyPreviewPageState
     return Container(
       padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: ColorPick.background,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Column(
@@ -297,7 +298,7 @@ class _ServicesDigitalJourneyPreviewPageState
             width: 28.w,
             height: 28.w,
             decoration: BoxDecoration(
-              color: _C.greenLight,
+              color: ColorPick.preview,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: item.iconUrl.isNotEmpty
@@ -314,7 +315,7 @@ class _ServicesDigitalJourneyPreviewPageState
               ),
             )
                 : Icon(Icons.miscellaneous_services_outlined,
-                size: 16.sp, color: _C.primary),
+                size: 16.sp, color: ColorPick.primary),
           ),
           SizedBox(height: 6.h),
 
@@ -347,7 +348,7 @@ class _ServicesDigitalJourneyPreviewPageState
         SizedBox(height: 20.h),
         Text(label,
             style:
-            StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+            StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           width: double.infinity,
@@ -363,7 +364,7 @@ class _ServicesDigitalJourneyPreviewPageState
           child: Text(
             value,
             style:
-            StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
             maxLines: height > 36 ? 4 : 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -382,7 +383,7 @@ class _ServicesDigitalJourneyPreviewPageState
           SizedBox(height: 20.h),
           Text(label,
               style:
-              StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
           SizedBox(height: 4.h),
           Container(
             width: double.infinity,
@@ -398,7 +399,7 @@ class _ServicesDigitalJourneyPreviewPageState
             child: Text(
               value.isEmpty ? 'أكتب هنا' : value,
               style:
-              StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+              StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
               textDirection: TextDirection.rtl,
               maxLines: height > 36 ? 4 : 1,
               overflow: TextOverflow.ellipsis,

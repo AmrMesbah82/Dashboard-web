@@ -28,23 +28,16 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../data/model/blog_model.dart';
 import '../../../controller/blog_cubit.dart';
 
 
 // ── Color palette ──────────────────────────────────────────────────────────────
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFDDE8DD);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color textBody  = Color(0xFF555555);
-  static const Color grey      = Color(0xFF9E9E9E);
-}
+
 
 String _fmtDate(DateTime? d) {
   if (d == null) return '';
@@ -99,7 +92,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Post published successfully!'),
-            backgroundColor: _C.primary,
+            backgroundColor: ColorPick.primary,
           ),
         );
         // Pop preview + edit page
@@ -135,7 +128,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Draft saved successfully!'),
-            backgroundColor: _C.primary,
+            backgroundColor: ColorPick.primary,
           ),
         );
         // Pop preview + edit page
@@ -169,7 +162,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
     final BlogPostModel p = widget.draft;
 
     return Scaffold(
-      backgroundColor: _C.sectionBg,
+      backgroundColor: ColorPick.background,
       body: SingleChildScrollView(
         child: Center(
           child: SizedBox(
@@ -185,7 +178,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                   Text(
                     'Preview Read Details',
                     style: StyleText.fontSize22Weight700.copyWith(
-                      color:      _C.primary,
+                      color:      ColorPick.primary,
                       fontSize:   28.sp,
                       fontWeight: FontWeight.w700,
                     ),
@@ -242,8 +235,8 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _back,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.primary,
-                  disabledBackgroundColor: _C.grey,
+                  backgroundColor: ColorPick.primary,
+                  disabledBackgroundColor: ColorPick.back,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -260,8 +253,8 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _publish,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.primary,
-                  disabledBackgroundColor: _C.primary.withOpacity(0.7),
+                  backgroundColor: ColorPick.primary,
+                  disabledBackgroundColor: ColorPick.primary.withOpacity(0.7),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -291,8 +284,8 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _discard,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.grey,
-                  disabledBackgroundColor: _C.grey.withOpacity(0.5),
+                  backgroundColor: ColorPick.back,
+                  disabledBackgroundColor: ColorPick.back.withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -309,8 +302,8 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _saveForLater,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _C.grey,
-                  disabledBackgroundColor: _C.grey.withOpacity(0.5),
+                  backgroundColor: ColorPick.back,
+                  disabledBackgroundColor: ColorPick.back.withOpacity(0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -345,7 +338,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
               padding:
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -400,7 +393,7 @@ class _CardPreview extends StatelessWidget {
     return Container(
       width: 280.w,
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(10.r),
 
       ),
@@ -418,7 +411,7 @@ class _CardPreview extends StatelessWidget {
                         ? post.question.en
                         : 'Question text',
                     style: StyleText.fontSize13Weight500.copyWith(
-                        color: _C.primary, fontWeight: FontWeight.w600),
+                        color: ColorPick.primary, fontWeight: FontWeight.w600),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -440,7 +433,7 @@ class _CardPreview extends StatelessWidget {
               Text(
                 post.shortDescription.en,
                 style: StyleText.fontSize12Weight400.copyWith(
-                  color: _C.textBody,
+                  color: AppColors.text,
                   height: 1.4,
                 ),
                 maxLines: 2,
@@ -452,14 +445,14 @@ class _CardPreview extends StatelessWidget {
               children: [
                 Text(_fmtDate(post.createdAt),
                     style: StyleText.fontSize12Weight400
-                        .copyWith(color: _C.hintText)),
+                        .copyWith(color: AppColors.secondaryText)),
                 Spacer(),
 
                 Container(
                   padding:
                   EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
                   decoration: BoxDecoration(
-                      color:        _C.primary,
+                      color:        ColorPick.primary,
                       borderRadius: BorderRadius.circular(6.r)),
                   child: Text(buttonLabel,
                       style: StyleText.fontSize12Weight500
@@ -481,7 +474,7 @@ class _CardPreview extends StatelessWidget {
         return Container(
           width: width,
           height: height,
-          color: _C.sectionBg,
+          color: ColorPick.background,
           child: Center(
             child: SvgPicture.memory(
               imageBytes!,
@@ -522,9 +515,9 @@ class _CardPreview extends StatelessWidget {
     return Container(
       width:  width,
       height: height,
-      color:  _C.border,
+      color:  ColorPick.white,
       child: Icon(Icons.image_outlined,
-          size: 24.sp, color: _C.hintText),
+          size: 24.sp, color: AppColors.secondaryText),
     );
   }
 }
@@ -547,25 +540,25 @@ class _ReadMorePreview extends StatelessWidget {
   MarkdownStyleSheet _mdStyle() {
     return MarkdownStyleSheet(
       p: StyleText.fontSize13Weight400.copyWith(
-          color: _C.textBody, height: 1.7),
+          color: AppColors.text, height: 1.7),
       strong: StyleText.fontSize13Weight400.copyWith(
-          color: _C.labelText, fontWeight: FontWeight.w700, height: 1.7),
+          color: AppColors.text, fontWeight: FontWeight.w700, height: 1.7),
       em: StyleText.fontSize13Weight400.copyWith(
-          color: _C.textBody, fontStyle: FontStyle.italic, height: 1.7),
+          color: AppColors.text, fontStyle: FontStyle.italic, height: 1.7),
       h1: StyleText.fontSize22Weight700.copyWith(
-          color: _C.labelText),
+          color: AppColors.text),
       h2: StyleText.fontSize14Weight600.copyWith(
-          color: _C.labelText, fontSize: 18.sp),
+          color: AppColors.text, fontSize: 18.sp),
       h3: StyleText.fontSize14Weight600.copyWith(
-          color: _C.labelText),
+          color: AppColors.text),
       a: StyleText.fontSize13Weight400.copyWith(
-          color: _C.primary, decoration: TextDecoration.underline),
+          color: ColorPick.primary, decoration: TextDecoration.underline),
       listBullet: StyleText.fontSize13Weight400.copyWith(
-          color: _C.textBody, height: 1.7),
+          color: AppColors.text, height: 1.7),
       blockquoteDecoration: BoxDecoration(
-        color: _C.sectionBg,
+        color: ColorPick.background,
         border: Border(
-          left: BorderSide(color: _C.primary, width: 3.w),
+          left: BorderSide(color: ColorPick.primary, width: 3.w),
         ),
       ),
       blockquotePadding: EdgeInsets.symmetric(
@@ -578,17 +571,17 @@ class _ReadMorePreview extends StatelessWidget {
       code: TextStyle(
         fontFamily: 'monospace',
         fontSize:   12.sp,
-        color:      _C.labelText,
+        color:      AppColors.text,
         backgroundColor: const Color(0xFFF0F0F0),
       ),
-      tableBorder: TableBorder.all(color: _C.border, width: 1),
+      tableBorder: TableBorder.all(color: ColorPick.white, width: 1),
       tableHead: StyleText.fontSize13Weight400.copyWith(
-          color: _C.labelText, fontWeight: FontWeight.w700),
+          color: AppColors.text, fontWeight: FontWeight.w700),
       tableBody: StyleText.fontSize13Weight400.copyWith(
-          color: _C.textBody),
+          color: AppColors.text),
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: _C.border, width: 1),
+          top: BorderSide(color: ColorPick.white, width: 1),
         ),
       ),
     );
@@ -616,7 +609,7 @@ class _ReadMorePreview extends StatelessWidget {
             Text(
               title,
               style: StyleText.fontSize22Weight700.copyWith(
-                  color:      _C.primary,
+                  color:      ColorPick.primary,
                   fontSize:   22.sp,
                   fontWeight: FontWeight.w700),
             ),
@@ -632,19 +625,19 @@ class _ReadMorePreview extends StatelessWidget {
                       if (sectionHead.isNotEmpty) ...[
                         Text(sectionHead,
                             style: StyleText.fontSize14Weight600.copyWith(
-                                color:      _C.labelText,
+                                color:      AppColors.text,
                                 fontWeight: FontWeight.w700)),
                         SizedBox(height: 8.h),
                       ],
                       if (intro.isNotEmpty) ...[
                         Text(intro,
                             style: StyleText.fontSize13Weight400.copyWith(
-                                color: _C.textBody, height: 1.7)),
+                                color: AppColors.text, height: 1.7)),
                         SizedBox(height: 8.h),
                       ],
                       Text(dateStr,
                           style: StyleText.fontSize12Weight400
-                              .copyWith(color: _C.hintText)),
+                              .copyWith(color: AppColors.secondaryText)),
                     ],
                   ),
                 ),
@@ -680,7 +673,7 @@ class _ReadMorePreview extends StatelessWidget {
           width: width,
           height: height,
           decoration: BoxDecoration(
-            color:        _C.sectionBg,
+            color:        ColorPick.background,
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Center(
@@ -724,11 +717,11 @@ class _ReadMorePreview extends StatelessWidget {
       width:  width,
       height: height,
       decoration: BoxDecoration(
-        color:        _C.border,
+        color:        ColorPick.white,
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Icon(Icons.image_outlined,
-          size: 40.sp, color: _C.hintText),
+          size: 40.sp, color: AppColors.secondaryText),
     );
   }
 
@@ -753,7 +746,7 @@ class _ReadMorePreview extends StatelessWidget {
           children: [
             Text('${index + 1}.  ',
                 style: StyleText.fontSize13Weight500.copyWith(
-                    color:      _C.labelText,
+                    color:      AppColors.text,
                     fontWeight: FontWeight.w600)),
             Expanded(
               child: MarkdownBody(
@@ -771,7 +764,7 @@ class _ReadMorePreview extends StatelessWidget {
           children: [
             Text('•  ',
                 style: StyleText.fontSize13Weight500.copyWith(
-                    color:      _C.primary,
+                    color:      ColorPick.primary,
                     fontWeight: FontWeight.w700)),
             Expanded(
               child: MarkdownBody(
@@ -881,9 +874,9 @@ class _XhrImageState extends State<_XhrImage> {
     if (_failed) {
       return Container(
         width: widget.width, height: widget.height,
-        color: _C.sectionBg,
+        color: ColorPick.background,
         child: Icon(Icons.broken_image_outlined,
-            size: 24.sp, color: _C.hintText),
+            size: 24.sp, color: AppColors.secondaryText),
       );
     }
 
@@ -892,7 +885,7 @@ class _XhrImageState extends State<_XhrImage> {
         width: widget.width, height: widget.height,
         child: const Center(
           child: CircularProgressIndicator(
-              strokeWidth: 2, color: _C.primary),
+              strokeWidth: 2, color: ColorPick.primary),
         ),
       );
     }
@@ -919,18 +912,18 @@ class _XhrImageState extends State<_XhrImage> {
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => Container(
           width: widget.width, height: widget.height,
-          color: _C.sectionBg,
+          color: ColorPick.background,
           child: Icon(Icons.broken_image_outlined,
-              size: 24.sp, color: _C.hintText),
+              size: 24.sp, color: AppColors.secondaryText),
         ),
       );
     }
 
     return Container(
       width: widget.width, height: widget.height,
-      color: _C.sectionBg,
+      color: ColorPick.white,
       child: Icon(Icons.image_outlined,
-          size: 24.sp, color: _C.hintText),
+          size: 24.sp, color: AppColors.secondaryText),
     );
   }
 }
