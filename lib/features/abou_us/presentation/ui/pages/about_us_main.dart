@@ -22,6 +22,7 @@ import 'package:web_app_admin/features/abou_us/presentation/ui/pages/terms_page/
 import 'package:web_app_admin/features/abou_us/presentation/ui/pages/terms_page/terms_preview.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -36,14 +37,14 @@ import 'about_us_preview.dart';
 import 'strategy_page/strategy_main.dart';
 import 'strategy_page/strategy_preview.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 // ─────────────────────────────────────────────────────────────────────────────
 class AboutMainPageMasterDashboard extends StatefulWidget {
@@ -189,7 +190,7 @@ class _AboutMainPageMasterDashboardState
             child: SizedBox(
               width: 16, height: 16,
               child: CircularProgressIndicator(
-                  strokeWidth: 2, color: _C.primary),
+                  strokeWidth: 2, color: ColorPick.primary),
             ),
           );
         }
@@ -265,8 +266,8 @@ class _AboutMainPageMasterDashboardState
       builder: (context, state) {
         if (state is AboutLoading || state is AboutInitial) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.white,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -278,13 +279,13 @@ class _AboutMainPageMasterDashboardState
 
         if (model == null) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
+            backgroundColor: ColorPick.white,
             body: Center(child: Text('No data found')),
           );
         }
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.white,
           body: SingleChildScrollView(
             child: Container(
               width: double.infinity,
@@ -319,14 +320,14 @@ class _AboutMainPageMasterDashboardState
         Row(children: [
           Text('About Us',
               style: StyleText.fontSize45Weight600.copyWith(
-                  color: _C.primary, fontWeight: FontWeight.w700)),
+                  color: ColorPick.primary, fontWeight: FontWeight.w700)),
           const Spacer(),
           GestureDetector(
             onTap: () => _onPreviewTap(model),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               decoration: BoxDecoration(
-                  color: _C.primary,
+                  color: ColorPick.primary,
                   borderRadius: BorderRadius.circular(6.r)),
               child: Text('Preview Screen',
                   style: StyleText.fontSize14Weight500
@@ -380,13 +381,13 @@ class _AboutMainPageMasterDashboardState
                         fontWeight: isActive
                             ? FontWeight.w700
                             : FontWeight.w500,
-                        color: isActive ? _C.primary : _C.hintText,
+                        color: isActive ? ColorPick.primary : AppColors.secondaryText,
                       ),
                     ),
                   ),
                   Container(
                     height: 2,
-                    color: isActive ? _C.primary : Colors.transparent,
+                    color: isActive ? ColorPick.primary : Colors.transparent,
                   ),
                 ],
               ),
@@ -482,7 +483,7 @@ class _AboutMainPageMasterDashboardState
                   padding: EdgeInsets.symmetric(vertical: 24.h),
                   child: Text('No values yet.',
                       style: StyleText.fontSize13Weight400
-                          .copyWith(color: _C.hintText)),
+                          .copyWith(color: AppColors.secondaryText)),
                 ),
               )
             else
@@ -567,7 +568,7 @@ class _AboutMainPageMasterDashboardState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+            style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         Container(
           width: 56.w, height: 56.w,
@@ -670,10 +671,10 @@ class _AboutMainPageMasterDashboardState
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
-              color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
+              color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
           child: Text(
             'Last Updated On ${_fmtDate(lastUpdated)}',
-            style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+            style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
           ),
         ),
         const Spacer(),
@@ -694,7 +695,7 @@ class _AboutMainPageMasterDashboardState
                 CustomSvg(
                     assetPath: "assets/control/edit_icon_pick.svg",
                     width: 20.w, height: 20.h,
-                    fit: BoxFit.scaleDown, color: _C.primary),
+                    fit: BoxFit.scaleDown, color: ColorPick.primary),
               ]),
             ),
           ),
@@ -722,7 +723,7 @@ class _AboutMainPageMasterDashboardState
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius:  BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -752,7 +753,7 @@ class _AboutMainPageMasterDashboardState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
           SizedBox(height: 4.h),
           Container(
             width: double.infinity, height: height.h,
@@ -763,7 +764,7 @@ class _AboutMainPageMasterDashboardState
                 borderRadius: BorderRadius.circular(4.r)),
             alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
             child: Text(value,
-                style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
                 maxLines: height > 36 ? 5 : 1,
                 overflow: TextOverflow.ellipsis),
           ),
@@ -779,7 +780,7 @@ class _AboutMainPageMasterDashboardState
           children: [
             Text(label,
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 4.h),
             Container(
               width: double.infinity, height: height.h,
@@ -793,7 +794,7 @@ class _AboutMainPageMasterDashboardState
               child: Text(
                   value.isEmpty ? 'أكتب هنا' : value,
                   style: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText),
+                      .copyWith(color: AppColors.secondaryText),
                   textDirection: TextDirection.rtl,
                   maxLines: height > 36 ? 5 : 1,
                   overflow: TextOverflow.ellipsis),

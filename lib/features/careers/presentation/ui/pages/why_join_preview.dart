@@ -3,7 +3,7 @@
 // Preview page for Why Join Our Team / Our Interns / Our Teams
 //
 // CHANGES (Figma sync — mirrors careers_preview.dart shell):
-//   • Admin shell background matches _AC.back (0xFFF1F2ED)
+//   • Admin shell background matches ColorPick.white (0xFFF1F2ED)
 //   • Page title style matches "Preview {Section} Details" green heading
 //   • Device tabs use underline-pill style (same as careers_preview_page)
 //   • Language toggle uses CustomSegmentedTabs (ENG / AR) to match shell
@@ -18,7 +18,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/two_tab.dart';
 import '../../../data/model/careers_section_model.dart';
@@ -27,15 +29,15 @@ import '../../controller/careers_section_state.dart';
 
 
 // ── Admin-shell colors (identical to careers_preview.dart) ───────────────
-class _AC {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color grey      = Color(0xFF9E9E9E);
-  static const Color red       = Color(0xFFD32F2F);
-}
+// class _AC {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color grey      = Color(0xFF9E9E9E);
+//   static const Color red       = Color(0xFFD32F2F);
+// }
 
 // ── Preview-viewport palette ──────────────────────────────────────────────────
 const Color _kGreen  = Color(0xFF008037);
@@ -98,7 +100,7 @@ class _CareersSectionPreviewPageState
               style: StyleText.fontSize14Weight400
                   .copyWith(color: Colors.white),
             ),
-            backgroundColor: _AC.primary,
+            backgroundColor: ColorPick.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r)),
@@ -111,7 +113,8 @@ class _CareersSectionPreviewPageState
               style: StyleText.fontSize14Weight400
                   .copyWith(color: Colors.white),
             ),
-            backgroundColor: _AC.red,
+            backgroundColor: ColorPick.red
+            ,
             behavior: SnackBarBehavior.floating,
           ));
         }
@@ -122,9 +125,9 @@ class _CareersSectionPreviewPageState
         if (state is CareersSectionInitial ||
             state is CareersSectionLoading) {
           return const Scaffold(
-            backgroundColor: _AC.back,
+            backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: _AC.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -133,7 +136,7 @@ class _CareersSectionPreviewPageState
         if (state is CareersSectionSaved)  data = state.data;
 
         return Scaffold(
-          backgroundColor: _AC.back,
+          backgroundColor: ColorPick.white,
           body: SingleChildScrollView(
             child: Center(
               child: SizedBox(
@@ -149,7 +152,7 @@ class _CareersSectionPreviewPageState
                     Text(
                       'Preview ${widget.sectionTitle} Details',
                       style: StyleText.fontSize45Weight600.copyWith(
-                        color:      _AC.primary,
+                        color:      ColorPick.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -172,10 +175,10 @@ class _CareersSectionPreviewPageState
                             selectedIndex: _isAr ? 1 : 0,
                             onTabSelected: (i) =>
                                 setState(() => _isAr = i == 1),
-                            selectedColor:       _AC.primary,
+                            selectedColor:       ColorPick.primary,
                             unselectedColor:     Colors.white,
                             selectedTextColor:   Colors.white,
-                            unselectedTextColor: _AC.labelText,
+                            unselectedTextColor: AppColors.text,
                             equalWidth: false,
                             containerPadding: EdgeInsets.symmetric(
                               horizontal: 8.sp,
@@ -203,7 +206,7 @@ class _CareersSectionPreviewPageState
                             child: Container(
                               height: 44.h,
                               decoration: BoxDecoration(
-                                color: _AC.grey,
+                                color: ColorPick.discard,
                                 borderRadius: BorderRadius.circular(6.r),
                               ),
                               child: Center(
@@ -225,8 +228,8 @@ class _CareersSectionPreviewPageState
                               height: 44.h,
                               decoration: BoxDecoration(
                                 color: _isSaving
-                                    ? _AC.primary.withOpacity(0.5)
-                                    : _AC.primary,
+                                    ? ColorPick.primary.withOpacity(0.5)
+                                    : ColorPick.primary,
                                 borderRadius: BorderRadius.circular(6.r),
                               ),
                               child: Center(
@@ -275,14 +278,14 @@ class _CareersSectionPreviewPageState
               style: TextStyle(
                 fontSize:   15.sp,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                color:      active ? _AC.primary : _AC.hintText,
+                color:      active ? ColorPick.primary : AppColors.secondaryText,
               ),
             ),
           ),
           Container(
             height: 2,
             width:  label.length * 8.0,
-            color:  active ? _AC.primary : Colors.transparent,
+            color:  active ? ColorPick.primary : Colors.transparent,
           ),
         ],
       ),
@@ -323,7 +326,7 @@ class _DesktopFrame extends StatelessWidget {
     final frameH = _kDesktopH * scale;
     return Container(
       width: containerWidth,
-      // color: _AC.back,
+      // color: ColorPick.white,
       child: Column(
         children: [
           const _ViewBar(),
@@ -393,7 +396,7 @@ class _TabletFrame extends StatelessWidget {
                 bottomLeft:  Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
-              border: Border.all(color: _AC.border, width: 2),
+              border: Border.all(color: ColorPick.white, width: 2),
               color:  Colors.white,
             ),
             clipBehavior: Clip.antiAlias,
@@ -455,7 +458,7 @@ class _MobileFrame extends StatelessWidget {
                 bottomLeft:  Radius.circular(28),
                 bottomRight: Radius.circular(28),
               ),
-              border: Border.all(color: _AC.border, width: 2),
+              border: Border.all(color: ColorPick.white, width: 2),
               color:  Colors.white,
             ),
             clipBehavior: Clip.antiAlias,
@@ -470,7 +473,7 @@ class _MobileFrame extends StatelessWidget {
                       width:  displayW * 0.3,
                       height: 12,
                       decoration: BoxDecoration(
-                        color:        _AC.border,
+                        color:        ColorPick.white,
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
@@ -507,7 +510,7 @@ class _MobileFrame extends StatelessWidget {
                       width:  displayW * 0.3,
                       height: 4,
                       decoration: BoxDecoration(
-                        color:        _AC.border,
+                        color:        ColorPick.white,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),

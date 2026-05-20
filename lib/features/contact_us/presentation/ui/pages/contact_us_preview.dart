@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_footer.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -17,9 +18,9 @@ import '../../controller/contacu_us_location_cubit.dart';
 import '../../controller/contacu_us_location_state.dart';
 
 
-const Color _kGreen      = Color(0xFF2D8C4E);
-const Color _kGreenLight = Color(0xFFE8F5EE);
-const Color _kDivider    = Color(0xFFDDE8DD);
+// const Color ColorPick.primary      = Color(0xFF2D8C4E);
+// const Color ColorPick.primaryLight = Color(0xFFE8F5EE);
+// const Color _kDivider    = Color(0xFFDDE8DD);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAGE
@@ -50,7 +51,7 @@ class _PreviewView extends StatelessWidget {
       body: BlocBuilder<ContactUsCmsCubit, ContactUsCmsState>(
         builder: (context, state) {
           if (state is ContactUsCmsLoading || state is ContactUsCmsInitial) {
-            return const Center(child: CircularProgressIndicator(color: _kGreen));
+            return const Center(child: CircularProgressIndicator(color: ColorPick.primary));
           }
 
           if (state is ContactUsCmsError) {
@@ -118,7 +119,7 @@ class _DesktopPreview extends StatelessWidget {
               'Contact us',
               style: StyleText.fontSize45Weight600.copyWith(
                 fontSize: 48.sp,
-                color: _kGreen,
+                color: ColorPick.primary,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -161,7 +162,7 @@ class _DesktopPreview extends StatelessWidget {
                   'Office Locations',
                   style: StyleText.fontSize45Weight600.copyWith(
                     fontSize: 32.sp,
-                    color: _kGreen,
+                    color: ColorPick.primary,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -209,7 +210,7 @@ class _MobilePreview extends StatelessWidget {
             'Contact us',
             style: StyleText.fontSize45Weight600.copyWith(
               fontSize: 34,
-              color: _kGreen,
+              color: ColorPick.primary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -223,7 +224,7 @@ class _MobilePreview extends StatelessWidget {
 
           Text(
             'Office Locations',
-            style: StyleText.fontSize22Weight700.copyWith(color: _kGreen),
+            style: StyleText.fontSize22Weight700.copyWith(color: ColorPick.primary),
           ),
           const SizedBox(height: 16),
 
@@ -265,12 +266,12 @@ class _InfoCard extends StatelessWidget {
           ),
           SizedBox(height: 32.h),
 
-          Text('Email', style: StyleText.fontSize16Weight600.copyWith(color: _kGreen)),
+          Text('Email', style: StyleText.fontSize16Weight600.copyWith(color: ColorPick.primary)),
           SizedBox(height: 6.h),
           Text(data.email, style: StyleText.fontSize13Weight400.copyWith(color: Colors.black54)),
           SizedBox(height: 28.h),
 
-          Text('Follow Us', style: StyleText.fontSize16Weight600.copyWith(color: _kGreen)),
+          Text('Follow Us', style: StyleText.fontSize16Weight600.copyWith(color: ColorPick.primary)),
           SizedBox(height: 12.h),
           Wrap(
             spacing: 10.w,
@@ -313,12 +314,12 @@ class _MobileInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 22),
 
-          Text('Email', style: StyleText.fontSize15Weight600.copyWith(color: _kGreen)),
+          Text('Email', style: StyleText.fontSize15Weight600.copyWith(color: ColorPick.primary)),
           const SizedBox(height: 4),
           Text(data.email, style: StyleText.fontSize13Weight400.copyWith(color: Colors.black54)),
           const SizedBox(height: 20),
 
-          Text('Follow Us', style: StyleText.fontSize15Weight600.copyWith(color: _kGreen)),
+          Text('Follow Us', style: StyleText.fontSize15Weight600.copyWith(color: ColorPick.primary)),
           const SizedBox(height: 10),
           Wrap(
             spacing: 10,
@@ -382,7 +383,7 @@ class _FormPlaceholder extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: _kGreen,
+                backgroundColor: ColorPick.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(isMobile ? 8 : 8.r),
                 ),
@@ -463,15 +464,15 @@ class _OfficeCard extends StatelessWidget {
               width: 100.w,
               height: 100.h,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Icon(Icons.location_on, size: 100.w, color: _kGreen),
+              errorBuilder: (_, __, ___) => Icon(Icons.location_on, size: 100.w, color: ColorPick.primary),
             )
           else
-            Icon(Icons.location_on, size: 100.w, color: _kGreen),
+            Icon(Icons.location_on, size: 100.w, color: ColorPick.primary),
           SizedBox(height: 16.h),
 
           Text(
             location.locationName.en,
-            style: StyleText.fontSize16Weight700.copyWith(color: _kGreen),
+            style: StyleText.fontSize16Weight700.copyWith(color: ColorPick.primary),
           ),
           SizedBox(height: 6.h),
 
@@ -519,15 +520,15 @@ class _OfficeCardMobile extends StatelessWidget {
               width: 120,
               height: 120,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(Icons.location_on, size: 120, color: _kGreen),
+              errorBuilder: (_, __, ___) => const Icon(Icons.location_on, size: 120, color: ColorPick.primary),
             )
           else
-            const Icon(Icons.location_on, size: 120, color: _kGreen),
+            const Icon(Icons.location_on, size: 120, color: ColorPick.primary),
           const SizedBox(height: 16),
 
           Text(
             location.locationName.en,
-            style: StyleText.fontSize16Weight700.copyWith(color: _kGreen),
+            style: StyleText.fontSize16Weight700.copyWith(color: ColorPick.primary),
           ),
           const SizedBox(height: 6),
 
@@ -563,7 +564,7 @@ class _SocialIconScaled extends StatelessWidget {
       width: 36.w,
       height: 36.h,
       decoration: BoxDecoration(
-        border: Border.all(color: _kGreen),
+        border: Border.all(color: ColorPick.primary),
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Center(
@@ -572,7 +573,7 @@ class _SocialIconScaled extends StatelessWidget {
           width: 18.w,
           height: 18.h,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Icon(Icons.link, size: 18.w, color: _kGreen),
+          errorBuilder: (_, __, ___) => Icon(Icons.link, size: 18.w, color: ColorPick.primary),
         ),
       ),
     );
@@ -590,7 +591,7 @@ class _SocialIconRaw extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        border: Border.all(color: _kGreen),
+        border: Border.all(color: ColorPick.primary),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -599,7 +600,7 @@ class _SocialIconRaw extends StatelessWidget {
           width: 18,
           height: 18,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const Icon(Icons.link, size: 18, color: _kGreen),
+          errorBuilder: (_, __, ___) => const Icon(Icons.link, size: 18, color: ColorPick.primary),
         ),
       ),
     );

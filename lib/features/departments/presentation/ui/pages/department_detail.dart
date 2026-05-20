@@ -12,7 +12,9 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
@@ -23,14 +25,14 @@ import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/model/department_model.dart';
 import 'department_edit.dart';
-
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
+//
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+// }
 
 class DepartmentDetailPage extends StatelessWidget {
   final DepartmentModel department;
@@ -51,7 +53,7 @@ class DepartmentDetailPage extends StatelessWidget {
     final inactiveCount = deptJobs.where((j) => j.status == JobStatus.inactive).length;
 
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: SingleChildScrollView(
         child: SizedBox(
           width: double.infinity,
@@ -76,7 +78,7 @@ class DepartmentDetailPage extends StatelessWidget {
                       Text(
                         'Department Details',
                         style: StyleText.fontSize45Weight600.copyWith(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -105,7 +107,7 @@ class DepartmentDetailPage extends StatelessWidget {
                                 Text(
                                   'Edit Department Info',
                                   style: StyleText.fontSize12Weight500
-                                      .copyWith(color: _C.primary),
+                                      .copyWith(color: ColorPick.primary),
                                 ),
 
                                 SizedBox(width: 6.w),
@@ -146,7 +148,7 @@ class DepartmentDetailPage extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _C.primary,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.only(
                 topLeft:  Radius.circular(6.r),
                 topRight: Radius.circular(6.r),
@@ -217,13 +219,13 @@ class DepartmentDetailPage extends StatelessWidget {
                     placeholderBuilder: (_) => Icon(
                       Icons.business_rounded,
                       size: 70.sp * 0.6,
-                      color: _C.primary,
+                      color: ColorPick.primary,
                     ),
                   )
                       : Icon(
                     Icons.business_rounded,
                     size: 70.sp * 0.6,
-                    color: _C.primary,
+                    color: ColorPick.primary,
                   ),
                 ),
               ),
@@ -257,7 +259,7 @@ class DepartmentDetailPage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
-                color: _C.labelText)),
+                color: AppColors.text)),
         SizedBox(height: 6.h),
         Container(
           width: double.infinity,
@@ -271,7 +273,7 @@ class DepartmentDetailPage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
-                color: _C.labelText),
+                color: AppColors.text),
           ),
         ),
       ],
@@ -303,12 +305,12 @@ class DepartmentDetailPage extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
-                          color: _C.labelText)),
+                          color: AppColors.text)),
                   Text(label,
                       style: TextStyle(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w400,
-                          color: _C.hintText)),
+                          color: AppColors.secondaryText)),
                 ],
               ),
             ),

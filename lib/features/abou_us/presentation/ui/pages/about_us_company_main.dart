@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:web_app_admin/core/widget/navigator.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -21,15 +22,15 @@ import 'about_us_company_edit.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 class AboutCompanyMainPage extends StatefulWidget {
   const AboutCompanyMainPage({super.key});
@@ -55,9 +56,9 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
       builder: (context, state) {
         if (state is AboutCompanyInitial || state is AboutCompanyLoading) {
           return const Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.background,
             body: Center(
-                child: CircularProgressIndicator(color: _C.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -70,7 +71,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
         data ??= AboutCompanyModel.empty();
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -98,7 +99,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
                                 'About Company',
                                 style:
                                 StyleText.fontSize45Weight600.copyWith(
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -120,11 +121,11 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
                                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                                       Text('Edit Details',
                                           style: StyleText.fontSize14Weight500
-                                              .copyWith(color: _C.primary)),
+                                              .copyWith(color: ColorPick.primary)),
                                       SizedBox(width: 6.w),
                                       CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                                           width: 20.w, height: 20.h,
-                                          fit: BoxFit.scaleDown, color: _C.primary),
+                                          fit: BoxFit.scaleDown, color: ColorPick.primary),
                                     ]),
                                   ),
                                 ),
@@ -176,7 +177,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
                     topLeft: Radius.circular(6.r),
@@ -244,7 +245,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
     children: [
       Text(label,
           style: StyleText.fontSize12Weight500
-              .copyWith(color: _C.labelText)),
+              .copyWith(color: AppColors.text)),
       SizedBox(height: 4.h),
       Container(
         width: double.infinity,
@@ -259,7 +260,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
         child: Text(
           value,
           style: StyleText.fontSize12Weight400
-              .copyWith(color: _C.hintText),
+              .copyWith(color: AppColors.secondaryText),
           overflow: TextOverflow.ellipsis,
           maxLines: 4,
         ),
@@ -274,7 +275,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
       children: [
         Text(label,
             style: StyleText.fontSize12Weight500
-                .copyWith(color: _C.labelText)),
+                .copyWith(color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           width: double.infinity,
@@ -289,7 +290,7 @@ class _AboutCompanyMainPageState extends State<AboutCompanyMainPage> {
           child: Text(
             value,
             style: StyleText.fontSize12Weight400
-                .copyWith(color: _C.hintText),
+                .copyWith(color: AppColors.secondaryText),
             overflow: TextOverflow.ellipsis,
             maxLines: 4,
             textDirection: TextDirection.rtl,

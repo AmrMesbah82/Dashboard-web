@@ -19,6 +19,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -33,12 +34,12 @@ import '../../controller/contacu_us_location_state.dart';
 
 
 
-const Color _kGreen      = Color(0xFF2D8C4E);
-const Color _kGreenSolid = Color(0xFF008037);
-const Color _kGreenLight = Color(0xFFE8F5EE);
-const Color _kRed        = Color(0xFFD32F2F);
-const Color _kSurface    = Color(0xFFFFFFFF);
-const Color _kBg         = Color(0xFFF2F2F2);
+// const Color ColorPick.primary      = Color(0xFF2D8C4E);
+// const Color ColorPick.primary = Color(0xFF008037);
+// const Color ColorPick.primaryLight = Color(0xFFE8F5EE);
+// const Color ColorPick.red        = Color(0xFFD32F2F);
+// const Color _kSurface    = Color(0xFFFFFFFF);
+// const Color _kBg         = Color(0xFFF2F2F2);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAGE
@@ -487,7 +488,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
                                 child: isLoading
                                     ? const Center(
                                   child: CircularProgressIndicator(
-                                    color: _kGreenSolid,
+                                    color: ColorPick.primary,
                                   ),
                                 )
                                     : _buildForm(),
@@ -518,7 +519,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
           'Editing Contact Us Details',
           style: AppTextStyles.font28BlackSemiBoldCairo.copyWith(
             fontSize:   36.sp,
-            color:      _kGreen,
+            color:      ColorPick.primary,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -570,7 +571,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _kGreenSolid,
+              color: ColorPick.primary,
               borderRadius: isOpen
                   ? BorderRadius.circular(8)
                   : BorderRadius.circular(12.r),
@@ -762,7 +763,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
                   padding: EdgeInsets.symmetric(
                       horizontal: 14.w, vertical: 7.h),
                   decoration: BoxDecoration(
-                    color:        _kRed,
+                    color:        ColorPick.red,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
@@ -859,7 +860,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
                   padding: EdgeInsets.symmetric(
                       horizontal: 14.w, vertical: 7.h),
                   decoration: BoxDecoration(
-                    color:        _kRed,
+                    color:        ColorPick.red,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
@@ -1130,7 +1131,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
             Expanded(
               child: _btn(
                 label:  'Publish',
-                color:  _kGreenSolid,
+                color:  ColorPick.primary,
                 onTap:  _handlePublish,
               ),
             ),
@@ -1170,7 +1171,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: _kGreenSolid),
+              const CircularProgressIndicator(color: ColorPick.primary),
               SizedBox(height: 12.h),
               Text(
                 'Saving...',
@@ -1421,7 +1422,7 @@ class _SocialLinkDropdown extends StatelessWidget {
             SizedBox(
               width: 14.w, height: 14.w,
               child: const CircularProgressIndicator(
-                strokeWidth: 2, color: _kGreenSolid,
+                strokeWidth: 2, color: ColorPick.primary,
               ),
             ),
             SizedBox(width: 10.w),
@@ -1466,17 +1467,17 @@ class _SocialLinkDropdown extends StatelessWidget {
                   link.iconUrl,
                   width:  20.w, height: 20.w, fit: BoxFit.contain,
                   colorFilter: ColorFilter.mode(
-                    hasUrl ? _kGreenSolid : Colors.grey.shade400,
+                    hasUrl ? ColorPick.primary : Colors.grey.shade400,
                     BlendMode.srcIn,
                   ),
                   placeholderBuilder: (_) => Icon(
                     Icons.link, size: 16.sp,
-                    color: hasUrl ? _kGreenSolid : Colors.grey.shade400,
+                    color: hasUrl ? ColorPick.primary : Colors.grey.shade400,
                   ),
                 )
                     : Icon(
                   Icons.link, size: 16.sp,
-                  color: hasUrl ? _kGreenSolid : Colors.grey.shade400,
+                  color: hasUrl ? ColorPick.primary : Colors.grey.shade400,
                 ),
               ),
             ),
@@ -1549,12 +1550,12 @@ class _SocialLinkDropdown extends StatelessWidget {
             SvgPicture.network(
               selectedLink.iconUrl,
               width: 18.w, height: 18.w, fit: BoxFit.contain,
-              colorFilter: const ColorFilter.mode(_kGreenSolid, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(ColorPick.primary, BlendMode.srcIn),
               placeholderBuilder: (_) =>
-                  Icon(Icons.link, size: 16.sp, color: _kGreenSolid),
+                  Icon(Icons.link, size: 16.sp, color: ColorPick.primary),
             )
           else
-            Icon(Icons.link, size: 16.sp, color: _kGreenSolid),
+            Icon(Icons.link, size: 16.sp, color: ColorPick.primary),
           SizedBox(width: 8.w),
           Expanded(
             child: Text(
@@ -1628,7 +1629,7 @@ class _SocialLinkDropdown extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Cairo',
               fontSize:   11.sp,
-              color:      _kRed,
+              color:      ColorPick.red,
             ),
           ),
         ],

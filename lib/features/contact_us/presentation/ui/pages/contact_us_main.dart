@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -20,15 +21,15 @@ import '../../controller/contacu_us_location_state.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTACT US MAIN PAGE
@@ -70,8 +71,8 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
       builder: (context, state) {
         if (state is ContactUsCmsInitial || state is ContactUsCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.back,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -80,7 +81,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
         if (state is ContactUsCmsSaved)  data = state.data;
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: Container(
               width: double.infinity,
@@ -100,7 +101,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
                     width: 1000.w,
                     child: data == null
                         ? const Center(
-                        child: CircularProgressIndicator(color: _C.primary))
+                        child: CircularProgressIndicator(color: ColorPick.primary))
                         : _body(data),
                   ),
                 ],
@@ -123,7 +124,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             Text(
               'Contact Us',
               style: StyleText.fontSize45Weight600.copyWith(
-                color: _C.primary, fontWeight: FontWeight.w700,
+                color: ColorPick.primary, fontWeight: FontWeight.w700,
               ),
             ),
             const Spacer(),
@@ -133,7 +134,7 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
 width: 165.w,
                 height: 45.h,
                 decoration: BoxDecoration(
-                  color: _C.primary,
+                  color: ColorPick.primary,
                   borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Center(
@@ -153,14 +154,14 @@ width: 165.w,
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: _C.cardBg,
+                color: ColorPick.background,
                 borderRadius: BorderRadius.circular(4.r),
               ),
               // ── FIXED: dynamic date from model.lastUpdatedAt ──
               child: Text(
                 'Last Updated On ${_fmtDate(data.lastUpdatedAt)}',
                 style: StyleText.fontSize13Weight500
-                    .copyWith(color: _C.primary),
+                    .copyWith(color: ColorPick.primary),
               ),
             ),
             const Spacer(),
@@ -181,7 +182,7 @@ width: 165.w,
                     CustomSvg(
                         assetPath: "assets/control/edit_icon_pick.svg",
                         width: 20.w, height: 20.h,
-                        fit: BoxFit.scaleDown, color: _C.primary),
+                        fit: BoxFit.scaleDown, color: ColorPick.primary),
                   ]),
                 ),
               ),
@@ -220,7 +221,7 @@ width: 165.w,
             if (data.socialIcons.isEmpty)
               Text('No social icons added',
                   style: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText))
+                      .copyWith(color: AppColors.secondaryText))
             else
               _socialIconsGrid(data.socialIcons),
           ],
@@ -236,7 +237,7 @@ width: 165.w,
             if (data.officeLocations.isEmpty)
               Text('No office locations added',
                   style: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText))
+                      .copyWith(color: AppColors.secondaryText))
             else
               ...data.officeLocations.asMap().entries.map((e) {
                 return Padding(
@@ -262,7 +263,7 @@ width: 165.w,
                   children: [
                     Text('SVG',
                         style: StyleText.fontSize12Weight500
-                            .copyWith(color: _C.labelText)),
+                            .copyWith(color: AppColors.text)),
                     SizedBox(height: 6.h),
                     _imgCircle(data.confirmMessage.svgUrl, isSvg: true),
                   ],
@@ -322,7 +323,7 @@ width: 165.w,
       children: [
         SizedBox(height: 15.h),
         Text('Icon',
-            style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+            style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         _imgCircle(icon.iconUrl),
         SizedBox(height: 8.h),
@@ -338,7 +339,7 @@ width: 165.w,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Location ${index + 1}',
-            style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText)),
+            style: StyleText.fontSize13Weight600.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,7 +349,7 @@ width: 165.w,
               children: [
                 Text('Icon',
                     style: StyleText.fontSize12Weight500
-                        .copyWith(color: _C.labelText)),
+                        .copyWith(color: AppColors.text)),
                 SizedBox(height: 6.h),
                 _imgCircle(office.iconUrl),
               ],
@@ -420,7 +421,7 @@ width: 165.w,
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -456,7 +457,7 @@ width: 165.w,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
           SizedBox(height: 4.h),
           Container(
             width: double.infinity, height: height.h,
@@ -468,7 +469,7 @@ width: 165.w,
             alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
             child: Text(
               value.isEmpty ? 'Text Here' : value,
-              style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+              style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
               maxLines: height > 36 ? 4 : 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -484,7 +485,7 @@ width: 165.w,
           children: [
             Text(label,
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 4.h),
             Container(
               width: double.infinity, height: height.h,
@@ -497,7 +498,7 @@ width: 165.w,
               height > 36 ? Alignment.topRight : Alignment.centerRight,
               child: Text(
                 value.isEmpty ? 'أكتب هنا' : value,
-                style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
                 textDirection: TextDirection.rtl,
                 maxLines: height > 36 ? 4 : 1,
                 overflow: TextOverflow.ellipsis,

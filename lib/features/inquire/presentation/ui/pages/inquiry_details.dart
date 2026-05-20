@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
@@ -26,14 +27,6 @@ import '../../controller/inquiry_state.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037); // fallback only
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
 
 // ── Same helper used in AppNavbar ─────────────────────────────────────────────
 Color _primaryFromCmsState(HomeCmsState state) {
@@ -46,7 +39,7 @@ Color _primaryFromCmsState(HomeCmsState state) {
     final clean = hex.replaceAll('#', '');
     if (clean.length == 6) return Color(int.parse('FF$clean', radix: 16));
   } catch (_) {}
-  return _C.primary; // fallback
+  return ColorPick.primary; // fallback
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,12 +89,12 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
             SvgPicture.asset('assets/images/dashboard_image.svg', height: 120.h, fit: BoxFit.contain),
             SizedBox(height: 20.h),
             Text('CHANGE SUBMISSION STATUS',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
             SizedBox(height: 12.h),
             Text(
               'Are you sure you want to change this Submissions status from ${inq.status.label} to ${newStatus.label}?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13.sp, color: _C.hintText, height: 1.5),
+              style: TextStyle(fontSize: 13.sp, color: AppColors.secondaryText, height: 1.5),
             ),
             SizedBox(height: 24.h),
             Row(children: [
@@ -110,7 +103,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(6.r)),
-                  child: Center(child: Text('Back', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: _C.labelText))),
+                  child: Center(child: Text('Back', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.text))),
                 ),
               )),
               SizedBox(width: 16.w),
@@ -121,7 +114,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                 },
                 child: Container(
                   height: 44.h,
-                  decoration: BoxDecoration(color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                  decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                   child: Center(child: Text('Confirm', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.white))),
                 ),
               )),
@@ -145,11 +138,11 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
             SvgPicture.asset('assets/images/dashboard_image.svg', height: 120.h, fit: BoxFit.contain),
             SizedBox(height: 20.h),
             Text('SAVING SUBMISSION',
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
+                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
             SizedBox(height: 12.h),
             Text('Are you sure you want to Edit This Submissions?',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13.sp, color: _C.hintText, height: 1.5)),
+                style: TextStyle(fontSize: 13.sp, color: AppColors.secondaryText, height: 1.5)),
             SizedBox(height: 24.h),
             Row(children: [
               Expanded(child: GestureDetector(
@@ -157,7 +150,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(6.r)),
-                  child: Center(child: Text('Back', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: _C.labelText))),
+                  child: Center(child: Text('Back', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.text))),
                 ),
               )),
               SizedBox(width: 16.w),
@@ -173,7 +166,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                 },
                 child: Container(
                   height: 44.h,
-                  decoration: BoxDecoration(color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                  decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                   child: Center(child: Text('Confirm', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.white))),
                 ),
               )),
@@ -199,8 +192,8 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
 
             if (inq == null) {
               return const Scaffold(
-                backgroundColor: _C.back,
-                body: Center(child: CircularProgressIndicator(color: _C.primary)),
+                backgroundColor: ColorPick.background,
+                body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
               );
             }
 
@@ -223,7 +216,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
             }
 
             return Scaffold(
-              backgroundColor: _C.back,
+              backgroundColor: ColorPick.background,
               body: Stack(children: [
                 SingleChildScrollView(
                   child: SizedBox(
@@ -255,7 +248,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                                   Row(
                                     children: [
                                       Text('Submission Date: ',
-                                          style: TextStyle(fontSize: 13.sp, color: _C.labelText)),
+                                          style: TextStyle(fontSize: 13.sp, color: AppColors.text)),
                                       Text(dateStr,
                                           style: TextStyle(fontSize: 13.sp, color: AppColors.secondaryText)),
                                     ],
@@ -295,7 +288,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                                 width: double.infinity,
                                 padding: EdgeInsets.all(16.sp),
                                 decoration: BoxDecoration(
-                                  color: _C.cardBg,
+                                  color: ColorPick.white,
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: Column(
@@ -338,18 +331,18 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
 
                                     // ── Our Notes (editable) ────────────
                                     Text('Our Notes',
-                                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: _C.labelText)),
+                                        style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text)),
                                     SizedBox(height: 6.h),
                                     SizedBox(
                                       height: 80.h,
                                       child: TextFormField(
                                         controller: _noteCtrl,
                                         maxLines: 4,
-                                        style: TextStyle(fontSize: 12.sp, color: _C.labelText),
+                                        style: TextStyle(fontSize: 12.sp, color: AppColors.text),
                                         decoration: InputDecoration(
                                           hoverColor: Colors.transparent,
                                           hintText: 'Text Here',
-                                          hintStyle: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                                          hintStyle: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                                           filled: true,
                                           fillColor: const Color(0xFFF1F2ED),
                                           isDense: true,
@@ -411,7 +404,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                 if (_isSaving)
                   Container(
                     color: Colors.black26,
-                    child: const Center(child: CircularProgressIndicator(color: _C.primary)),
+                    child: const Center(child: CircularProgressIndicator(color: ColorPick.primary)),
                   ),
               ]),
             );
@@ -425,7 +418,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: _C.labelText)),
+        Text(label, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           width: double.infinity,
@@ -439,7 +432,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
           child: Text(
             value.isEmpty ? 'Text Here' : value,
             style: StyleText.fontSize12Weight400.copyWith(
-                color: value.isEmpty ? _C.hintText : _C.labelText),
+                color: value.isEmpty ? AppColors.secondaryText : AppColors.text),
             maxLines: multiLine ? 4 : 1,
             overflow: TextOverflow.ellipsis,
           ),

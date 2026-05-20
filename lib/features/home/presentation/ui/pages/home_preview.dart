@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
@@ -21,14 +22,14 @@ import '../../controller/home_state.dart';
 import '../../controller/lang_state.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+// }
 
 enum _Device { desktop, tablet, mobile }
 
@@ -61,7 +62,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Published!',
                 style: StyleText.fontSize14Weight400.copyWith(color: Colors.white)),
-            backgroundColor: _C.primary,
+            backgroundColor: ColorPick.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
           ));
@@ -80,8 +81,8 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.white,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -95,7 +96,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
             final bool isAr = langState.isArabic;
 
             return Scaffold(
-              backgroundColor: _C.sectionBg,
+              backgroundColor: ColorPick.white,
               body: SingleChildScrollView(
                 child: Container(
                   width: double.infinity,
@@ -120,7 +121,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
 
                                   Text('Preview Home Details',
                                     style: StyleText.fontSize45Weight600.copyWith(
-                                      color: _C.primary, fontWeight: FontWeight.w700,
+                                      color: ColorPick.primary, fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   SizedBox(height: 14.h),
@@ -138,11 +139,11 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                                               .read<LanguageCubit>()
                                               .setLanguage(i == 1 ? 'ar' : 'en');
                                         },
-                                        selectedColor: _C.primary,
+                                        selectedColor: ColorPick.primary,
                                         unselectedColor: Colors.transparent,
                                         selectedTextColor: Colors.white,
-                                        unselectedTextColor: _C.labelText,
-                                        containerColor: _C.border.withOpacity(0.45),
+                                        unselectedTextColor: AppColors.text,
+                                        containerColor: ColorPick.white.withOpacity(0.45),
                                         equalWidth: false,
                                         containerPadding: EdgeInsets.symmetric(
                                             horizontal: 8.sp, vertical: 4.sp),
@@ -185,8 +186,8 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                                           height: 44.h,
                                           decoration: BoxDecoration(
                                             color: _isSaving
-                                                ? _C.primary.withOpacity(0.5)
-                                                : _C.primary,
+                                                ? ColorPick.primary.withOpacity(0.5)
+                                                : ColorPick.primary,
                                             borderRadius: BorderRadius.circular(6.r),
                                           ),
                                           child: Center(
@@ -246,13 +247,13 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                        color: isActive ? _C.primary : _C.hintText,
+                        color: isActive ? ColorPick.primary : AppColors.secondaryText,
                       ),
                     ),
                   ),
                   Container(
                     height: 2,
-                    color: isActive ? _C.primary : Colors.transparent,
+                    color: isActive ? ColorPick.primary : Colors.transparent,
                   ),
                 ],
               ),
@@ -270,12 +271,12 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: active ? _C.primary : Colors.transparent,
+          color: active ? ColorPick.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(4.r),
         ),
         child: Text(label,
           style: StyleText.fontSize12Weight500.copyWith(
-            color: active ? Colors.white : _C.labelText,
+            color: active ? Colors.white : AppColors.text,
           ),
         ),
       ),
@@ -286,7 +287,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
   Widget _homeViewAccordion(HomePageModel? data, bool isAr) {
     return Container(
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color:ColorPick.white,
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Column(
@@ -298,7 +299,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [

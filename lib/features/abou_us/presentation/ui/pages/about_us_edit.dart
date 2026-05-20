@@ -24,6 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 
 
 import 'package:web_app_admin/core/custom_svg.dart';
@@ -45,12 +46,12 @@ import '../../controller/about_us_state.dart';
 import 'about_us_main.dart';
 import 'about_us_preview.dart';
 
-const Color _kGreen = Color(0xFF2D8C4E);
-const Color _kGreenSolid = Color(0xFF008037);
-const Color _kGreenLight = Color(0xFFE8F5EE);
-const Color _kRed = Color(0xFFD32F2F);
-const Color _kSurface = Color(0xFFFFFFFF);
-const Color _kBg = Color(0xFFF2F2F2);
+// const Color _kGreen = Color(0xFF2D8C4E);
+// const Color ColorPick.primary = Color(0xFF008037);
+// const Color _kGreenLight = Color(0xFFE8F5EE);
+// const Color _kRed = Color(0xFFD32F2F);
+// const Color _kSurface = Color(0xFFFFFFFF);
+// const Color _kBg = Color(0xFFF2F2F2);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAGE
@@ -706,7 +707,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                     child: isLoading
                         ? const Center(
                       child: CircularProgressIndicator(
-                        color: _kGreenSolid,
+                        color: ColorPick.primary,
                       ),
                     )
                         : _buildForm(),
@@ -731,7 +732,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             Text(
               'Editing About Us',
               style: StyleText.fontSize45Weight600.copyWith(
-                color: _kGreen,
+                color: ColorPick.primary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -859,7 +860,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: _kGreenSolid,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
@@ -999,7 +1000,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           isRequired: true,
           textDirection: TextDirection.ltr,
           textAlign: TextAlign.start,
-          primaryColor: _kGreenSolid,
+          primaryColor: ColorPick.primary,
           onChanged: (_) => setState(() {}),
         ),
         SizedBox(height: 16.h),
@@ -1017,7 +1018,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           isRequired: true,
           textDirection: TextDirection.rtl,
           textAlign: TextAlign.right,
-          primaryColor: _kGreenSolid,
+          primaryColor: ColorPick.primary,
           onChanged: (_) => setState(() {}),
         ),
         SizedBox(height: 16.h),
@@ -1035,7 +1036,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           isRequired: true,
           textDirection: TextDirection.ltr,
           textAlign: TextAlign.start,
-          primaryColor: _kGreenSolid,
+          primaryColor: ColorPick.primary,
           onChanged: (_) => setState(() {}),
         ),
         SizedBox(height: 16.h),
@@ -1053,7 +1054,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
           isRequired: true,
           textDirection: TextDirection.rtl,
           textAlign: TextAlign.right,
-          primaryColor: _kGreenSolid,
+          primaryColor: ColorPick.primary,
           onChanged: (_) => setState(() {}),
         ),
       ],
@@ -1160,7 +1161,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                     vertical: 7.h,
                   ),
                   decoration: BoxDecoration(
-                    color: _kRed,
+                    color: Colors.red,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
@@ -1206,7 +1207,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             isRequired: true,
             textDirection: TextDirection.ltr,
             textAlign: TextAlign.start,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
           SizedBox(height: 16.h),
@@ -1224,7 +1225,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             isRequired: true,
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.right,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
         ],
@@ -1254,8 +1255,8 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
               child: _btn(
                 label: 'Publish',
                 color: formValid
-                    ? _kGreenSolid
-                    : _kGreenSolid.withOpacity(0.4),
+                    ? ColorPick.primary
+                    : ColorPick.primary.withOpacity(0.4),
                 onTap: formValid ? () => _showPublishConfirmDialog() : null,
               ),
             ),
@@ -1390,7 +1391,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: _kGreenSolid),
+                          strokeWidth: 2, color: ColorPick.primary),
                     ),
                   );
                 }
@@ -1512,7 +1513,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             isRequired: true,
             textDirection: TextDirection.ltr,
             textAlign: TextAlign.start,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -1529,7 +1530,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
             isRequired: true,
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.right,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
         ),

@@ -23,6 +23,7 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/new_theme.dart';
@@ -31,11 +32,11 @@ import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'strategy_preview.dart';
 
-const Color _kGreen      = Color(0xFF2D8C4E);
-const Color _kGreenSolid = Color(0xFF008037);
-const Color _kRed        = Color(0xFFD32F2F);
-const Color _kSurface    = Color(0xFFFFFFFF);
-const Color _kBg         = Color(0xFFF2F2F2);
+// const Color ColorPick.primary      = Color(0xFF2D8C4E);
+// const Color ColorPick.primary = Color(0xFF008037);
+// const Color _kRed        = Color(0xFFD32F2F);
+// const Color _kSurface    = Color(0xFFFFFFFF);
+// const Color _kBg         = Color(0xFFF2F2F2);
 
 // ── Device preview tab enum ─────────────────────────────────────────────────
 enum DeviceTab { largeScreen, tablet, mobile }
@@ -554,7 +555,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
         final loading = state is StrategyLoading || state is StrategyInitial;
 
         return Scaffold(
-          backgroundColor: _kBg,
+          backgroundColor: ColorPick.background,
           body: Stack(
             children: [
               SingleChildScrollView(
@@ -571,9 +572,9 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
                             AdminSubNavBar(activeIndex: 3),
                             SizedBox(height: 20.h),
                             loading
-                                ? const Center(
+                                ?  Center(
                                 child: CircularProgressIndicator(
-                                    color: _kGreenSolid))
+                                    color: ColorPick.primary))
                                 : _buildForm(),
                           ],
                         ),
@@ -602,7 +603,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
       children: [
         Text('Editing Our Strategy',
             style: StyleText.fontSize45Weight600.copyWith(
-                color: _kGreen, fontWeight: FontWeight.w700)),
+                color: ColorPick.primary, fontWeight: FontWeight.w700)),
         SizedBox(height: 24.h),
 
         // ── Navigation Label ──────────────────────────────────────────────
@@ -756,8 +757,8 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
               child: _btn(
                   label: 'Publish',
                   color: canPublish
-                      ? _kGreenSolid
-                      : _kGreenSolid.withOpacity(0.4),
+                      ? ColorPick.primary
+                      : ColorPick.primary.withOpacity(0.4),
                   onTap: canPublish ? _showPublishConfirmDialog : null)),
         ]),
         SizedBox(height: 12.h),
@@ -796,7 +797,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           padding:
           EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
           decoration: BoxDecoration(
-            color: _kGreenSolid,
+            color: ColorPick.primary,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Row(
@@ -845,7 +846,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
             duration: const Duration(milliseconds: 200),
             padding: EdgeInsets.symmetric(vertical: 10.h),
             decoration: BoxDecoration(
-              color: isActive ? _kGreen : Colors.transparent,
+              color: isActive ? ColorPick.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Center(
@@ -1009,7 +1010,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 12.w, vertical: 6.h),
                         decoration: BoxDecoration(
-                          color: _kRed,
+                          color: ColorPick.red,
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Text(
@@ -1072,7 +1073,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
               space: 8.sp,
               width: 250.w,
               radius: 8.r,
-              color: _kGreenSolid,
+              color: ColorPick.primary,
               image: "",
               widthImage: 16.w,
               heightImage: 16.h,
@@ -1219,7 +1220,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
                   width: 25.w,
                   height: 25.h,
                   decoration: BoxDecoration(
-                    color: _kGreenSolid,
+                    color: ColorPick.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -1326,7 +1327,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
             isRequired: true,
             textDirection: TextDirection.ltr,
             textAlign: TextAlign.start,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -1343,7 +1344,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
             isRequired: true,
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.right,
-            primaryColor: _kGreenSolid,
+            primaryColor: ColorPick.primary,
             onChanged: (_) => setState(() {}),
           ),
         ),
@@ -1394,7 +1395,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(color: _kGreenSolid),
+            const CircularProgressIndicator(color: ColorPick.primary),
             SizedBox(height: 12.h),
             Text('Saving...',
                 style: TextStyle(

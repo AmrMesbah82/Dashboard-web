@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
@@ -20,13 +21,13 @@ import '../../../controller/about_us_state.dart';
 
 
 
-class _C {
-  static const Color primary  = Color(0xFF008037);
-  static const Color cardBg   = Color(0xFFFFFFFF);
-  static const Color grey     = Color(0xFF9E9E9E);
-  static const Color hintText = Color(0xFF797979);
-  static const Color back     = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary  = Color(0xFF008037);
+//   static const Color cardBg   = Color(0xFFFFFFFF);
+//   static const Color grey     = Color(0xFF9E9E9E);
+//   static const Color hintText = Color(0xFF797979);
+//   static const Color back     = Color(0xFFF1F2ED);
+// }
 
 enum _PreviewMode { desktop, tablet, mobile }
 
@@ -73,7 +74,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _C.back,
+      backgroundColor: ColorPick.background,
       body: BlocListener<StrategyCubit, StrategyState>(
         listener: (context, state) {
           if (state is StrategySaved) {
@@ -112,7 +113,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                             Text(
                               'Preview Our Strategy Details',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -136,13 +137,13 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                                       style: sel
                                           ? StyleText.fontSize14Weight600
                                           .copyWith(
-                                        color: _C.primary,
+                                        color: ColorPick.primary,
                                         decoration:
                                         TextDecoration.underline,
-                                        decorationColor: _C.primary,
+                                        decorationColor: ColorPick.primary,
                                       )
                                           : StyleText.fontSize14Weight400
-                                          .copyWith(color: _C.hintText),
+                                          .copyWith(color: AppColors.secondaryText),
                                     ),
                                   ),
                                 );
@@ -188,7 +189,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                                       onPressed: () =>
                                           Navigator.pop(context),
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: _C.grey,
+                                        backgroundColor: ColorPick.back,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                           BorderRadius.circular(8.r),
@@ -209,7 +210,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                                     child: ElevatedButton(
                                       onPressed: _onSave,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: _C.primary,
+                                        backgroundColor: ColorPick.primary,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                           BorderRadius.circular(8.r),
@@ -260,7 +261,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
               padding:
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
                   topLeft: Radius.circular(6.r),
@@ -314,7 +315,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
 
     return Container(
       width: double.infinity,
-      color: _C.cardBg,
+      color: ColorPick.white,
       padding: EdgeInsets.all(16.r),
       child: Center(
         child: Container(

@@ -11,7 +11,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
@@ -21,16 +23,16 @@ import '../../controller/department_cubit.dart';
 import '../../controller/department_state.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color grey      = Color(0xFF797979);
-  static const Color red       = Color(0xFFD32F2F);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color grey      = Color(0xFF797979);
+//   static const Color red       = Color(0xFFD32F2F);
+// }
 
 class DepartmentEditPage extends StatefulWidget {
   final DepartmentModel department;
@@ -80,7 +82,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
       title:        'EDITING DEPARTMENT DETAILS',
       message:      'Do you want to save the changes made to this Department information?',
       confirmLabel: 'Confirm',
-      confirmColor: _C.primary,
+      confirmColor: ColorPick.primary,
       onConfirm: () async {
         Navigator.of(context).pop(); // close dialog
         setState(() => _isSaving = true);
@@ -101,7 +103,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
       message:
       'Are you sure you want to permanently delete this Department? This action cannot be undone.',
       confirmLabel: 'Delete',
-      confirmColor: _C.red,
+      confirmColor: ColorPick.red,
       onConfirm: () async {
         Navigator.of(context).pop(); // close dialog
         setState(() => _isSaving = true);
@@ -145,7 +147,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                 style: TextStyle(
                     fontSize:   18.sp,
                     fontWeight: FontWeight.w700,
-                    color:      _C.labelText),
+                    color:      AppColors.text),
               ),
               SizedBox(height: 12.h),
 
@@ -153,7 +155,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                 message,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 13.sp, color: _C.hintText, height: 1.5),
+                    fontSize: 13.sp, color: AppColors.secondaryText, height: 1.5),
               ),
               SizedBox(height: 24.h),
 
@@ -165,7 +167,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                     child: Container(
                       height: 44.h,
                       decoration: BoxDecoration(
-                        color:        _C.grey,
+                        color:        ColorPick.back,
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       alignment: Alignment.center,
@@ -221,7 +223,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: _C.back,
+        backgroundColor: ColorPick.background,
         body: Stack(
           children: [
             SingleChildScrollView(
@@ -248,7 +250,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                             Text(
                               'Editing Department Details',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color:      _C.primary,
+                                color:      ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -263,7 +265,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 10.w, vertical: 4.h),
                                     decoration: BoxDecoration(
-                                      color:        _C.red,
+                                      color:        ColorPick.red,
                                       borderRadius: BorderRadius.circular(4.r),
                                     ),
                                     child: Text('Remove',
@@ -295,7 +297,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                                     child: Container(
                                       height:    48.h,
                                       decoration: BoxDecoration(
-                                        color:        _C.grey,
+                                        color:        ColorPick.discard,
                                         borderRadius: BorderRadius.circular(8.r),
                                       ),
                                       alignment: Alignment.center,
@@ -312,7 +314,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                                     child: Container(
                                       height:    48.h,
                                       decoration: BoxDecoration(
-                                        color:        _C.primary,
+                                        color:        ColorPick.primary,
                                         borderRadius: BorderRadius.circular(8.r),
                                       ),
                                       alignment: Alignment.center,
@@ -348,7 +350,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
               Container(
                 color: Colors.black26,
                 child: const Center(
-                  child: CircularProgressIndicator(color: _C.primary),
+                  child: CircularProgressIndicator(color: ColorPick.primary),
                 ),
               ),
           ],
@@ -375,7 +377,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
               width:   double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
                     topLeft:  Radius.circular(6.r),
@@ -455,7 +457,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                     width:  20.sp,
                     height: 20.sp,
                     decoration: const BoxDecoration(
-                        color: _C.primary, shape: BoxShape.circle),
+                        color: ColorPick.primary, shape: BoxShape.circle),
                     child: Center(
                       child: CustomSvg(
                         assetPath: 'assets/control/camera.svg',
@@ -488,12 +490,12 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                   maxLength:      200,
                   minLength:      0,
                   submitted:      _submitted,
-                  primaryColor:   _C.primary,
-                  fillColor:      _C.cardBg,
+                  primaryColor:   ColorPick.primary,
+                  fillColor:      ColorPick.white,
                   textStyle: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.labelText),
+                      .copyWith(color: AppColors.text),
                   hintStyle: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText),
+                      .copyWith(color: AppColors.secondaryText),
                 ),
               ),
               SizedBox(width: 15.w),
@@ -512,12 +514,12 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                     maxLength:     200,
                     minLength:     0,
                     submitted:     _submitted,
-                    primaryColor:  _C.primary,
-                    fillColor:     _C.cardBg,
+                    primaryColor:  ColorPick.primary,
+                    fillColor:     ColorPick.white,
                     textStyle: StyleText.fontSize12Weight400
-                        .copyWith(color: _C.labelText),
+                        .copyWith(color: AppColors.text),
                     hintStyle: StyleText.fontSize12Weight400
-                        .copyWith(color: _C.hintText),
+                        .copyWith(color: AppColors.secondaryText),
                   ),
                 ),
               ),

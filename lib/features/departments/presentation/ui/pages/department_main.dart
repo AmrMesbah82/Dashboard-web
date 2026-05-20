@@ -14,6 +14,7 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
@@ -30,13 +31,13 @@ import '../../controller/department_state.dart';
 import 'department_create.dart';
 import 'department_detail.dart';   // ← NEW
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+// }
 
 class DepartmentMainPage extends StatefulWidget {
   const DepartmentMainPage({super.key});
@@ -69,8 +70,8 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
         builder: (context, state) {
           if (state is DepartmentInitial || state is DepartmentLoading) {
             return const Scaffold(
-              backgroundColor: _C.back,
-              body: Center(child: CircularProgressIndicator(color: _C.primary)),
+              backgroundColor: ColorPick.background,
+              body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
             );
           }
 
@@ -83,7 +84,7 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
           final allJobs = context.read<JobListingCubit>().allJobs;
 
           return Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.background,
             body: SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
@@ -108,7 +109,7 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                             Text(
                               'Our Departments',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color:      _C.primary,
+                                color:      ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -124,7 +125,7 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 14.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    color:        _C.primary,
+                                    color:        ColorPick.primary,
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Row(
@@ -273,7 +274,7 @@ class _DepartmentCardState extends State<_DepartmentCard> {
             boxShadow: _hovered
                 ? [
               BoxShadow(
-                color:      _C.primary.withOpacity(0.15),
+                color:      ColorPick.primary.withOpacity(0.15),
                 blurRadius: 12,
                 offset:     const Offset(0, 4),
               )
@@ -313,11 +314,11 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                               placeholderBuilder: (_) => Icon(
                                 Icons.business_rounded,
                                 size:  18.sp,
-                                color: _C.primary,
+                                color: ColorPick.primary,
                               ),
                             )
                                 : Icon(Icons.business_rounded,
-                                size:  18.sp, color: _C.primary),
+                                size:  18.sp, color: ColorPick.primary),
                           ),
                         );
                       },
@@ -331,7 +332,7 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                         style: TextStyle(
                           fontSize:   15.sp,
                           fontWeight: FontWeight.w700,
-                          color:      _C.labelText,
+                          color:      AppColors.text,
                         ),
                         maxLines:  1,
                         overflow:  TextOverflow.ellipsis,
@@ -339,7 +340,7 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                     ),
                     // ── Arrow indicator ──
                     Icon(Icons.arrow_forward_ios_rounded,
-                        size: 12.sp, color: _C.hintText),
+                        size: 12.sp, color: AppColors.secondaryText),
                   ],
                 ),
               ),
@@ -371,7 +372,7 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                 padding: EdgeInsets.symmetric(
                     horizontal: 16.w, vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: _C.primary,
+                  color: ColorPick.primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft:  Radius.circular(10.r),
                     bottomRight: Radius.circular(10.r),

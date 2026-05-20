@@ -23,6 +23,7 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -38,16 +39,16 @@ import '../../controller/home_state.dart';
 import 'home_edit.dart';
 import 'home_preview.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color scheduled = Color(0xFFFF8F00);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color scheduled = Color(0xFFFF8F00);
+// }
 
 /// Available route labels for display in the read-only view
 const Map<String, String> _kRouteLabelMap = {
@@ -111,7 +112,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
       final c = hex.replaceAll('#', '');
       if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
     } catch (_) {}
-    return _C.primary;
+    return ColorPick.primary;
   }
 
   @override
@@ -120,8 +121,8 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
       builder: (context, state) {
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.back,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -138,8 +139,8 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
             context.read<HomeCmsCubit>().load();
           });
           return const Scaffold(
-            backgroundColor: _C.back,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.background,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -152,7 +153,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
         data ??= context.read<HomeCmsCubit>().current;
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: Container(
               width: double.infinity,
@@ -188,7 +189,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
   Widget _subNavBar() => Container(
     width: 1000.w,
     decoration: BoxDecoration(
-        color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
+        color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_subNavLabels.length, (i) {
@@ -219,13 +220,13 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
             margin: EdgeInsets.only(right: 4.w),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color:        active ? _C.primary : Colors.transparent,
+              color:        active ? ColorPick.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(4.r),
             ),
             child: Text(
               _subNavLabels[i],
               style: StyleText.fontSize14Weight500.copyWith(
-                color: active ? Colors.white : _C.labelText,
+                color: active ? Colors.white : AppColors.text,
               ),
             ),
           ),
@@ -302,13 +303,13 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                              color: isActive ? _C.primary : _C.hintText,
+                              color: isActive ? ColorPick.primary : AppColors.secondaryText,
                             ),
                           ),
                         ),
                         Container(
                           height: 2,
-                          color: isActive ? _C.primary : Colors.transparent,
+                          color: isActive ? ColorPick.primary : Colors.transparent,
                         ),
                       ],
                     ),
@@ -326,7 +327,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color:        _C.cardBg,
+                color:        ColorPick.white,
                 borderRadius: BorderRadius.circular(4.r),
               ),
               child: Row(
@@ -356,7 +357,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                     SizedBox(width: 6.w),
                     CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                         width: 20.w, height: 20.h,
-                        fit: BoxFit.scaleDown, color: _C.primary),
+                        fit: BoxFit.scaleDown, color: ColorPick.primary),
                   ]),
                 ),
               ),
@@ -417,13 +418,13 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
 
     switch (status) {
       case 'published':
-        bgColor = _C.primary.withOpacity(0.15);
-        textColor = _C.primary;
+        bgColor = ColorPick.primary.withOpacity(0.15);
+        textColor = ColorPick.primary;
         label = 'Published';
         break;
       case 'scheduled':
-        bgColor = _C.scheduled.withOpacity(0.15);
-        textColor = _C.scheduled;
+        bgColor = ColorPick.scheduled.withOpacity(0.15);
+        textColor = ColorPick.scheduled;
         label = 'Scheduled';
         break;
       case 'draft':
@@ -484,19 +485,19 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48.sp, color: _C.hintText),
+            Icon(icon, size: 48.sp, color: AppColors.secondaryText),
             SizedBox(height: 16.h),
             Text(
               message,
               style: StyleText.fontSize16Weight600.copyWith(
-                color: _C.labelText,
+                color: AppColors.text,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               subMessage,
               style: StyleText.fontSize12Weight400.copyWith(
-                color: _C.hintText,
+                color: AppColors.secondaryText,
               ),
               textAlign: TextAlign.center,
             ),
@@ -516,13 +517,13 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               decoration: BoxDecoration(
-                color: _C.scheduled.withOpacity(0.1),
+                color: ColorPick.scheduled.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(color: _C.scheduled.withOpacity(0.3)),
+                border: Border.all(color: ColorPick.scheduled.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.schedule, color: _C.scheduled, size: 18.sp),
+                  Icon(Icons.schedule, color: ColorPick.scheduled, size: 18.sp),
                   SizedBox(width: 8.w),
                   Text(
                     'Scheduled to publish on '
@@ -530,7 +531,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                         '${data.scheduledPublishDate!.month}/'
                         '${data.scheduledPublishDate!.year}',
                     style: StyleText.fontSize13Weight500.copyWith(
-                      color: _C.scheduled,
+                      color: ColorPick.scheduled,
                     ),
                   ),
                 ],
@@ -656,7 +657,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
         child: Center(
           child: Text(
             'No navigation buttons configured',
-            style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
           ),
         ),
       );
@@ -677,14 +678,14 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                   Text(
                     '${_ordinal(i + 1)} Button',
                     style: StyleText.fontSize14Weight600
-                        .copyWith(color: _C.labelText),
+                        .copyWith(color: AppColors.text),
                   ),
                   const Spacer(),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                     decoration: BoxDecoration(
                       color: btn.status
-                          ? _C.primary.withOpacity(0.12)
+                          ? ColorPick.primary.withOpacity(0.12)
                           : Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
@@ -693,7 +694,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                       style: TextStyle(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
-                        color: btn.status ? _C.primary : Colors.grey.shade600,
+                        color: btn.status ? ColorPick.primary : Colors.grey.shade600,
                       ),
                     ),
                   ),
@@ -711,7 +712,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                   routeLabel.isNotEmpty ? routeLabel : 'Not set'),
               if (i < data.navButtons.length - 1) ...[
                 SizedBox(height: 14.h),
-                Divider(color: _C.border, thickness: 1),
+                Divider(color: ColorPick.white, thickness: 1),
                 SizedBox(height: 10.h),
               ],
             ],
@@ -730,7 +731,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Image',
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 6.h),
             _imgCircle(sec?.imageUrl ?? ''),
           ]),
@@ -738,7 +739,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Icon',
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 6.h),
             _imgCircle(sec?.iconUrl ?? '', isAdd: true),
           ]),
@@ -752,7 +753,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: sec.visibility
-                        ? _C.primary.withOpacity(0.12)
+                        ? ColorPick.primary.withOpacity(0.12)
                         : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
@@ -762,7 +763,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                       Icon(
                         sec.visibility ? Icons.visibility : Icons.visibility_off,
                         size: 12.sp,
-                        color: sec.visibility ? _C.primary : Colors.grey.shade600,
+                        color: sec.visibility ? ColorPick.primary : Colors.grey.shade600,
                       ),
                       SizedBox(width: 4.w),
                       Text(
@@ -770,7 +771,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                         style: TextStyle(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
-                          color: sec.visibility ? _C.primary : Colors.grey.shade600,
+                          color: sec.visibility ? ColorPick.primary : Colors.grey.shade600,
                         ),
                       ),
                     ],
@@ -835,7 +836,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(children: [
@@ -871,7 +872,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
         children: [
           Text(label,
               style: StyleText.fontSize12Weight500
-                  .copyWith(color: _C.labelText)),
+                  .copyWith(color: AppColors.text)),
           SizedBox(height: 4.h),
           Container(
             width:  double.infinity,
@@ -888,7 +889,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
             height > 36 ? Alignment.topLeft : Alignment.centerLeft,
             child: Text(value,
               style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText),
+                  .copyWith(color: AppColors.secondaryText),
               maxLines: height > 36 ? 4 : 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -905,7 +906,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
           children: [
             Text(label,
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 4.h),
             Container(
               width:  double.infinity,
@@ -924,7 +925,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
               child: Text(
                 value.isEmpty ? 'أكتب هنا' : value,
                 style: StyleText.fontSize12Weight400
-                    .copyWith(color: _C.hintText),
+                    .copyWith(color: AppColors.secondaryText),
                 textDirection: TextDirection.rtl,
                 maxLines:      height > 36 ? 4 : 1,
                 overflow:      TextOverflow.ellipsis,

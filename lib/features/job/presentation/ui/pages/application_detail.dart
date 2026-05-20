@@ -20,7 +20,9 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
@@ -33,16 +35,16 @@ import 'job_listing_main.dart';
 
 
 
-class _C {
-  static const Color primary = Color(0xFF008037);
-  static const Color back = Color(0xFFF1F2ED);
-  static const Color cardBg = Color(0xFFFFFFFF);
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText = Color(0xFFAAAAAA);
-  static const Color red = Color(0xFFE53935);
-  static const Color fieldValueGrey = Color(0xFF888888);
-}
+// class _C {
+//   static const Color primary = Color(0xFF008037);
+//   static const Color back = Color(0xFFF1F2ED);
+//   static const Color cardBg = Color(0xFFFFFFFF);
+//   static const Color border = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText = Color(0xFFAAAAAA);
+//   static const Color red = Color(0xFFE53935);
+//   static const Color fieldValueGrey = Color(0xFF888888);
+// }
 
 // ── Tag dropdown items ────────────────────────────────────────────────────────
 const List<Map<String, String>> _kTagItems = [
@@ -68,7 +70,7 @@ Color _primaryFromCmsState(HomeCmsState state) {
     final clean = hex.replaceAll('#', '');
     if (clean.length == 6) return Color(int.parse('FF$clean', radix: 16));
   } catch (_) {}
-  return _C.primary; // fallback to static green
+  return ColorPick.primary; // fallback to static green
 }
 
 class ApplicationDetailPage extends StatefulWidget {
@@ -158,7 +160,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
-                  color: _C.labelText,
+                  color: AppColors.text,
                 ),
               ),
               SizedBox(height: 12.h),
@@ -167,7 +169,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.sp,
-                  color: _C.hintText,
+                  color: AppColors.secondaryText,
                   height: 1.5,
                 ),
               ),
@@ -189,7 +191,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
-                              color: _C.labelText,
+                              color: AppColors.text,
                             ),
                           ),
                         ),
@@ -210,7 +212,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                       child: Container(
                         height: 44.h,
                         decoration: BoxDecoration(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Center(
@@ -419,21 +421,21 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       height: 36.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: _C.primary.withOpacity(0.05),
+        color: ColorPick.primary.withOpacity(0.05),
         borderRadius: BorderRadius.circular(4.r),
-        border: Border.all(color: _C.primary),
+        border: Border.all(color: ColorPick.primary),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, size: 14.sp, color: _C.primary),
+          Icon(Icons.check_circle, size: 14.sp, color: ColorPick.primary),
           SizedBox(width: 6.w),
           Text(
             label,
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: _C.primary,
+              color: ColorPick.primary,
             ),
           ),
         ],
@@ -446,21 +448,21 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       height: 36.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: _C.red.withOpacity(0.05),
+        color: ColorPick.red.withOpacity(0.05),
         borderRadius: BorderRadius.circular(4.r),
-        border: Border.all(color: _C.red),
+        border: Border.all(color: ColorPick.red),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.cancel, size: 14.sp, color: _C.red),
+          Icon(Icons.cancel, size: 14.sp, color: ColorPick.red),
           SizedBox(width: 6.w),
           Text(
             label,
             style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: _C.red,
+              color: ColorPick.red,
             ),
           ),
         ],
@@ -494,7 +496,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
 
               if (app == null) {
                 return Scaffold(
-                  backgroundColor: _C.back,
+                  backgroundColor: ColorPick.background,
                   body: Center(
                     child: CircularProgressIndicator(color: cmsPrimary),
                   ),
@@ -509,7 +511,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               final bool hasNextOptions = dropdownItems.isNotEmpty;
 
               return Scaffold(
-                backgroundColor: _C.back,
+                backgroundColor: ColorPick.background,
                 body: SingleChildScrollView(
                   child: SizedBox(
                     width: double.infinity,
@@ -563,7 +565,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                                             child: Icon(
                                               Icons.chevron_right,
                                               size: 18.sp,
-                                              color: _C.hintText,
+                                              color:AppColors.secondaryText,
                                             ),
                                           ),
                                         ],
@@ -584,7 +586,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                                                 _getDropdownHint(app!.status),
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
-                                                  color: _C.labelText,
+                                                  color: AppColors.text,
                                                 ),
                                               ),
                                               onChanged: (selectedKey) {
@@ -675,7 +677,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.sp),
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Column(
@@ -779,7 +781,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                   showColorDots: true,
                   hint: Text(
                     'Select Tag',
-                    style: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                    style: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                   ),
                   onChanged: (v) => setState(() => _selectedTag = v),
                 ),
@@ -895,7 +897,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
     style: TextStyle(
       fontSize: 18.sp,
       fontWeight: FontWeight.w700,
-      color: _C.primary,
+      color: ColorPick.primary,
     ),
   );
 
@@ -908,10 +910,10 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       height: 36,
       enabled: false,
       submitted: false,
-      primaryColor: _C.primary,
+      primaryColor: ColorPick.primary,
       fillColor: const Color(0xFFF1F2ED),
       textStyle: StyleText.fontSize12Weight500.copyWith(
-        color: _C.fieldValueGrey
+        color: AppColors.secondaryText
       ),
     );
   }
@@ -928,7 +930,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w500,
-            color: _C.labelText,
+            color: AppColors.text,
           ),
         ),
         SizedBox(height: 6.h),
@@ -940,9 +942,9 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
               height: 50.h,
               padding: EdgeInsets.symmetric(horizontal: 12.w),
               decoration: BoxDecoration(
-                color: _C.cardBg,
+                color: ColorPick.white,
                 borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(color: _C.border),
+                border: Border.all(color: ColorPick.white),
               ),
               child: Row(
                 children: [
@@ -962,7 +964,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                           fileName.isEmpty ? 'No file' : fileName,
                           style: TextStyle(
                             fontSize: 11.sp,
-                            color: hasFile ? Colors.blue.shade700 : _C.hintText,
+                            color: hasFile ? Colors.blue.shade700 : AppColors.secondaryText,
                             decoration: hasFile
                                 ? TextDecoration.underline
                                 : TextDecoration.none,
@@ -973,7 +975,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                           Text(
                             'Click to open',
                             style:
-                            TextStyle(fontSize: 9.sp, color: _C.hintText),
+                            TextStyle(fontSize: 9.sp, color: AppColors.secondaryText),
                           ),
                       ],
                     ),
@@ -982,7 +984,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                     Icon(
                       Icons.open_in_new_rounded,
                       size: 14.sp,
-                      color: _C.hintText,
+                      color: AppColors.secondaryText,
                     ),
                 ],
               ),

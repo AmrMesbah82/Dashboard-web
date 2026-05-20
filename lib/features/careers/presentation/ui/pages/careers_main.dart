@@ -13,10 +13,12 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/careers_stat_card.dart';
 import '../../../../../core/main_widgets/funnel_chart_widget.dart';
 import '../../../../../core/main_widgets/segmented_score_bar_widget.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
@@ -27,15 +29,15 @@ import '../../controller/careers_state.dart';
 
 // ── Local design tokens ──────────────────────────────────────────────────────
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 // ── Chart color palette ──────────────────────────────────────────────────────
 
@@ -85,9 +87,9 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       builder: (context, state) {
         if (state is CareersCmsInitial || state is CareersCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
+            backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: _C.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -97,16 +99,16 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
         if (data == null) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
+            backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: _C.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
         final dash = data.dashboard;
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.back,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -194,7 +196,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                             child: Text(
                               'Dashboard',
                               style: StyleText.fontSize18Weight500.copyWith(
-                                color: _C.labelText,
+                                color: AppColors.text,
                               ),
                             ),
                           ),
@@ -272,7 +274,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       width: double.infinity,
       padding: EdgeInsets.all(20.sp),
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -284,7 +286,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               Text(
                 'Bayanatz Jobs',
                 style: StyleText.fontSize24Weight600.copyWith(
-                  color: _C.labelText,
+                  color: AppColors.text,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -298,7 +300,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                 child: Text(
                   _heroImageVisible ? 'Hide' : 'Collapse',
                   style: StyleText.fontSize13Weight500.copyWith(
-                    color: _C.primary,
+                    color: ColorPick.primary,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -318,7 +320,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                 placeholderBuilder: (_) => SizedBox(
                   height: 250.h,
                   child: const Center(
-                    child: CircularProgressIndicator(color: _C.primary),
+                    child: CircularProgressIndicator(color: ColorPick.primary),
                   ),
                 ),
               ),
@@ -418,7 +420,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                     TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
-                        color: _C.labelText),
+                        color: AppColors.text),
                   );
                 },
               ),
@@ -811,7 +813,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               return Center(
                 child: Text(
                   'No data',
-                  style: TextStyle(fontSize: 12.sp, color: _C.hintText),
+                  style: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
                 ),
               );
             }
@@ -1212,7 +1214,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       height: height.h,
       padding: EdgeInsets.all(15.sp),
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Column(
@@ -1226,7 +1228,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
-                    color: _C.labelText,
+                    color: AppColors.text,
                   ),
                 ),
               ),

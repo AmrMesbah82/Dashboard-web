@@ -26,8 +26,10 @@ import 'package:uuid/uuid.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../data/model/our_teams_model.dart';
 import '../../controller/our_teams_cubit.dart';
@@ -35,18 +37,7 @@ import '../../controller/our_teams_state.dart';
 import 'our_teams_preview.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color remove    = Color(0xFFE53935);
-  static const Color discard   = Color(0xFF797979);
-  static const Color preview   = Color(0xFF608570);
-  static const Color errorRed  = Color(0xFFD32F2F);
-}
+
 
 // ── Local editable model ─────────────────────────────────────────────────────
 
@@ -308,7 +299,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
           content: Text('Our Teams saved!',
               style: StyleText.fontSize14Weight400
                   .copyWith(color: Colors.white)),
-          backgroundColor: _C.primary,
+          backgroundColor: ColorPick.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.r)),
@@ -386,8 +377,8 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
 
         if (state is OurTeamsInitial || state is OurTeamsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.white,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
@@ -396,7 +387,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: _C.sectionBg,
+              backgroundColor: ColorPick.white,
               body: SingleChildScrollView(
                 child: SizedBox(
                   width: double.infinity,
@@ -417,7 +408,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                                 Text(
                                   'Editing Our Teams Details',
                                   style: StyleText.fontSize45Weight600.copyWith(
-                                    color:      _C.primary,
+                                    color:      ColorPick.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -434,7 +425,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 20.w, vertical: 10.h),
                                     decoration: BoxDecoration(
-                                      color:        _C.primary,
+                                      color:        ColorPick.primary,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Text(
@@ -491,15 +482,15 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircularProgressIndicator(color: _C.primary),
+                        const CircularProgressIndicator(color: ColorPick.primary),
                         SizedBox(height: 20.h),
                         Text('Saving...',
                             style: StyleText.fontSize14Weight600
-                                .copyWith(color: _C.primary)),
+                                .copyWith(color: ColorPick.primary)),
                         SizedBox(height: 6.h),
                         Text('Uploading images & saving data',
                             style: StyleText.fontSize12Weight400
-                                .copyWith(color: _C.hintText)),
+                                .copyWith(color: AppColors.secondaryText)),
                       ],
                     ),
                   ),
@@ -536,7 +527,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               submitted:     _submitted,
               textDirection: TextDirection.ltr,
               textAlign:     TextAlign.left,
-              primaryColor:  _C.primary,
+              primaryColor:  ColorPick.primary,
               isRequired:    true,
             ),
           ),
@@ -553,7 +544,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 submitted:     _submitted,
                 textDirection: TextDirection.rtl,
                 textAlign:     TextAlign.right,
-                primaryColor:  _C.primary,
+                primaryColor:  ColorPick.primary,
                 isRequired:    true,
               ),
             ),
@@ -572,7 +563,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                   children: [
                     Text('Icon',
                         style: StyleText.fontSize12Weight500
-                            .copyWith(color: _C.labelText)),
+                            .copyWith(color: AppColors.text)),
                     Text(' *',
                         style: TextStyle(
                           color:      Colors.red,
@@ -599,7 +590,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                   SizedBox(height: 4.h),
                   Text(
                     'Icon (SVG) is required',
-                    style: TextStyle(fontSize: 11.sp, color: _C.errorRed),
+                    style: TextStyle(fontSize: 11.sp, color: ColorPick.red),
                   ),
                 ],
               ],
@@ -616,7 +607,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 padding: EdgeInsets.symmetric(
                     horizontal: 14.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  color:        _C.remove,
+                  color:        ColorPick.red,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
                 child: Text(
@@ -642,7 +633,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               submitted:     _submitted,
               textDirection: TextDirection.ltr,
               textAlign:     TextAlign.left,
-              primaryColor:  _C.primary,
+              primaryColor:  ColorPick.primary,
               isRequired:    true,
             ),
           ),
@@ -659,7 +650,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 submitted:     _submitted,
                 textDirection: TextDirection.rtl,
                 textAlign:     TextAlign.right,
-                primaryColor:  _C.primary,
+                primaryColor:  ColorPick.primary,
                 isRequired:    true,
               ),
             ),
@@ -678,7 +669,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
           submitted:     _submitted,
           textDirection: TextDirection.ltr,
           textAlign:     TextAlign.left,
-          primaryColor:  _C.primary,
+          primaryColor:  ColorPick.primary,
           isRequired:    true,
         ),
         SizedBox(height: 8.h),
@@ -696,7 +687,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
             submitted:     _submitted,
             textDirection: TextDirection.rtl,
             textAlign:     TextAlign.right,
-            primaryColor:  _C.primary,
+            primaryColor:  ColorPick.primary,
             isRequired:    true,
           ),
         ),
@@ -758,7 +749,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               submitted:     _submitted,
               textDirection: TextDirection.ltr,
               textAlign:     TextAlign.left,
-              primaryColor:  _C.primary,
+              primaryColor:  ColorPick.primary,
               isRequired:    true,
             ),
           ),
@@ -775,7 +766,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 submitted:     _submitted,
                 textDirection: TextDirection.rtl,
                 textAlign:     TextAlign.right,
-                primaryColor:  _C.primary,
+                primaryColor:  ColorPick.primary,
                 isRequired:    true,
               ),
             ),
@@ -853,14 +844,14 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         width: 60.w, height: 60.h,
         decoration: BoxDecoration(
           color: hasError
-              ? _C.errorRed.withOpacity(0.08)
+              ? ColorPick.red.withOpacity(0.08)
               : const Color(0xFFD9D9D9),
           shape: BoxShape.circle,
         ),
         child: Center(
           child: Icon(
             Icons.add,
-            color: hasError ? _C.errorRed : Colors.grey,
+            color: hasError ? ColorPick.red : Colors.grey,
             size: 22.sp,
           ),
         ),
@@ -880,7 +871,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               width:  25.w,
               height: 25.h,
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -916,7 +907,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color:        _C.primary,
+                color:        ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
@@ -969,7 +960,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(
-                    color:        _C.preview,
+                    color:        ColorPick.preview,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(
@@ -991,8 +982,8 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                   height: 44.h,
                   decoration: BoxDecoration(
                     color: _isSaving
-                        ? _C.primary.withOpacity(0.5)
-                        : _C.primary,
+                        ? ColorPick.primary.withOpacity(0.5)
+                        : ColorPick.primary,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(
@@ -1023,7 +1014,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(
-                    color:        _C.discard,
+                    color:        ColorPick.discard,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(

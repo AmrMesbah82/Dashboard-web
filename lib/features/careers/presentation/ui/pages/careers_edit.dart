@@ -21,10 +21,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/widget/textfield.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
@@ -34,13 +36,13 @@ import '../../controller/careers_state.dart';
 import 'careers_main_page.dart'; // CareersMainPageMaster lives here
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color labelText = Color(0xFF333333);
-  static const Color red       = Color(0xFFD32F2F);
-  static const Color grey      = Color(0xFF9E9E9E);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color red       = Color(0xFFD32F2F);
+//   static const Color grey      = Color(0xFF9E9E9E);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 class CareersEditPage extends StatefulWidget {
   const CareersEditPage({super.key});
@@ -191,7 +193,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Only SVG files are allowed.'),
-              backgroundColor: _C.red,
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -347,7 +349,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save: $e'),
-            backgroundColor: _C.red,
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -393,7 +395,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to load preview: $e'),
-            backgroundColor: _C.red,
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -437,7 +439,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
         maxLength:     500,
         textDirection: TextDirection.rtl,
         textAlign:     TextAlign.right,
-        primaryColor:  _C.primary,
+        primaryColor:  ColorPick.primary,
         submitted:     _submitted,
         isRequired:    isRequired,
       ),
@@ -462,7 +464,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
       height:        height,
       maxLines:      maxLines,
       textDirection: TextDirection.ltr,
-      primaryColor:  _C.primary,
+      primaryColor:  ColorPick.primary,
       submitted:     _submitted,
       isRequired:    isRequired,
     );
@@ -508,7 +510,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
             width:  20.w,
             height: 20.h,
             fit:    BoxFit.scaleDown,
-            color:  hasError ? _C.red : null,
+            color:  hasError ? Colors.red : null,
           ),
           SizedBox(height: 2.h),
         ],
@@ -519,9 +521,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
       width:  56.w,
       height: 56.w,
       decoration: BoxDecoration(
-        color:  hasError ? _C.red.withOpacity(0.08) : Colors.white,
+        color:  hasError ? Colors.red.withOpacity(0.08) : Colors.white,
         shape:  BoxShape.circle,
-        border: hasError ? Border.all(color: _C.red, width: 1.5) : null,
+        border: hasError ? Border.all(color: Colors.red, width: 1.5) : null,
       ),
       child: ClipOval(child: iconContent),
     );
@@ -530,7 +532,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: StyleText.fontSize13Weight600.copyWith(color: _C.labelText)),
+            style: StyleText.fontSize13Weight600.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         Stack(
           clipBehavior: Clip.none,
@@ -543,7 +545,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
                 child: Container(
                   width:  20.w, height: 20.h,
                   decoration: BoxDecoration(
-                    color:  _C.primary,
+                    color:  ColorPick.primary,
                     shape:  BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
@@ -567,8 +569,8 @@ class _CareersEditPageState extends State<CareersEditPage> {
   Widget build(BuildContext context) {
     if (!_ready) {
       return Scaffold(
-        backgroundColor: _C.back,
-        body: const Center(child: CircularProgressIndicator(color: _C.primary)),
+        backgroundColor: ColorPick.back,
+        body: const Center(child: CircularProgressIndicator(color: ColorPick.primary)),
       );
     }
 
@@ -598,13 +600,13 @@ class _CareersEditPageState extends State<CareersEditPage> {
         if (state is CareersCmsError) {
           _navigatingToPreview = false; // reset on error
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: _C.red),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.back,
           body: SizedBox(
             width: double.infinity,
             child: SingleChildScrollView(
@@ -629,7 +631,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
                         Text(
                           'Editing Careers Details',
                           style: StyleText.fontSize45Weight600.copyWith(
-                              color:      _C.primary,
+                              color:      ColorPick.primary,
                               fontWeight: FontWeight.w700),
                         ),
                         SizedBox(height: 20.h),
@@ -696,14 +698,14 @@ class _CareersEditPageState extends State<CareersEditPage> {
                                     children: [
                                       Text('${_ord(i + 1)} Statistics',
                                           style: StyleText.fontSize16Weight600
-                                              .copyWith(color: _C.labelText)),
+                                              .copyWith(color: AppColors.text)),
                                       GestureDetector(
                                         onTap: () => _removeStat(stat.id),
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 4.h),
                                           decoration: BoxDecoration(
-                                            color:        _C.red,
+                                            color:        Colors.red,
                                             borderRadius: BorderRadius.circular(4.r),
                                           ),
                                           child: Text('Remove',
@@ -806,7 +808,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
               message: _publishTooltip,
               child: _btn(
                 label: 'Publish',
-                color: _C.primary,
+                color: ColorPick.primary,
                 onTap: _isPublishEnabled ? _handlePublish : null,
               ),
             ),
@@ -830,7 +832,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
             child: Text(
               'Please fix validation errors above before publishing',
               style: TextStyle(
-                  color: _C.red, fontSize: 12.sp, fontWeight: FontWeight.w500),
+                  color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w500),
             ),
           ),
       ],
@@ -853,7 +855,7 @@ class _CareersEditPageState extends State<CareersEditPage> {
             width:   double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color:        _C.primary,
+              color:        ColorPick.primary,
               borderRadius: BorderRadius.circular(6.r),
             ),
             child: Row(children: [

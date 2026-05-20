@@ -39,6 +39,7 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -59,17 +60,17 @@ import 'home_preview.dart';
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _C {
-  static const Color primary = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color border = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText = Color(0xFFAAAAAA);
-  static const Color back = Color(0xFFF1F2ED);
-  static const Color scheduled = Color(0xFFFF8F00);
-  static const Color error = Color(0xFFE53935);
-  static const Color draftBadge = Color(0xFFF59E0B);
-}
+// class _C {
+//   static const Color primary = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color border = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText = Color(0xFFAAAAAA);
+//   static const Color back = Color(0xFFF1F2ED);
+//   static const Color scheduled = Color(0xFFFF8F00);
+//   static const Color error = Color(0xFFE53935);
+//   static const Color draftBadge = Color(0xFFF59E0B);
+// }
 
 const List<String> _kSectionTitles = [
   'Section 1 - Left',
@@ -164,7 +165,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
       final hex = widget.controller.text.replaceAll('#', '');
       if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {}
-    return _C.primary;
+    return ColorPick.primary;
   }
 
   static String _colorToHex(Color c) =>
@@ -211,7 +212,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText),
+            style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text),
           ),
           SizedBox(height: 5.h),
         ],
@@ -232,7 +233,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 hintStyle: StyleText.fontSize12Weight400.copyWith(
-                  color: _C.hintText,
+                  color: AppColors.secondaryText,
                 ),
                 filled: true,
                 fillColor: AppColors.background,
@@ -246,7 +247,7 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
                     decoration: BoxDecoration(
                       color: _currentColor,
                       shape: BoxShape.circle,
-                      border: Border.all(color: _C.border),
+                      border: Border.all(color:ColorPick.white),
                     ),
                   ),
                 ),
@@ -327,7 +328,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                   decoration: BoxDecoration(
                     color: AppColors.card,
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: _C.border),
+                    border: Border.all(color:ColorPick.white),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(.2),
@@ -342,7 +343,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                       Text(
                         'Select Color',
                         style: StyleText.fontSize16Weight600.copyWith(
-                          color: _C.labelText,
+                          color: AppColors.text,
                         ),
                       ),
                       SizedBox(height: 16.h),
@@ -370,12 +371,12 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(6.r),
-                                border: Border.all(color: _C.border),
+                                border: Border.all(color:ColorPick.white),
                               ),
                               child: Text(
                                 'Cancel',
                                 style: StyleText.fontSize14Weight500.copyWith(
-                                  color: _C.labelText,
+                                  color: AppColors.text,
                                 ),
                               ),
                             ),
@@ -389,7 +390,7 @@ class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
                                 vertical: 10.h,
                               ),
                               decoration: BoxDecoration(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 borderRadius: BorderRadius.circular(6.r),
                               ),
                               child: Text(
@@ -468,7 +469,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
       final hex = _primaryColor.text.replaceAll('#', '');
       if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {}
-    return _C.primary;
+    return ColorPick.primary;
   }
 
   bool get _isFormValid {
@@ -913,7 +914,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                     color: Colors.white,
                   ),
                 ),
-                backgroundColor: _C.draftBadge,
+                backgroundColor: ColorPick.discard,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -969,13 +970,13 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.white,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
         return Scaffold(
-          backgroundColor: _C.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -1003,7 +1004,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                             Text(
                               'Editing Home',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -1015,13 +1016,13 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                                   vertical: 4.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _C.draftBadge.withOpacity(0.15),
+                                  color: ColorPick.scheduled,
                                   borderRadius: BorderRadius.circular(4.r),
                                 ),
                                 child: Text(
                                   'EDITING DRAFT',
                                   style: StyleText.fontSize12Weight600.copyWith(
-                                    color: _C.draftBadge,
+                                    color: ColorPick.discard,
                                   ),
                                 ),
                               ),
@@ -1034,7 +1035,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                             child: Text(
                               'You are editing a saved draft. The published version is still live.',
                               style: StyleText.fontSize12Weight400.copyWith(
-                                color: _C.hintText,
+                                color: AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -1177,7 +1178,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                 Text(
                   '${_ordinal(i + 1)} Button',
                   style: StyleText.fontSize14Weight600.copyWith(
-                    color: _C.labelText,
+                    color: AppColors.text,
                   ),
                 ),
                 const Spacer(),
@@ -1260,7 +1261,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                     hint: Text(
                       'Select',
                       style: StyleText.fontSize12Weight400.copyWith(
-                        color: _C.hintText,
+                        color: AppColors.secondaryText,
                       ),
                     ),
                     widthIcon: 18,
@@ -1321,7 +1322,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                 Text(
                   'Image',
                   style: StyleText.fontSize12Weight500.copyWith(
-                    color: _C.labelText,
+                    color: AppColors.text,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -1338,7 +1339,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                     child: Text(
                       'Image (SVG) required',
                       style: StyleText.fontSize12Weight400.copyWith(
-                        color: _C.error,
+                        color: ColorPick.red,
                       ),
                     ),
                   ),
@@ -1351,7 +1352,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                 Text(
                   'Icon',
                   style: StyleText.fontSize12Weight500.copyWith(
-                    color: _C.labelText,
+                    color: AppColors.text,
                   ),
                 ),
                 SizedBox(height: 6.h),
@@ -1369,7 +1370,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                     child: Text(
                       'Icon (SVG) required',
                       style: StyleText.fontSize12Weight400.copyWith(
-                        color: _C.error,
+                        color: ColorPick.red,
                       ),
                     ),
                   ),
@@ -1386,7 +1387,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                     Text(
                       'Visibility',
                       style: StyleText.fontSize12Weight500.copyWith(
-                        color: _C.labelText,
+                        color: AppColors.text,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -1396,7 +1397,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                       padding: 3.sp,
                       borderRadius: 20.sp,
                       toggleSize: 14.sp,
-                      activeColor: _C.primary,
+                      activeColor: ColorPick.primary,
                       inactiveColor: Colors.grey.withOpacity(.16),
                       value: sec.visibility,
                       onToggle: (val) => setState(() => sec.visibility = val),
@@ -1524,7 +1525,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
               width: 25.w,
               height: 25.h,
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
@@ -1553,7 +1554,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
             Text(
               'Publish Date',
               style: StyleText.fontSize12Weight500.copyWith(
-                color: _C.labelText,
+                color: AppColors.text,
               ),
             ),
             SizedBox(height: 6.h),
@@ -1596,8 +1597,8 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                                   : 'Select Date',
                               style: StyleText.fontSize12Weight400.copyWith(
                                 color: _publishDate != null
-                                    ? _C.labelText
-                                    : _C.hintText,
+                                    ? AppColors.text
+                                    : AppColors.secondaryText,
                               ),
                             ),
                           ),
@@ -1708,9 +1709,9 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                       decoration: BoxDecoration(
                         color: _isSaving
                             ? (isScheduled
-                                  ? _C.scheduled.withOpacity(0.5)
-                                  : _C.primary.withOpacity(0.5))
-                            : (isScheduled ? _C.scheduled : _C.primary),
+                                  ? ColorPick.scheduled.withOpacity(.5)
+                                  : ColorPick.primary.withOpacity(0.5))
+                            : (isScheduled ? ColorPick.scheduled : ColorPick.primary),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Center(
@@ -1842,7 +1843,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(

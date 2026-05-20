@@ -18,8 +18,10 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/search.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/application_filter_dialog.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
@@ -31,14 +33,14 @@ import '../../controller/application_state.dart';
 import 'application_detail.dart';
 import 'job_listing_main.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color border    = Color(0xFFE0E0E0);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color border    = Color(0xFFE0E0E0);
+// }
 
 class ApplicationMainPage extends StatefulWidget {
   const ApplicationMainPage({super.key});
@@ -263,10 +265,10 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 width: 64.sp,
                 height: 64.sp,
                 decoration: BoxDecoration(
-                  color: _C.primary.withOpacity(0.1),
+                  color: ColorPick.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.check_circle, color: _C.primary, size: 40.sp),
+                child: Icon(Icons.check_circle, color: ColorPick.primary, size: 40.sp),
               ),
               SizedBox(height: 16.h),
               Text(
@@ -275,7 +277,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
-                  color: _C.labelText,
+                  color: AppColors.text,
                   height: 1.4,
                 ),
               ),
@@ -285,7 +287,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _C.primary,
+                    backgroundColor: ColorPick.primary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                     padding: EdgeInsets.symmetric(vertical: 12.h),
                   ),
@@ -315,8 +317,8 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
         builder: (context, state) {
           if (state is ApplicationInitial || state is ApplicationLoading) {
             return const Scaffold(
-              backgroundColor: _C.back,
-              body: Center(child: CircularProgressIndicator(color: _C.primary)),
+              backgroundColor: ColorPick.background,
+              body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
             );
           }
 
@@ -351,7 +353,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
           }
 
           return Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.background,
             body: SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
@@ -376,7 +378,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                             Text(
                               'Applications',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -410,7 +412,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   width: 110.w,
                                   height: 36.h,
                                   radius: 6,
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   textColor: Colors.white,
                                   textStyle: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
                                 ),
@@ -431,8 +433,8 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   height: 36.h,
                                   radius: 6,
                                   color: _activeFilter != null && !_activeFilter!.isEmpty
-                                      ? _C.primary.withOpacity(0.85)
-                                      : _C.primary,
+                                      ? ColorPick.primary.withOpacity(0.85)
+                                      : ColorPick.primary,
                                   textColor: Colors.white,
                                   textStyle: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
                                 ),
@@ -446,12 +448,12 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                                   decoration: BoxDecoration(
-                                    color: _C.cardBg,
+                                    color: ColorPick.white,
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
                                     'Total Application:  $totalCount',
-                                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: _C.labelText),
+                                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text),
                                   ),
                                 ),
                                 const Spacer(),
@@ -468,11 +470,11 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   height: 32.h,
                                   space: 4.w,
                                   radius: 6,
-                                  color: _C.primary,
+                                  color: ColorPick.primary,
                                   image: 'assets/images/export.svg',
                                   widthImage: 14.sp,
                                   heightImage: 14.sp,
-                                  colorBorder: _C.primary,
+                                  colorBorder: ColorPick.primary,
                                   svgColor: Colors.white,
                                   padding: EdgeInsets.symmetric(horizontal: 10.w),
                                 ),
@@ -487,12 +489,12 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   width: 32.sp,
                                   space: 0,
                                   radius: 6,
-                                  color: _isGridView ? _C.primary : _C.cardBg,
+                                  color: _isGridView ? ColorPick.primary : ColorPick.white,
                                   image: 'assets/images/grid.svg',
                                   widthImage: 16.sp,
                                   heightImage: 16.sp,
                                   colorBorder: Colors.transparent,
-                                  svgColor: _isGridView ? Colors.white : _C.hintText,
+                                  svgColor: _isGridView ? Colors.white : AppColors.secondaryText,
                                 ),
                                 SizedBox(width: 4.w),
 
@@ -505,12 +507,12 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   width: 32.sp,
                                   space: 0,
                                   radius: 6,
-                                  color: !_isGridView ? _C.primary : _C.cardBg,
+                                  color: !_isGridView ? ColorPick.primary : ColorPick.white,
                                   image: 'assets/images/table.svg',
                                   widthImage: 16.sp,
                                   heightImage: 16.sp,
                                   colorBorder: Colors.transparent,
-                                  svgColor: !_isGridView ? Colors.white : _C.hintText,
+                                  svgColor: !_isGridView ? Colors.white : AppColors.secondaryText,
                                 ),
                               ],
                             ),
@@ -551,7 +553,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                               Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(40.sp),
-                                  child: Text('No applications found', style: TextStyle(fontSize: 14.sp, color: _C.hintText)),
+                                  child: Text('No applications found', style: TextStyle(fontSize: 14.sp, color: AppColors.secondaryText)),
                                 ),
                               )
                             else
@@ -581,7 +583,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: isActive ? _C.primary : _C.cardBg,
+            color: isActive ? ColorPick.primary : ColorPick.white,
             borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
@@ -591,7 +593,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: isActive ? Colors.white.withOpacity(0.3) : _C.primary,
+                    color: isActive ? Colors.white.withOpacity(0.3) : ColorPick.primary,
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Text('$count', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: isActive ? Colors.white : Colors.white)),
@@ -600,7 +602,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
               ],
               Text(
                 label,
-                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: isActive ? Colors.white : _C.labelText),
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500, color: isActive ? Colors.white : AppColors.text),
               ),
             ],
           ),
@@ -614,7 +616,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
     return Container(
       padding: EdgeInsets.all(12.sp),
       decoration: BoxDecoration(
-        color: _C.cardBg,
+        color: ColorPick.white,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -639,9 +641,9 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
+                Text(title, style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
                 SizedBox(height: 4.h),
-                Text(details, style: TextStyle(fontSize: 10.sp, color: _C.hintText)),
+                Text(details, style: TextStyle(fontSize: 10.sp, color: AppColors.secondaryText)),
               ],
             ),
           ),
@@ -709,7 +711,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
 
     TextStyle cellStyle = TextStyle(
       fontSize: 11.sp,
-      color: _C.labelText,
+      color: AppColors.text,
     );
 
     Widget cell(Widget child) => Container(
@@ -743,7 +745,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
           return Colors.teal.shade600;
         case ApplicationStatus.applied:
         default:
-          return _C.primary;
+          return ColorPick.primary;
       }
     }
 
@@ -759,7 +761,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
 
             // ── Header Row ──
             TableRow(
-              decoration: const BoxDecoration(color: _C.primary),
+              decoration: const BoxDecoration(color: ColorPick.primary),
               children: headers.map((h) => Padding(
                 padding: EdgeInsets.all(10.sp),
                 child: Text(
@@ -817,7 +819,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       decoration: BoxDecoration(
-                        color: _C.primary,
+                        color: ColorPick.primary,
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Row(
@@ -885,16 +887,16 @@ class _AppCard extends StatelessWidget {
             // ── Tags row ──
             Row(
               children: [
-                if (app.tag.isNotEmpty) _tag(app.tag, _C.primary),
+                if (app.tag.isNotEmpty) _tag(app.tag, ColorPick.primary),
                 SizedBox(width: 6.w),
-                _tag(app.status.label, _C.primary),
+                _tag(app.status.label, ColorPick.primary),
                 const Spacer(),
                 GestureDetector(
                   onTap: onDownload,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: _C.primary,
+                      color: ColorPick.primary,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text('Download Files', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.white)),
@@ -926,7 +928,7 @@ class _AppCard extends StatelessWidget {
                           placeholderBuilder: (_) => Icon(
                             Icons.work_outline_rounded,
                             size: 18.sp,
-                            color: _C.primary,
+                            color: ColorPick.primary,
                           ),
                         ),
                       );
@@ -935,7 +937,7 @@ class _AppCard extends StatelessWidget {
                     return Icon(
                       Icons.work_outline_rounded,
                       size: 18.sp,
-                      color: _C.primary,
+                      color: ColorPick.primary,
                     );
                   },
                 ),                SizedBox(width: 6.w),
@@ -945,10 +947,10 @@ class _AppCard extends StatelessWidget {
                     children: [
                       Text(
                         app.jobTitle.isEmpty ? 'Untitled Job' : app.jobTitle,
-                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _C.labelText),
+                        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppColors.text),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text('Job Title', style: TextStyle(fontSize: 10.sp, color: _C.hintText)),
+                      Text('Job Title', style: TextStyle(fontSize: 10.sp, color: AppColors.secondaryText)),
                     ],
                   ),
                 ),
@@ -984,9 +986,9 @@ class _AppCard extends StatelessWidget {
   Widget _infoRow(String label, String value) {
     return Row(
       children: [
-        Text(label, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: _C.primary)),
+        Text(label, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: ColorPick.primary)),
         SizedBox(width: 4.w),
-        Expanded(child: Text(value, style: TextStyle(fontSize: 11.sp, color: _C.labelText), overflow: TextOverflow.ellipsis)),
+        Expanded(child: Text(value, style: TextStyle(fontSize: 11.sp, color: AppColors.text), overflow: TextOverflow.ellipsis)),
       ],
     );
   }

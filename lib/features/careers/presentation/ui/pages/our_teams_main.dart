@@ -16,7 +16,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../data/model/our_teams_model.dart';
 import '../../controller/our_teams_cubit.dart';
@@ -25,13 +27,13 @@ import 'our_teams_edit.dart';
 import 'our_teams_preview.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+// }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 class OurTeamsViewPage extends StatefulWidget {
@@ -50,7 +52,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
       builder: (context, state) {
         if (state is OurTeamsInitial || state is OurTeamsLoading) {
           return const Center(
-            child: CircularProgressIndicator(color: _C.primary),
+            child: CircularProgressIndicator(color: ColorPick.primary),
           );
         }
 
@@ -60,7 +62,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
 
         if (data == null) {
           return const Center(
-            child: CircularProgressIndicator(color: _C.primary),
+            child: CircularProgressIndicator(color: ColorPick.primary),
           );
         }
 
@@ -75,7 +77,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                 Text(
                   'Our Teams',
                   style: StyleText.fontSize45Weight600.copyWith(
-                    color:      _C.primary,
+                    color:      ColorPick.primary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -94,7 +96,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                     padding: EdgeInsets.symmetric(
                         horizontal: 20.w, vertical: 10.h),
                     decoration: BoxDecoration(
-                      color:        _C.primary,
+                      color:        ColorPick.primary,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
@@ -115,7 +117,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                   padding: EdgeInsets.symmetric(
                       horizontal: 14.w, vertical: 8.h),
                   decoration: BoxDecoration(
-                    color:        _C.cardBg,
+                    color:        ColorPick.white,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
@@ -123,7 +125,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                         ? 'Last Updated On ${_formatDate(data.lastUpdated!)}'
                         : 'Last Updated On —',
                     style: StyleText.fontSize13Weight500
-                        .copyWith(color: _C.primary),
+                        .copyWith(color: ColorPick.primary),
                   ),
                 ),
                 const Spacer(),
@@ -141,7 +143,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                     width: 130.w,
                     height: 36.h,
                     decoration: BoxDecoration(
-                      color:        _C.cardBg,
+                      color:        ColorPick.white,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Center(
@@ -159,7 +161,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                             width:     20.w,
                             height:    20.h,
                             fit:       BoxFit.scaleDown,
-                            color:     _C.primary,
+                            color:     ColorPick.primary,
                           ),
                         ],
                       ),
@@ -184,7 +186,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                     child: Text(
                       'No teams added yet.',
                       style: StyleText.fontSize12Weight400
-                          .copyWith(color: _C.hintText),
+                          .copyWith(color: AppColors.secondaryText),
                     ),
                   )
                 else
@@ -219,7 +221,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
           // Icon
           Text('Icon',
               style: StyleText.fontSize12Weight500
-                  .copyWith(color: _C.labelText)),
+                  .copyWith(color: AppColors.text)),
           SizedBox(height: 6.h),
           _iconCircle(item.iconUrl),
           SizedBox(height: 14.h),
@@ -289,11 +291,11 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
       decoration: BoxDecoration(
         color:        const Color(0xFFE8F5EE),
         borderRadius: BorderRadius.circular(4.r),
-        border:       Border.all(color: _C.primary.withOpacity(0.3)),
+        border:       Border.all(color: ColorPick.primary.withOpacity(0.3)),
       ),
       child: Text(
         text.isEmpty ? '—' : text,
-        style: StyleText.fontSize11Weight400.copyWith(color: _C.primary),
+        style: StyleText.fontSize11Weight400.copyWith(color: ColorPick.primary),
       ),
     );
   }
@@ -316,7 +318,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
@@ -355,7 +357,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
         children: [
           Text(label,
               style: StyleText.fontSize12Weight500
-                  .copyWith(color: _C.labelText)),
+                  .copyWith(color: AppColors.text)),
           SizedBox(height: 4.h),
           Container(
             width:   double.infinity,
@@ -370,7 +372,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
             child: Text(
               value.isEmpty ? 'Text Here' : value,
               style: StyleText.fontSize12Weight400
-                  .copyWith(color: _C.hintText),
+                  .copyWith(color: AppColors.secondaryText),
               maxLines: height > 36 ? 5 : 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -386,7 +388,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
           children: [
             Text(label,
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             SizedBox(height: 4.h),
             Container(
               width:   double.infinity,
@@ -402,7 +404,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
               child: Text(
                 value.isEmpty ? 'أكتب هنا' : value,
                 style: StyleText.fontSize12Weight400
-                    .copyWith(color: _C.hintText),
+                    .copyWith(color: AppColors.secondaryText),
                 textDirection: TextDirection.rtl,
                 maxLines:      height > 36 ? 5 : 1,
                 overflow:      TextOverflow.ellipsis,

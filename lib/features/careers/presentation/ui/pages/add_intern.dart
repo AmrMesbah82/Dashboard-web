@@ -16,10 +16,12 @@ import 'package:intl/intl.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/delete_intern_dialog.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/model/intern_model.dart';
@@ -27,16 +29,16 @@ import '../../controller/intern_cubit.dart';
 import '../../controller/intern_state.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color bg        = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color discard   = Color(0xFF797979);
-  static const Color removeRed = Color(0xFFD32F2F);
-  static const Color errorRed  = Color(0xFFD32F2F);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color bg        = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color discard   = Color(0xFF797979);
+//   static const Color removeRed = Color(0xFFD32F2F);
+//   static const Color errorRed  = Color(0xFFD32F2F);
+// }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 class AddInternPage extends StatefulWidget {
@@ -196,10 +198,10 @@ class _AddInternPageState extends State<AddInternPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6.r),
                 color: isSelected == true
-                    ? _C.primary
+                    ? ColorPick.primary
                     : const Color(0xFFF5F5F5),
                 border: Border.all(
-                  color: isNow ? _C.primary : Colors.transparent,
+                  color: isNow ? ColorPick.primary : Colors.transparent,
                   width: 1.5,
                 ),
               ),
@@ -211,8 +213,8 @@ class _AddInternPageState extends State<AddInternPage> {
                     color: isSelected == true
                         ? Colors.white
                         : isDisabled == true
-                        ? _C.hintText
-                        : _C.labelText,
+                        ? AppColors.secondaryText
+                        : AppColors.text,
                     fontWeight: isSelected == true
                         ? FontWeight.w600
                         : FontWeight.w400,
@@ -231,7 +233,7 @@ class _AddInternPageState extends State<AddInternPage> {
             width:  isTablet ? 140.sp : 110.sp,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.r),
-              color: _C.primary,
+              color: ColorPick.primary,
             ),
             child: Center(
               child: Text('Set Date',
@@ -257,7 +259,7 @@ class _AddInternPageState extends State<AddInternPage> {
             child: Center(
               child: Text('Cancel',
                   style: TextStyle(
-                    color:      _C.discard,
+                    color:      ColorPick.discard,
                     fontSize:   13.sp,
                     fontWeight: FontWeight.w600,
                   )),
@@ -266,20 +268,20 @@ class _AddInternPageState extends State<AddInternPage> {
         ),
 
         // Styling
-        selectedDayHighlightColor: _C.primary,
-        selectedRangeHighlightColor: _C.primary.withOpacity(0.15),
+        selectedDayHighlightColor: ColorPick.primary,
+        selectedRangeHighlightColor: ColorPick.primary.withOpacity(0.15),
         weekdayLabelTextStyle: TextStyle(
-          color:      _C.primary,
+          color:      ColorPick.primary,
           fontSize:   12.sp,
           fontWeight: FontWeight.w600,
         ),
         controlsTextStyle: TextStyle(
-          color:      _C.primary,
+          color:      ColorPick.primary,
           fontSize:   13.sp,
           fontWeight: FontWeight.w600,
         ),
         dayTextStyle: TextStyle(
-          color:    _C.labelText,
+          color:    AppColors.text,
           fontSize: 11.sp,
         ),
         selectedDayTextStyle: TextStyle(
@@ -288,11 +290,11 @@ class _AddInternPageState extends State<AddInternPage> {
           fontWeight: FontWeight.w600,
         ),
         todayTextStyle: TextStyle(
-          color:    _C.primary,
+          color:    ColorPick.primary,
           fontSize: 11.sp,
         ),
         yearTextStyle: TextStyle(
-          color:    _C.labelText,
+          color:    AppColors.text,
           fontSize: 12.sp,
         ),
         buttonPadding: EdgeInsets.symmetric(
@@ -433,7 +435,7 @@ class _AddInternPageState extends State<AddInternPage> {
             content: Text(_isEdit ? 'Intern updated!' : 'Intern created!',
                 style: StyleText.fontSize14Weight400
                     .copyWith(color: Colors.white)),
-            backgroundColor: _C.primary,
+            backgroundColor: ColorPick.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r)),
@@ -446,7 +448,7 @@ class _AddInternPageState extends State<AddInternPage> {
             content: Text('Intern removed.',
                 style: StyleText.fontSize14Weight400
                     .copyWith(color: Colors.white)),
-            backgroundColor: _C.removeRed,
+            backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r)),
@@ -470,7 +472,7 @@ class _AddInternPageState extends State<AddInternPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: _C.bg,
+              backgroundColor: ColorPick.background,
               body: SingleChildScrollView(
                 child: Center(
                   child: SizedBox(
@@ -499,7 +501,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                     ? 'Editing Intern Details'
                                     : 'Adding New Intern',
                                 style: StyleText.fontSize45Weight600.copyWith(
-                                  color:      _C.primary,
+                                  color:      ColorPick.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -519,9 +521,9 @@ class _AddInternPageState extends State<AddInternPage> {
                                             vertical: 8.h),
                                         decoration: BoxDecoration(
                                           color: _isRemoving
-                                              ? _C.removeRed
+                                              ? Colors.red
                                               .withOpacity(0.6)
-                                              : _C.removeRed,
+                                              : Colors.red,
                                           borderRadius:
                                           BorderRadius.circular(6.r),
                                         ),
@@ -553,7 +555,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                 width: double.infinity,
                                 padding: EdgeInsets.all(20.w),
                                 decoration: BoxDecoration(
-                                  color:        _C.cardBg,
+                                  color:        Colors.white,
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Column(
@@ -567,7 +569,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           'Intern Information',
                                           style: StyleText.fontSize16Weight600
                                               .copyWith(
-                                            color:      _C.primary,
+                                            color:      ColorPick.primary,
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
@@ -596,7 +598,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           controller:   _firstNameCtrl,
                                           height:       44,
                                           submitted:    _submitted,
-                                          primaryColor: _C.primary,
+                                          primaryColor: ColorPick.primary,
                                           isRequired:   true,
                                         ),
                                       ),
@@ -608,7 +610,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           controller:   _lastNameCtrl,
                                           height:       44,
                                           submitted:    _submitted,
-                                          primaryColor: _C.primary,
+                                          primaryColor: ColorPick.primary,
                                           isRequired:   true,
                                         ),
                                       ),
@@ -624,7 +626,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           controller:   _positionCtrl,
                                           height:       44,
                                           submitted:    _submitted,
-                                          primaryColor: _C.primary,
+                                          primaryColor: ColorPick.primary,
                                         ),
                                       ),
                                       SizedBox(width: 16.w),
@@ -635,7 +637,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           controller:   _degreesCtrl,
                                           height:       44,
                                           submitted:    _submitted,
-                                          primaryColor: _C.primary,
+                                          primaryColor: ColorPick.primary,
                                         ),
                                       ),
                                     ]),
@@ -649,7 +651,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                       height:       100,
                                       maxLines:     5,
                                       submitted:    _submitted,
-                                      primaryColor: _C.primary,
+                                      primaryColor: ColorPick.primary,
                                       isRequired:   true,
                                     ),
                                     SizedBox(height: 24.h),
@@ -665,8 +667,8 @@ class _AddInternPageState extends State<AddInternPage> {
                                             height: 50.h,
                                             decoration: BoxDecoration(
                                               color: busy
-                                                  ? _C.discard.withOpacity(0.5)
-                                                  : _C.discard,
+                                                  ? ColorPick.discard.withOpacity(0.5)
+                                                  : ColorPick.discard,
                                               borderRadius:
                                               BorderRadius.circular(8.r),
                                             ),
@@ -690,8 +692,8 @@ class _AddInternPageState extends State<AddInternPage> {
                                             height: 50.h,
                                             decoration: BoxDecoration(
                                               color: busy
-                                                  ? _C.primary.withOpacity(0.5)
-                                                  : _C.primary,
+                                                  ? ColorPick.primary.withOpacity(0.5)
+                                                  : ColorPick.primary,
                                               borderRadius:
                                               BorderRadius.circular(8.r),
                                             ),
@@ -739,13 +741,13 @@ class _AddInternPageState extends State<AddInternPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(
-                          color: _isRemoving ? _C.removeRed : _C.primary,
+                          color: _isRemoving ? Colors.red : ColorPick.primary,
                         ),
                         SizedBox(height: 16.h),
                         Text(
                           _isRemoving ? 'Removing...' : 'Saving...',
                           style: StyleText.fontSize14Weight600.copyWith(
-                            color: _isRemoving ? _C.removeRed : _C.primary,
+                            color: _isRemoving ? Colors.red : ColorPick.primary,
                           ),
                         ),
                       ],
@@ -771,7 +773,7 @@ class _AddInternPageState extends State<AddInternPage> {
           children: [
             Text('Photo',
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
           ],
         ),
         SizedBox(height: 6.h),
@@ -819,7 +821,7 @@ class _AddInternPageState extends State<AddInternPage> {
                   width:  24.w,
                   height: 24.h,
                   decoration: BoxDecoration(
-                    color:  _C.primary,
+                    color:  ColorPick.primary,
                     shape:  BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
@@ -835,16 +837,7 @@ class _AddInternPageState extends State<AddInternPage> {
             ],
           ),
         ),
-        if (hasError) ...[
-          SizedBox(height: 4.h),
-          Text(
-            'Photo is required (PNG or JPG only)',
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: _C.errorRed,
-            ),
-          ),
-        ],
+  
       ],
     );
   }
@@ -863,7 +856,7 @@ class _AddInternPageState extends State<AddInternPage> {
           children: [
             Text('Joined Date',
                 style: StyleText.fontSize12Weight500
-                    .copyWith(color: _C.labelText)),
+                    .copyWith(color: AppColors.text)),
             Text(' *',
                 style: TextStyle(
                   color: Colors.red,
@@ -883,7 +876,7 @@ class _AddInternPageState extends State<AddInternPage> {
               color:        const Color(0xFFF1F2ED),
               borderRadius: BorderRadius.circular(6.r),
               border: Border.all(
-                color: hasError ? _C.errorRed : Colors.transparent,
+                color: hasError ? Colors.red: Colors.transparent,
                 width: hasError ? 1.5 : 0,
               ),
             ),
@@ -892,7 +885,7 @@ class _AddInternPageState extends State<AddInternPage> {
                 child: Text(
                   label,
                   style: StyleText.fontSize12Weight400.copyWith(
-                    color: _joinedDate != null ? _C.labelText : _C.hintText,
+                    color: _joinedDate != null ? AppColors.text : AppColors.secondaryText,
                   ),
                 ),
               ),
@@ -901,7 +894,7 @@ class _AddInternPageState extends State<AddInternPage> {
                 width: 16.w,
                 height: 16.h,
                 fit: BoxFit.scaleDown,
-                color: hasError ? _C.errorRed : null,
+                color: hasError ? Colors.red : null,
               ),
             ]),
           ),
@@ -912,7 +905,7 @@ class _AddInternPageState extends State<AddInternPage> {
             'Joined date is required',
             style: TextStyle(
               fontSize: 11.sp,
-              color: _C.errorRed,
+              color: Colors.red,
             ),
           ),
         ],

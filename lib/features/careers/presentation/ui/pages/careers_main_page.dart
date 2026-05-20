@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_edit.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -40,14 +41,14 @@ import 'our_teams_main.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color discard   = Color(0xFF797979);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color discard   = Color(0xFF797979);
+// }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 class CareersMainPageMaster extends StatefulWidget {
@@ -82,14 +83,14 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
       builder: (context, state) {
         if (state is CareersCmsInitial || state is CareersCmsLoading) {
           return const Scaffold(
-            backgroundColor: _C.sectionBg,
-            body: Center(child: CircularProgressIndicator(color: _C.primary)),
+            backgroundColor: ColorPick.white,
+            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
         if (state is CareersCmsError) {
           return Scaffold(
-            backgroundColor: _C.sectionBg,
+            backgroundColor: ColorPick.white,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -168,14 +169,14 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
         Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Text('Careers',
               style: StyleText.fontSize45Weight600.copyWith(
-                  color: _C.primary, fontWeight: FontWeight.w700)),
+                  color: ColorPick.primary, fontWeight: FontWeight.w700)),
           const Spacer(),
           GestureDetector(
             onTap: () => context.pushNamed('careers-cms-preview'),
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               decoration: BoxDecoration(
-                  color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                  color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
               child: Text('Preview Screen',
                   style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
             ),
@@ -196,14 +197,14 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: active ? _C.primary : Colors.transparent,
+                        color: active ? ColorPick.primary : Colors.transparent,
                         width: 2.5,
                       ),
                     ),
                   ),
                   child: Text(_careersTabLabels[i],
                       style: StyleText.fontSize15Weight500.copyWith(
-                        color: active ? _C.primary : _C.labelText,
+                        color: active ? ColorPick.primary : AppColors.text,
                         fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                       )),
                 ),
@@ -250,7 +251,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
       child: BlocBuilder<CareersSectionCubit, CareersSectionState>(
         builder: (context, state) {
           if (state is CareersSectionInitial || state is CareersSectionLoading) {
-            return const Center(child: CircularProgressIndicator(color: _C.primary));
+            return const Center(child: CircularProgressIndicator(color: ColorPick.primary));
           }
 
           CareersSectionModel? data;
@@ -258,7 +259,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           if (state is CareersSectionSaved)  data = state.data;
 
           if (data == null) {
-            return const Center(child: CircularProgressIndicator(color: _C.primary));
+            return const Center(child: CircularProgressIndicator(color: ColorPick.primary));
           }
 
           final cubit = context.read<CareersSectionCubit>();
@@ -280,7 +281,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                     )),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                      decoration: BoxDecoration(color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                      decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                       child: Text('Preview Screen',
                           style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
                     ),
@@ -292,12 +293,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                 children: [
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                    decoration: BoxDecoration(color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
+                    decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
                     child: Text(
                       data.lastUpdated != null
                           ? 'Last Updated On ${_formatDate(data.lastUpdated!)}'
                           : 'Last Updated On —',
-                      style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+                      style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
                     ),
                   ),
                   const Spacer(),
@@ -321,7 +322,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                           CustomSvg(
                               assetPath: 'assets/control/edit_icon_pick.svg',
                               width: 20.w, height: 20.h,
-                              fit: BoxFit.scaleDown, color: _C.primary),
+                              fit: BoxFit.scaleDown, color: ColorPick.primary),
                         ]),
                       ),
                     ),
@@ -335,7 +336,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                 children: [
                   if (data.items.isEmpty)
                     Text('No items added yet.',
-                        style: StyleText.fontSize12Weight400.copyWith(color: _C.hintText))
+                        style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText))
                   else
                     ...data.items.asMap().entries.map((e) => _itemView(e.key, e.value)),
                 ],
@@ -356,7 +357,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           SizedBox(height: 12.h),
         ] else
           SizedBox(height: 12.h),
-        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         _imgCircle(item.iconUrl, isAdd: true),
         SizedBox(height: 14.h),
@@ -366,7 +367,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           Expanded(child: _readFieldRtl('العنوان', item.title.ar)),
         ]),
         SizedBox(height: 14.h),
-        Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+        Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         _imgCircle(item.svgUrl),
         SizedBox(height: 14.h),
@@ -407,12 +408,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
             decoration: BoxDecoration(
-                color: _C.cardBg, borderRadius: BorderRadius.circular(4.r)),
+                color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
             child: Text(
               data.lastUpdated != null
                   ? 'Last Updated On ${_formatDate(data.lastUpdated!)}'
                   : 'Last Updated On —',
-              style: StyleText.fontSize13Weight500.copyWith(color: _C.primary),
+              style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
             ),
           ),
           const Spacer(),
@@ -430,7 +431,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                   CustomSvg(
                       assetPath: 'assets/control/edit_icon_pick.svg',
                       width: 20.w, height: 20.h,
-                      fit: BoxFit.scaleDown, color: _C.primary),
+                      fit: BoxFit.scaleDown, color: ColorPick.primary),
                 ]),
               ),
             ),
@@ -486,7 +487,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                 child: Text(
                     'No statistics added yet. Click "Edit Details" to add statistics.',
                     textAlign: TextAlign.center,
-                    style: StyleText.fontSize13Weight400.copyWith(color: _C.hintText)),
+                    style: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText)),
               )
             else
               ...data.statistics.asMap().entries.map((e) {
@@ -499,7 +500,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                       SizedBox(height: 12.h),
                     ],
                     Text('${_ordLabel(i + 1)} Statistics',
-                        style: StyleText.fontSize16Weight600.copyWith(color: _C.labelText)),
+                        style: StyleText.fontSize16Weight600.copyWith(color: AppColors.text)),
                     SizedBox(height: 8.h),
                     Row(children: [
                       Expanded(child: _readField('Title', stat.title.en)),
@@ -540,7 +541,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                  color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                  color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
               child: Row(children: [
                 Expanded(
                   child: Text(title,
@@ -580,7 +581,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
     final current = value.length;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+          style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
       SizedBox(height: 4.h),
       Container(
         width: double.infinity,
@@ -593,7 +594,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
         child: Text(
           value.isEmpty ? 'Text Here' : value,
           style: StyleText.fontSize12Weight400
-              .copyWith(color: value.isEmpty ? _C.hintText : _C.labelText),
+              .copyWith(color: value.isEmpty ? AppColors.secondaryText : AppColors.text),
           maxLines: height > 36 ? 5 : 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -604,7 +605,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           alignment: Alignment.centerRight,
           child: Text(
             '$current/$maxLength',
-            style: StyleText.fontSize11Weight400.copyWith(color: _C.hintText),
+            style: StyleText.fontSize11Weight400.copyWith(color: AppColors.secondaryText),
           ),
         ),
       ],
@@ -618,7 +619,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
       textDirection: TextDirection.rtl,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
-            style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+            style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 4.h),
         Container(
           width: double.infinity,
@@ -631,7 +632,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           child: Text(
             value.isEmpty ? 'أكتب هنا' : value,
             style: StyleText.fontSize12Weight400
-                .copyWith(color: value.isEmpty ? _C.hintText : _C.labelText),
+                .copyWith(color: value.isEmpty ? AppColors.secondaryText : AppColors.text),
             textDirection: TextDirection.rtl,
             maxLines: height > 36 ? 5 : 1,
             overflow: TextOverflow.ellipsis,
@@ -644,7 +645,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
             child: Text(
               '${_toArabicNumerals(maxLength)}/${_toArabicNumerals(current)}',
               textDirection: TextDirection.rtl,
-              style: StyleText.fontSize11Weight400.copyWith(color: _C.hintText),
+              style: StyleText.fontSize11Weight400.copyWith(color: AppColors.secondaryText),
             ),
           ),
         ],
@@ -745,19 +746,19 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                       color: Colors.white, borderRadius: BorderRadius.circular(6.r)),
                   child: Row(children: [
                     SizedBox(width: 12.w),
-                    Icon(Icons.search, color: _C.hintText, size: 18.sp),
+                    Icon(Icons.search, color: AppColors.secondaryText, size: 18.sp),
                     SizedBox(width: 8.w),
                     Expanded(
                       child: TextField(
                         controller: _searchCtrl,
                         decoration: InputDecoration(
                           hintText: 'Search',
-                          hintStyle: StyleText.fontSize13Weight400.copyWith(color: _C.hintText),
+                          hintStyle: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
                         ),
-                        style: StyleText.fontSize13Weight400.copyWith(color: _C.labelText),
+                        style: StyleText.fontSize13Weight400.copyWith(color: AppColors.text),
                         onChanged: (v) => setState(() => _search = v),
                       ),
                     ),
@@ -769,7 +770,7 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                 height: 40.h,
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 decoration: BoxDecoration(
-                    color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                    color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                 child: Center(
                   child: Text('Time Frame',
                       style: StyleText.fontSize13Weight500.copyWith(color: Colors.white)),
@@ -785,7 +786,7 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                   height: 40.h,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   decoration: BoxDecoration(
-                      color: _C.primary, borderRadius: BorderRadius.circular(6.r)),
+                      color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                   child: Center(
                     child: Text('Add New Intern',
                         style: StyleText.fontSize13Weight500.copyWith(color: Colors.white)),
@@ -800,11 +801,11 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                      color: _C.cardBg, borderRadius: BorderRadius.circular(6.r)),
+                      color: ColorPick.white, borderRadius: BorderRadius.circular(6.r)),
                   child: Text(
                     'Total Interns:  ${filtered.length}',
                     style: TextStyle(
-                        fontSize: 12.sp, fontWeight: FontWeight.w500, color: _C.labelText),
+                        fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text),
                   ),
                 ),
                 const Spacer(),
@@ -815,9 +816,9 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                   textStyle: TextStyle(
                       fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white),
                   height: 32.h, space: 4.w, radius: 6,
-                  color: _C.primary, image: 'assets/images/export.svg',
+                  color: ColorPick.primary, image: 'assets/images/export.svg',
                   widthImage: 14.sp, heightImage: 14.sp,
-                  colorBorder: _C.primary, svgColor: Colors.white,
+                  colorBorder: ColorPick.primary, svgColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 10.w),
                 ),
                 SizedBox(width: 8.w),
@@ -825,29 +826,29 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                   title: '', function: () => setState(() => _isGrid = true),
                   textStyle: const TextStyle(),
                   height: 32.sp, width: 32.sp, space: 0, radius: 6,
-                  color: _isGrid ? _C.primary : _C.cardBg,
+                  color: _isGrid ? ColorPick.primary : ColorPick.white,
                   image: 'assets/images/grid.svg',
                   widthImage: 16.sp, heightImage: 16.sp,
                   colorBorder: Colors.transparent,
-                  svgColor: _isGrid ? Colors.white : _C.hintText,
+                  svgColor: _isGrid ? Colors.white : AppColors.secondaryText,
                 ),
                 SizedBox(width: 4.w),
                 customButtonWithImage(
                   title: '', function: () => setState(() => _isGrid = false),
                   textStyle: const TextStyle(),
                   height: 32.sp, width: 32.sp, space: 0, radius: 6,
-                  color: !_isGrid ? _C.primary : _C.cardBg,
+                  color: !_isGrid ? ColorPick.primary : ColorPick.white,
                   image: 'assets/images/table.svg',
                   widthImage: 16.sp, heightImage: 16.sp,
                   colorBorder: Colors.transparent,
-                  svgColor: !_isGrid ? Colors.white : _C.hintText,
+                  svgColor: !_isGrid ? Colors.white : AppColors.secondaryText,
                 ),
               ],
             ),
             SizedBox(height: 16.h),
 
             if (loading)
-              const Center(child: CircularProgressIndicator(color: _C.primary))
+              const Center(child: CircularProgressIndicator(color: ColorPick.primary))
             else if (filtered.isEmpty)
               Center(
                 child: Padding(
@@ -856,7 +857,7 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                     _search.isEmpty
                         ? 'No interns yet. Tap "Add New Intern" to get started.'
                         : 'No results for "$_search".',
-                    style: StyleText.fontSize14Weight400.copyWith(color: _C.hintText),
+                    style: StyleText.fontSize14Weight400.copyWith(color: AppColors.secondaryText),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -931,7 +932,7 @@ class _InternTableView extends StatelessWidget {
       color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12.sp);
 
   TextStyle get _cellStyle => StyleText.fontSize12Weight400.copyWith(
-      color: _C.labelText, fontSize: 12.sp, height: 1.4);
+      color: AppColors.text, fontSize: 12.sp, height: 1.4);
 
   String _firstName(String n) {
     final p = n.trim().split(' ');
@@ -961,7 +962,7 @@ class _InternTableView extends StatelessWidget {
         width: 30.w, height: 30.w,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: _C.primary, width: 1.5),
+          border: Border.all(color: ColorPick.primary, width: 1.5),
           color: const Color(0xFFE0E0E0),
           image: intern.photoUrl.isNotEmpty
               ? DecorationImage(image: NetworkImage(intern.photoUrl), fit: BoxFit.cover)
@@ -995,7 +996,7 @@ class _InternTableView extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cancel',
-                style: StyleText.fontSize13Weight500.copyWith(color: _C.hintText)),
+                style: StyleText.fontSize13Weight500.copyWith(color: AppColors.secondaryText)),
           ),
           TextButton(
             onPressed: () {
@@ -1022,7 +1023,7 @@ class _InternTableView extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: _C.primary,
+              color: ColorPick.primary,
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r)),
             ),
@@ -1059,7 +1060,7 @@ class _InternTableView extends StatelessWidget {
 
                   Widget tap(Widget child) => InkWell(
                     onTap: onRowTap,
-                    hoverColor: _C.primary.withOpacity(0.06),
+                    hoverColor: ColorPick.primary.withOpacity(0.06),
                     mouseCursor: SystemMouseCursors.click,
                     child: child,
                   );
@@ -1162,7 +1163,7 @@ class _InternCardState extends State<_InternCard> {
                 children: intern.tags.map((tag) => Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
-                      color: _C.primary, borderRadius: BorderRadius.circular(4.r)),
+                      color: ColorPick.primary, borderRadius: BorderRadius.circular(4.r)),
                   child: Text(tag,
                       style: StyleText.fontSize10Weight700.copyWith(
                           fontSize: 9.sp, fontWeight: FontWeight.w600, color: Colors.white)),
@@ -1200,7 +1201,7 @@ class _InternCardState extends State<_InternCard> {
       width: size, height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: _C.primary, width: 1.5),
+        border: Border.all(color: ColorPick.primary, width: 1.5),
         color: const Color(0xFFE0E0E0),
         image: intern.photoUrl.isNotEmpty
             ? DecorationImage(image: NetworkImage(intern.photoUrl), fit: BoxFit.cover)
@@ -1225,7 +1226,7 @@ class _InternCardState extends State<_InternCard> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cancel',
-                style: StyleText.fontSize13Weight500.copyWith(color: _C.hintText)),
+                style: StyleText.fontSize13Weight500.copyWith(color: AppColors.secondaryText)),
           ),
           TextButton(
             onPressed: () {
@@ -1314,7 +1315,7 @@ class _InternExportDialogState extends State<_InternExportDialog> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Exported "$fileName" successfully!',
           style: StyleText.fontSize14Weight400.copyWith(color: Colors.white)),
-      backgroundColor: _C.primary,
+      backgroundColor: ColorPick.primary,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
     ));
@@ -1336,7 +1337,7 @@ class _InternExportDialogState extends State<_InternExportDialog> {
             Row(children: [
               Container(
                 width: 32.w, height: 32.h,
-                decoration: BoxDecoration(color: _C.primary, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: ColorPick.primary, shape: BoxShape.circle),
                 child: Center(
                   child: CustomSvg(
                     assetPath: 'assets/images/export.svg',
@@ -1347,11 +1348,11 @@ class _InternExportDialogState extends State<_InternExportDialog> {
               ),
               SizedBox(width: 10.w),
               Text('Export Interns',
-                  style: StyleText.fontSize16Weight600.copyWith(color: _C.labelText)),
+                  style: StyleText.fontSize16Weight600.copyWith(color: AppColors.text)),
             ]),
             SizedBox(height: 20.h),
             Text('File Name',
-                style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+                style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
             SizedBox(height: 6.h),
             Container(
               height: 36.h,
@@ -1363,12 +1364,12 @@ class _InternExportDialogState extends State<_InternExportDialog> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'e.g. interns_2025',
-                  hintStyle: StyleText.fontSize12Weight400.copyWith(color: _C.hintText),
+                  hintStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                   isDense: true,
                 ),
-                style: StyleText.fontSize12Weight400.copyWith(color: _C.labelText),
+                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
               ),
             ),
             SizedBox(height: 24.h),
@@ -1385,7 +1386,7 @@ class _InternExportDialogState extends State<_InternExportDialog> {
                     child: Center(
                       child: Text('Discard',
                           style: StyleText.fontSize14Weight600.copyWith(
-                              color: _saving ? Colors.grey : _C.discard)),
+                              color: _saving ? Colors.grey : ColorPick.discard)),
                     ),
                   ),
                 ),
@@ -1399,10 +1400,10 @@ class _InternExportDialogState extends State<_InternExportDialog> {
                     height: 44.h,
                     decoration: BoxDecoration(
                       color: _saving
-                          ? _C.primary.withOpacity(0.5)
+                          ? ColorPick.primary.withOpacity(0.5)
                           : _nameCtrl.text.trim().isEmpty
-                          ? _C.primary.withOpacity(0.4)
-                          : _C.primary,
+                          ? ColorPick.primary.withOpacity(0.4)
+                          : ColorPick.primary,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Center(

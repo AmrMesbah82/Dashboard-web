@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 
 
 import 'package:web_app_admin/core/custom_svg.dart';
@@ -23,6 +24,7 @@ import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_pr
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/model/careers_section_model.dart';
@@ -30,16 +32,16 @@ import '../../controller/careers_section_cubit.dart';
 import '../../controller/careers_section_state.dart';
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color remove    = Color(0xFFE53935);
-  static const Color back      = Color(0xFFF1F2ED);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF5F5F5);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color remove    = Color(0xFFE53935);
+//   static const Color back      = Color(0xFFF1F2ED);
+// }
 
 class _PickedImage {
   final Uint8List? bytes;
@@ -265,7 +267,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
             content: Text('${widget.sectionTitle} saved!',
                 style: StyleText.fontSize14Weight400
                     .copyWith(color: Colors.white)),
-            backgroundColor: _C.primary,
+            backgroundColor: ColorPick.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.r)),
@@ -351,16 +353,16 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
 
         if (state is CareersSectionInitial || state is CareersSectionLoading) {
           return const Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: _C.primary)),
+                child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: _C.back,
+              backgroundColor: ColorPick.white,
               body: SingleChildScrollView(
                 child: Container(
                   width: double.infinity,
@@ -385,7 +387,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                             Text(
                               'Editing ${widget.sectionTitle} Details',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color:      _C.primary,
+                                color:      ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -466,15 +468,15 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircularProgressIndicator(color: _C.primary),
+                        const CircularProgressIndicator(color: ColorPick.primary),
                         SizedBox(height: 20.h),
                         Text('Saving...',
                             style: StyleText.fontSize14Weight600
-                                .copyWith(color: _C.primary)),
+                                .copyWith(color: ColorPick.primary)),
                         SizedBox(height: 6.h),
                         Text('Uploading images & saving data',
                             style: StyleText.fontSize12Weight400
-                                .copyWith(color: _C.hintText)),
+                                .copyWith(color: AppColors.secondaryText)),
                       ],
                     ),
                   ),
@@ -501,7 +503,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
         if (index == 0) ...[
           Row(
             children: [
-              Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+              Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
               Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
             ],
           ),
@@ -528,7 +530,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                   label: 'Title', hint: 'Text Here', controller: item.titleEn,
                   height: 36, fillColor: Colors.white, submitted: _submitted,
                   textDirection: TextDirection.ltr, textAlign: TextAlign.left,
-                  primaryColor: _C.primary, isRequired: true,
+                  primaryColor: ColorPick.primary, isRequired: true,
                 ),
               ),
               SizedBox(width: 16.w),
@@ -539,7 +541,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                     label: 'العنوان', hint: 'أدخل النص هنا', controller: item.titleAr,
                     height: 36, fillColor: Colors.white, submitted: _submitted,
                     textDirection: TextDirection.rtl, textAlign: TextAlign.right,
-                    primaryColor: _C.primary, isRequired: true,
+                    primaryColor: ColorPick.primary, isRequired: true,
                   ),
                 ),
               ),
@@ -557,7 +559,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               children: [
                 Row(
                   children: [
-                    Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
+                    Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
                     Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
                   ],
                 ),
@@ -581,7 +583,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               onTap: () => setState(() => _items.removeAt(index)),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-                decoration: BoxDecoration(color: _C.remove, borderRadius: BorderRadius.circular(4.r)),
+                decoration: BoxDecoration(color: ColorPick.red, borderRadius: BorderRadius.circular(4.r)),
                 child: Text('Remove', style: StyleText.fontSize12Weight500.copyWith(color: Colors.white)),
               ),
             ),
@@ -596,7 +598,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
           label: 'Description', hint: 'Text Here', controller: item.descEn,
           height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
           textDirection: TextDirection.ltr, textAlign: TextAlign.left,
-          primaryColor: _C.primary, isRequired: true,
+          primaryColor: ColorPick.primary, isRequired: true,
         ),
         SizedBox(height: 8.h),
 
@@ -609,7 +611,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
             label: 'الوصف', hint: 'أدخل النص هنا', controller: item.descAr,
             height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
             textDirection: TextDirection.rtl, textAlign: TextAlign.right,
-            primaryColor: _C.primary, isRequired: true,
+            primaryColor: ColorPick.primary, isRequired: true,
           ),
         ),
         SizedBox(height: 16.h),
@@ -693,7 +695,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
             child: Container(
               width: 25.w, height: 25.h,
               decoration: BoxDecoration(
-                color:  _C.primary,
+                color:  ColorPick.primary,
                 shape:  BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
@@ -729,7 +731,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Row(
@@ -803,8 +805,8 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                 height: 44.h,
                 decoration: BoxDecoration(
                   color: _isSaving
-                      ? _C.primary.withOpacity(0.5)
-                      : _C.primary,
+                      ? ColorPick.primary.withOpacity(0.5)
+                      : ColorPick.primary,
                   borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Center(

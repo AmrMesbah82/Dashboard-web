@@ -23,8 +23,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/two_tab.dart';
 import '../../../data/model/careers_model.dart';
@@ -181,7 +183,7 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
                           Text(
                             'Preview Main Details',
                             style: StyleText.fontSize45Weight600.copyWith(
-                              color:      _AC.primary,
+                              color:      ColorPick.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -204,10 +206,10 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
                                   selectedIndex: _isAr ? 1 : 0,
                                   onTabSelected: (i) =>
                                       setState(() => _isAr = i == 1),
-                                  selectedColor:       _AC.primary,
+                                  selectedColor:       ColorPick.primary,
                                   unselectedColor:     Colors.white,
                                   selectedTextColor:   Colors.white,
-                                  unselectedTextColor: _AC.labelText,
+                                  unselectedTextColor: AppColors.text,
                                   equalWidth: false,
                                   containerPadding: EdgeInsets.symmetric(
                                     horizontal: 8.sp,
@@ -236,7 +238,7 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
                                   child: Container(
                                     height: 44.h,
                                     decoration: BoxDecoration(
-                                      color:        _AC.grey,
+                                      color:        ColorPick.discard,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Center(
@@ -260,8 +262,8 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
                                     height: 44.h,
                                     decoration: BoxDecoration(
                                       color: _isPublishing
-                                          ? _AC.primary.withOpacity(0.5)
-                                          : _AC.primary,
+                                          ? ColorPick.primary.withOpacity(0.5)
+                                          : ColorPick.primary,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Center(
@@ -300,7 +302,7 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
             Container(
               color: Colors.black.withOpacity(0.35),
               child: const Center(
-                child: CircularProgressIndicator(color: _AC.primary),
+                child: CircularProgressIndicator(color: ColorPick.primary),
               ),
             ),
         ],
@@ -323,14 +325,14 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
               style: TextStyle(
                 fontSize:   15.sp,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                color:      active ? _AC.primary : _AC.hintText,
+                color:      active ? ColorPick.primary : AppColors.secondaryText,
               ),
             ),
           ),
           Container(
             height: 2,
             width: label.length * 8.0,
-            color: active ? _AC.primary : Colors.transparent,
+            color: active ? ColorPick.primary : Colors.transparent,
           ),
         ],
       ),
@@ -442,7 +444,7 @@ class _TabletFrame extends StatelessWidget {
                 bottomLeft:  Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
-              border: Border.all(color: _AC.border, width: 2),
+              border: Border.all(color: ColorPick.white, width: 2),
               color:  Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -511,7 +513,7 @@ class _MobileFrame extends StatelessWidget {
                 bottomLeft:  Radius.circular(28),
                 bottomRight: Radius.circular(28),
               ),
-              border: Border.all(color: _AC.border, width: 2),
+              border: Border.all(color: ColorPick.white, width: 2),
               color:  Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -533,7 +535,7 @@ class _MobileFrame extends StatelessWidget {
                       width:  displayW * 0.3,
                       height: 12,
                       decoration: BoxDecoration(
-                        color:        _AC.border,
+                        color:        ColorPick.white,
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
@@ -570,7 +572,7 @@ class _MobileFrame extends StatelessWidget {
                       width:  displayW * 0.3,
                       height: 4,
                       decoration: BoxDecoration(
-                        color:        _AC.border,
+                        color:        ColorPick.white,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),

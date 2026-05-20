@@ -12,6 +12,7 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 
 
 import '../../../../../core/custom_dialog.dart';
@@ -24,15 +25,15 @@ import '../../controller/about_us_cubit.dart';
 import '../../controller/about_us_state.dart';
 import 'about_us_main.dart';
 
-// ── Admin-shell colors ────────────────────────────────────────────────────────
-class _AC {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color grey      = Color(0xFF9E9E9E);
-}
+//── Admin-shell colors ────────────────────────────────────────────────────────
+//class _AC {
+//  static const Color primary   = Color(0xFF008037);
+//  static const Color back      = Color(0xFFF1F2ED);
+//  static const Color labelText = Color(0xFF333333);
+//  static const Color hintText  = Color(0xFFAAAAAA);
+//  static const Color border    = Color(0xFFE0E0E0);
+//  static const Color grey      = Color(0xFF9E9E9E);
+//}
 
 // ── User-app palette (mirrors about_page.dart constants) ─────────────────────
 const Color _kDefaultGreen = Color(0xFF2D8C4E);
@@ -176,7 +177,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: _AC.back,
+            backgroundColor: ColorPick.background,
             body: SingleChildScrollView(
               child: Center(
                 child: SizedBox(
@@ -191,7 +192,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                       Text(
                         'Preview About Us Details',
                         style: StyleText.fontSize45Weight600.copyWith(
-                            color: _AC.primary, fontWeight: FontWeight.w700),
+                            color: ColorPick.primary, fontWeight: FontWeight.w700),
                       ),
                       SizedBox(height: 16.h),
 
@@ -212,10 +213,10 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                               selectedIndex: _isAr ? 1 : 0,
                               onTabSelected: (i) =>
                                   setState(() => _isAr = i == 1),
-                              selectedColor: _AC.primary,
+                              selectedColor: ColorPick.primary,
                               unselectedColor: Colors.white,
                               selectedTextColor: Colors.white,
-                              unselectedTextColor: _AC.labelText,
+                              unselectedTextColor: AppColors.text,
                               equalWidth: false,
                               containerPadding: EdgeInsets.symmetric(
                                   horizontal: 8.sp, vertical: 4.sp),
@@ -241,7 +242,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                               child: Container(
                                 height: 44.h,
                                 decoration: BoxDecoration(
-                                    color: _AC.grey,
+                                    color: ColorPick.back,
                                     borderRadius:
                                     BorderRadius.circular(6.r)),
                                 child: Center(
@@ -261,8 +262,8 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                                 height: 44.h,
                                 decoration: BoxDecoration(
                                     color: _isPublishing
-                                        ? _AC.primary.withOpacity(0.5)
-                                        : _AC.primary,
+                                        ? ColorPick.primary.withOpacity(0.5)
+                                        : ColorPick.primary,
                                     borderRadius:
                                     BorderRadius.circular(6.r)),
                                 child: Center(
@@ -297,7 +298,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
             Container(
               color: Colors.black.withOpacity(0.35),
               child: const Center(
-                  child: CircularProgressIndicator(color: _AC.primary)),
+                  child: CircularProgressIndicator(color: ColorPick.primary)),
             ),
         ],
       ),
@@ -317,13 +318,13 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? _AC.primary : _AC.hintText,
+                  color: active ? ColorPick.primary : AppColors.secondaryText,
                 )),
           ),
           Container(
               height: 2,
               width: label.length * 8.0,
-              color: active ? _AC.primary : Colors.transparent),
+              color: active ? ColorPick.primary : Colors.transparent),
         ],
       ),
     );
@@ -361,7 +362,7 @@ class _DesktopFrame extends StatelessWidget {
     return Container(
       width: containerWidth,
       height: frameH + 28,
-      color: _AC.back,
+      color: ColorPick.background,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Column(
@@ -415,7 +416,7 @@ class _TabletFrame extends StatelessWidget {
         height: displayH + 28 + 4,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _AC.border, width: 2),
+          border: Border.all(color: ColorPick.white, width: 2),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -473,7 +474,7 @@ class _MobileFrame extends StatelessWidget {
         height: displayH + 24 + 12 + 4,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: _AC.border, width: 2),
+          border: Border.all(color: ColorPick.white, width: 2),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -493,7 +494,7 @@ class _MobileFrame extends StatelessWidget {
                   width: displayW * 0.3,
                   height: 12,
                   decoration: BoxDecoration(
-                      color: _AC.border,
+                      color: ColorPick.white,
                       borderRadius: BorderRadius.circular(6)),
                 ),
               ),
@@ -528,7 +529,7 @@ class _MobileFrame extends StatelessWidget {
                   width: displayW * 0.3,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: _AC.border,
+                      color: ColorPick.white,
                       borderRadius: BorderRadius.circular(2)),
                 ),
               ),

@@ -11,7 +11,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
@@ -21,14 +23,14 @@ import '../../controller/department_state.dart';
 
 
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color back      = Color(0xFFF1F2ED);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color back      = Color(0xFFF1F2ED);
+//   static const Color cardBg    = Color(0xFFFFFFFF);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+// }
 
 class DepartmentCreatePage extends StatefulWidget {
   const DepartmentCreatePage({super.key});
@@ -112,14 +114,14 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                 style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
-                    color: _C.labelText),
+                    color: AppColors.text),
               ),
               SizedBox(height: 12.h),
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 13.sp, color: _C.hintText, height: 1.5),
+                    fontSize: 13.sp, color: AppColors.secondaryText, height: 1.5),
               ),
               SizedBox(height: 24.h),
               Row(children: [
@@ -150,7 +152,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                     child: Container(
                       height: 44.h,
                       decoration: BoxDecoration(
-                        color: _C.primary,
+                        color: ColorPick.primary,
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Center(
@@ -189,7 +191,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: _C.back,
+        backgroundColor: ColorPick.background,
         body: Stack(
           children: [
             SingleChildScrollView(
@@ -216,7 +218,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                             Text(
                               'Create New Department',
                               style: StyleText.fontSize45Weight600.copyWith(
-                                color: _C.primary,
+                                color: ColorPick.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -260,7 +262,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                                     child: Container(
                                       height: 48.h,
                                       decoration: BoxDecoration(
-                                        color: _C.primary,
+                                        color: ColorPick.primary,
                                         borderRadius:
                                         BorderRadius.circular(8.r),
                                       ),
@@ -302,7 +304,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
               Container(
                 color: Colors.black26,
                 child: const Center(
-                  child: CircularProgressIndicator(color: _C.primary),
+                  child: CircularProgressIndicator(color: ColorPick.primary),
                 ),
               ),
           ],
@@ -330,7 +332,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
               padding:
               EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: _C.primary,
+                color: ColorPick.primary,
                 borderRadius: isOpen
                     ? BorderRadius.only(
                     topLeft: Radius.circular(6.r),
@@ -409,7 +411,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                         width: 20.sp,
                         height: 20.sp,
                         decoration: const BoxDecoration(
-                          color: _C.primary,
+                          color: ColorPick.primary,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -447,12 +449,12 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                   maxLength: 200,
                   minLength: 0,
                   submitted: _submitted,
-                  primaryColor: _C.primary,
-                  fillColor: _C.cardBg,
+                  primaryColor: ColorPick.primary,
+                  fillColor: ColorPick.white,
                   textStyle: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.labelText),
+                      .copyWith(color: AppColors.text),
                   hintStyle: StyleText.fontSize12Weight400
-                      .copyWith(color: _C.hintText),
+                      .copyWith(color: AppColors.secondaryText),
                 ),
               ),
 
@@ -474,12 +476,12 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                     maxLength: 200,
                     minLength: 0,
                     submitted: _submitted,
-                    primaryColor: _C.primary,
-                    fillColor: _C.cardBg,
+                    primaryColor: ColorPick.primary,
+                    fillColor: ColorPick.white,
                     textStyle: StyleText.fontSize12Weight400
-                        .copyWith(color: _C.labelText),
+                        .copyWith(color: AppColors.text),
                     hintStyle: StyleText.fontSize12Weight400
-                        .copyWith(color: _C.hintText),
+                        .copyWith(color: AppColors.secondaryText),
                   ),
                 ),
               ),

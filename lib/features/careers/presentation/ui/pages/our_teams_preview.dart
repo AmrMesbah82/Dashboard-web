@@ -20,7 +20,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/two_tab.dart';
 import '../../../data/model/our_teams_model.dart';
@@ -29,15 +31,15 @@ import '../../controller/our_teams_state.dart';
 
 
 // ── Admin-shell colors ────────────────────────────────────────────────────────
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF1F2ED);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-  static const Color border    = Color(0xFFE0E0E0);
-  static const Color discard   = Color(0xFF797979);
-  static const Color preview   = Color(0xFF608570);
-}
+// class _C {
+//   static const Color primary   = Color(0xFF008037);
+//   static const Color sectionBg = Color(0xFFF1F2ED);
+//   static const Color labelText = Color(0xFF333333);
+//   static const Color hintText  = Color(0xFFAAAAAA);
+//   static const Color border    = Color(0xFFE0E0E0);
+//   static const Color discard   = Color(0xFF797979);
+//   static const Color preview   = Color(0xFF608570);
+// }
 
 // ── Device viewport constants ─────────────────────────────────────────────────
 const double _kDesktopW = 1366.0;
@@ -115,7 +117,7 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: _C.sectionBg,
+              backgroundColor: ColorPick.white,
               body: SingleChildScrollView(
                 child: Center(
                   child: SizedBox(
@@ -131,7 +133,7 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                         Text(
                           'Preview Our Teams Details',
                           style: StyleText.fontSize45Weight600.copyWith(
-                            color:      _C.primary,
+                            color:      ColorPick.primary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -154,10 +156,10 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                                 selectedIndex:      _isAr ? 1 : 0,
                                 onTabSelected: (i) =>
                                     setState(() => _isAr = i == 1),
-                                selectedColor:      _C.primary,
+                                selectedColor:      ColorPick.primary,
                                 unselectedColor:    Colors.white,
                                 selectedTextColor:  Colors.white,
-                                unselectedTextColor: _C.labelText,
+                                unselectedTextColor: AppColors.text,
                                 equalWidth: false,
                                 containerPadding: EdgeInsets.symmetric(
                                     horizontal: 8.sp, vertical: 4.sp),
@@ -200,11 +202,11 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircularProgressIndicator(color: _C.primary),
+                        const CircularProgressIndicator(color: ColorPick.primary),
                         SizedBox(height: 16.h),
                         Text('Saving…',
                             style: StyleText.fontSize14Weight600
-                                .copyWith(color: _C.primary)),
+                                .copyWith(color: ColorPick.primary)),
                       ],
                     ),
                   ),
@@ -231,14 +233,14 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
               style: TextStyle(
                 fontSize:   15.sp,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                color:      active ? _C.primary : _C.hintText,
+                color:      active ? ColorPick.primary : AppColors.secondaryText,
               ),
             ),
           ),
           Container(
             height: 2,
             width: label.length * 8.0,
-            color: active ? _C.primary : Colors.transparent,
+            color: active ? ColorPick.primary : Colors.transparent,
           ),
         ],
       ),
@@ -272,7 +274,7 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                 child: Container(
                   height: 44.h,
                   decoration: BoxDecoration(
-                    color:        _C.discard,
+                    color:        ColorPick.discard,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(
@@ -292,8 +294,8 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                   height: 44.h,
                   decoration: BoxDecoration(
                     color: _isSaving
-                        ? _C.primary.withOpacity(0.5)
-                        : _C.primary,
+                        ? ColorPick.primary.withOpacity(0.5)
+                        : ColorPick.primary,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Center(

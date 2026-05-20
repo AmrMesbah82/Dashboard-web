@@ -17,7 +17,9 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/search.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
+import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
+import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
@@ -28,17 +30,17 @@ import '../../controller/inquiry_state.dart';
 import 'inquiry_details.dart';
 
 
-class _C {
-  static const Color primary      = Color(0xFF008037);
-  static const Color primaryLight = Color(0xFF4CAF7D);
-  static const Color back         = Color(0xFFF1F2ED);
-  static const Color cardBg       = Color(0xFFFFFFFF);
-  static const Color labelText    = Color(0xFF333333);
-  static const Color hintText     = Color(0xFFAAAAAA);
-  static const Color border       = Color(0xFFE0E0E0);
-  static const Color barLight     = Color(0xFFB2DFCC);   // light green bg for location bars
-  static const Color barLighter   = Color(0xFFDCEFE5);   // even lighter for entity size
-}
+// class _C {
+//   static const Color primary      = Color(0xFF008037);
+//   static const Color primaryLight = Color(0xFF4CAF7D);
+//   static const Color back         = Color(0xFFF1F2ED);
+//   static const Color cardBg       = Color(0xFFFFFFFF);
+//   static const Color labelText    = Color(0xFF333333);
+//   static const Color hintText     = Color(0xFFAAAAAA);
+//   static const Color border       = Color(0xFFE0E0E0);
+//   static const Color barLight     = Color(0xFFB2DFCC);   // light green bg for location bars
+//   static const Color barLighter   = Color(0xFFDCEFE5);   // even lighter for entity size
+// }
 
 // ── Month name helper ────────────────────────────────────────────────────────
 const List<String> _kMonthNames = [
@@ -109,11 +111,11 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                       Container(
                         width: 30.sp,
                         height: 30.sp,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: _C.primary),
+                        decoration: const BoxDecoration(shape: BoxShape.circle, color: ColorPick.primary),
                         child: Icon(Icons.file_download_outlined, size: 16.sp, color: Colors.white),
                       ),
                       SizedBox(width: 8.sp),
-                      Text('Export', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: _C.labelText)),
+                      Text('Export', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: AppColors.text)),
                     ],
                   ),
                   SizedBox(height: 20.sp),
@@ -123,7 +125,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                     controller: fileNameCtrl,
                     height: 36,
                     submitted: false,
-                    primaryColor: _C.primary,
+                    primaryColor: ColorPick.primary,
                     fillColor: const Color(0xFFF1F2ED),
                   ),
                   SizedBox(height: 20.sp),
@@ -135,7 +137,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                           child: Container(
                             height: 38.h,
                             decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(8.r)),
-                            child: Center(child: Text('Discard', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: _C.labelText))),
+                            child: Center(child: Text('Discard', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: AppColors.text))),
                           ),
                         ),
                       ),
@@ -161,7 +163,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                           },
                           child: Container(
                             height: 38.h,
-                            decoration: BoxDecoration(color: isExporting ? Colors.grey : _C.primary, borderRadius: BorderRadius.circular(8.r)),
+                            decoration: BoxDecoration(color: isExporting ? Colors.grey : ColorPick.primary, borderRadius: BorderRadius.circular(8.r)),
                             child: Center(
                               child: isExporting
                                   ? SizedBox(width: 16.sp, height: 16.sp, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -215,19 +217,19 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
             children: [
               Container(
                 width: 64.sp, height: 64.sp,
-                decoration: BoxDecoration(color: _C.primary.withOpacity(0.1), shape: BoxShape.circle),
-                child: Icon(Icons.check_circle, color: _C.primary, size: 40.sp),
+                decoration: BoxDecoration(color: ColorPick.primary.withOpacity(0.1), shape: BoxShape.circle),
+                child: Icon(Icons.check_circle, color: ColorPick.primary, size: 40.sp),
               ),
               SizedBox(height: 16.h),
-              Text('Export Successful', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
+              Text('Export Successful', textAlign: TextAlign.center, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
               SizedBox(height: 8.h),
-              Text('$fileName\ndownloaded successfully', textAlign: TextAlign.center, style: TextStyle(fontSize: 13.sp, color: _C.hintText, height: 1.4)),
+              Text('$fileName\ndownloaded successfully', textAlign: TextAlign.center, style: TextStyle(fontSize: 13.sp, color: AppColors.secondaryText, height: 1.4)),
               SizedBox(height: 20.h),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  style: ElevatedButton.styleFrom(backgroundColor: _C.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)), padding: EdgeInsets.symmetric(vertical: 12.h)),
+                  style: ElevatedButton.styleFrom(backgroundColor: ColorPick.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)), padding: EdgeInsets.symmetric(vertical: 12.h)),
                   child: Text('OK', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Colors.white)),
                 ),
               ),
@@ -251,7 +253,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
       child: BlocBuilder<InquiryCubit, InquiryState>(
         builder: (context, state) {
           if (state is InquiryInitial || state is InquiryLoading) {
-            return const Scaffold(backgroundColor: _C.back, body: Center(child: CircularProgressIndicator(color: _C.primary)));
+            return const Scaffold(backgroundColor: ColorPick.background, body: Center(child: CircularProgressIndicator(color: ColorPick.primary)));
           }
 
           final cubit = context.read<InquiryCubit>();
@@ -307,7 +309,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           final bool hasActiveFilters = activeStatusFilter != null || activeEntityTypeFilter != null || activeLocationFilter != null || activeMonthFilter != null;
 
           return Scaffold(
-            backgroundColor: _C.back,
+            backgroundColor: ColorPick.background,
             body: SingleChildScrollView(
               child: SizedBox(
                 width: double.infinity,
@@ -327,7 +329,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Inquires', style: StyleText.fontSize45Weight600.copyWith(color: _C.primary, fontWeight: FontWeight.w700)),
+                            Text('Inquires', style: StyleText.fontSize45Weight600.copyWith(color: ColorPick.primary, fontWeight: FontWeight.w700)),
                             SizedBox(height: 16.h),
                             Row(children: [AppSearchTextField(controller: _searchController, onChanged: (v) => cubit.setSearch(v), hintText: 'Search')]),
                             SizedBox(height: 16.h),
@@ -336,7 +338,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                             Row(children: [
                               Expanded(child: _summaryCard('Total Submission', totalCount, Colors.grey)),
                               SizedBox(width: 10.w),
-                              Expanded(child: _summaryCard('New', newCount, _C.primary)),
+                              Expanded(child: _summaryCard('New', newCount, ColorPick.primary)),
                               SizedBox(width: 10.w),
                               Expanded(child: _summaryCard('Replied', repliedCount, const Color(0xFFFF9800))),
                               SizedBox(width: 10.w),
@@ -346,25 +348,25 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
 
                             // ── Filters ──
                             Row(children: [
-                              SizedBox(width: 130.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeStatusFilter, items: statusItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: _C.cardBg, primaryColor: _C.primary, hint: Text('Status', style: TextStyle(fontSize: 11.sp, color: _C.hintText)), onChanged: (v) => cubit.setStatusFilter(v))),
+                              SizedBox(width: 130.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeStatusFilter, items: statusItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: ColorPick.white, primaryColor: ColorPick.primary, hint: Text('Status', style: TextStyle(fontSize: 11.sp, color: AppColors.secondaryText)), onChanged: (v) => cubit.setStatusFilter(v))),
                               SizedBox(width: 8.w),
-                              SizedBox(width: 150.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeEntityTypeFilter, items: entityTypeItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: _C.cardBg, primaryColor: _C.primary, hint: Text('Entity Type', style: TextStyle(fontSize: 11.sp, color: _C.hintText)), onChanged: (v) => cubit.setEntityTypeFilter(v))),
+                              SizedBox(width: 150.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeEntityTypeFilter, items: entityTypeItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: ColorPick.white, primaryColor: ColorPick.primary, hint: Text('Entity Type', style: TextStyle(fontSize: 11.sp, color: AppColors.secondaryText)), onChanged: (v) => cubit.setEntityTypeFilter(v))),
                               SizedBox(width: 8.w),
-                              SizedBox(width: 140.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeLocationFilter, items: locationItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: _C.cardBg, primaryColor: _C.primary, hint: Text('Location', style: TextStyle(fontSize: 11.sp, color: _C.hintText)), onChanged: (v) => cubit.setLocationFilter(v))),
+                              SizedBox(width: 140.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeLocationFilter, items: locationItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: ColorPick.white, primaryColor: ColorPick.primary, hint: Text('Location', style: TextStyle(fontSize: 11.sp, color: AppColors.secondaryText)), onChanged: (v) => cubit.setLocationFilter(v))),
                               SizedBox(width: 8.w),
-                              SizedBox(width: 120.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeMonthFilter?.toString(), items: monthItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: _C.cardBg, primaryColor: _C.primary, hint: Text('Calendar', style: TextStyle(fontSize: 11.sp, color: _C.hintText)), onChanged: (v) { if (v != null) { cubit.setMonthFilter(int.tryParse(v)); } else { cubit.setMonthFilter(null); } })),
+                              SizedBox(width: 120.w, child: CustomDropdownFormFieldInvMaster(selectedValue: activeMonthFilter?.toString(), items: monthItems, widthIcon: 14, heightIcon: 14, height: 32, dropdownColor: ColorPick.white, primaryColor: ColorPick.primary, hint: Text('Calendar', style: TextStyle(fontSize: 11.sp, color: AppColors.secondaryText)), onChanged: (v) { if (v != null) { cubit.setMonthFilter(int.tryParse(v)); } else { cubit.setMonthFilter(null); } })),
                               SizedBox(width: 8.w),
                               if (hasActiveFilters)
                                 GestureDetector(
                                   onTap: () { cubit.clearAllFilters(); _searchController.clear(); },
                                   child: Container(
                                     height: 32.h, padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                    decoration: BoxDecoration(color: _C.cardBg, borderRadius: BorderRadius.circular(4.r), border: Border.all(color: _C.border)),
-                                    child: Center(child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.clear, size: 12.sp, color: _C.hintText), SizedBox(width: 4.w), Text('Clear', style: TextStyle(fontSize: 11.sp, color: _C.hintText))])),
+                                    decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(4.r), border: Border.all(color: ColorPick.white)),
+                                    child: Center(child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.clear, size: 12.sp, color: AppColors.secondaryText), SizedBox(width: 4.w), Text('Clear', style: TextStyle(fontSize: 11.sp, color: AppColors.secondaryText))])),
                                   ),
                                 ),
                               const Spacer(),
-                              customButtonWithImage(title: 'Export', function: () => _showExportDialog(inquiries), textStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white), height: 32.h, space: 4.w, radius: 6, color: _C.primary, image: 'assets/images/export.svg', widthImage: 14.sp, heightImage: 14.sp, colorBorder: _C.primary, svgColor: Colors.white, padding: EdgeInsets.symmetric(horizontal: 10.w)),
+                              customButtonWithImage(title: 'Export', function: () => _showExportDialog(inquiries), textStyle: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white), height: 32.h, space: 4.w, radius: 6, color: ColorPick.primary, image: 'assets/images/export.svg', widthImage: 14.sp, heightImage: 14.sp, colorBorder: ColorPick.primary, svgColor: Colors.white, padding: EdgeInsets.symmetric(horizontal: 10.w)),
                             ]),
                             SizedBox(height: 16.h),
 
@@ -373,7 +375,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                             SizedBox(height: 40.h),
 
                             // ── Charts title ──
-                            Text('Dashboard', style: StyleText.fontSize24Weight600.copyWith(color: _C.primary, fontWeight: FontWeight.w700)),
+                            Text('Dashboard', style: StyleText.fontSize24Weight600.copyWith(color: ColorPick.primary, fontWeight: FontWeight.w700)),
                             SizedBox(height: 16.h),
 
                             // Row 1 — Bar chart + Entity Types
@@ -419,14 +421,14 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
 
   Widget _summaryCard(String title, int count, Color topColor) {
     return Container(
-      decoration: BoxDecoration(color: _C.cardBg, borderRadius: BorderRadius.circular(8.r)),
+      decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(8.r)),
       child: Column(children: [
         Container(height: 4.h, decoration: BoxDecoration(color: topColor, borderRadius: BorderRadius.only(topLeft: Radius.circular(8.r), topRight: Radius.circular(8.r)))),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
           child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(title, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: _C.labelText)),
-            Text('$count', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
+            Text(title, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text)),
+            Text('$count', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
           ]),
         ),
       ]),
@@ -452,7 +454,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
     15: FixedColumnWidth(100),
   };
 
-  TextStyle get _cellStyle => TextStyle(fontSize: 11.sp, color: _C.labelText);
+  TextStyle get _cellStyle => TextStyle(fontSize: 11.sp, color: AppColors.text);
   Widget _cell(Widget child) => Container(padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 8.sp), child: DefaultTextStyle.merge(style: _cellStyle, child: child));
   Widget _textCell(String text, {int maxLines = 2}) => _cell(Text(text.isEmpty ? '-' : text, maxLines: maxLines, overflow: TextOverflow.ellipsis));
 
@@ -467,7 +469,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           columnWidths: _columnWidths.map((k, v) => MapEntry(k, FixedColumnWidth((v as FixedColumnWidth).value.sp))),
           children: [
             TableRow(
-              decoration: const BoxDecoration(color: _C.primary),
+              decoration: const BoxDecoration(color: ColorPick.primary),
               children: _headers.map((h) => Padding(padding: EdgeInsets.all(10.sp), child: Text(h, maxLines: 1, style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.white)))).toList(),
             ),
             ...List.generate(inquiries.length, (index) {
@@ -501,13 +503,13 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
   Widget _chartCard(String title, String subtitle, Widget chart) {
     return Container(
       padding: EdgeInsets.all(15.sp),
-      decoration: BoxDecoration(color: _C.cardBg, borderRadius: BorderRadius.circular(8.r)),
+      decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(8.r)),
       child: Column(
         mainAxisSize: MainAxisSize.min,        // ← shrink to content
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: _C.primary)),
-          if (subtitle.isNotEmpty) ...[SizedBox(height: 4.h), Text(subtitle, style: TextStyle(fontSize: 11.sp, color: _C.labelText))],
+          Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: ColorPick.primary)),
+          if (subtitle.isNotEmpty) ...[SizedBox(height: 4.h), Text(subtitle, style: TextStyle(fontSize: 11.sp, color: AppColors.text))],
           SizedBox(height: 12.h),
           chart,
         ],
@@ -548,7 +550,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                         '$val',
                         style: TextStyle(
                           fontSize: 7.sp,
-                          color: _C.labelText,
+                          color: AppColors.text,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -559,7 +561,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                   Container(
                     height: barH.h,
                     decoration: BoxDecoration(
-                      color: val > 0 ? _C.primary : Colors.transparent,
+                      color: val > 0 ? ColorPick.primary : Colors.transparent,
                       borderRadius: BorderRadius.only(
                         topLeft:  Radius.circular(3.r),
                         topRight: Radius.circular(3.r),
@@ -567,7 +569,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                     ),
                   ),
                   SizedBox(height: 6.h),
-                  Text(_kMonthNames[i], style: TextStyle(fontSize: 8.sp, color: _C.hintText)),
+                  Text(_kMonthNames[i], style: TextStyle(fontSize: 8.sp, color: AppColors.secondaryText)),
                 ],
               ),
             ),
@@ -622,13 +624,13 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
             Flexible(
               child: Text(
                 e.key,
-                style: TextStyle(fontSize: 10.sp, color: _C.labelText),
+                style: TextStyle(fontSize: 10.sp, color: AppColors.text),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
               '$pct%',
-              style: TextStyle(fontSize: 10.sp, color: _C.hintText),
+              style: TextStyle(fontSize: 10.sp, color: AppColors.secondaryText),
             ),
           ],
         ),
@@ -638,11 +640,11 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           borderRadius: BorderRadius.circular(3.r),
           child: Container(
             height: 7.h,
-            color: _C.back,
+            color: Colors.white,
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: (pct / 100).clamp(0.0, 1.0),
-              child: Container(color: _C.primary),
+              child: Container(color: ColorPick.primary),
             ),
           ),
         ),
@@ -698,8 +700,8 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(keys[i],                   style: TextStyle(fontSize: 9.sp,  color: _C.labelText, fontWeight: FontWeight.w400)),
-                    Text('${allCounts[keys[i]]}',   style: TextStyle(fontSize: 12.sp, color: _C.labelText, fontWeight: FontWeight.w700)),
+                    Text(keys[i],                   style: TextStyle(fontSize: 9.sp,  color: AppColors.text, fontWeight: FontWeight.w400)),
+                    Text('${allCounts[keys[i]]}',   style: TextStyle(fontSize: 12.sp, color: AppColors.text, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ],
@@ -759,9 +761,9 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _interviewStatRow(_C.primary,      '$passedPct%',   'Passed'),
+              _interviewStatRow(ColorPick.primary,      '$passedPct%',   'Passed'),
               SizedBox(height: 10.h),
-              _interviewStatRow(_C.primaryLight, '$failedPct%',   'Failed'),
+              _interviewStatRow(ColorPick.primary, '$failedPct%',   'Failed'),
               SizedBox(height: 10.h),
               _interviewStatRow(const Color(0xFFB2DFCC), '$withdrewPct%', 'Candidate Withdrew'),
             ],
@@ -775,7 +777,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           child: CustomPaint(
             painter: _PieChartPainter(
               values: [passedPct.toDouble(), failedPct.toDouble(), withdrewPct.toDouble()],
-              colors: [_C.primary, _C.primaryLight, const Color(0xFFDCEDC8)],
+              colors: [ColorPick.primary, ColorPick.primary, const Color(0xFFDCEDC8)],
             ),
           ),
         ),
@@ -786,7 +788,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
   Widget _interviewStatRow(Color dotColor, String pct, String label) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      decoration: BoxDecoration(color: _C.back, borderRadius: BorderRadius.circular(6.r)),
+      decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(6.r)),
       child: Row(
         children: [
           Container(
@@ -797,8 +799,8 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(pct,   style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: _C.labelText)),
-              Text(label, style: TextStyle(fontSize: 9.sp,  fontWeight: FontWeight.w400, color: _C.hintText)),
+              Text(pct,   style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
+              Text(label, style: TextStyle(fontSize: 9.sp,  fontWeight: FontWeight.w400, color: AppColors.secondaryText)),
             ],
           ),
         ],
@@ -838,16 +840,16 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // light (empty) portion on top
-                        Container(height: emptyH.h, color: _C.barLight),
+                        Container(height: emptyH.h, color: ColorPick.primary.withOpacity(.5)),
                         // dark (filled) portion on bottom
-                        Container(height: fillH.h,  color: _C.primary),
+                        Container(height: fillH.h,  color: ColorPick.primary),
                       ],
                     ),
                   ),
                   SizedBox(height: 5.h),
-                  Text('$pct%', style: TextStyle(fontSize: 8.sp, color: _C.labelText, fontWeight: FontWeight.w600)),
+                  Text('$pct%', style: TextStyle(fontSize: 8.sp, color: AppColors.text, fontWeight: FontWeight.w600)),
                   SizedBox(height: 2.h),
-                  Text(e.key, style: TextStyle(fontSize: 7.sp, color: _C.hintText), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                  Text(e.key, style: TextStyle(fontSize: 7.sp, color: AppColors.secondaryText), overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
                 ],
               ),
             ),
