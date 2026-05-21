@@ -12,7 +12,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../domain/repo/blog_repo.dart';
-import '../model/blog_model.dart';
+import '../models/blog_model.dart';
 
 class BlogRepositoryImpl implements BlogRepository {
   BlogRepositoryImpl({FirebaseFirestore? firestore, FirebaseStorage? storage})
@@ -33,7 +33,6 @@ class BlogRepositoryImpl implements BlogRepository {
 
   @override
   Future<List<BlogPostModel>> fetchAllPosts() async {
-    print('🔵 [BlogRepo] fetchAllPosts()');
     try {
       final snap = await _col.orderBy('createdAt', descending: true).get();
       // Filter out draft documents (those ending with _draft)
@@ -41,59 +40,49 @@ class BlogRepositoryImpl implements BlogRepository {
           .where((d) => !d.id.endsWith('_draft'))
           .map((d) => BlogPostModel.fromMap(d.id, _sanitize(d.data())))
           .toList();
-      print('🟢 [BlogRepo] fetchAllPosts() → ${posts.length} posts');
       return posts;
     } catch (e) {
-      print('🔴 [BlogRepo] fetchAllPosts() ERROR: $e');
       return [];
     }
   }
 
   @override
   Future<BlogPostModel> fetchPost(String id) async {
-    print('🔵 [BlogRepo] fetchPost($id)');
     try {
       final snap = await _col.doc(id).get();
       if (!snap.exists || snap.data() == null) return BlogPostModel.empty();
       return BlogPostModel.fromMap(snap.id, _sanitize(snap.data()!));
     } catch (e) {
-      print('🔴 [BlogRepo] fetchPost() ERROR: $e');
       return BlogPostModel.empty();
     }
   }
 
   @override
   Future<BlogPostModel?> fetchPostById(String id) async {
-    print('🔵 [BlogRepo] fetchPostById($id)');
     try {
       final snap = await _col.doc(id).get();
       if (!snap.exists || snap.data() == null) return null;
       return BlogPostModel.fromMap(snap.id, _sanitize(snap.data()!));
     } catch (e) {
-      print('🔴 [BlogRepo] fetchPostById() ERROR: $e');
       return null;
     }
   }
 
   @override
   Future<String> createPost(BlogPostModel post) async {
-    print('🔵 [BlogRepo] createPost()');
     try {
       final ref = await _col.add({
         ...post.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
       });
-      print('🟢 [BlogRepo] createPost() → id=${ref.id}');
       return ref.id;
     } catch (e) {
-      print('🔴 [BlogRepo] createPost() ERROR: $e');
       rethrow;
     }
   }
 
   @override
   Future<void> updatePost(BlogPostModel post) async {
-    print('🔵 [BlogRepo] updatePost(${post.id})');
     try {
       final docRef = _col.doc(post.id);
       await docRef.update({
@@ -117,16 +106,13 @@ class BlogRepositoryImpl implements BlogRepository {
         }).toList(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      print('🟢 [BlogRepo] updatePost() done');
     } catch (e) {
-      print('🔴 [BlogRepo] updatePost() ERROR: $e');
       rethrow;
     }
   }
 
   @override
   Future<void> deletePost(String id) async {
-    print('🔵 [BlogRepo] deletePost($id)');
     try {
       await _col.doc(id).delete();
       // Also delete any draft for this post
@@ -134,11 +120,8 @@ class BlogRepositoryImpl implements BlogRepository {
       final draftSnap = await draftRef.get();
       if (draftSnap.exists) {
         await draftRef.delete();
-        print('🟢 [BlogRepo] deletePost() → also deleted draft');
       }
-      print('🟢 [BlogRepo] deletePost() done');
     } catch (e) {
-      print('🔴 [BlogRepo] deletePost() ERROR: $e');
       rethrow;
     }
   }
@@ -158,17 +141,13 @@ class BlogRepositoryImpl implements BlogRepository {
 
   @override
   Future<BlogPostModel?> fetchDraft(String postId) async {
-    print('🟡 [BlogRepo] fetchDraft($postId)');
     try {
       final snap = await _col.doc('${postId}_draft').get();
       if (snap.exists && snap.data() != null) {
-        print('🟢 [BlogRepo] fetchDraft() → draft found');
         return BlogPostModel.fromMap(postId, _sanitize(snap.data()!));
       }
-      print('🟡 [BlogRepo] fetchDraft() → no draft exists');
       return null;
     } catch (e) {
-      print('🔴 [BlogRepo] fetchDraft() ERROR: $e');
       rethrow;
     }
   }
@@ -176,7 +155,6 @@ class BlogRepositoryImpl implements BlogRepository {
   @override
   Future<void> saveDraft(BlogPostModel post) async {
     final draftId = '${post.id}_draft';
-    print('🟡 [BlogRepo] saveDraft() draftId=$draftId status=${post.status}');
     try {
       await _col.doc(draftId).set({
         ...post.toMap(),
@@ -186,46 +164,36 @@ class BlogRepositoryImpl implements BlogRepository {
             : FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      print('🟢 [BlogRepo] saveDraft() done');
     } catch (e) {
-      print('🔴 [BlogRepo] saveDraft() ERROR: $e');
       rethrow;
     }
   }
 
   @override
   Future<void> deleteDraft(String postId) async {
-    print('🟡 [BlogRepo] deleteDraft($postId)');
     try {
       final ref = _col.doc('${postId}_draft');
       final snap = await ref.get();
       if (snap.exists) {
         await ref.delete();
-        print('🟢 [BlogRepo] deleteDraft() → deleted');
       } else {
-        print('🟡 [BlogRepo] deleteDraft() → no draft to delete');
       }
     } catch (e) {
-      print('🔴 [BlogRepo] deleteDraft() ERROR: $e');
       rethrow;
     }
   }
 
   @override
   Future<void> promoteDraft(String postId) async {
-    print('🟡 [BlogRepo] promoteDraft($postId)');
     try {
       final draft = await fetchDraft(postId);
       if (draft == null) {
-        print('🟡 [BlogRepo] promoteDraft() → no draft to promote');
         return;
       }
       final publishedModel = draft.copyWith(status: 'published');
       await updatePost(publishedModel);
       await deleteDraft(postId);
-      print('🟢 [BlogRepo] promoteDraft() → DONE');
     } catch (e) {
-      print('🔴 [BlogRepo] promoteDraft() ERROR: $e');
       rethrow;
     }
   }
@@ -236,16 +204,13 @@ class BlogRepositoryImpl implements BlogRepository {
 
   @override
   Future<String> uploadImage({required Uint8List bytes, required String storagePath}) async {
-    print('🔵 [BlogRepo] uploadImage() path=$storagePath');
     try {
       final ref  = _storage.ref().child(storagePath);
       final mime = _detectMime(bytes);
       final task = await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url  = await task.ref.getDownloadURL();
-      print('🟢 [BlogRepo] uploadImage() → $url');
       return url;
     } catch (e) {
-      print('🔴 [BlogRepo] uploadImage() ERROR: $e');
       rethrow;
     }
   }

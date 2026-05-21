@@ -12,25 +12,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 import '../../../../../../core/custom_svg.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../../core/widget/navigator.dart';
-import '../../../../data/model/about_us_model.dart';
+import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'terms_edit.dart';
 
-class _C {
-  static const Color primary   = Color(0xFF008037);
-  static const Color sectionBg = Color(0xFFF5F5F5);
-  static const Color cardBg    = Color(0xFFFFFFFF);
-  static const Color labelText = Color(0xFF333333);
-  static const Color hintText  = Color(0xFFAAAAAA);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
+part '../../widget/terms_main/c.dart';
 
 class TermsMainView extends StatefulWidget {
   const TermsMainView({super.key});

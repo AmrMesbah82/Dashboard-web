@@ -15,7 +15,7 @@ import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
-import '../../../../data/model/about_us_model.dart';
+import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 
@@ -428,7 +428,6 @@ Widget _buildImageWidget({
             );
           }
           if (snapshot.hasError) {
-            print('Error loading SVG: ${snapshot.error}');
             return SizedBox(
               height: height,
               child: Center(
@@ -510,7 +509,6 @@ Widget _buildImageWidget({
 // ── Load SVG bytes from URL ────────────────────────────────────────────────────
 Future<Uint8List> _loadSvgBytes(String url) async {
   try {
-    print('🔵 Loading SVG from URL: $url');
     final response = await html.HttpRequest.request(
       url,
       method: 'GET',
@@ -520,10 +518,8 @@ Future<Uint8List> _loadSvgBytes(String url) async {
       throw Exception('Failed to load SVG: ${response.status}');
     }
     final bytes = (response.response as ByteBuffer).asUint8List();
-    print('🟢 SVG loaded successfully, size: ${bytes.length} bytes');
     return bytes;
   } catch (e) {
-    print('🔴 Error loading SVG: $e');
     rethrow;
   }
 }

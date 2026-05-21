@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 import '../../domain/repo/application_repo.dart';
-import '../model/application_model.dart';
+import '../models/application_model.dart';
 
 class ApplicationRepoImp implements ApplicationRepo {
   final FirebaseFirestore _firestore;
@@ -21,7 +21,6 @@ class ApplicationRepoImp implements ApplicationRepo {
   @override
   Future<List<ApplicationModel>> fetchAllApplications() async {
     try {
-      print('🟡 [ApplicationRepoImp] fetchAllApplications()');
 
       // Get all jobListings first, then their applications subcollections
       final jobsSnapshot = await _firestore
@@ -44,10 +43,8 @@ class ApplicationRepoImp implements ApplicationRepo {
         }
       }
 
-      print('🟢 [ApplicationRepoImp] fetchAllApplications() — got ${allApps.length}');
       return allApps;
     } catch (e) {
-      print('🔴 [ApplicationRepoImp] fetchAllApplications() ERROR: $e');
       rethrow;
     }
   }
@@ -55,7 +52,6 @@ class ApplicationRepoImp implements ApplicationRepo {
   @override
   Future<ApplicationModel?> fetchApplicationById(String jobId, String appId) async {
     try {
-      print('🟡 [ApplicationRepoImp] fetchApplicationById($jobId/$appId)');
       final doc = await _appCollection(jobId).doc(appId).get(
           const GetOptions(source: Source.server));
 
@@ -66,7 +62,6 @@ class ApplicationRepoImp implements ApplicationRepo {
         'jobId': jobId,
       });
     } catch (e) {
-      print('🔴 [ApplicationRepoImp] fetchApplicationById() ERROR: $e');
       rethrow;
     }
   }
@@ -74,11 +69,8 @@ class ApplicationRepoImp implements ApplicationRepo {
   @override
   Future<void> updateApplication(ApplicationModel app) async {
     try {
-      print('🟡 [ApplicationRepoImp] updateApplication(${app.jobId}/${app.id})');
       await _appCollection(app.jobId).doc(app.id).update(app.toMap());
-      print('🟢 [ApplicationRepoImp] updateApplication() — done');
     } catch (e) {
-      print('🔴 [ApplicationRepoImp] updateApplication() ERROR: $e');
       rethrow;
     }
   }
@@ -86,11 +78,8 @@ class ApplicationRepoImp implements ApplicationRepo {
   @override
   Future<void> updateStatus(String jobId, String appId, ApplicationStatus status) async {
     try {
-      print('🟡 [ApplicationRepoImp] updateStatus($jobId/$appId → ${status.label})');
       await _appCollection(jobId).doc(appId).update({'status': status.label});
-      print('🟢 [ApplicationRepoImp] updateStatus() — done');
     } catch (e) {
-      print('🔴 [ApplicationRepoImp] updateStatus() ERROR: $e');
       rethrow;
     }
   }

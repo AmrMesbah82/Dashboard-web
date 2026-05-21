@@ -34,12 +34,17 @@ import '../../../../../core/widget/custom_dropdwon.dart';
 import '../../../../../core/widget/navigator.dart';
 import '../../../../../core/widget/textfield.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/data/model/home_model.dart';
+import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 import 'main_preview.dart'; // adjust import path as needed
+
+part '../widget/main_edit/picked_image.dart';
+part '../widget/main_edit/link_item.dart';
+part '../widget/main_edit/color_picker_field.dart';
+part '../widget/main_edit/color_wheel_overlay.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -89,272 +94,6 @@ const List<Map<String, String>> _kFonts = [
   {'key': 'Noto Sans', 'value': 'Noto Sans'},
 ];
 
-class _PickedImage {
-  final Uint8List? bytes;
-  final String?   url;
-  const _PickedImage({this.bytes, this.url});
-  bool get isEmpty  => bytes == null && (url == null || url!.isEmpty);
-  bool get isFilled => bytes != null || (url != null && url!.isNotEmpty);
-}
-
-class _LinkItem {
-  final TextEditingController text;
-  _PickedImage icon;
-  bool visibility;
-
-  _LinkItem()
-      : text       = TextEditingController(),
-        icon       = const _PickedImage(),
-        visibility = true;
-
-  void dispose() { text.dispose(); }
-}
-
-// ── Color Picker Field ────────────────────────────────────────────────────────
-class _ColorPickerField extends StatefulWidget {
-  final TextEditingController controller;
-  final String? label;
-  final String hintText;
-  final VoidCallback? onColorChanged;
-
-  const _ColorPickerField({
-    required this.controller,
-    this.label,
-    this.hintText = '#008037',
-    this.onColorChanged,
-  });
-
-  @override
-  State<_ColorPickerField> createState() => _ColorPickerFieldState();
-}
-
-class _ColorPickerFieldState extends State<_ColorPickerField> {
-  OverlayEntry? _overlay;
-  final LayerLink _layerLink = LayerLink();
-
-  Color get _currentColor {
-    try {
-      final hex = widget.controller.text.replaceAll('#', '');
-      if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {}
-    return ColorPick.primary;
-  }
-
-  static String _colorToHex(Color c) =>
-      '#${c.red.toRadixString(16).padLeft(2, '0')}'
-          '${c.green.toRadixString(16).padLeft(2, '0')}'
-          '${c.blue.toRadixString(16).padLeft(2, '0')}'.toUpperCase();
-
-  void _openPicker() {
-    _closePicker();
-    _overlay = OverlayEntry(
-      builder: (_) => _ColorWheelOverlay(
-        layerLink:    _layerLink,
-        initialColor: _currentColor,
-        onApply: (color) {
-          widget.controller.text = _colorToHex(color);
-          widget.controller.notifyListeners();
-          _closePicker();
-          if (mounted) setState(() {});
-          widget.onColorChanged?.call();
-        },
-        onClose: _closePicker,
-      ),
-    );
-    Overlay.of(context).insert(_overlay!);
-  }
-
-  void _closePicker() { _overlay?.remove(); _overlay = null; }
-
-  @override
-  void dispose() { _closePicker(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(widget.label!,
-              style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-          SizedBox(height: 5.h),
-        ],
-        CompositedTransformTarget(
-          link: _layerLink,
-          child: SizedBox(
-            height: 36.h,
-            child: TextFormField(
-              controller: widget.controller,
-              style: StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
-              onChanged: (_) { setState(() {}); widget.onColorChanged?.call(); },
-              onTap: _openPicker,
-              decoration: InputDecoration(
-                hintText:  widget.hintText,
-                hintStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
-                filled: true, fillColor: AppColors.card,
-                isDense: true, counterText: '',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Container(
-                    width: 16.w, height: 16.h,
-                    decoration: BoxDecoration(
-                      color: _currentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: ColorPick.white),
-                    ),
-                  ),
-                ),
-                prefixIconConstraints: BoxConstraints(minWidth: 36.w, minHeight: 36.h),
-                enabledBorder:  OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.r),
-                    borderSide: const BorderSide(color: Colors.transparent)),
-                focusedBorder:  OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.r),
-                    borderSide: BorderSide(color: ColorPick.primary, width: 1)),
-                disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.r),
-                    borderSide: const BorderSide(color: Colors.transparent)),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ── Color Wheel Overlay ───────────────────────────────────────────────────────
-class _ColorWheelOverlay extends StatefulWidget {
-  final LayerLink layerLink;
-  final Color initialColor;
-  final ValueChanged<Color> onApply;
-  final VoidCallback onClose;
-
-  const _ColorWheelOverlay({
-    required this.layerLink,
-    required this.initialColor,
-    required this.onApply,
-    required this.onClose,
-  });
-
-  @override
-  State<_ColorWheelOverlay> createState() => _ColorWheelOverlayState();
-}
-
-class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
-  late Color _picked;
-
-  @override
-  void initState() { super.initState(); _picked = widget.initialColor; }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned.fill(
-        child: GestureDetector(
-          onTap: widget.onClose,
-          behavior: HitTestBehavior.translucent,
-          child: Container(color: Colors.black.withOpacity(0.3)),
-        ),
-      ),
-      Center(
-        child: Material(
-          color: Colors.transparent,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.9,
-              maxWidth: 400.w,
-            ),
-            child: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-                padding: EdgeInsets.all(20.w),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: ColorPick.white),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withOpacity(.2),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8)),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Select Color',
-                        style: StyleText.fontSize16Weight600
-                            .copyWith(color: AppColors.text)),
-                    SizedBox(height: 16.h),
-                    LayoutBuilder(builder: (context, constraints) {
-                      final double pickerW =
-                      (constraints.maxWidth).clamp(200.0, 320.0);
-                      return SizedBox(
-                        width: pickerW,
-                        child: ColorPicker(
-                          pickerColor: _picked,
-                          onColorChanged: (c) => setState(() => _picked = c),
-                          colorPickerWidth: pickerW,
-                          pickerAreaHeightPercent: 0.65,
-                          enableAlpha: false,
-                          displayThumbColor: true,
-                          portraitOnly: true,
-                          pickerAreaBorderRadius: BorderRadius.circular(8.r),
-                          hexInputBar: true,
-                          labelTypes: const [],
-                        ),
-                      );
-                    }),
-                    SizedBox(height: 20.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: widget.onClose,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24.w, vertical: 10.h),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(6.r),
-                              border: Border.all(color: ColorPick.white),
-                            ),
-                            child: Text('Cancel',
-                                style: StyleText.fontSize14Weight500
-                                    .copyWith(color: AppColors.text)),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        GestureDetector(
-                          onTap: () => widget.onApply(_picked),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24.w, vertical: 10.h),
-                            decoration: BoxDecoration(
-                                color: ColorPick.primary,
-                                borderRadius: BorderRadius.circular(6.r)),
-                            child: Text('Apply',
-                                style: StyleText.fontSize14Weight500
-                                    .copyWith(color: Colors.white)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ]);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HomeEditPage
-// ─────────────────────────────────────────────────────────────────────────────
 class HomeEditPage extends StatefulWidget {
   const HomeEditPage({super.key});
 
@@ -565,7 +304,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
   @override
   void initState() {
     super.initState();
-    print('[HomeEditPage] ✅ initState');
     _seededModelHash = null;
     _footerColumns = List.generate(3, (_) => _newFooterColumn());
     _links         = List.generate(4, (_) => _LinkItem());
@@ -588,7 +326,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
   // ✅ FIX: readAsArrayBuffer returns ByteBuffer, not List<int>.
   //    We must cast to ByteBuffer and wrap with Uint8List.view().
   Future<_PickedImage?> _pickImage() async {
-    print('[HomeEditPage] _pickImage: opening file picker');
     final completer = Completer<_PickedImage?>();
     bool completed  = false;
 
@@ -598,17 +335,14 @@ class _HomeEditPageState extends State<HomeEditPage> {
     input.onChange.listen((event) {
       final files = input.files;
       if (files == null || files.isEmpty) {
-        print('[HomeEditPage] _pickImage: no file selected');
         if (!completed) { completed = true; completer.complete(null); }
         return;
       }
       final file = files.first;
-      print('[HomeEditPage] _pickImage: file="${file.name}" type="${file.type}"');
 
       // ── SVG-only guard ──────────────────────────────────────────────────
       if (!file.name.toLowerCase().endsWith('.svg') &&
           file.type != 'image/svg+xml') {
-        print('[HomeEditPage] _pickImage: ❌ rejected — not SVG');
         if (!completed) {
           completed = true;
           completer.complete(null);
@@ -624,25 +358,21 @@ class _HomeEditPageState extends State<HomeEditPage> {
           // ✅ ByteBuffer fix: readAsArrayBuffer returns a ByteBuffer object,
           //    not List<int>. Use Uint8List.view() to wrap it correctly.
           if (result is ByteBuffer) {
-            print('[HomeEditPage] _pickImage: ✅ read ByteBuffer '
-                '(${result.lengthInBytes} bytes)');
+
             completer.complete(
                 _PickedImage(bytes: Uint8List.view(result)));
           } else if (result is List<int>) {
             // Fallback — should not normally happen with readAsArrayBuffer
-            print('[HomeEditPage] _pickImage: ✅ read List<int> '
-                '(${result.length} bytes)');
+
             completer.complete(
                 _PickedImage(bytes: Uint8List.fromList(result)));
           } else {
-            print('[HomeEditPage] _pickImage: ❌ unexpected result type: '
-                '${result.runtimeType}');
+
             completer.complete(null);
           }
         }
       });
       reader.onError.listen((_) {
-        print('[HomeEditPage] _pickImage: ❌ FileReader error');
         if (!completed) { completed = true; completer.complete(null); }
       });
       reader.readAsArrayBuffer(file);
@@ -652,7 +382,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
     Future.delayed(const Duration(minutes: 5), () {
       if (!completed) {
-        print('[HomeEditPage] _pickImage: ⏰ TIMEOUT');
         completed = true;
         completer.complete(null);
       }
@@ -670,16 +399,10 @@ class _HomeEditPageState extends State<HomeEditPage> {
       d.branding.logoUrl,
     ]);
 
-    print('[HomeEditPage] _seedFromModel: '
-        'newHash=$modelHash cachedHash=$_seededModelHash');
-
     if (_seededModelHash == modelHash) {
-      print('[HomeEditPage] _seedFromModel: hash UNCHANGED — skip');
       return;
     }
     _seededModelHash = modelHash;
-    print('[HomeEditPage] _seedFromModel: ▶ seeding from model '
-        '(navButtons=${d.navButtons.length})');
 
     // ── Remove all listeners before seeding to avoid duplicate triggers ───
     for (final m in _navBtns) {
@@ -699,8 +422,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
     }
 
     // ── Nav buttons ───────────────────────────────────────────────────────
-    print('[HomeEditPage] _seedFromModel: syncing navBtns '
-        'local=${_navBtns.length} server=${d.navButtons.length}');
 
     while (_navBtns.length > d.navButtons.length) {
       final removed = _navBtns.removeLast();
@@ -823,7 +544,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
       if (mounted) setState(() {});
     });
 
-    print('[HomeEditPage] _seedFromModel: ✅ DONE');
   }
 
   // ── Footer/label helpers ──────────────────────────────────────────────────
@@ -855,7 +575,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
   @override
   void dispose() {
-    print('[HomeEditPage] 🔴 dispose');
     for (final m in _navBtns) {
       for (final c in m.values) {
         c.removeListener(_onFieldChanged);
@@ -993,7 +712,6 @@ class _HomeEditPageState extends State<HomeEditPage> {
       // No dialogs or snackbars here.
 
     } catch (e, st) {
-      print('[HomeEditPage] _save: ❌ ERROR: $e\n$st');
       // Errors surface via the HomeCmsError state → handled in the listener.
     }
   }
@@ -1003,13 +721,11 @@ class _HomeEditPageState extends State<HomeEditPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCmsCubit, HomeCmsState>(
       listener: (context, state) {
-        print('[HomeEditPage] 👂 listener: ${state.runtimeType}');
 
         // ── Published / Saved successfully → navigate to HomeMainPage ──────
         // ✅ Uses pushAndRemoveUntil to clear the entire back stack,
         //    exactly like master_edit_page.dart does.
         if (state is HomeCmsSaved) {
-          print('[HomeEditPage] listener: HomeCmsSaved → navigating to HomeMainPage');
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
@@ -1023,13 +739,11 @@ class _HomeEditPageState extends State<HomeEditPage> {
 
         // ── Error state ───────────────────────────────────────────────────
         if (state is HomeCmsError) {
-          print('[HomeEditPage] listener: HomeCmsError → ${state.message}');
           // Errors are visible to the user through the cubit state;
           // add a snackbar/dialog here if you want, but no success dialogs.
         }
       },
       builder: (context, state) {
-        print('[HomeEditPage] 🔨 builder: ${state.runtimeType}');
 
         if (state is HomeCmsLoaded) {
           _seedFromModel(state.data);

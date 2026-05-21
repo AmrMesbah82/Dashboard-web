@@ -3,7 +3,7 @@
 // Created by: Amr Mesbah
 
 
-import '../../data/model/about_us_model.dart';
+import '../../data/models/about_us_model.dart';
 
 // ── About Us states ───────────────────────────────────────────────────────────
 abstract class AboutState {}

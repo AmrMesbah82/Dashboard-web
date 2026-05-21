@@ -3,7 +3,7 @@
 // States for CareersSectionCubit (Why Join Our Team / Our Interns / Our Teams)
 
 
-import '../../data/model/careers_section_model.dart';
+import '../../data/models/careers_section_model.dart';
 
 abstract class CareersSectionState {}
 

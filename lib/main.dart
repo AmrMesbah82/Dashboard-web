@@ -54,34 +54,28 @@ Size _getDesignSize({
   final isLandscape = screenWidth > screenHeight;
 
   // ignore: avoid_print
-  print('📱 [DESIGN-SIZE] Screen: ${screenWidth}×${screenHeight} (landscape: $isLandscape)');
 
   // ==================== DESKTOP PLATFORMS ====================
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     // ignore: avoid_print
-    print('🖥️ [DESIGN-SIZE] Desktop platform detected');
 
     if (screenWidth >= 1920) {
       const size = Size(1920, 1080);
       // ignore: avoid_print
-      print('🖥️ [DESIGN-SIZE] Large desktop (≥1920): $size');
       return size;
     }
     if (screenWidth >= 1366) {
       const size = Size(1366, 768);
       // ignore: avoid_print
-      print('💻 [DESIGN-SIZE] Laptop desktop (1366–1919): $size');
       return size;
     }
     if (screenWidth >= 768) {
       final size = isLandscape ? const Size(1024, 768) : const Size(768, 1024);
       // ignore: avoid_print
-      print('📱 [DESIGN-SIZE] Tablet desktop (768–1365): $size');
       return size;
     }
     const size = Size(375, 812);
     // ignore: avoid_print
-    print('📱 [DESIGN-SIZE] Small desktop (<768): $size');
     return size;
   }
 
@@ -89,7 +83,6 @@ Size _getDesignSize({
   if (screenWidth >= 1920) {
     const size = Size(1920, 1080);
     // ignore: avoid_print
-    print('🖥️ [DESIGN-SIZE] Large desktop / TV (≥1920): $size');
     return size;
   }
 
@@ -97,7 +90,6 @@ Size _getDesignSize({
   if (screenWidth >= 1366) {
     const size = Size(1366, 768);
     // ignore: avoid_print
-    print('💻 [DESIGN-SIZE] Laptop (1366–1919): $size');
     return size;
   }
 
@@ -105,14 +97,12 @@ Size _getDesignSize({
   if (screenWidth >= 768) {
     final size = isLandscape ? const Size(1024, 768) : const Size(768, 1024);
     // ignore: avoid_print
-    print('📱 [DESIGN-SIZE] Tablet (768–1365): $size');
     return size;
   }
 
   // ==================== MOBILE (< 768) ====================
   final size = isLandscape ? const Size(812, 375) : const Size(375, 812);
   // ignore: avoid_print
-  print('📱 [DESIGN-SIZE] Mobile (<768): $size');
   return size;
 }
 

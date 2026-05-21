@@ -6,7 +6,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/main_widgets/application_filter_dialog.dart';
-import '../../data/model/application_model.dart';
+import '../../data/models/application_model.dart';
 import '../../domain/repo/application_repo.dart';
 import 'application_state.dart';
 
@@ -27,13 +27,10 @@ class ApplicationCubit extends Cubit<ApplicationState> {
 
   Future<void> loadApplications() async {
     try {
-      print('🟡 [ApplicationCubit] loadApplications()');
       emit(ApplicationLoading());
       _allApps = await _repo.fetchAllApplications();
-      print('🟢 [ApplicationCubit] loadApplications() — ${_allApps.length}');
       _emitLoaded();
     } catch (e) {
-      print('🔴 [ApplicationCubit] loadApplications() ERROR: $e');
       emit(ApplicationError('Failed to load: $e', lastApps: _allApps));
     }
   }
@@ -61,7 +58,6 @@ class ApplicationCubit extends Cubit<ApplicationState> {
 
   Future<void> loadDetail(String jobId, String appId) async {
     try {
-      print('🟡 [ApplicationCubit] loadDetail($jobId/$appId)');
       final local = _allApps.where((a) => a.id == appId && a.jobId == jobId).toList();
       if (local.isNotEmpty) {
         emit(ApplicationDetailLoaded(local.first));
@@ -74,14 +70,12 @@ class ApplicationCubit extends Cubit<ApplicationState> {
         emit(ApplicationError('Application not found', lastApps: _allApps));
       }
     } catch (e) {
-      print('🔴 [ApplicationCubit] loadDetail() ERROR: $e');
       emit(ApplicationError('Failed to load: $e', lastApps: _allApps));
     }
   }
 
   Future<void> updateStatus(String jobId, String appId, ApplicationStatus newStatus) async {
     try {
-      print('🟡 [ApplicationCubit] updateStatus($appId → ${newStatus.label})');
       await _repo.updateStatus(jobId, appId, newStatus);
 
       _allApps = _allApps.map((a) {
@@ -96,16 +90,13 @@ class ApplicationCubit extends Cubit<ApplicationState> {
         if (!isClosed) _emitLoaded();
       });
 
-      print('🟢 [ApplicationCubit] updateStatus() — done');
     } catch (e) {
-      print('🔴 [ApplicationCubit] updateStatus() ERROR: $e');
       emit(ApplicationError('Failed to update: $e', lastApps: _allApps));
     }
   }
 
   Future<void> updateScoring(ApplicationModel updated) async {
     try {
-      print('🟡 [ApplicationCubit] updateScoring(${updated.id})');
       await _repo.updateApplication(updated);
 
       _allApps = _allApps.map((a) {
@@ -119,9 +110,7 @@ class ApplicationCubit extends Cubit<ApplicationState> {
         if (!isClosed) _emitLoaded();
       });
 
-      print('🟢 [ApplicationCubit] updateScoring() — done');
     } catch (e) {
-      print('🔴 [ApplicationCubit] updateScoring() ERROR: $e');
       emit(ApplicationError('Failed to save: $e', lastApps: _allApps));
     }
   }

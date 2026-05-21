@@ -13,7 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../domain/repo/services_repo.dart';
-import '../model/services_model.dart';
+import '../models/services_model.dart';
 
 
 class ServiceRepositoryImpl implements ServiceRepository {
@@ -36,25 +36,15 @@ class ServiceRepositoryImpl implements ServiceRepository {
 
   @override
   Future<ServicePageModel> fetchServicePage() async {
-    print('🔵 [ServiceRepo] fetchServicePage() called (cache-first)');
     try {
       final snapshot = await _docRef.get();
-      print('   snapshot.exists            = ${snapshot.exists}');
-      print('   snapshot.metadata.isFromCache = ${snapshot.metadata.isFromCache}');
       if (!snapshot.exists || snapshot.data() == null) {
-        print('⚠️  [ServiceRepo] fetchServicePage() → no document, returning empty');
         return ServicePageModel.empty();
       }
       final data  = _sanitize(snapshot.data()!);
       final model = ServicePageModel.fromMap(data);
-      print('🟢 [ServiceRepo] fetchServicePage() → parsed OK');
-      print('   model.title.en            = ${model.title.en}');
-      print('   model.journeyItems.length = ${model.journeyItems.length}');
-      print('   model.lastUpdatedAt       = ${model.lastUpdatedAt}');
       return model;
     } catch (e, st) {
-      print('🔴 [ServiceRepo] fetchServicePage() ERROR: $e');
-      print('   StackTrace: $st');
       return ServicePageModel.empty();
     }
   }
@@ -63,29 +53,17 @@ class ServiceRepositoryImpl implements ServiceRepository {
 
   @override
   Future<ServicePageModel> fetchServicePageFresh() async {
-    print('🔵 [ServiceRepo] fetchServicePageFresh() called (Source.server)');
     try {
       final snapshot = await _docRef.get(const GetOptions(source: Source.server));
-      print('   snapshot.exists               = ${snapshot.exists}');
-      print('   snapshot.metadata.isFromCache = ${snapshot.metadata.isFromCache}');
       if (!snapshot.exists || snapshot.data() == null) {
-        print('⚠️  [ServiceRepo] fetchServicePageFresh() → no document, returning empty');
         return ServicePageModel.empty();
       }
       final data  = _sanitize(snapshot.data()!);
       final model = ServicePageModel.fromMap(data);
-      print('🟢 [ServiceRepo] fetchServicePageFresh() → parsed OK');
-      print('   model.title.en            = ${model.title.en}');
-      print('   model.journeyItems.length = ${model.journeyItems.length}');
-      print('   model.lastUpdatedAt       = ${model.lastUpdatedAt}');
       if (model.journeyItems.isNotEmpty) {
-        print('   journeyItems[0].iconUrl  = ${model.journeyItems[0].iconUrl}');
-        print('   journeyItems[0].title.en = ${model.journeyItems[0].title.en}');
       }
       return model;
     } catch (e, st) {
-      print('🔴 [ServiceRepo] fetchServicePageFresh() ERROR: $e');
-      print('   StackTrace: $st');
       return ServicePageModel.empty();
     }
   }
@@ -94,9 +72,6 @@ class ServiceRepositoryImpl implements ServiceRepository {
 
   @override
   Future<void> saveServicePage(ServicePageModel model) async {
-    print('🔵 [ServiceRepo] saveServicePage() called');
-    print('   model.title.en            = ${model.title.en}');
-    print('   model.journeyItems.length = ${model.journeyItems.length}');
     try {
       final map = {
         ...model.toMap(),
@@ -106,10 +81,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
       //    since we're replacing it with FieldValue.serverTimestamp()
       // (toMap() may include it as an ISO string — serverTimestamp wins)
       await _docRef.set(map);
-      print('🟢 [ServiceRepo] saveServicePage() → Firestore .set() completed');
     } catch (e, st) {
-      print('🔴 [ServiceRepo] saveServicePage() ERROR: $e');
-      print('   StackTrace: $st');
       rethrow;
     }
   }
@@ -121,18 +93,13 @@ class ServiceRepositoryImpl implements ServiceRepository {
     required Uint8List bytes,
     required String    storagePath,
   }) async {
-    print('🔵 [ServiceRepo] uploadImage() storagePath=$storagePath bytes=${bytes.length}');
     try {
       final ref  = _storage.ref().child(storagePath);
       final mime = _detectMime(bytes);
-      print('   detected MIME = $mime');
       final task = await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url  = await task.ref.getDownloadURL();
-      print('🟢 [ServiceRepo] uploadImage() → url=$url');
       return url;
     } catch (e, st) {
-      print('🔴 [ServiceRepo] uploadImage() ERROR: $e');
-      print('   StackTrace: $st');
       rethrow;
     }
   }
@@ -141,17 +108,12 @@ class ServiceRepositoryImpl implements ServiceRepository {
 
   @override
   Stream<ServicePageModel> watchServicePage() {
-    print('🔵 [ServiceRepo] watchServicePage() stream created');
     return _docRef.snapshots().map((snap) {
-      print('📡 [ServiceRepo] watchServicePage() snapshot received');
-      print('   snap.exists               = ${snap.exists}');
-      print('   snap.metadata.isFromCache = ${snap.metadata.isFromCache}');
       if (!snap.exists || snap.data() == null) return ServicePageModel.empty();
       try {
         final data = _sanitize(snap.data()!);
         return ServicePageModel.fromMap(data);
       } catch (e) {
-        print('🔴 [ServiceRepo] watchServicePage() parse ERROR: $e');
         return ServicePageModel.empty();
       }
     });
@@ -170,14 +132,11 @@ class ServiceRepositoryImpl implements ServiceRepository {
       try {
         final dt = (rawTs as dynamic).toDate() as DateTime;
         copy['lastUpdatedAt'] = dt.toIso8601String();
-        print('   [ServiceRepo] _sanitize() → converted lastUpdatedAt Timestamp → ${copy['lastUpdatedAt']}');
       } catch (e) {
-        print('   [ServiceRepo] _sanitize() → failed to convert lastUpdatedAt: $e, removing');
         copy.remove('lastUpdatedAt');
       }
     }
 
-    print('   [ServiceRepo] _sanitize() → remaining keys = ${copy.keys.toList()}');
     return copy;
   }
 

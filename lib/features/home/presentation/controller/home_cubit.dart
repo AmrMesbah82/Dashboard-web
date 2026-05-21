@@ -17,7 +17,7 @@ import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 
-import '../../data/model/home_model.dart';
+import '../../data/models/home_model.dart';
 import '../../domain/repo/home_repo.dart';
 import 'home_state.dart';
 
@@ -50,7 +50,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
     final arFont  = branding.arabicFont.isEmpty  ? 'Cairo' : branding.arabicFont;
     _storage.write('font',         engFont);
     _storage.write('font_arabic',  arFont);
-    print('✅ [HomeCubit] _applyFontsToStorage() font=$engFont font_arabic=$arFont');
   }
 
   // ── Merge defaults ────────────────────────────────────────────────────────
@@ -77,13 +76,11 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   //  LOAD — draft-first strategy
   // ══════════════════════════════════════════════════════════════════════════
   Future<void> load() async {
-    print('🔵 [HomeCubit] load() called');
     emit(HomeCmsLoading());
     try {
       // 1️⃣ Check if a draft exists
       final draft = await _repo.fetchDraft();
       if (draft != null) {
-        print('🟢 [HomeCubit] load: ✅ draft found — loading draft');
         final result = _mergeDefaults(draft);
         _model       = result;
         _isFromDraft = true;
@@ -93,19 +90,13 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
       }
 
       // 2️⃣ No draft — load published
-      print('🟡 [HomeCubit] load: no draft — loading published');
       final fetched = await _repo.fetchHomePageFresh();
       final result = _mergeDefaults(fetched);
       _model       = result;
       _isFromDraft = false;
       _applyFontsToStorage(_model.branding);
-      print('🟢 [HomeCubit] load() SUCCESS');
-      print('   title.en             = ${_model.title.en}');
-      print('   publishStatus        = ${_model.publishStatus}');
-      print('   isFromDraft          = $_isFromDraft');
       emit(HomeCmsLoaded(_model, isFromDraft: false));
     } catch (e, st) {
-      print('🔴 [HomeCubit] load() ERROR: $e\n   StackTrace: $st');
       emit(HomeCmsError('Failed to load home page: $e'));
     }
   }
@@ -117,8 +108,7 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
     String publishStatus = 'published',
     DateTime? scheduledPublishDate,
   }) async {
-    print('🔵 [HomeCubit] save() called — publishStatus=$publishStatus '
-        'scheduledPublishDate=$scheduledPublishDate');
+
 
     emit(HomeCmsSaving(_model));
 
@@ -126,7 +116,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
       switch (publishStatus) {
       // ── PUBLISH: save to published doc, delete draft ────────────────
         case 'published':
-          print('🟡 [HomeCubit] save → publishing to live doc');
           final saving = _model.copyWith(
             publishStatus: 'published',
             clearScheduledPublishDate: true,
@@ -141,13 +130,11 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
           final persisted = await _repo.fetchHomePageFresh();
           _model = _mergeDefaults(persisted);
           _applyFontsToStorage(_model.branding);
-          print('🟢 [HomeCubit] save: ✅ published + draft cleaned');
           emit(HomeCmsSaved(_model));
           break;
 
       // ── DRAFT: save to draft doc only, do NOT touch published ───────
         case 'draft':
-          print('🟡 [HomeCubit] save → saving draft only');
           final saving = _model.copyWith(
             publishStatus: 'draft',
             clearScheduledPublishDate: true,
@@ -156,13 +143,11 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
           await _repo.saveDraft(saving);
           _isFromDraft = true;
           _model = saving;
-          print('🟢 [HomeCubit] save: ✅ draft saved');
           emit(HomeCmsDraftSaved(_model));
           break;
 
       // ── SCHEDULED: save to draft doc with schedule date ─────────────
         case 'scheduled':
-          print('🟡 [HomeCubit] save → saving scheduled draft');
           final saving = _model.copyWith(
             publishStatus: 'scheduled',
             scheduledPublishDate: scheduledPublishDate,
@@ -171,12 +156,10 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
           await _repo.saveDraft(saving);
           _isFromDraft = true;
           _model = saving;
-          print('🟢 [HomeCubit] save: ✅ scheduled draft saved');
           emit(HomeCmsDraftSaved(_model));
           break;
 
         default:
-          print('🔴 [HomeCubit] save: unknown status=$publishStatus');
           final saving = _model.copyWith(
             publishStatus: publishStatus,
             lastUpdatedAt: DateTime.now(),
@@ -187,7 +170,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
           emit(HomeCmsDraftSaved(_model));
       }
     } catch (e, st) {
-      print('🔴 [HomeCubit] save() ERROR: $e\n   StackTrace: $st');
       emit(HomeCmsError('Failed to save: $e', _model));
     }
   }
@@ -196,14 +178,11 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
   //  DISCARD DRAFT — deletes the draft doc (published stays untouched)
   // ══════════════════════════════════════════════════════════════════════════
   Future<void> discardDraft() async {
-    print('🟡 [HomeCubit] discardDraft()');
     try {
       await _repo.deleteDraft();
       _isFromDraft = false;
-      print('🟢 [HomeCubit] discardDraft: ✅ DONE');
       emit(HomeCmsDraftDeleted());
     } catch (e) {
-      print('🔴 [HomeCubit] discardDraft: ERROR $e');
       emit(HomeCmsError('Failed to discard draft: $e', _model));
     }
   }
@@ -301,7 +280,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
       _updateSection(index, (s) => s.copyWith(imageUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSectionImage() ERROR: $e\n   $st');
       emit(HomeCmsError('Section image upload failed: $e', _model));
     }
   }
@@ -312,7 +290,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
       _updateSection(index, (s) => s.copyWith(iconUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSectionIcon() ERROR: $e\n   $st');
       emit(HomeCmsError('Section icon upload failed: $e', _model));
     }
   }
@@ -455,7 +432,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
             .toList(),
       );
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadSocialLinkIcon() ERROR: $e\n   $st');
       emit(HomeCmsError('Social icon upload failed: $e', _model));
     }
   }
@@ -467,7 +443,6 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
       final url = await _repo.uploadImage(bytes: bytes, storagePath: path);
       _model = _model.copyWith(branding: _model.branding.copyWith(logoUrl: url));
     } catch (e, st) {
-      print('🔴 [HomeCubit] uploadLogo() ERROR: $e\n   $st');
       emit(HomeCmsError('Logo upload failed: $e', _model));
     }
   }

@@ -9,7 +9,7 @@
 // UPDATED: Added HomeCmsDraftDeleted state ✅
 
 
-import '../../data/model/home_model.dart';
+import '../../data/models/home_model.dart';
 
 abstract class HomeCmsState {}
 

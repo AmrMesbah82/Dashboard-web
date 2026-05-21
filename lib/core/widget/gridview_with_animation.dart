@@ -49,7 +49,6 @@ class _AnimatedCustomGridViewState extends State<AnimatedCustomGridView>
   }
 
   void _initializeAnimations() {
-    //print('🎬 Initializing animations for ${widget.itemCount} items');
 
     // Dispose old controller if exists
     if (_slideAnimations.isNotEmpty) {
@@ -63,7 +62,6 @@ class _AnimatedCustomGridViewState extends State<AnimatedCustomGridView>
           widget.animationDuration.inMilliseconds,
     );
 
-    //print('⏱️ Total animation duration: ${totalDuration.inMilliseconds}ms');
 
     // Create controller with total duration
     _gridAnimationController = AnimationController(
@@ -81,7 +79,6 @@ class _AnimatedCustomGridViewState extends State<AnimatedCustomGridView>
       final startFraction = startTime / totalDuration.inMilliseconds;
       final endFraction = math.min(endTime / totalDuration.inMilliseconds, 1.0);
 
-      //print('📊 Item $index: starts at ${startFraction.toStringAsFixed(2)}, ends at ${endFraction.toStringAsFixed(2)}');
 
       return Tween<Offset>(
         begin: const Offset(-1.0, 0.0), // Slide from left

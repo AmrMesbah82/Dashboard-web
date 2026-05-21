@@ -27,6 +27,9 @@ import '../../../../home/presentation/controller/lang_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 
+part '../widget/main_preview/preview_content.dart';
+part '../widget/main_preview/mobile_phone_shell.dart';
+
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
 //   static const Color sectionBg = Color(0xFFF5F5F5);
@@ -316,104 +319,3 @@ double _safeScale(double v) =>
     (v.isFinite && !v.isNaN && v > 0) ? v : 1.0;
 
 // ── Shared preview content ────────────────────────────────────────────────────
-class _PreviewContent extends StatelessWidget {
-  final double fakeWidth;
-  final double fakeHeight;
-  final bool   isRtl;
-
-  const _PreviewContent({
-    required this.fakeWidth,
-    required this.fakeHeight,
-    required this.isRtl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        size: Size(fakeWidth, fakeHeight),
-      ),
-      child: Directionality(
-        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-        child: SizedBox(
-          width:  fakeWidth,
-          height: fakeHeight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppNavbar(currentRoute: '/'),
-              const Expanded(
-                child: ColoredBox(
-                  color: Colors.transparent,
-                  child: SizedBox.expand(),
-                ),
-              ),
-              const AppFooter(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Mobile phone shell ────────────────────────────────────────────────────────
-class _MobilePhoneShell extends StatelessWidget {
-  final double containerWidth;
-  final bool   isRtl;
-
-  const _MobilePhoneShell({
-    required this.containerWidth,
-    required this.isRtl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final double scale  = _safeScale(_kPhoneShellW / _kFakeMobileW);
-    final double shellH = _kFakeMobileH * scale;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color:        ColorPick.background,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-      child: Center(
-        child: SizedBox(
-          width:  _kPhoneShellW,
-          height: shellH,
-          child: Container(
-            decoration: BoxDecoration(
-              color:        Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: ColorPick.white, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color:      Colors.black.withOpacity(0.12),
-                  blurRadius: 24,
-                  offset:     const Offset(0, 6),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: OverflowBox(
-              alignment: Alignment.topLeft,
-              maxWidth:  _kFakeMobileW,
-              maxHeight: _kFakeMobileH,
-              child: Transform.scale(
-                scale:     scale,
-                alignment: Alignment.topLeft,
-                child: _PreviewContent(
-                  fakeWidth:  _kFakeMobileW,
-                  fakeHeight: _kFakeMobileH,
-                  isRtl:      isRtl,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

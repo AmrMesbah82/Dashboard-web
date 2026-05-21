@@ -4,7 +4,7 @@
 // Purpose: Abstract repository for Job Listing CRUD — Firebase Firestore
 
 
-import '../../data/model/job_listing_model.dart';
+import '../../data/models/job_listing_model.dart';
 
 abstract class JobListingRepo {
   /// Fetch all job posts from Firestore

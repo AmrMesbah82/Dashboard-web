@@ -47,7 +47,6 @@ abstract class FormatHelper {
         return "";
       }
     }).toList();
-    // print('words: $words');
     return words.join(" ");
   }
 

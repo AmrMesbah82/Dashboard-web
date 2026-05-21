@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
 
-import '../../features/job/data/model/application_model.dart';
+import '../../features/job/data/models/application_model.dart';
 
 class _C {
   static const Color primary = Color(0xFF008037);

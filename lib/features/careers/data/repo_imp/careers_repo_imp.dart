@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 import '../../domain/repo/careers_repo.dart';
-import '../model/careers_model.dart';
+import '../models/careers_model.dart';
 
 class CareersCmsRepoImpl implements CareersCmsRepo {
   static const String _collection = 'cms';
@@ -24,15 +24,12 @@ class CareersCmsRepoImpl implements CareersCmsRepo {
 
   @override
   Future<CareersCmsModel> fetch() async {
-    print('🟡 [CareersCmsRepo] fetch()');
     final snap = await _ref.get();
     if (!snap.exists || snap.data() == null) {
-      print('🟠 [CareersCmsRepo] fetch() → document missing, returning empty');
       return CareersCmsModel.empty();
     }
     final model = CareersCmsModel.fromMap(snap.data()!);
-    print(
-        '🟢 [CareersCmsRepo] fetch() → OK  stats: ${model.statistics.length}');
+
     return model;
   }
 
@@ -40,8 +37,6 @@ class CareersCmsRepoImpl implements CareersCmsRepo {
 
   @override
   Future<void> save(CareersCmsModel model) async {
-    print('🟡 [CareersCmsRepo] save()');
     await _ref.set(model.toMap(), SetOptions(merge: true));
-    print('🟢 [CareersCmsRepo] save() → OK');
   }
 }

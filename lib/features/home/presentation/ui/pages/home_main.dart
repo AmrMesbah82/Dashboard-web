@@ -33,7 +33,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../../services/presentation/ui/pages/services_main/services_main.dart';
-import '../../../data/model/home_model.dart';
+import '../../../data/models/home_model.dart';
 import '../../controller/home_cubit.dart';
 import '../../controller/home_state.dart';
 import 'home_edit.dart';

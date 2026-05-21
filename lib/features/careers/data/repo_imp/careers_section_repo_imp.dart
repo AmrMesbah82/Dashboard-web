@@ -14,7 +14,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 import '../../domain/repo/careers_section_repo.dart';
-import '../model/careers_section_model.dart';
+import '../models/careers_section_model.dart';
 
 class CareersSectionRepoImp implements CareersSectionRepo {
   final _db = FirebaseFirestore.instance;
@@ -26,11 +26,9 @@ class CareersSectionRepoImp implements CareersSectionRepo {
   // ── Load ────────────────────────────────────────────────────────────────────
   @override
   Future<CareersSectionModel> load(String sectionKey) async {
-    print('🟡 [CareersSectionRepo] load($sectionKey)');
     try {
       final snap = await _doc(sectionKey).get();
       if (!snap.exists || snap.data() == null) {
-        print('🟡 [CareersSectionRepo] No doc found → returning empty');
         return CareersSectionModel.empty(sectionKey);
       }
 
@@ -46,10 +44,8 @@ class CareersSectionRepoImp implements CareersSectionRepo {
         docData,
         itemMaps,
       );
-      print('🟢 [CareersSectionRepo] Loaded ${model.items.length} items');
       return model;
     } catch (e) {
-      print('🔴 [CareersSectionRepo] load error: $e');
       rethrow;
     }
   }
@@ -57,8 +53,7 @@ class CareersSectionRepoImp implements CareersSectionRepo {
   // ── Save ────────────────────────────────────────────────────────────────────
   @override
   Future<void> save(CareersSectionModel model) async {
-    print('🟡 [CareersSectionRepo] save(${model.sectionKey}) '
-        '${model.items.length} items');
+
     try {
       final itemsList = model.items.map((item) {
         final m = item.toMap();
@@ -71,9 +66,7 @@ class CareersSectionRepoImp implements CareersSectionRepo {
         'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      print('🟢 [CareersSectionRepo] Saved successfully');
     } catch (e) {
-      print('🔴 [CareersSectionRepo] save error: $e');
       rethrow;
     }
   }
@@ -96,7 +89,6 @@ class CareersSectionRepoImp implements CareersSectionRepo {
 
   // ── Internal: XHR upload to avoid CORS issues on Flutter Web ────────────────
   Future<String> _uploadSvgBytes(String storagePath, Uint8List bytes) async {
-    print('🟡 [CareersSectionRepo] uploading → $storagePath');
     try {
       final ref = _storage.ref(storagePath);
 
@@ -105,10 +97,8 @@ class CareersSectionRepoImp implements CareersSectionRepo {
           .putData(bytes, SettableMetadata(contentType: 'image/svg+xml'))
           .then((_) => ref.getDownloadURL());
 
-      print('🟢 [CareersSectionRepo] uploaded → $uploadUrl');
       return uploadUrl;
     } catch (e) {
-      print('🔴 [CareersSectionRepo] upload error: $e');
       // Fallback: XHR-based upload
       return _xhrUpload(storagePath, bytes);
     }
@@ -127,7 +117,6 @@ class CareersSectionRepoImp implements CareersSectionRepo {
       final url = await ref.getDownloadURL();
       completer.complete(url);
     } catch (e) {
-      print('🔴 [CareersSectionRepo] XHR fallback error: $e');
       completer.completeError(e);
     }
 

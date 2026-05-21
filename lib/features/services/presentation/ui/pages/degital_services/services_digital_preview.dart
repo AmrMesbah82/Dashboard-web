@@ -16,7 +16,7 @@ import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
-import '../../../../data/model/services_model.dart';
+import '../../../../data/models/services_model.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 

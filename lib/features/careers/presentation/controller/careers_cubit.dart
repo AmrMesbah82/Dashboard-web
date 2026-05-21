@@ -6,11 +6,11 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../job/data/model/application_model.dart';
-import '../../../job/data/model/job_listing_model.dart';
+import '../../../job/data/models/application_model.dart';
+import '../../../job/data/models/job_listing_model.dart';
 import '../../../job/domain/repo/application_repo.dart';
 import '../../../job/domain/repo/job_listing_repo.dart';
-import '../../data/model/careers_model.dart';
+import '../../data/models/careers_model.dart';
 import '../../data/repo_imp/careers_repo_imp.dart';
 import '../../domain/repo/careers_repo.dart';
 import 'careers_state.dart';
@@ -43,13 +43,11 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
   // ── Load CMS content from Firestore ───────────────────────────────────────
 
   Future<void> load() async {
-    print('🟡 [CareersCmsCubit] load()');
     emit(CareersCmsLoading());
     try {
       final model = await _repo.fetch();
       emit(CareersCmsLoaded(model));
     } catch (e) {
-      print('🔴 [CareersCmsCubit] load() ERROR: $e');
       emit(CareersCmsError(e.toString()));
     }
   }
@@ -57,7 +55,6 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
   // ── Load REAL dashboard data from Firestore jobs + applications ────────────
 
   Future<void> loadRealData() async {
-    print('🟡 [CareersCmsCubit] loadRealData()');
     emit(CareersCmsLoading());
     try {
       // Fetch CMS content (overview, statistics) + real-time data in parallel
@@ -71,7 +68,6 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
       final jobs            = results[1] as List<JobPostModel>;
       final apps            = results[2] as List<ApplicationModel>;
 
-      print('🟢 [CareersCmsCubit] loadRealData() — jobs: ${jobs.length}, apps: ${apps.length}');
 
       // Build dashboard from real Firebase data
       final dashboard = CareersDashboardData.fromRealData(
@@ -84,7 +80,6 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
 
       emit(CareersCmsLoaded(merged));
     } catch (e) {
-      print('🔴 [CareersCmsCubit] loadRealData() ERROR: $e');
       // Fallback to demo so the page still shows something
       emit(CareersCmsLoaded(CareersCmsModel.empty()));
     }
@@ -92,22 +87,18 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
 
   /// Fallback demo (no Firestore needed) — keep for offline testing
   void loadDemo() {
-    print('🟡 [CareersCmsCubit] loadDemo()');
     emit(CareersCmsLoaded(CareersCmsModel.empty()));
   }
 
   // ── Save to Firestore ──────────────────────────────────────────────────────
 
   Future<void> save(CareersCmsModel model) async {
-    print('🟡 [CareersCmsCubit] save()');
     final previous = current;
     emit(CareersCmsLoading());
     try {
       await _repo.save(model);
-      print('🟢 [CareersCmsCubit] save() → OK');
       emit(CareersCmsSaved(model));
     } catch (e) {
-      print('🔴 [CareersCmsCubit] save() ERROR: $e');
       emit(CareersCmsError(e.toString(), lastData: previous));
     }
   }

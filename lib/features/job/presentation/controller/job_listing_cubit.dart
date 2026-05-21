@@ -10,7 +10,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/main_widgets/job_listing_filter_dialog.dart';
-import '../../data/model/job_listing_model.dart';
+import '../../data/models/job_listing_model.dart';
 import '../../domain/repo/job_listing_repo.dart';
 import 'job_listing_state.dart';
 
@@ -38,13 +38,10 @@ class JobListingCubit extends Cubit<JobListingState> {
 
   Future<void> loadJobs() async {
     try {
-      print('🟡 [JobListingCubit] loadJobs()');
       emit(JobListingLoading());
       _allJobs = await _repo.fetchAllJobs();
-      print('🟢 [JobListingCubit] loadJobs() — loaded ${_allJobs.length} jobs');
       _emitLoaded();
     } catch (e) {
-      print('🔴 [JobListingCubit] loadJobs() ERROR: $e');
       emit(JobListingError('Failed to load jobs: $e', lastJobs: _allJobs));
     }
   }
@@ -54,17 +51,14 @@ class JobListingCubit extends Cubit<JobListingState> {
   // ══════════════════════════════════════════════════════════════════════════
 
   void streamJobs() {
-    print('🟡 [JobListingCubit] streamJobs()');
     emit(JobListingLoading());
     _streamSub?.cancel();
     _streamSub = _repo.streamAllJobs().listen(
           (jobs) {
-        print('🟢 [JobListingCubit] streamJobs() — received ${jobs.length} jobs');
         _allJobs = jobs;
         _emitLoaded();
       },
       onError: (e) {
-        print('🔴 [JobListingCubit] streamJobs() ERROR: $e');
         emit(JobListingError('Stream error: $e', lastJobs: _allJobs));
       },
     );
@@ -89,16 +83,13 @@ class JobListingCubit extends Cubit<JobListingState> {
   // ══════════════════════════════════════════════════════════════════════════
 
   void applyAdvancedFilter(JobListingFilterData filter) {
-    print('🟡 [JobListingCubit] applyAdvancedFilter() — '
-        'dept: ${filter.department}, loc: ${filter.location}, '
-        'emp: ${filter.employmentType}, yoe: ${filter.yearsOfExperience}, '
-        'date: ${filter.date}');
+
+
     _advancedFilter = filter;
     _emitLoaded();
   }
 
   void clearAdvancedFilter() {
-    print('🟡 [JobListingCubit] clearAdvancedFilter()');
     _advancedFilter = null;
     _emitLoaded();
   }
@@ -109,33 +100,26 @@ class JobListingCubit extends Cubit<JobListingState> {
 
   Future<void> addJob(JobPostModel job) async {
     try {
-      print('🟡 [JobListingCubit] addJob() — title: ${job.title.en}');
       final created = await _repo.createJob(job);
       _allJobs = [created, ..._allJobs];
       _emitLoaded();
-      print('🟢 [JobListingCubit] addJob() — done');
     } catch (e) {
-      print('🔴 [JobListingCubit] addJob() ERROR: $e');
       emit(JobListingError('Failed to add job: $e', lastJobs: _allJobs));
     }
   }
 
   Future<void> updateJob(JobPostModel updated) async {
     try {
-      print('🟡 [JobListingCubit] updateJob(${updated.id})');
       await _repo.updateJob(updated);
       _allJobs = _allJobs.map((j) => j.id == updated.id ? updated : j).toList();
       _emitLoaded();
-      print('🟢 [JobListingCubit] updateJob(${updated.id}) — done');
     } catch (e) {
-      print('🔴 [JobListingCubit] updateJob(${updated.id}) ERROR: $e');
       emit(JobListingError('Failed to update job: $e', lastJobs: _allJobs));
     }
   }
 
   Future<void> removeJob(String id) async {
     try {
-      print('🟡 [JobListingCubit] removeJob($id)');
       await _repo.removeJob(id);
       _allJobs = _allJobs.map((j) {
         if (j.id == id) {
@@ -144,29 +128,23 @@ class JobListingCubit extends Cubit<JobListingState> {
         return j;
       }).toList();
       _emitLoaded();
-      print('🟢 [JobListingCubit] removeJob($id) — done');
     } catch (e) {
-      print('🔴 [JobListingCubit] removeJob($id) ERROR: $e');
       emit(JobListingError('Failed to remove job: $e', lastJobs: _allJobs));
     }
   }
 
   Future<void> deleteJob(String id) async {
     try {
-      print('🟡 [JobListingCubit] deleteJob($id)');
       await _repo.deleteJob(id);
       _allJobs = _allJobs.where((j) => j.id != id).toList();
       _emitLoaded();
-      print('🟢 [JobListingCubit] deleteJob($id) — done');
     } catch (e) {
-      print('🔴 [JobListingCubit] deleteJob($id) ERROR: $e');
       emit(JobListingError('Failed to delete job: $e', lastJobs: _allJobs));
     }
   }
 
   Future<void> updateJobStatus(String id, JobStatus status) async {
     try {
-      print('🟡 [JobListingCubit] updateJobStatus($id, ${status.label})');
       await _repo.updateJobStatus(id, status);
       _allJobs = _allJobs.map((j) {
         if (j.id == id) {
@@ -183,9 +161,7 @@ class JobListingCubit extends Cubit<JobListingState> {
         return j;
       }).toList();
       _emitLoaded();
-      print('🟢 [JobListingCubit] updateJobStatus($id) — done');
     } catch (e) {
-      print('🔴 [JobListingCubit] updateJobStatus($id) ERROR: $e');
       emit(JobListingError('Failed to update status: $e', lastJobs: _allJobs));
     }
   }
@@ -193,7 +169,6 @@ class JobListingCubit extends Cubit<JobListingState> {
   /// Load a single job for editing/preview
   Future<void> loadJobDetail(String id) async {
     try {
-      print('🟡 [JobListingCubit] loadJobDetail($id)');
       final local = _allJobs.where((j) => j.id == id).toList();
       if (local.isNotEmpty) {
         emit(JobListingDetailLoaded(local.first));
@@ -206,7 +181,6 @@ class JobListingCubit extends Cubit<JobListingState> {
         emit(JobListingError('Job not found', lastJobs: _allJobs));
       }
     } catch (e) {
-      print('🔴 [JobListingCubit] loadJobDetail($id) ERROR: $e');
       emit(JobListingError('Failed to load job: $e', lastJobs: _allJobs));
     }
   }
@@ -229,17 +203,14 @@ class JobListingCubit extends Cubit<JobListingState> {
             : job.postedDate,
       );
 
-      print('🟡 [JobListingCubit] saveJob(${updated.id}) — publishStatus: $ps | status: ${updated.status.label}');
 
       final existIndex = _allJobs.indexWhere((j) => j.id == updated.id);
       if (existIndex >= 0) {
         await _repo.updateJob(updated);
         _allJobs[existIndex] = updated;
-        print('🟢 [JobListingCubit] saveJob() — updated existing');
       } else {
         final created = await _repo.createJob(updated);
         _allJobs = [created, ..._allJobs];
-        print('🟢 [JobListingCubit] saveJob() — created new with ID: ${created.id}');
       }
 
       emit(JobListingSaved(updated));
@@ -248,7 +219,6 @@ class JobListingCubit extends Cubit<JobListingState> {
         if (!isClosed) _emitLoaded();
       });
     } catch (e) {
-      print('🔴 [JobListingCubit] saveJob() ERROR: $e');
       emit(JobListingError('Failed to save job: $e', lastJobs: _allJobs));
     }
   }

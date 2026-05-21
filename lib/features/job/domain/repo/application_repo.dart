@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 
-import '../../data/model/application_model.dart';
+import '../../data/models/application_model.dart';
 
 abstract class ApplicationRepo {
   Future<List<ApplicationModel>> fetchAllApplications();

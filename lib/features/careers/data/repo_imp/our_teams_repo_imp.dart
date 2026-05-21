@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 import '../../domain/repo/our_teams_repo.dart';
-import '../model/our_teams_model.dart';
+import '../models/our_teams_model.dart';
 
 class OurTeamsRepoImpl implements OurTeamsRepo {
   final FirebaseFirestore _db;

@@ -19,11 +19,11 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
-import '../../../../job/data/model/job_listing_model.dart';
+import '../../../../job/data/models/job_listing_model.dart';
 import '../../../../job/presentation/controller/job_listing_cubit.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/department_model.dart';
+import '../../../data/models/department_model.dart';
 import 'department_edit.dart';
 //
 // class _C {

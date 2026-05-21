@@ -15,7 +15,7 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/contact_us_model_location.dart';
+import '../../../data/models/contact_us_model_location.dart';
 import '../../controller/contacu_us_location_cubit.dart';
 import '../../controller/contacu_us_location_state.dart';
 

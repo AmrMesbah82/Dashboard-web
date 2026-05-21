@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/model/our_teams_model.dart';
+import '../../data/models/our_teams_model.dart';
 import '../../data/repo_imp/our_teams_repo_imp.dart';
 import '../../domain/repo/our_teams_repo.dart';
 import 'our_teams_state.dart';

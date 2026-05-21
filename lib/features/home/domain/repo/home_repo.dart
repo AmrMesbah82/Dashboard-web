@@ -10,7 +10,7 @@
 
 import 'dart:typed_data';
 
-import '../../data/model/home_model.dart';
+import '../../data/models/home_model.dart';
 
 abstract class HomeRepository {
   // ── Published document ───────────────────────────────────────────────────

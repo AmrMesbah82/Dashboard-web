@@ -20,7 +20,7 @@ import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
-import '../../../data/model/our_teams_model.dart';
+import '../../../data/models/our_teams_model.dart';
 import '../../controller/our_teams_cubit.dart';
 import '../../controller/our_teams_state.dart';
 import 'our_teams_edit.dart';

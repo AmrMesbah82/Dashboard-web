@@ -16,7 +16,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/constant/color.dart';
 
-
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
@@ -27,10 +26,12 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/careers_section_model.dart';
+import '../../../data/models/careers_section_model.dart';
 import '../../controller/careers_section_cubit.dart';
 import '../../controller/careers_section_state.dart';
 
+part '../widget/why_join_edit/picked_image.dart';
+part '../widget/why_join_edit/item_edit.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -43,47 +44,6 @@ import '../../controller/careers_section_state.dart';
 //   static const Color back      = Color(0xFFF1F2ED);
 // }
 
-class _PickedImage {
-  final Uint8List? bytes;
-  final String? url;
-  const _PickedImage({this.bytes, this.url});
-  bool get isEmpty => bytes == null && (url == null || url!.isEmpty);
-  bool get hasImage => !isEmpty;
-}
-
-class _ItemEdit {
-  String id;
-  _PickedImage icon;
-  final TextEditingController titleEn;
-  final TextEditingController titleAr;
-  _PickedImage svg;
-  final TextEditingController descEn;
-  final TextEditingController descAr;
-
-  _ItemEdit({
-    required this.id,
-    _PickedImage? icon,
-    String titleEn = '',
-    String titleAr = '',
-    _PickedImage? svg,
-    String descEn = '',
-    String descAr = '',
-  })  : icon = icon ?? const _PickedImage(),
-        titleEn = TextEditingController(text: titleEn),
-        titleAr = TextEditingController(text: titleAr),
-        svg = svg ?? const _PickedImage(),
-        descEn = TextEditingController(text: descEn),
-        descAr = TextEditingController(text: descAr);
-
-  void dispose() {
-    titleEn.dispose();
-    titleAr.dispose();
-    descEn.dispose();
-    descAr.dispose();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 class CareersSectionEditPage extends StatefulWidget {
   final String sectionKey;
   final String sectionTitle;
@@ -135,7 +95,6 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
       ));
     }
 
-    print('🟢 [CareersSectionEditPage] seeded ${_items.length} items');
   }
 
   // ── Validation ──────────────────────────────────────────────────────────────

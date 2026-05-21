@@ -24,7 +24,7 @@ import '../../../../../core/main_widgets/delete_intern_dialog.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/intern_model.dart';
+import '../../../data/models/intern_model.dart';
 import '../../controller/intern_cubit.dart';
 import '../../controller/intern_state.dart';
 

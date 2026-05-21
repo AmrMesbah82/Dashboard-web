@@ -23,7 +23,6 @@ import 'package:web_app_admin/core/constant/color.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_edit.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 
-
 import '../../../../../../core/custom_svg.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -32,8 +31,8 @@ import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../../data/model/blog_model.dart';
-import '../../../../data/model/services_model.dart';
+import '../../../../data/models/blog_model.dart';
+import '../../../../data/models/services_model.dart';
 import '../../../controller/blog_cubit.dart';
 import '../../../controller/blog_state.dart';
 import '../../../controller/services_cubit.dart';
@@ -42,10 +41,8 @@ import '../blog_services/blog_edit.dart';
 import '../degital_services/services_digital_main.dart';
 import '../degital_services/services_digital_preview.dart';
 
-// 🔵 DEBUG: Helper for consistent logging
-void _log(String message, {String level = '🔵'}) {
-  debugPrint('$level [ServicesMainPageMaster] $message');
-}
+part '../../widget/services_main/blog_card.dart';
+part '../../widget/services_main/xhr_image.dart';
 
 // class _C {
 //   static const Color primary    = Color(0xFF008037);
@@ -87,6 +84,7 @@ extension _PostStatusLabel on _PostStatus {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+
 class ServicesMainPageMaster extends StatefulWidget {
   const ServicesMainPageMaster({super.key});
 
@@ -113,12 +111,10 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
   @override
   void initState() {
     super.initState();
-    _log('Page initialized');
     _searchCtrl.addListener(() {
       setState(() => _searchQuery = _searchCtrl.text.toLowerCase().trim());
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _log('Loading ServiceCmsCubit and BlogCubit...');
       context.read<ServiceCmsCubit>().load();
       context.read<BlogCubit>().load();
     });
@@ -126,7 +122,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 
   @override
   void dispose() {
-    _log('Page disposed');
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -269,7 +264,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
           padding: EdgeInsets.only(right: 24.w),
           child: GestureDetector(
             onTap: () {
-              _log('Tab switched to: ${_statusLabels[i]}');
               setState(() => _statusIndex = i);
             },
             child: IntrinsicWidth(
@@ -407,14 +401,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
   // TAB 2 — Important Reads
   // ══════════════════════════════════════════════════════════════════════════
   Widget _readMoreTab() {
-    _log('Building Important Reads tab');
 
     return BlocBuilder<BlogCubit, BlogState>(
       builder: (context, blogState) {
-        _log('BlogCubit state: ${blogState.runtimeType}');
 
         if (blogState is BlogLoading) {
-          _log('  State: Loading...', level: '🟡');
           return const Center(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 60),
@@ -426,23 +417,18 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         final List<BlogPostModel> allPosts = switch (blogState) {
           BlogLoaded(:final posts) => posts,
           BlogError() => (() {
-            _log('  State: Error', level: '🔴');
             return <BlogPostModel>[];
           })(),
           _ => (() {
-            _log('  State: Unknown/Empty', level: '🟡');
             return <BlogPostModel>[];
           })(),
         };
-
-        _log('  Total posts loaded: ${allPosts.length}');
 
         // Log status breakdown
         final statusCounts = <String, int>{};
         for (final p in allPosts) {
         statusCounts[p.status] = (statusCounts[p.status] ?? 0) + 1;
         }
-        _log('  Status breakdown: $statusCounts');
 
         int _count(_PostStatus s) => s == _PostStatus.all
         ? allPosts.length
@@ -452,9 +438,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ? allPosts
             : allPosts.where((p) => p.status == _activeFilter.statusKey).toList();
 
-        _log('  Active filter: ${_activeFilter.label} (${_activeFilter.statusKey ?? "all"})');
-        _log('  Posts after status filter: ${filtered.length}');
-
         if (_searchQuery.isNotEmpty) {
         final beforeSearch = filtered.length;
         filtered = filtered.where((p) =>
@@ -462,7 +445,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         p.question.ar.toLowerCase().contains(_searchQuery) ||
         p.shortDescription.en.toLowerCase().contains(_searchQuery)
         ).toList();
-        _log('  Search query: "$_searchQuery" -> filtered from $beforeSearch to ${filtered.length}');
         }
 
         return Container(
@@ -534,7 +516,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         padding: EdgeInsets.only(right: 8.w),
         child: GestureDetector(
         onTap: () {
-        _log('Filter chip clicked: ${s.label}');
         setState(() => _activeFilter = s);
         },
         child: AnimatedContainer(
@@ -643,7 +624,6 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 
   // ── Navigate helpers ──────────────────────────────────────────────────────
   void _navigateToCreate() {
-    _log('Navigating to CREATE blog post');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -653,13 +633,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ),
       ),
     ).then((_) {
-      _log('Returned from CREATE page, reloading BlogCubit...');
       context.read<BlogCubit>().load();
     });
   }
 
   void _navigateToEdit(BlogPostModel post) {
-    _log('Navigating to EDIT blog post: ${post.id} (status: ${post.status})');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -669,13 +647,11 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         ),
       ),
     ).then((_) {
-      _log('Returned from EDIT page, reloading BlogCubit...');
       context.read<BlogCubit>().load();
     });
   }
 
   Future<void> _confirmDelete(BlogPostModel post) async {
-    _log('Confirming delete for post: ${post.id}');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -694,11 +670,8 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
       ),
     );
     if (confirmed == true && mounted) {
-      _log('User confirmed delete, calling cubit.deletePost()');
       await context.read<BlogCubit>().deletePost(post.id);
-      _log('Delete completed, cubit state should refresh automatically');
     } else {
-      _log('Delete cancelled');
     }
   }
 
@@ -959,365 +932,3 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
 // ══════════════════════════════════════════════════════════════════════════════
 // BLOG CARD  (matches Figma card in the grid)
 // ══════════════════════════════════════════════════════════════════════════════
-class _BlogCard extends StatelessWidget {
-  final BlogPostModel post;
-  final VoidCallback  onEdit;
-  final VoidCallback  onDelete;
-
-  const _BlogCard({
-    required this.post,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  Color get _statusColor => switch (post.status) {
-    'published' => ColorPick.activeColor,
-    'inactive'  => ColorPick.inactiveColor,
-    'draft'     => ColorPick.draftColor,
-    'removed'   => ColorPick.removedColor,
-    _           => ColorPick.draftColor,
-  };
-
-  String get _statusLabel => switch (post.status) {
-    'published' => 'Active',
-    'inactive'  => 'Inactive',
-    'draft'     => 'Draft',
-    'removed'   => 'Removed',
-    _           => 'Draft',
-  };
-
-  String get _datePrefix => switch (post.status) {
-    'published' => 'Posted:',
-    'inactive'  => 'Inactive Since',
-    'draft'     => 'Started Since',
-    'removed'   => 'Removed On',
-    _           => '',
-  };
-
-  String _fmtDate(DateTime? d) {
-    if (d == null) return '—';
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${d.day} ${months[d.month]} ${d.year}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final String cleanUrl = post.imageUrl.trim();
-    final bool hasImage   = cleanUrl.isNotEmpty;
-
-    return GestureDetector(
-      onTap: onEdit,
-      child: Container(
-        padding: EdgeInsets.all(10.w),
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Row 1: date + status badge ─────────────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    '$_datePrefix ${_fmtDate(post.createdAt)}',
-                    style: StyleText.fontSize11Weight400
-                        .copyWith(color: AppColors.secondaryText),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Container(
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: _statusColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Text(
-                    _statusLabel,
-                    style: StyleText.fontSize12Weight500
-                        .copyWith(color: _statusColor),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-
-            // ── Row 2: text (left) + image (right) ────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.question.en.isNotEmpty
-                            ? post.question.en
-                            : 'Untitled',
-                        style: StyleText.fontSize13Weight600.copyWith(
-                          color: ColorPick.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        post.shortDescription.en.isNotEmpty
-                            ? post.shortDescription.en
-                            : 'Short Description...',
-                        style: StyleText.fontSize12Weight400
-                            .copyWith(color: AppColors.secondaryText),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-
-                // ── Image — auto-detects SVG vs raster via XHR ─────────
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
-                  child: hasImage
-                      ? _XhrImage(
-                    url:    cleanUrl,
-                    width:  100.w,
-                    height: 80.h,
-                  )
-                      : _imgPlaceholder(),
-                ),
-              ],
-            ),
-            SizedBox(height: 16.h),
-
-            // ── Row 3: edit/delete icons + Read More button ───────────────
-            Row(
-              children: [
-                // // Edit icon
-                // GestureDetector(
-                //   onTap: onEdit,
-                //   child: Container(
-                //     padding: EdgeInsets.all(6.r),
-                //     decoration: BoxDecoration(
-                //       color: ColorPick.background,
-                //       borderRadius: BorderRadius.circular(4.r),
-                //     ),
-                //     child: Icon(Icons.edit_outlined,
-                //         size: 16.sp, color: AppColors.text),
-                //   ),
-                // ),
-                // SizedBox(width: 8.w),
-                // // Delete icon
-                // GestureDetector(
-                //   onTap: onDelete,
-                //   child: Container(
-                //     padding: EdgeInsets.all(6.r),
-                //     decoration: BoxDecoration(
-                //       color: ColorPick.background,
-                //       borderRadius: BorderRadius.circular(4.r),
-                //     ),
-                //     child: Icon(Icons.delete_outline,
-                //         size: 16.sp, color: Colors.red),
-                //   ),
-                // ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: (){},
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 14.w, vertical: 7.h),
-                    decoration: BoxDecoration(
-                      color: ColorPick.primary,
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Text(
-                      'Read More',
-                      style: StyleText.fontSize12Weight500
-                          .copyWith(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _imgPlaceholder() => Container(
-    width: 100.w, height: 80.h,
-    decoration: BoxDecoration(
-      color: ColorPick.background,
-      borderRadius: BorderRadius.circular(8.r),
-    ),
-    child: Icon(Icons.image_outlined, size: 24.sp, color: AppColors.secondaryText),
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// XHR image loader — auto-detects SVG vs raster (PNG/JPG/WebP)
-// Works on Flutter Web, bypasses CORS for Firebase Storage
-// ══════════════════════════════════════════════════════════════════════════════
-class _XhrImage extends StatefulWidget {
-  final String url;
-  final double width;
-  final double height;
-
-  const _XhrImage({
-    required this.url,
-    required this.width,
-    required this.height,
-  });
-
-  @override
-  State<_XhrImage> createState() => _XhrImageState();
-}
-
-class _XhrImageState extends State<_XhrImage> {
-  String?   _svgString;
-  Uint8List? _rasterBytes;
-  bool _isSvg  = false;
-  bool _failed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  @override
-  void didUpdateWidget(covariant _XhrImage old) {
-    super.didUpdateWidget(old);
-    if (old.url != widget.url) {
-      _svgString   = null;
-      _rasterBytes = null;
-      _isSvg  = false;
-      _failed = false;
-      _load();
-    }
-  }
-
-  Future<void> _load() async {
-    try {
-      final xhr = html.HttpRequest();
-      xhr.open('GET', widget.url, async: true);
-      xhr.responseType = 'arraybuffer';
-
-      final completer = Completer<Uint8List>();
-
-      xhr.onLoad.listen((_) {
-        if (xhr.status == 200) {
-          final buf = xhr.response as ByteBuffer;
-          completer.complete(buf.asUint8List());
-        } else {
-          completer.completeError('HTTP ${xhr.status}');
-        }
-      });
-      xhr.onError.listen((_) => completer.completeError('XHR error'));
-      xhr.send();
-
-      final bytes = await completer.future;
-
-      // Detect format by inspecting first bytes
-      final header = String.fromCharCodes(bytes.take(20));
-
-      if (header.trimLeft().startsWith('<svg') ||
-          header.trimLeft().startsWith('<?xml')) {
-        // ── SVG ──
-        final svgStr = String.fromCharCodes(bytes);
-        if (mounted) {
-          setState(() {
-            _svgString = svgStr;
-            _isSvg = true;
-          });
-        }
-      } else {
-        // ── Raster (PNG / JPG / WebP) ──
-        if (mounted) {
-          setState(() {
-            _rasterBytes = bytes;
-            _isSvg = false;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('_XhrImage load error: $e | url: ${widget.url}');
-      if (mounted) setState(() => _failed = true);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Error
-    if (_failed) {
-      return Container(
-        width: widget.width, height: widget.height,
-        decoration: BoxDecoration(
-          color: ColorPick.background,
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: Icon(Icons.broken_image_outlined,
-            size: 24.sp, color: AppColors.secondaryText),
-      );
-    }
-
-    // Loading
-    if (_svgString == null && _rasterBytes == null) {
-      return SizedBox(
-        width: widget.width, height: widget.height,
-        child: const Center(
-          child: CircularProgressIndicator(
-              strokeWidth: 2, color: ColorPick.primary),
-        ),
-      );
-    }
-
-    // SVG
-    if (_isSvg && _svgString != null) {
-      return SizedBox(
-        width: widget.width, height: widget.height,
-        child: SvgPicture.string(
-          _svgString!,
-          width:  widget.width,
-          height: widget.height,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    // Raster
-    if (_rasterBytes != null) {
-      return Image.memory(
-        _rasterBytes!,
-        width:  widget.width,
-        height: widget.height,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          width: widget.width, height: widget.height,
-          color: ColorPick.background,
-          child: Icon(Icons.broken_image_outlined,
-              size: 24.sp, color: AppColors.secondaryText),
-        ),
-      );
-    }
-
-    // Fallback
-    return Container(
-      width: widget.width, height: widget.height,
-      decoration: BoxDecoration(
-        color: ColorPick.background,
-        borderRadius: BorderRadius.circular(8.r),
-      ),
-      child: Icon(Icons.image_outlined, size: 24.sp, color: AppColors.secondaryText),
-    );
-  }
-}

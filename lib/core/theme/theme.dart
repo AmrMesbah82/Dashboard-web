@@ -354,12 +354,10 @@ abstract class AppTheme {
 
   static void initTheme(
       Color primaryColor, Color secondaryColor, bool isDarkMode) async {
-    print("theme at main core theme controller isDarkMode $isDarkMode");
     isDark = isDarkMode;
     interfaceUpdateBrandingColors(primaryColor, secondaryColor);
     // Get.changeThemeMode(isDarkMode ? ThemeMode.light : ThemeMode.dark);
     setCurrentThemeColors();
-    print("theme at main core theme controller isDarkMode $isDark");
   }
 
   static void interfaceUpdateBrandingColors(

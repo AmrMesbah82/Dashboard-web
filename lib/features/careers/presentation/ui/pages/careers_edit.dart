@@ -30,7 +30,7 @@ import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/widget/textfield.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/careers_model.dart';
+import '../../../data/models/careers_model.dart';
 import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 import 'careers_main_page.dart'; // CareersMainPageMaster lives here
@@ -235,7 +235,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
       SettableMetadata(contentType: 'image/svg+xml'),
     );
     final url = await task.ref.getDownloadURL();
-    print('🟢 [CareersEditPage] SVG uploaded → $url');
     return url;
   }
 

@@ -15,7 +15,7 @@ import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../about_us/presentation/ui/pages/about_us_company_edit.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../data/model/job_listing_model.dart';
+import '../../../data/models/job_listing_model.dart';
 import '../../controller/job_listing_cubit.dart';
 import '../../controller/job_listing_state.dart';
 import 'job_listing_main.dart';

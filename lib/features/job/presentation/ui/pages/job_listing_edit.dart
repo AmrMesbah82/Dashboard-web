@@ -37,7 +37,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/job_listing_model.dart';
+import '../../../data/models/job_listing_model.dart';
 import '../../controller/job_listing_cubit.dart';
 import '../../controller/job_listing_state.dart';
 import 'job_listing_main.dart';
@@ -557,7 +557,6 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
       // ── Guard: if end date is now before the new start, reset it ──
       if (_hiringEnd != null && _hiringEnd!.isBefore(picked)) {
         _hiringEnd = null;
-        print('🟡 [EditPage] Hiring end date cleared — was before new start date');
       }
     });
   }
@@ -567,7 +566,6 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
   /// but we add an extra programmatic guard just in case.
   void _setHiringEnd(DateTime picked) {
     if (_hiringStart != null && picked.isBefore(_hiringStart!)) {
-      print('🔴 [EditPage] Rejected end date $picked — before start $_hiringStart');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('End date cannot be before start date'),

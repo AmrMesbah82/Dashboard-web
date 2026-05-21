@@ -16,7 +16,7 @@ import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/two_tab.dart';
-import '../../../data/model/home_model.dart';
+import '../../../data/models/home_model.dart';
 import '../../controller/home_cubit.dart';
 import '../../controller/home_state.dart';
 import '../../controller/lang_state.dart';

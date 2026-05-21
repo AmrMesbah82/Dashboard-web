@@ -2,7 +2,7 @@
 // File Name: our_teams_state.dart
 
 
-import '../../data/model/our_teams_model.dart';
+import '../../data/models/our_teams_model.dart';
 
 abstract class OurTeamsState {}
 

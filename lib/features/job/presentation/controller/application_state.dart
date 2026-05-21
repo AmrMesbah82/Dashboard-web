@@ -5,7 +5,7 @@
 
 
 import '../../../../core/main_widgets/application_filter_dialog.dart';
-import '../../data/model/application_model.dart';
+import '../../data/models/application_model.dart';
 
 abstract class ApplicationState {}
 

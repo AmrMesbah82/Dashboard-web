@@ -3,7 +3,7 @@
 // Created by: Amr Mesbah
 
 
-import '../../data/model/careers_model.dart';
+import '../../data/models/careers_model.dart';
 
 abstract class CareersCmsState {}
 

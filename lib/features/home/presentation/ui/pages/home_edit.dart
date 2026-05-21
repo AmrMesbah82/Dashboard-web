@@ -38,7 +38,6 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
-
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -50,11 +49,17 @@ import '../../../../../core/widget/date_pic.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/home_model.dart';
+import '../../../data/models/home_model.dart';
 import '../../controller/home_cubit.dart';
 import '../../controller/home_state.dart';
 import 'home_main.dart';
 import 'home_preview.dart';
+
+part '../widget/home_edit/picked_image.dart';
+part '../widget/home_edit/nav_btn_item.dart';
+part '../widget/home_edit/section_item.dart';
+part '../widget/home_edit/color_picker_field.dart';
+part '../widget/home_edit/color_wheel_overlay.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -89,334 +94,6 @@ const List<Map<String, String>> _kNavRouteOptions = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data models
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PickedImage {
-  final Uint8List? bytes;
-  final String? url;
-  const _PickedImage({this.bytes, this.url});
-  bool get isEmpty => bytes == null && (url == null || url!.isEmpty);
-}
-
-class _NavBtnItem {
-  final TextEditingController nameEn;
-  final TextEditingController nameAr;
-  String? route;
-  bool status;
-
-  _NavBtnItem()
-    : nameEn = TextEditingController(),
-      nameAr = TextEditingController(),
-      status = true;
-
-  void dispose() {
-    nameEn.dispose();
-    nameAr.dispose();
-  }
-}
-
-class _SectionItem {
-  final TextEditingController descEn;
-  final TextEditingController descAr;
-  _PickedImage image;
-  _PickedImage icon;
-  bool visibility;
-
-  _SectionItem()
-    : descEn = TextEditingController(),
-      descAr = TextEditingController(),
-      image = const _PickedImage(),
-      icon = const _PickedImage(),
-      visibility = true;
-
-  void dispose() {
-    descEn.dispose();
-    descAr.dispose();
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Color Picker (unchanged)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ColorPickerField extends StatefulWidget {
-  final TextEditingController controller;
-  final String? label;
-  final String hintText;
-  final VoidCallback? onColorChanged;
-
-  const _ColorPickerField({
-    required this.controller,
-    this.label,
-    this.hintText = '#008037',
-    this.onColorChanged,
-  });
-
-  @override
-  State<_ColorPickerField> createState() => _ColorPickerFieldState();
-}
-
-class _ColorPickerFieldState extends State<_ColorPickerField> {
-  OverlayEntry? _overlay;
-  final LayerLink _layerLink = LayerLink();
-
-  Color get _currentColor {
-    try {
-      final hex = widget.controller.text.replaceAll('#', '');
-      if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {}
-    return ColorPick.primary;
-  }
-
-  static String _colorToHex(Color c) =>
-      '#${c.red.toRadixString(16).padLeft(2, '0')}'
-              '${c.green.toRadixString(16).padLeft(2, '0')}'
-              '${c.blue.toRadixString(16).padLeft(2, '0')}'
-          .toUpperCase();
-
-  void _openPicker() {
-    _closePicker();
-    _overlay = OverlayEntry(
-      builder: (_) => _ColorWheelOverlay(
-        layerLink: _layerLink,
-        initialColor: _currentColor,
-        onApply: (color) {
-          widget.controller.text = _colorToHex(color);
-          widget.controller.notifyListeners();
-          _closePicker();
-          if (mounted) setState(() {});
-          widget.onColorChanged?.call();
-        },
-        onClose: _closePicker,
-      ),
-    );
-    Overlay.of(context).insert(_overlay!);
-  }
-
-  void _closePicker() {
-    _overlay?.remove();
-    _overlay = null;
-  }
-
-  @override
-  void dispose() {
-    _closePicker();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text),
-          ),
-          SizedBox(height: 5.h),
-        ],
-        CompositedTransformTarget(
-          link: _layerLink,
-          child: SizedBox(
-            height: 36.h,
-            child: TextFormField(
-              controller: widget.controller,
-              style: StyleText.fontSize12Weight400.copyWith(
-                color: AppColors.text,
-              ),
-              onChanged: (_) {
-                setState(() {});
-                widget.onColorChanged?.call();
-              },
-              onTap: _openPicker,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: StyleText.fontSize12Weight400.copyWith(
-                  color: AppColors.secondaryText,
-                ),
-                filled: true,
-                fillColor: AppColors.background,
-                isDense: true,
-                counterText: '',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Container(
-                    width: 16.w,
-                    height: 16.h,
-                    decoration: BoxDecoration(
-                      color: _currentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color:ColorPick.white),
-                    ),
-                  ),
-                ),
-                prefixIconConstraints: BoxConstraints(
-                  minWidth: 36.w,
-                  minHeight: 36.h,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: BorderSide(color: AppColors.primary, width: 1),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ColorWheelOverlay extends StatefulWidget {
-  final LayerLink layerLink;
-  final Color initialColor;
-  final ValueChanged<Color> onApply;
-  final VoidCallback onClose;
-  const _ColorWheelOverlay({
-    required this.layerLink,
-    required this.initialColor,
-    required this.onApply,
-    required this.onClose,
-  });
-  @override
-  State<_ColorWheelOverlay> createState() => _ColorWheelOverlayState();
-}
-
-class _ColorWheelOverlayState extends State<_ColorWheelOverlay> {
-  late Color _picked;
-  @override
-  void initState() {
-    super.initState();
-    _picked = widget.initialColor;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            onTap: widget.onClose,
-            behavior: HitTestBehavior.translucent,
-            child: Container(color: Colors.black.withOpacity(0.3)),
-          ),
-        ),
-        Center(
-          child: Material(
-            color: Colors.transparent,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.9,
-                maxWidth: 500.w,
-              ),
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 20.h,
-                  ),
-                  padding: EdgeInsets.all(20.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.card,
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color:ColorPick.white),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(.2),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Select Color',
-                        style: StyleText.fontSize16Weight600.copyWith(
-                          color: AppColors.text,
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      ColorPicker(
-                        pickerColor: _picked,
-                        onColorChanged: (c) => setState(() => _picked = c),
-                        pickerAreaHeightPercent: 0.7,
-                        enableAlpha: false,
-                        displayThumbColor: true,
-                        pickerAreaBorderRadius: BorderRadius.circular(8.r),
-                        hexInputBar: true,
-                        labelTypes: const [],
-                      ),
-                      SizedBox(height: 20.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: widget.onClose,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24.w,
-                                vertical: 10.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(6.r),
-                                border: Border.all(color:ColorPick.white),
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: StyleText.fontSize14Weight500.copyWith(
-                                  color: AppColors.text,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          GestureDetector(
-                            onTap: () => widget.onApply(_picked),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24.w,
-                                vertical: 10.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: ColorPick.primary,
-                                borderRadius: BorderRadius.circular(6.r),
-                              ),
-                              child: Text(
-                                'Apply',
-                                style: StyleText.fontSize14Weight500.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HomeEditPageMaster
 // ─────────────────────────────────────────────────────────────────────────────
 
 class HomeEditPageMaster extends StatefulWidget {
@@ -866,9 +543,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
           _publishDate!.isAfter(DateTime.now())) {
         finalStatus = 'scheduled';
         finalScheduleDate = _publishDate;
-        print(
-          '[HomeEditPage] _save: 📅 schedule date is in the future → overriding to "scheduled"',
-        );
+
       }
 
       await cubit.save(
@@ -876,7 +551,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
         scheduledPublishDate: finalScheduleDate,
       );
     } catch (e, st) {
-      print('[HomeEditPage] _save ❌ $e\n$st');
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -887,7 +561,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCmsCubit, HomeCmsState>(
       listener: (context, state) {
-        print('[HomeEditPage] 👂 listener: ${state.runtimeType}');
 
         // ── Published successfully ──────────────────────────────────────
         if (state is HomeCmsSaved) {

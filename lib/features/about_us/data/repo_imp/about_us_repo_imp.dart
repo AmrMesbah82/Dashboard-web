@@ -9,7 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 import '../../domain/repo/about_us_repo.dart';
-import '../model/about_us_model.dart';
+import '../models/about_us_model.dart';
 
 class AboutRepoImpl implements AboutRepo {
   static const String _collection = 'cms';
@@ -47,7 +47,6 @@ class AboutRepoImpl implements AboutRepo {
       return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← inject it back
 
     } catch (e) {
-      _log('🔴 [AboutRepo] fetchAboutPage ERROR: $e');
       rethrow;
     }
   }
@@ -59,9 +58,7 @@ class AboutRepoImpl implements AboutRepo {
       // Overwrite the ISO string from toMap() with the accurate server timestamp
       data['lastUpdatedAt'] = FieldValue.serverTimestamp();
       await _ref(_aboutDoc).set(data);
-      _log('🟢 [AboutRepo] saveAboutPage OK');
     } catch (e) {
-      _log('🔴 [AboutRepo] saveAboutPage ERROR: $e');
       rethrow;
     }
   }
@@ -90,7 +87,6 @@ class AboutRepoImpl implements AboutRepo {
       return model.copyWith(lastUpdatedAt: lastUpdatedAt);  // ← inject back
 
     } catch (e) {
-      _log('🔴 [AboutRepo] fetchStrategy ERROR: $e');
       rethrow;
     }
   }
@@ -101,13 +97,9 @@ class AboutRepoImpl implements AboutRepo {
       final data = model.toMap()
         ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
 
-      _log('   [AboutRepo] saveStrategy - strategicHouseEnUrl: ${model.strategicHouseEnUrl}');
-      _log('   [AboutRepo] saveStrategy - strategicHouseArUrl: ${model.strategicHouseArUrl}');
 
       await _ref(_strategyDoc).set(data);
-      _log('🟢 [AboutRepo] saveStrategy OK');
     } catch (e) {
-      _log('🔴 [AboutRepo] saveStrategy ERROR: $e');
       rethrow;
     }
   }
@@ -124,25 +116,20 @@ class AboutRepoImpl implements AboutRepo {
       final raw = snap.data()!;
 
       // ── Debug: print what lastUpdatedAt looks like in Firestore ──
-      print('🟡 [TermsRepo] raw lastUpdatedAt = ${raw['lastUpdatedAt']} (${raw['lastUpdatedAt']?.runtimeType})');
 
       DateTime? lastUpdatedAt;
       final ts = raw['lastUpdatedAt'];
       if (ts is Timestamp) {
         lastUpdatedAt = ts.toDate();
-        print('🟢 [TermsRepo] parsed Timestamp → $lastUpdatedAt');
       } else if (ts is String) {
         lastUpdatedAt = DateTime.tryParse(ts);
-        print('🟢 [TermsRepo] parsed String → $lastUpdatedAt');
       } else {
-        print('🔴 [TermsRepo] lastUpdatedAt is null or unknown type');
       }
 
       final model = TermsOfServiceModel.fromMap(_sanitize(raw));
       return model.copyWith(lastUpdatedAt: lastUpdatedAt);
 
     } catch (e) {
-      _log('🔴 [AboutRepo] fetchTerms ERROR: $e');
       rethrow;
     }
   }
@@ -153,9 +140,7 @@ class AboutRepoImpl implements AboutRepo {
       final data = model.toMap()
         ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
       await _ref(_termsDoc).set(data);
-      _log('🟢 [AboutRepo] saveTerms OK');
     } catch (e) {
-      _log('🔴 [AboutRepo] saveTerms ERROR: $e');
       rethrow;
     }
   }
@@ -166,7 +151,6 @@ class AboutRepoImpl implements AboutRepo {
     required String storagePath,
   }) async {
     try {
-      _log('🔵 [AboutRepo] uploadImage → $storagePath');
 
       // Generate a unique filename to avoid conflicts
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -180,10 +164,8 @@ class AboutRepoImpl implements AboutRepo {
 
       await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url = await ref.getDownloadURL();
-      _log('🟢 [AboutRepo] uploadImage → $url');
       return url;
     } catch (e) {
-      _log('🔴 [AboutRepo] uploadImage ERROR: $e');
       rethrow;
     }
   }
@@ -195,17 +177,14 @@ class AboutRepoImpl implements AboutRepo {
     required String fileName,
   }) async {
     try {
-      _log('🔵 [AboutRepo] uploadDocument → $storagePath/$fileName');
       final mime = fileName.toLowerCase().endsWith('.pdf')
           ? 'application/pdf'
           : 'application/octet-stream';
       final ref = _storage.ref('$storagePath/$fileName');
       await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url = await ref.getDownloadURL();
-      _log('🟢 [AboutRepo] uploadDocument → $url');
       return url;
     } catch (e) {
-      _log('🔴 [AboutRepo] uploadDocument ERROR: $e');
       rethrow;
     }
   }
@@ -246,5 +225,4 @@ class AboutRepoImpl implements AboutRepo {
     return 'png';
   }
 
-  void _log(String msg) => print(msg);
 }

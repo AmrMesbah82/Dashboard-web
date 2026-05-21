@@ -19,7 +19,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 import '../../domain/repo/home_repo.dart';
-import '../model/home_model.dart';
+import '../models/home_model.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
   HomeRepositoryImpl({
@@ -47,73 +47,54 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<HomePageModel> fetchHomePage() async {
-    print('🔵 [Repo] fetchHomePage() called (cache-first)');
     try {
       final snapshot = await _publishedRef.get();
-      print('   snapshot.exists = ${snapshot.exists}');
       if (!snapshot.exists || snapshot.data() == null) {
-        print('⚠️  [Repo] fetchHomePage() → no document, returning defaultModel');
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
       final model = HomePageModel.fromMap(data);
-      print('🟢 [Repo] fetchHomePage() → parsed OK');
       return model;
     } catch (e, st) {
-      print('🔴 [Repo] fetchHomePage() ERROR: $e\n   StackTrace: $st');
       return HomePageModel.defaultModel;
     }
   }
 
   @override
   Future<HomePageModel> fetchHomePageFresh() async {
-    print('🔵 [Repo] fetchHomePageFresh() called (Source.server)');
     try {
       final snapshot = await _publishedRef.get(const GetOptions(source: Source.server));
-      print('   snapshot.exists = ${snapshot.exists}');
       if (!snapshot.exists || snapshot.data() == null) {
-        print('⚠️  [Repo] fetchHomePageFresh() → no document, returning defaultModel');
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
       final model = HomePageModel.fromMap(data);
-      print('🟢 [Repo] fetchHomePageFresh() → parsed OK');
-      print('   model.title.en        = ${model.title.en}');
-      print('   model.publishStatus   = ${model.publishStatus}');
       return model;
     } catch (e, st) {
-      print('🔴 [Repo] fetchHomePageFresh() ERROR: $e\n   StackTrace: $st');
       return HomePageModel.defaultModel;
     }
   }
 
   @override
   Future<void> saveHomePage(HomePageModel model) async {
-    print('🔵 [Repo] saveHomePage() called');
-    print('   model.title.en       = ${model.title.en}');
-    print('   model.publishStatus  = ${model.publishStatus}');
     try {
       final map = {
         ...model.toMap(),
         'lastUpdatedAt': FieldValue.serverTimestamp(),
       };
       await _publishedRef.set(map);
-      print('🟢 [Repo] saveHomePage() → Firestore .set() completed');
     } catch (e, st) {
-      print('🔴 [Repo] saveHomePage() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
 
   @override
   Stream<HomePageModel> watchHomePage() {
-    print('🔵 [Repo] watchHomePage() stream created');
     return _publishedRef.snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return HomePageModel.defaultModel;
       try {
         return HomePageModel.fromMap(snap.data()!);
       } catch (e) {
-        print('🔴 [Repo] watchHomePage() parse ERROR: $e');
         return HomePageModel.defaultModel;
       }
     });
@@ -125,63 +106,49 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<HomePageModel?> fetchDraft() async {
-    print('🟡 [Repo] fetchDraft() called');
     try {
       final snapshot = await _draftRef.get(const GetOptions(source: Source.server));
       if (snapshot.exists && snapshot.data() != null) {
         final data = _sanitize(snapshot.data()!);
-        print('🟢 [Repo] fetchDraft() → draft found');
         return HomePageModel.fromMap(data);
       }
-      print('🟡 [Repo] fetchDraft() → no draft exists');
       return null;
     } catch (e, st) {
-      print('🔴 [Repo] fetchDraft() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
 
   @override
   Future<void> saveDraft(HomePageModel model) async {
-    print('🟡 [Repo] saveDraft() called');
-    print('   model.publishStatus = ${model.publishStatus}');
     try {
       final map = {
         ...model.toMap(),
         'lastUpdatedAt': FieldValue.serverTimestamp(),
       };
       await _draftRef.set(map);
-      print('🟢 [Repo] saveDraft() → Firestore .set() completed');
     } catch (e, st) {
-      print('🔴 [Repo] saveDraft() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
 
   @override
   Future<void> deleteDraft() async {
-    print('🟡 [Repo] deleteDraft() called');
     try {
       final snap = await _draftRef.get();
       if (snap.exists) {
         await _draftRef.delete();
-        print('🟢 [Repo] deleteDraft() → deleted');
       } else {
-        print('🟡 [Repo] deleteDraft() → no draft to delete');
       }
     } catch (e, st) {
-      print('🔴 [Repo] deleteDraft() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
 
   @override
   Future<void> promoteDraft() async {
-    print('🟡 [Repo] promoteDraft() called');
     try {
       final draft = await fetchDraft();
       if (draft == null) {
-        print('🟡 [Repo] promoteDraft() → no draft to promote');
         return;
       }
       final publishedModel = draft.copyWith(
@@ -190,9 +157,7 @@ class HomeRepositoryImpl implements HomeRepository {
       );
       await saveHomePage(publishedModel);
       await deleteDraft();
-      print('🟢 [Repo] promoteDraft() → DONE');
     } catch (e, st) {
-      print('🔴 [Repo] promoteDraft() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }
@@ -206,16 +171,13 @@ class HomeRepositoryImpl implements HomeRepository {
     required Uint8List bytes,
     required String storagePath,
   }) async {
-    print('🔵 [Repo] uploadImage() storagePath=$storagePath bytes=${bytes.length}');
     try {
       final ref  = _storage.ref().child(storagePath);
       final mime = _detectMime(bytes);
       final task = await ref.putData(bytes, SettableMetadata(contentType: mime));
       final url  = await task.ref.getDownloadURL();
-      print('🟢 [Repo] uploadImage() → url=$url');
       return url;
     } catch (e, st) {
-      print('🔴 [Repo] uploadImage() ERROR: $e\n   StackTrace: $st');
       rethrow;
     }
   }

@@ -3,7 +3,7 @@
 // Created by: Amr Mesbah
 
 
-import '../../data/model/contact_us_model.dart';
+import '../../data/models/contact_us_model.dart';
 
 abstract class ContactState {}
 

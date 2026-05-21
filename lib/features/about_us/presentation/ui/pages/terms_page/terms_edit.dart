@@ -23,10 +23,13 @@ import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
-import '../../../../data/model/about_us_model.dart';
+import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'terms_preview.dart';
+
+part '../../widget/terms_edit/picked_image.dart';
+part '../../widget/terms_edit/doc_item.dart';
 
 const Color _kGreen = Color(0xFF2D8C4E);
 const Color _kGreenSolid = Color(0xFF008037);
@@ -35,35 +38,6 @@ const Color _kSurface = Color(0xFFFFFFFF);
 const Color _kBg = Color(0xFFF1F2ED);
 
 // ── Picked Image holder (SVG only) ─────────────────────────────────────────
-class _PickedImage {
-  Uint8List? bytes;
-  String? url;
-  String fileName;
-
-  _PickedImage({this.bytes, this.url, this.fileName = ''});
-
-  bool get hasImage => bytes != null || (url != null && url!.isNotEmpty);
-  void clear() {
-    bytes = null;
-    url = null;
-    fileName = '';
-  }
-}
-
-// ── Local UI-only holder for documents ─────────────────────────────────────
-class _DocItem {
-  Uint8List? bytes;
-  String fileName;
-  String existingUrl;
-
-  _DocItem({this.bytes, this.fileName = '', this.existingUrl = ''});
-
-  bool get hasFile => bytes != null || existingUrl.isNotEmpty;
-  String get displayName =>
-      bytes != null ? fileName : existingUrl.split('/').last.split('?').first;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 
 class TermsEditPage extends StatefulWidget {
   const TermsEditPage({super.key});

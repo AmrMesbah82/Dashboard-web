@@ -29,7 +29,7 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/about_us_model.dart';
+import '../../../data/models/about_us_model.dart';
 import '../../controller/about_us_cubit.dart';
 import '../../controller/about_us_state.dart';
 import 'about_us_edit.dart';

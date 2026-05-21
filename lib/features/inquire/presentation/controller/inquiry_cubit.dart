@@ -6,7 +6,7 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/model/inquiry_model.dart';
+import '../../data/models/inquiry_model.dart';
 import '../../domain/repo/inquiry_repo.dart';
 import 'inquiry_state.dart';
 
@@ -28,13 +28,10 @@ class InquiryCubit extends Cubit<InquiryState> {
 
   Future<void> loadInquiries() async {
     try {
-      print('🟡 [InquiryCubit] loadInquiries()');
       emit(InquiryLoading());
       _allInquiries = await _repo.fetchAllInquiries();
-      print('🟢 [InquiryCubit] loadInquiries() — ${_allInquiries.length}');
       _emitLoaded();
     } catch (e) {
-      print('🔴 [InquiryCubit] loadInquiries() ERROR: $e');
       emit(InquiryError('Failed to load: $e', lastInquiries: _allInquiries));
     }
   }
@@ -79,7 +76,6 @@ class InquiryCubit extends Cubit<InquiryState> {
 
   Future<void> loadDetail(String id) async {
     try {
-      print('🟡 [InquiryCubit] loadDetail($id)');
       final local = _allInquiries.where((i) => i.id == id).toList();
       if (local.isNotEmpty) {
         emit(InquiryDetailLoaded(local.first));
@@ -92,14 +88,12 @@ class InquiryCubit extends Cubit<InquiryState> {
         emit(InquiryError('Inquiry not found', lastInquiries: _allInquiries));
       }
     } catch (e) {
-      print('🔴 [InquiryCubit] loadDetail() ERROR: $e');
       emit(InquiryError('Failed to load: $e', lastInquiries: _allInquiries));
     }
   }
 
   Future<void> updateStatus(String id, InquiryStatus newStatus) async {
     try {
-      print('🟡 [InquiryCubit] updateStatus($id → ${newStatus.label})');
       await _repo.updateStatus(id, newStatus);
       _allInquiries = _allInquiries.map((i) {
         if (i.id == id) return i.copyWith(status: newStatus);
@@ -110,16 +104,13 @@ class InquiryCubit extends Cubit<InquiryState> {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (!isClosed) _emitLoaded();
       });
-      print('🟢 [InquiryCubit] updateStatus() — done');
     } catch (e) {
-      print('🔴 [InquiryCubit] updateStatus() ERROR: $e');
       emit(InquiryError('Failed to update: $e', lastInquiries: _allInquiries));
     }
   }
 
   Future<void> updateNote(String id, String note) async {
     try {
-      print('🟡 [InquiryCubit] updateNote($id)');
       final inquiry = _allInquiries.firstWhere((i) => i.id == id);
       final updated = inquiry.copyWith(note: note);
       await _repo.updateInquiry(updated);
@@ -128,9 +119,7 @@ class InquiryCubit extends Cubit<InquiryState> {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (!isClosed) _emitLoaded();
       });
-      print('🟢 [InquiryCubit] updateNote() — done');
     } catch (e) {
-      print('🔴 [InquiryCubit] updateNote() ERROR: $e');
       emit(InquiryError('Failed to save: $e', lastInquiries: _allInquiries));
     }
   }

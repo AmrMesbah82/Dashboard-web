@@ -7,7 +7,7 @@
 // UPDATED: Added BlogDraftSaved and BlogDraftDeleted states ✅
 
 
-import '../../data/model/blog_model.dart';
+import '../../data/models/blog_model.dart';
 
 abstract class BlogState {}
 

@@ -29,7 +29,6 @@ abstract class AppTheme {
     final ar  = arabicFont.isEmpty  ? 'Cairo' : arabicFont;
     _storage.write('font',        eng);
     _storage.write('font_arabic', ar);
-    print('✅ [AppTheme] applyFonts() font=$eng font_arabic=$ar');
     Get.forceAppUpdate(); // ✅ forces full widget tree rebuild
   }
 
@@ -370,11 +369,9 @@ abstract class AppTheme {
 
   static void initTheme(
       Color primaryColor, Color secondaryColor, bool isDarkMode) async {
-    print("theme at main core theme controller isDarkMode $isDarkMode");
     isDark = isDarkMode;
     interfaceUpdateBrandingColors(primaryColor, secondaryColor);
     setCurrentThemeColors();
-    print("theme at main core theme controller isDarkMode $isDark");
   }
 
   static void interfaceUpdateBrandingColors(

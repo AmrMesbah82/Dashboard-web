@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 import '../../domain/repo/about_company_repo.dart';
-import '../../data/model/about_us_company_model.dart';
+import '../../data/models/about_us_company_model.dart';
 import 'about_us_company_state.dart';
 
 class AboutCompanyCubit extends Cubit<AboutCompanyState> {
@@ -26,16 +26,13 @@ class AboutCompanyCubit extends Cubit<AboutCompanyState> {
 
   Future<void> loadAboutCompany() async {
     try {
-      print('🟡 [AboutCompanyCubit] loadAboutCompany()');
       emit(AboutCompanyLoading());
 
       final data = await _repo.fetchAboutCompany();
       _cachedData = data ?? AboutCompanyModel.empty();
 
-      print('🟢 [AboutCompanyCubit] loadAboutCompany() — loaded');
       emit(AboutCompanyLoaded(_cachedData!));
     } catch (e) {
-      print('🔴 [AboutCompanyCubit] loadAboutCompany() ERROR: $e');
       emit(AboutCompanyError('Failed to load: $e', lastData: _cachedData));
     }
   }
@@ -49,7 +46,6 @@ class AboutCompanyCubit extends Cubit<AboutCompanyState> {
     required String aboutAr,
   }) async {
     try {
-      print('🟡 [AboutCompanyCubit] saveAboutCompany()');
 
       final updated = (_cachedData ?? AboutCompanyModel.empty()).copyWith(
         aboutEn: aboutEn,
@@ -60,7 +56,6 @@ class AboutCompanyCubit extends Cubit<AboutCompanyState> {
       await _repo.saveAboutCompany(updated);
       _cachedData = updated;
 
-      print('🟢 [AboutCompanyCubit] saveAboutCompany() — done');
       emit(AboutCompanySaved(updated));
 
       // Re-emit loaded so UI refreshes
@@ -68,7 +63,6 @@ class AboutCompanyCubit extends Cubit<AboutCompanyState> {
         if (!isClosed) emit(AboutCompanyLoaded(updated));
       });
     } catch (e) {
-      print('🔴 [AboutCompanyCubit] saveAboutCompany() ERROR: $e');
       emit(AboutCompanyError('Failed to save: $e', lastData: _cachedData));
     }
   }

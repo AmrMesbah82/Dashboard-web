@@ -28,7 +28,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/application_model.dart';
+import '../../../data/models/application_model.dart';
 import '../../controller/application_cubit.dart';
 import '../../controller/application_state.dart';
 import 'job_listing_main.dart';

@@ -2,7 +2,7 @@
 // File Name: intern_state.dart
 
 
-import '../../data/model/intern_model.dart';
+import '../../data/models/intern_model.dart';
 
 abstract class InternState {}
 

@@ -18,7 +18,7 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/department_model.dart';
+import '../../../data/models/department_model.dart';
 import '../../controller/department_cubit.dart';
 import '../../controller/department_state.dart';
 

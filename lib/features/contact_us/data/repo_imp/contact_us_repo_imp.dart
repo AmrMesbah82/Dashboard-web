@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 import '../../domain/repo/contact_us_repo.dart';
-import '../model/contact_us_model.dart';
+import '../models/contact_us_model.dart';
 
 class ContactRepoImpl implements ContactRepo {
   final _col = FirebaseFirestore.instance.collection('contact_submissions');

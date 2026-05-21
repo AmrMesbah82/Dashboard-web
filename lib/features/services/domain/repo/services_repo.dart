@@ -4,7 +4,7 @@
 
 import 'dart:typed_data';
 
-import '../../data/model/services_model.dart';
+import '../../data/models/services_model.dart';
 
 abstract class ServiceRepository {
   Future<ServicePageModel> fetchServicePage();

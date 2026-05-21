@@ -18,7 +18,7 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/data/model/home_model.dart';
+import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';

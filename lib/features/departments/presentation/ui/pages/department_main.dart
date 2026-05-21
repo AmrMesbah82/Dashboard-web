@@ -11,9 +11,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 
-
-
-
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -21,15 +18,17 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
-import '../../../../job/data/model/job_listing_model.dart';
+import '../../../../job/data/models/job_listing_model.dart';
 import '../../../../job/presentation/controller/job_listing_cubit.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/department_model.dart';
+import '../../../data/models/department_model.dart';
 import '../../controller/department_cubit.dart';
 import '../../controller/department_state.dart';
 import 'department_create.dart';
 import 'department_detail.dart';   // ← NEW
+
+part '../widget/department_main/department_card.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -221,203 +220,3 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
 // ═════════════════════════════════════════════════════════════════════════════
 //  DEPARTMENT CARD
 // ═════════════════════════════════════════════════════════════════════════════
-
-class _DepartmentCard extends StatefulWidget {
-  final DepartmentModel    department;
-  final List<JobPostModel> allJobs;
-  final VoidCallback       onTap;
-
-  const _DepartmentCard({
-    required this.department,
-    required this.allJobs,
-    required this.onTap,
-  });
-
-  @override
-  State<_DepartmentCard> createState() => _DepartmentCardState();
-}
-
-class _DepartmentCardState extends State<_DepartmentCard> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final deptJobs = widget.allJobs
-        .where((j) =>
-    j.department.toLowerCase() ==
-        widget.department.nameEn.toLowerCase())
-        .toList();
-
-    final totalCount    = deptJobs.length;
-    final activeCount   =
-        deptJobs.where((j) => j.status == JobStatus.active).length;
-    final inactiveCount =
-        deptJobs.where((j) => j.status == JobStatus.inactive).length;
-
-    final createdText = widget.department.createdAt != null
-        ? 'Created At: ${widget.department.createdAt!.day} '
-        '${_monthName(widget.department.createdAt!.month)} '
-        '${widget.department.createdAt!.year}'
-        : 'Created At: —';
-
-    return MouseRegion(
-      cursor:   SystemMouseCursors.click,
-      onEnter:  (_) => setState(() => _hovered = true),
-      onExit:   (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          decoration: BoxDecoration(
-            color:        Colors.white,
-            borderRadius: BorderRadius.circular(10.r),
-            boxShadow: _hovered
-                ? [
-              BoxShadow(
-                color:      ColorPick.primary.withOpacity(0.15),
-                blurRadius: 12,
-                offset:     const Offset(0, 4),
-              )
-            ]
-                : [],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-                child: Row(
-                  children: [
-                    // ── Company logo ──
-                    BlocBuilder<HomeCmsCubit, HomeCmsState>(
-                      builder: (context, state) {
-                        final String logoUrl = switch (state) {
-                          HomeCmsLoaded(:final data) => data.branding.logoUrl,
-                          HomeCmsSaved(:final data)  => data.branding.logoUrl,
-                          _                          => '',
-                        };
-                        return Container(
-                          width:  30.sp,
-                          height: 30.sp,
-                          decoration: BoxDecoration(
-                            color:        const Color(0xFFF0F0F0),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.r),
-                            child: logoUrl.isNotEmpty
-                                ? SvgPicture.network(
-                              logoUrl,
-                              width:  30.sp,
-                              height: 30.sp,
-                              fit:    BoxFit.fill,
-                              placeholderBuilder: (_) => Icon(
-                                Icons.business_rounded,
-                                size:  18.sp,
-                                color: ColorPick.primary,
-                              ),
-                            )
-                                : Icon(Icons.business_rounded,
-                                size:  18.sp, color: ColorPick.primary),
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(width: 10.w),
-                    Expanded(
-                      child: Text(
-                        widget.department.nameEn.isEmpty
-                            ? 'Department Name'
-                            : widget.department.nameEn,
-                        style: TextStyle(
-                          fontSize:   15.sp,
-                          fontWeight: FontWeight.w700,
-                          color:      AppColors.text,
-                        ),
-                        maxLines:  1,
-                        overflow:  TextOverflow.ellipsis,
-                      ),
-                    ),
-                    // ── Arrow indicator ──
-                    Icon(Icons.arrow_forward_ios_rounded,
-                        size: 12.sp, color: AppColors.secondaryText),
-                  ],
-                ),
-              ),
-              SizedBox(height: 14.h),
-
-              // ── Stats ──
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _statRow('Total Job Post:', totalCount,
-                        'assets/images/job_list/totoal_job.svg'),
-                    SizedBox(height: 6.h),
-                    _statRow('Active Job:', activeCount,
-                        'assets/images/job_list/active_job.svg'),
-                    SizedBox(height: 6.h),
-                    _statRow('Inactive Job:', inactiveCount,
-                        'assets/images/job_list/inactive_job.svg'),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // ── Bottom bar ──
-              Container(
-                width:   double.infinity,
-                padding: EdgeInsets.symmetric(
-                    horizontal: 16.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: ColorPick.primary,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft:  Radius.circular(10.r),
-                    bottomRight: Radius.circular(10.r),
-                  ),
-                ),
-                child: Text(
-                  createdText,
-                  style: TextStyle(
-                    fontSize:   12.sp,
-                    color:      Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _statRow(String label, int count, String svgPath) {
-    return Row(
-      children: [
-        CustomSvg(
-            assetPath: svgPath,
-            width:     14.sp,
-            height:    14.sp,
-            fit:       BoxFit.contain),
-        SizedBox(width: 8.w),
-        Text('$label ',
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: AppColors.text)),
-        Text('$count',
-            style: StyleText.fontSize12Weight500
-                .copyWith(color: AppColors.secondaryText)),
-      ],
-    );
-  }
-
-  String _monthName(int m) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return months[m - 1];
-  }
-}

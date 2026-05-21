@@ -27,10 +27,13 @@ import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
-import '../../../../data/model/services_model.dart';
+import '../../../../data/models/services_model.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 import 'services_digital_preview.dart';
+
+part '../../widget/services_digital_main/item_controllers.dart';
+part '../../widget/services_digital_main/original_item_data.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -119,21 +122,17 @@ class _ServicesDigitalJourneyEditPageState
   // ── Change detection ───────────────────────────────────────────────────────
   void _checkForChanges() {
     final hasChanges = _hasAnyChanges();
-    print('Has changes: $hasChanges'); // Debug line
     if (hasChanges != _hasChanges) {
       setState(() => _hasChanges = hasChanges);
-      print('Updated _hasChanges to: $hasChanges'); // Debug line
     }
   }
 
   bool _hasAnyChanges() {
     if (_journeyTitleEnCtrl.text != _originalJourneyTitleEn ||
         _journeyTitleArCtrl.text != _originalJourneyTitleAr) {
-      print('Title changed'); // Debug
       return true;
     }
     if (_itemCtrls.length != _originalItems.length) {
-      print('Item count changed'); // Debug
       return true;
     }
     for (int i = 0; i < _itemCtrls.length; i++) {
@@ -148,7 +147,6 @@ class _ServicesDigitalJourneyEditPageState
           cur.descEnCtrl.text != ori.descEn ||
           cur.descArCtrl.text != ori.descAr ||
           cur.iconUrl != ori.iconUrl) {
-        print('Item $i changed - icon: ${cur.iconUrl} vs ${ori.iconUrl}'); // Debug
         return true;
       }
     }
@@ -876,7 +874,6 @@ class _ServicesDigitalJourneyEditPageState
     final isFormValid = _isFormValid();
     final isSaveEnabled = _hasChanges && isFormValid && !_isSaving;
 
-    print('Publish state - hasChanges: $_hasChanges, isFormValid: $isFormValid, isSaving: $_isSaving, enabled: $isSaveEnabled'); // Debug
     return Column(
       children: [
         Row(children: [
@@ -1073,72 +1070,3 @@ class _ServicesDigitalJourneyEditPageState
 }
 
 // ── Per-item controller holder ─────────────────────────────────────────────
-class _ItemControllers {
-  final String itemId;
-  final TextEditingController titleEnCtrl;
-  final TextEditingController titleArCtrl;
-  final TextEditingController descEnCtrl;
-  final TextEditingController descArCtrl;
-  String iconUrl;
-
-  _ItemControllers({
-    required this.itemId,
-    required this.titleEnCtrl,
-    required this.titleArCtrl,
-    required this.descEnCtrl,
-    required this.descArCtrl,
-    required this.iconUrl,
-  });
-
-  factory _ItemControllers.fromModel(JourneyItemModel m) => _ItemControllers(
-    itemId: m.id,
-    titleEnCtrl: TextEditingController(text: m.title.en),
-    titleArCtrl: TextEditingController(text: m.title.ar),
-    descEnCtrl: TextEditingController(text: m.description.en),
-    descArCtrl: TextEditingController(text: m.description.ar),
-    iconUrl: m.iconUrl,
-  );
-
-  factory _ItemControllers.empty() => _ItemControllers(
-    itemId: 'ji_${DateTime.now().millisecondsSinceEpoch}',
-    titleEnCtrl: TextEditingController(),
-    titleArCtrl: TextEditingController(),
-    descEnCtrl: TextEditingController(),
-    descArCtrl: TextEditingController(),
-    iconUrl: '',
-  );
-
-  void dispose() {
-    titleEnCtrl.dispose();
-    titleArCtrl.dispose();
-    descEnCtrl.dispose();
-    descArCtrl.dispose();
-  }
-}
-
-// ── Original item data ─────────────────────────────────────────────────────
-class _OriginalItemData {
-  final String id;
-  final String titleEn;
-  final String titleAr;
-  final String descEn;
-  final String descAr;
-  final String iconUrl;
-
-  _OriginalItemData({
-    required this.id,
-    required this.titleEn,
-    required this.titleAr,
-    required this.descEn,
-    required this.descAr,
-    required this.iconUrl,
-  });
-}
-
-// ── Ordinal helper ─────────────────────────────────────────────────────────
-String _ordinal(int n) {
-  if (n == 1) return '1st';
-  if (n == 2) return '2nd';
-  if (n == 3) return '3rd';
-  return '${n}th';
-}

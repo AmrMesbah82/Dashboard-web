@@ -27,7 +27,7 @@ import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/new_theme.dart';
-import '../../../../data/model/about_us_model.dart';
+import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'strategy_preview.dart';
@@ -227,14 +227,12 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
         }
 
         if (bytes != null) {
-          print('🔵 File loaded: ${file.name}, size: ${bytes.length} bytes');
           c.complete(bytes);
         } else {
           c.complete(null);
         }
       });
       reader.onError.listen((e) {
-        print('🔴 Error reading file: $e');
         c.complete(null);
       });
     });
@@ -269,14 +267,12 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
         }
 
         if (bytes != null) {
-          print('🔵 File loaded: ${file.name}, size: ${bytes.length} bytes');
           c.complete(bytes);
         } else {
           c.complete(null);
         }
       });
       reader.onError.listen((e) {
-        print('🔴 Error reading file: $e');
         c.complete(null);
       });
     });
@@ -289,10 +285,6 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
     if (_seeded) return;
     _seeded = true;
 
-    print('🔵 Seeding strategy data:');
-    print('  - Nav icon URL: ${m.navigationLabel.iconUrl}');
-    print('  - Strategic House EN URL: ${m.strategicHouseEnUrl}');
-    print('  - Strategic House AR URL: ${m.strategicHouseArUrl}');
 
     _originalNavTitleEn          = m.navigationLabel.title.en;
     _originalNavTitleAr          = m.navigationLabel.title.ar;
@@ -419,10 +411,6 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
     final model   = _buildModel('published');
     final uploads = _collectUploads();
 
-    print('🔵 Saving strategy:');
-    print('  - Nav icon bytes: ${_navIconBytes != null}');
-    print('  - Strategic House EN bytes: ${_strategicHouseEnBytes != null}');
-    print('  - Strategic House AR bytes: ${_strategicHouseArBytes != null}');
 
     try {
       await context.read<StrategyCubit>().save(
@@ -1268,7 +1256,6 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
 
   Future<Uint8List> _loadSvgBytes(String url) async {
     try {
-      print('🔵 Loading SVG from URL: $url');
       final res = await html.HttpRequest.request(
         url,
         method: 'GET',
@@ -1278,10 +1265,8 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
         throw Exception('Failed to load SVG: ${res.status}');
       }
       final bytes = (res.response as ByteBuffer).asUint8List();
-      print('🟢 SVG loaded, size: ${bytes.length} bytes');
       return bytes;
     } catch (e) {
-      print('🔴 Error loading SVG: $e');
       rethrow;
     }
   }

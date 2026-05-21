@@ -6,7 +6,7 @@
 // FIXED: Advanced filter uses actual JobPostModel fields
 
 import '../../../../core/main_widgets/job_listing_filter_dialog.dart';
-import '../../data/model/job_listing_model.dart';
+import '../../data/models/job_listing_model.dart';
 
 abstract class JobListingState {}
 

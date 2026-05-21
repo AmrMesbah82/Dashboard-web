@@ -21,7 +21,7 @@ import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/inquiry_model.dart';
+import '../../../data/models/inquiry_model.dart';
 import '../../controller/inquiry_cubit.dart';
 import '../../controller/inquiry_state.dart';
 

@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/model/intern_model.dart';
+import '../../data/models/intern_model.dart';
 
 class InternRepository {
   final FirebaseFirestore _db      = FirebaseFirestore.instance;

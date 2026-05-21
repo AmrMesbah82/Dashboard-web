@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 
 
-import '../../data/model/careers_section_model.dart';
+import '../../data/models/careers_section_model.dart';
 import '../../data/repo_imp/careers_section_repo_imp.dart';
 import '../../domain/repo/careers_section_repo.dart';
 import 'careers_section_state.dart';
@@ -31,14 +31,11 @@ class CareersSectionCubit extends Cubit<CareersSectionState> {
 
   // ── Load ────────────────────────────────────────────────────────────────────
   Future<void> load() async {
-    print('🟡 [CareersSectionCubit] load($sectionKey)');
     emit(CareersSectionLoading());
     try {
       _model = await _repo.load(sectionKey);
       emit(CareersSectionLoaded(_model));
-      print('🟢 [CareersSectionCubit] loaded ${_model.items.length} items');
     } catch (e) {
-      print('🔴 [CareersSectionCubit] load error: $e');
       emit(CareersSectionError(e.toString()));
     }
   }
@@ -50,7 +47,6 @@ class CareersSectionCubit extends Cubit<CareersSectionState> {
       ..add(CareersSectionItem(id: newId));
     _model = _model.copyWith(items: updated);
     emit(CareersSectionLoaded(_model));
-    print('🟢 [CareersSectionCubit] addItem → ${_model.items.length} items');
   }
 
   // ── Remove Item ─────────────────────────────────────────────────────────────
@@ -59,8 +55,7 @@ class CareersSectionCubit extends Cubit<CareersSectionState> {
     _model.items.where((item) => item.id != itemId).toList();
     _model = _model.copyWith(items: updated);
     emit(CareersSectionLoaded(_model));
-    print('🟢 [CareersSectionCubit] removeItem($itemId) → '
-        '${_model.items.length} items');
+
   }
 
   // ── Update Title ────────────────────────────────────────────────────────────
@@ -87,31 +82,26 @@ class CareersSectionCubit extends Cubit<CareersSectionState> {
 
   // ── Upload Icon ─────────────────────────────────────────────────────────────
   Future<void> uploadIcon(String itemId, Uint8List bytes) async {
-    print('🟡 [CareersSectionCubit] uploadIcon($itemId)');
     final url = await _repo.uploadIcon(sectionKey, itemId, bytes);
     final updated = _model.items.map((item) {
       if (item.id != itemId) return item;
       return item.copyWith(iconUrl: url);
     }).toList();
     _model = _model.copyWith(items: updated);
-    print('🟢 [CareersSectionCubit] icon uploaded → $url');
   }
 
   // ── Upload SVG Image ────────────────────────────────────────────────────────
   Future<void> uploadSvg(String itemId, Uint8List bytes) async {
-    print('🟡 [CareersSectionCubit] uploadSvg($itemId)');
     final url = await _repo.uploadSvg(sectionKey, itemId, bytes);
     final updated = _model.items.map((item) {
       if (item.id != itemId) return item;
       return item.copyWith(svgUrl: url);
     }).toList();
     _model = _model.copyWith(items: updated);
-    print('🟢 [CareersSectionCubit] svg uploaded → $url');
   }
 
   // ── Save ────────────────────────────────────────────────────────────────────
   Future<void> save() async {
-    print('🟡 [CareersSectionCubit] save($sectionKey)');
     emit(CareersSectionLoading());
     try {
       _model = _model.copyWith(lastUpdated: DateTime.now());
@@ -119,9 +109,7 @@ class CareersSectionCubit extends Cubit<CareersSectionState> {
       // Reload to get server timestamp
       _model = await _repo.load(sectionKey);
       emit(CareersSectionSaved(_model));
-      print('🟢 [CareersSectionCubit] saved successfully');
     } catch (e) {
-      print('🔴 [CareersSectionCubit] save error: $e');
       emit(CareersSectionError(e.toString()));
     }
   }

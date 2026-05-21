@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
-import '../../data/model/intern_model.dart';
+import '../../data/models/intern_model.dart';
 import '../../domain/repo/intern_repo.dart';
 import 'intern_state.dart';
 

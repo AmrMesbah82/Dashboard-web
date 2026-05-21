@@ -16,7 +16,7 @@ import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../../core/two_tab.dart';
 import '../../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../../data/model/services_model.dart';
+import '../../../../data/models/services_model.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 import '../services_main/services_main.dart'; // ← same import as edit page

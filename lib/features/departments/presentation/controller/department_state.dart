@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 
-import '../../data/model/department_model.dart';
+import '../../data/models/department_model.dart';
 
 abstract class DepartmentState {}
 

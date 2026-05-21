@@ -22,7 +22,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uuid/uuid.dart';
 
-
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
@@ -31,81 +30,17 @@ import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
-import '../../../data/model/our_teams_model.dart';
+import '../../../data/models/our_teams_model.dart';
 import '../../controller/our_teams_cubit.dart';
 import '../../controller/our_teams_state.dart';
 import 'our_teams_preview.dart';
 
-
-
+part '../widget/our_teams_edit/picked_image.dart';
+part '../widget/our_teams_edit/deliverable_edit.dart';
+part '../widget/our_teams_edit/team_item_edit.dart';
 
 // ── Local editable model ─────────────────────────────────────────────────────
 
-class _PickedImage {
-  final Uint8List? bytes;
-  final String?   url;
-  const _PickedImage({this.bytes, this.url});
-  bool get isEmpty => bytes == null && (url == null || url!.isEmpty);
-  bool get hasImage => !isEmpty;
-}
-
-class _DeliverableEdit {
-  final String id;
-  final TextEditingController enCtrl;
-  final TextEditingController arCtrl;
-
-  _DeliverableEdit({required this.id, String en = '', String ar = ''})
-      : enCtrl = TextEditingController(text: en),
-        arCtrl = TextEditingController(text: ar);
-
-  void dispose() {
-    enCtrl.dispose();
-    arCtrl.dispose();
-  }
-}
-
-class _TeamItemEdit {
-  final String id;
-  _PickedImage icon;
-  final TextEditingController headingEn;
-  final TextEditingController headingAr;
-  final TextEditingController titleEn;
-  final TextEditingController titleAr;
-  final TextEditingController descEn;
-  final TextEditingController descAr;
-  final List<_DeliverableEdit> deliverables;
-
-  _TeamItemEdit({
-    required this.id,
-    _PickedImage? icon,
-    String headingEn = '',
-    String headingAr = '',
-    String titleEn   = '',
-    String titleAr   = '',
-    String descEn    = '',
-    String descAr    = '',
-    List<_DeliverableEdit>? deliverables,
-  })  : icon       = icon ?? const _PickedImage(),
-        headingEn  = TextEditingController(text: headingEn),
-        headingAr  = TextEditingController(text: headingAr),
-        titleEn    = TextEditingController(text: titleEn),
-        titleAr    = TextEditingController(text: titleAr),
-        descEn     = TextEditingController(text: descEn),
-        descAr     = TextEditingController(text: descAr),
-        deliverables = deliverables ?? [];
-
-  void dispose() {
-    headingEn.dispose();
-    headingAr.dispose();
-    titleEn.dispose();
-    titleAr.dispose();
-    descEn.dispose();
-    descAr.dispose();
-    for (final d in deliverables) d.dispose();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 class OurTeamsEditPage extends StatefulWidget {
   const OurTeamsEditPage({super.key});
 

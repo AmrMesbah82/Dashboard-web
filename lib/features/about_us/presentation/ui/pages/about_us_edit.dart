@@ -26,11 +26,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/core/constant/color.dart';
 
-
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
-
-
 
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -40,11 +37,13 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/about_us_model.dart';
+import '../../../data/models/about_us_model.dart';
 import '../../controller/about_us_cubit.dart';
 import '../../controller/about_us_state.dart';
 import 'about_us_main.dart';
 import 'about_us_preview.dart';
+
+part '../widget/about_us_edit/value_item.dart';
 
 // const Color _kGreen = Color(0xFF2D8C4E);
 // const Color ColorPick.primary = Color(0xFF008037);
@@ -1586,15 +1585,3 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
 }
 
 // ── Value item helper class ────────────────────────────────────────────────────
-class _ValueItem {
-  final String id;
-  final int counter;
-  final titleEnCtrl = TextEditingController();
-  final titleArCtrl = TextEditingController();
-  final shortDescEnCtrl = TextEditingController();
-  final shortDescArCtrl = TextEditingController();
-  Uint8List? iconBytes;
-  String iconUrl = '';
-
-  _ValueItem({required this.id, required this.counter});
-}

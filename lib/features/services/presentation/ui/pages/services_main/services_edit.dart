@@ -24,7 +24,7 @@ import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../../data/model/services_model.dart';
+import '../../../../data/models/services_model.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 

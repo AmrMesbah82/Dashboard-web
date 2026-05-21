@@ -21,31 +21,15 @@ import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
-import '../../../data/model/careers_model.dart';
+import '../../../data/models/careers_model.dart';
 import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 
+part '../widget/careers_main/chart_colors.dart';
+part '../widget/careers_main/legend_item.dart';
+part '../widget/careers_main/pie_item.dart';
+
 // ── Chart color palette ──────────────────────────────────────────────────────
-
-class _ChartColors {
-  static const Color green       = ColorPick.primary;       // 0xFF008037
-  static const Color darkGreen   = Color(0xFF1B5E20);
-  static const Color orange      = ColorPick.scheduled;     // 0xFFFF8F00
-  static const Color red         = ColorPick.red;           // 0xFFD31426
-  static const Color lightRed    = ColorPick.removedColor;  // 0xFFCC0000
-  static const Color yellow      = Color(0xFFFFD452);
-  static const Color grey        = Color(0xFFACACAC);
-  static const Color teal        = Color(0xFF00897B);
-  static const Color pink        = Color(0xFFE91E63);
-  static const Color scheduled   = ColorPick.scheduled;     // 0xFFFF8F00
-  static const Color draft       = ColorPick.draftColor;    // 0xFF666666
-  static const Color active      = ColorPick.activeColor;   // 0xFF008037
-  static const Color closed      = ColorPick.red;           // 0xFFD31426
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-//  CAREERS MAIN PAGE
-// ═════════════════════════════════════════════════════════════════════════════
 
 class CareersMainPageDashboard extends StatefulWidget {
   const CareersMainPageDashboard({super.key});
@@ -1241,16 +1225,3 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 }
 
 // ── Internal helper classes ──────────────────────────────────────────────────
-
-class _LegendItem {
-  final String label;
-  final Color  color;
-  const _LegendItem(this.label, this.color);
-}
-
-class _PieItem {
-  final String label;
-  final double value;
-  final Color  color;
-  const _PieItem(this.label, this.value, this.color);
-}

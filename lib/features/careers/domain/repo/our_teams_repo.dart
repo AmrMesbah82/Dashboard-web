@@ -3,7 +3,7 @@
 
 import 'dart:typed_data';
 
-import '../../data/model/our_teams_model.dart';
+import '../../data/models/our_teams_model.dart';
 
 abstract class OurTeamsRepo {
   /// Load the Our Teams section from Firestore.

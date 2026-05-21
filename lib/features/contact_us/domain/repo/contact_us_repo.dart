@@ -3,7 +3,7 @@
 // Created by: Amr Mesbah
 
 
-import '../../data/model/contact_us_model.dart';
+import '../../data/models/contact_us_model.dart';
 
 abstract class ContactRepo {
   /// Submit a new message from the public Contact page

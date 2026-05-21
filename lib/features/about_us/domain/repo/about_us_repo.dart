@@ -4,7 +4,7 @@
 
 import 'dart:typed_data';
 
-import '../../data/model/about_us_model.dart';
+import '../../data/models/about_us_model.dart';
 
 abstract class AboutRepo {
   // About Us

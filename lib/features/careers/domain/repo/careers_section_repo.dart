@@ -4,7 +4,7 @@
 
 import 'dart:typed_data';
 
-import '../../data/model/careers_section_model.dart';
+import '../../data/models/careers_section_model.dart';
 
 abstract class CareersSectionRepo {
   /// Load all items for a given section key

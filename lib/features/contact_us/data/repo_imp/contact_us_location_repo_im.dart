@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../domain/repo/contact_us_location.dart';
-import '../model/contact_us_model_location.dart';
+import '../models/contact_us_model_location.dart';
 
 
 class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
@@ -37,7 +37,6 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
 
       return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← THIS was missing
     } catch (e) {
-      print('❌ ContactUsCmsRepo.load error: $e');
       rethrow;
     }
   }
@@ -63,9 +62,7 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
           .doc(_docId)
           .set(json, SetOptions(merge: true));
 
-      print('✅ ContactUsCmsRepo.save: saved successfully');
     } catch (e) {
-      print('❌ ContactUsCmsRepo.save error: $e');
       rethrow;
     }
   }
@@ -93,9 +90,7 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
         final downloadUrl = await ref.getDownloadURL();
 
         urls[path] = downloadUrl;
-        print('✅ Uploaded: $path → $downloadUrl');
       } catch (e) {
-        print('❌ Failed to upload $path: $e');
         // Continue with other uploads even if one fails
       }
     }

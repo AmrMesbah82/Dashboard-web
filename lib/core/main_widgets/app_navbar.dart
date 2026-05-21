@@ -22,7 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../features/home/data/model/home_model.dart';
+import '../../features/home/data/models/home_model.dart';
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
 import '../../features/home/presentation/controller/lang_state.dart';

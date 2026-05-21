@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 
-import '../../data/model/about_us_company_model.dart';
+import '../../data/models/about_us_company_model.dart';
 
 abstract class AboutCompanyState {}
 
