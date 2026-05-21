@@ -26,7 +26,7 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/main_widgets/job_listing_filter_dialog.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
-import '../../../../abou_us/presentation/ui/pages/about_us_company_main.dart';
+import '../../../../about_us/presentation/ui/pages/about_us_company_main.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../departments/presentation/ui/pages/department_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';

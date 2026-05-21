@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/abou_us/presentation/controller/about_us_cubit.dart';
-import '../../features/abou_us/presentation/ui/pages/about_us_main.dart';
+
+import '../../features/about_us/presentation/controller/about_us_cubit.dart';
+import '../../features/about_us/presentation/ui/pages/about_us_main.dart';
 import '../../features/careers/presentation/controller/careers_cubit.dart';
 import '../../features/careers/presentation/ui/pages/careers_edit.dart';
 import '../../features/careers/presentation/ui/pages/careers_main.dart';

@@ -154,7 +154,7 @@ width: 165.w,
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
-                color: ColorPick.background,
+                color: ColorPick.white,
                 borderRadius: BorderRadius.circular(4.r),
               ),
               // ── FIXED: dynamic date from model.lastUpdatedAt ──

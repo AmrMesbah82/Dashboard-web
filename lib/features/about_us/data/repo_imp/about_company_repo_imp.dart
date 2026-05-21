@@ -5,8 +5,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
-import '../../../abou_us/data/model/about_us_company_model.dart';
-import '../../../abou_us/domain/repo/about_us_company_repo.dart';
+
+import '../../domain/repo/about_company_repo.dart';
+import '../model/about_us_company_model.dart';
 
 class AboutCompanyRepoImp implements AboutCompanyRepo {
   final FirebaseFirestore _firestore;

@@ -13,7 +13,7 @@ import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
-import '../../../../abou_us/presentation/ui/pages/about_us_company_edit.dart';
+import '../../../../about_us/presentation/ui/pages/about_us_company_edit.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../data/model/job_listing_model.dart';
 import '../../controller/job_listing_cubit.dart';

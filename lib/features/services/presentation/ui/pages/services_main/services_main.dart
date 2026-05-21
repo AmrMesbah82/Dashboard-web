@@ -739,7 +739,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: ColorPick.background,
+            color: ColorPick.white,
             borderRadius: BorderRadius.circular(4.r),
           ),
           child: Text(

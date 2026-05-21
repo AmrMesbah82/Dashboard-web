@@ -18,8 +18,8 @@ import 'package:go_router/go_router.dart';
 
 
 import 'package:web_app_admin/core/widget/navigator.dart';
-import 'package:web_app_admin/features/abou_us/presentation/ui/pages/terms_page/terms_main.dart';
-import 'package:web_app_admin/features/abou_us/presentation/ui/pages/terms_page/terms_preview.dart';
+import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_main.dart';
+import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_preview.dart';
 
 
 import '../../../../../core/constant/color.dart';
@@ -285,7 +285,7 @@ class _AboutMainPageMasterDashboardState
         }
 
         return Scaffold(
-          backgroundColor: ColorPick.white,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: Container(
               width: double.infinity,

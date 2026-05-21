@@ -8,7 +8,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
@@ -26,35 +25,22 @@ import '../../../data/model/careers_model.dart';
 import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 
-
-// ── Local design tokens ──────────────────────────────────────────────────────
-
-// class _C {
-//   static const Color primary   = Color(0xFF008037);
-//   static const Color sectionBg = Color(0xFFF5F5F5);
-//   static const Color cardBg    = Color(0xFFFFFFFF);
-//   static const Color border    = Color(0xFFE0E0E0);
-//   static const Color labelText = Color(0xFF333333);
-//   static const Color hintText  = Color(0xFFAAAAAA);
-//   static const Color back      = Color(0xFFF1F2ED);
-// }
-
 // ── Chart color palette ──────────────────────────────────────────────────────
 
 class _ChartColors {
-  static const Color green       = Color(0xFF008037);
+  static const Color green       = ColorPick.primary;       // 0xFF008037
   static const Color darkGreen   = Color(0xFF1B5E20);
-  static const Color orange      = Color(0xFFFF9800);
-  static const Color red         = Color(0xFFD32F2F);
-  static const Color lightRed    = Color(0xFFF44336);
+  static const Color orange      = ColorPick.scheduled;     // 0xFFFF8F00
+  static const Color red         = ColorPick.red;           // 0xFFD31426
+  static const Color lightRed    = ColorPick.removedColor;  // 0xFFCC0000
   static const Color yellow      = Color(0xFFFFD452);
   static const Color grey        = Color(0xFFACACAC);
   static const Color teal        = Color(0xFF00897B);
   static const Color pink        = Color(0xFFE91E63);
-  static const Color scheduled   = Color(0xFFFFB300);
-  static const Color draft       = Color(0xFF757575);
-  static const Color active      = Color(0xFF2E7D32);
-  static const Color closed      = Color(0xFFD32F2F);
+  static const Color scheduled   = ColorPick.scheduled;     // 0xFFFF8F00
+  static const Color draft       = ColorPick.draftColor;    // 0xFF666666
+  static const Color active      = ColorPick.activeColor;   // 0xFF008037
+  static const Color closed      = ColorPick.red;           // 0xFFD31426
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -69,7 +55,6 @@ class CareersMainPageDashboard extends StatefulWidget {
 }
 
 class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
-  // ── NEW: controls whether the hero SVG image is visible ──
   bool _heroImageVisible = true;
 
   @override
@@ -89,7 +74,8 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
           return const Scaffold(
             backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: ColorPick.primary)),
+              child: CircularProgressIndicator(color: ColorPick.primary),
+            ),
           );
         }
 
@@ -101,14 +87,15 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
           return const Scaffold(
             backgroundColor: ColorPick.white,
             body: Center(
-                child: CircularProgressIndicator(color: ColorPick.primary)),
+              child: CircularProgressIndicator(color: ColorPick.primary),
+            ),
           );
         }
 
         final dash = data.dashboard;
 
         return Scaffold(
-          backgroundColor: ColorPick.back,
+          backgroundColor: ColorPick.background,
           body: SingleChildScrollView(
             child: SizedBox(
               width: double.infinity,
@@ -122,10 +109,8 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   ),
                   SizedBox(height: 20.h),
 
-                  // ── Content ─────────────────────────────────────
                   SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20.w, vertical: 20.h),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                     child: SizedBox(
                       width: 1000.w,
                       child: Column(
@@ -140,7 +125,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                                 style: StyleText.fontSize14Weight500.copyWith(
                                   fontSize: 44.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF008037),
+                                  color: ColorPick.primary,
                                 ),
                               ),
                               const Spacer(),
@@ -174,7 +159,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                             ],
                           ),
 
-                          // ── Hero SVG — shown/hidden based on toggle ──
+                          // ── Hero SVG ──
                           if (_heroImageVisible) ...[
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +176,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
                           SizedBox(height: 20.h),
 
-                          // ── Dashboard Title ─────────────────────
+                          // ── Dashboard Title ──
                           Center(
                             child: Text(
                               'Dashboard',
@@ -202,7 +187,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                           ),
                           SizedBox(height: 20.h),
 
-                          // ── Stat Cards Row ──────────────────────
+                          // ── Stat Cards Row ──
                           CareersStatCardsRow(
                             cards: dash.statCards
                                 .map((c) => CareersStatCardData(
@@ -220,35 +205,35 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
                           // Row 1: Applications Received | Job Posting Status
                           _chartRow(
-                            left: _buildApplicationsReceivedChart(dash),
+                            left:  _buildApplicationsReceivedChart(dash),
                             right: _buildJobPostingStatusChart(dash),
                           ),
                           SizedBox(height: 16.h),
 
                           // Row 2: Hiring Stage (Funnel) | Job Status (Pie)
                           _chartRow(
-                            left: _buildHiringStageChart(dash),
+                            left:  _buildHiringStageChart(dash),
                             right: _buildJobStatusChart(dash),
                           ),
                           SizedBox(height: 16.h),
 
                           // Row 3: Candidate Quality | Jobs Performance
                           _chartRow(
-                            left: _buildCandidateQualityChart(dash),
+                            left:  _buildCandidateQualityChart(dash),
                             right: _buildJobsPerformanceChart(dash),
                           ),
                           SizedBox(height: 16.h),
 
                           // Row 4: Job Offer | Candidate Score Distribution
                           _chartRow(
-                            left: _buildJobOfferChart(dash),
+                            left:  _buildJobOfferChart(dash),
                             right: _buildScoreDistributionChart(dash),
                           ),
                           SizedBox(height: 16.h),
 
                           // Row 5: Employment Types | Candidate Gender
                           _chartRow(
-                            left: _buildEmploymentTypesChart(dash),
+                            left:  _buildEmploymentTypesChart(dash),
                             right: _buildCandidateGenderChart(dash),
                           ),
                           SizedBox(height: 40.h),
@@ -262,71 +247,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
           ),
         );
       },
-    );
-  }
-
-  // ═════════════════════════════════════════════════════════════════════════════
-  //  HERO SECTION
-  // ═════════════════════════════════════════════════════════════════════════════
-
-  Widget _buildHeroSection(CareersCmsModel data) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.sp),
-      decoration: BoxDecoration(
-        color: ColorPick.white,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title row
-          Row(
-            children: [
-              Text(
-                'Bayanatz Jobs',
-                style: StyleText.fontSize24Weight600.copyWith(
-                  color: AppColors.text,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _heroImageVisible = !_heroImageVisible;
-                  });
-                },
-                child: Text(
-                  _heroImageVisible ? 'Hide' : 'Collapse',
-                  style: StyleText.fontSize13Weight500.copyWith(
-                    color: ColorPick.primary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
-
-          // Illustration — only shown when not hidden
-          if (_heroImageVisible)
-            Center(
-              child: SvgPicture.asset(
-                'assets/images/dashboard_image.svg',
-                width: 500.w,
-                height: 250.h,
-                fit: BoxFit.contain,
-                placeholderBuilder: (_) => SizedBox(
-                  height: 250.h,
-                  child: const Center(
-                    child: CircularProgressIndicator(color: ColorPick.primary),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 
@@ -358,8 +278,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
         child: BarChart(
           BarChartData(
             maxY: _niceMax(dash.appReceivedValues),
-            alignment: BarChartAlignment.spaceAround,  // ← add this
-
+            alignment: BarChartAlignment.spaceAround,
             barGroups: dash.appReceivedValues.asMap().entries.map((e) {
               return BarChartGroupData(
                 x: e.key,
@@ -367,7 +286,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   BarChartRodData(
                     toY: e.value,
                     width: 18.sp,
-                    color: _ChartColors.green,
+                    color: ColorPick.primary,
                     borderRadius: BorderRadius.circular(3.r),
                   ),
                 ],
@@ -418,9 +337,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   return BarTooltipItem(
                     rod.toY.toInt().toString(),
                     TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.text),
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.text,
+                    ),
                   );
                 },
               ),
@@ -437,10 +357,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
   Widget _buildJobPostingStatusChart(CareersDashboardData dash) {
     final legends = [
-      _LegendItem('Active', _ChartColors.active),
-      _LegendItem('Closed', _ChartColors.closed),
-      _LegendItem('Scheduled', _ChartColors.scheduled),
-      _LegendItem('Draft', _ChartColors.draft),
+      _LegendItem('Active',    ColorPick.activeColor),
+      _LegendItem('Closed',    ColorPick.red),
+      _LegendItem('Scheduled', ColorPick.scheduled),
+      _LegendItem('Draft',     ColorPick.draftColor),
     ];
 
     final allValues = [
@@ -466,25 +386,29 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                 barsSpace: 3.sp,
                 barRods: [
                   BarChartRodData(
-                      toY: dash.jobPostingActive[i],
-                      width: 10.sp,
-                      color: _ChartColors.active,
-                      borderRadius: BorderRadius.circular(2.r)),
+                    toY: dash.jobPostingActive[i],
+                    width: 10.sp,
+                    color: ColorPick.activeColor,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                   BarChartRodData(
-                      toY: dash.jobPostingClosed[i],
-                      width: 10.sp,
-                      color: _ChartColors.closed,
-                      borderRadius: BorderRadius.circular(2.r)),
+                    toY: dash.jobPostingClosed[i],
+                    width: 10.sp,
+                    color: ColorPick.red,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                   BarChartRodData(
-                      toY: dash.jobPostingScheduled[i],
-                      width: 10.sp,
-                      color: _ChartColors.scheduled,
-                      borderRadius: BorderRadius.circular(2.r)),
+                    toY: dash.jobPostingScheduled[i],
+                    width: 10.sp,
+                    color: ColorPick.scheduled,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                   BarChartRodData(
-                      toY: dash.jobPostingDraft[i],
-                      width: 10.sp,
-                      color: _ChartColors.draft,
-                      borderRadius: BorderRadius.circular(2.r)),
+                    toY: dash.jobPostingDraft[i],
+                    width: 10.sp,
+                    color: ColorPick.draftColor,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                 ],
               );
             }),
@@ -560,10 +484,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
   Widget _buildJobStatusChart(CareersDashboardData dash) {
     final statusColors = {
-      'Active': _ChartColors.active,
-      'Scheduled': _ChartColors.scheduled,
-      'Closed': _ChartColors.closed,
-      'Draft': _ChartColors.draft,
+      'Active':    ColorPick.activeColor,
+      'Scheduled': ColorPick.scheduled,
+      'Closed':    ColorPick.red,
+      'Draft':     ColorPick.draftColor,
     };
 
     final total = dash.jobStatusTotal > 0 ? dash.jobStatusTotal : 1;
@@ -636,7 +560,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                           titleStyle: TextStyle(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: ColorPick.white,
                           ),
                           titlePositionPercentageOffset: 0.55,
                         );
@@ -681,7 +605,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
       child: Expanded(
         child: Row(
           children: [
-            // Legend
             Expanded(
               flex: 2,
               child: Column(
@@ -691,7 +614,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   _qualityLegendRow(
                     '${dash.qualifiedPercent.toInt()}%',
                     'Qualified',
-                    _ChartColors.green,
+                    ColorPick.primary,
                   ),
                   SizedBox(height: 8.sp),
                   _qualityLegendRow(
@@ -703,7 +626,6 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               ),
             ),
 
-            // Pie
             Expanded(
               flex: 3,
               child: Stack(
@@ -716,7 +638,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                       sections: [
                         PieChartSectionData(
                           value: dash.qualifiedPercent,
-                          color: _ChartColors.green,
+                          color: ColorPick.primary,
                           radius: 28.sp,
                           title: '',
                         ),
@@ -770,9 +692,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
             Text(
               percent,
               style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black),
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+              ),
             ),
             Text(
               label,
@@ -791,14 +714,14 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
   Widget _buildJobsPerformanceChart(CareersDashboardData dash) {
     final legends = [
       _LegendItem('Applications', const Color(0xFF1B5E20)),
-      _LegendItem('Interviews', const Color(0xFF2E7D32)),
-      _LegendItem('Hires', const Color(0xFF00897B)),
+      _LegendItem('Interviews',   ColorPick.activeColor),
+      _LegendItem('Hires',        _ChartColors.teal),
     ];
 
     final rowColors = [
       const Color(0xFF1B5E20),
-      const Color(0xFF2E7D32),
-      const Color(0xFF00897B),
+      ColorPick.activeColor,
+      _ChartColors.teal,
     ];
 
     return _chartCard(
@@ -824,11 +747,11 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               dash.performanceHires,
             ];
 
-            final cellSpacing = 4.sp;
-            final labelHeight = 30.h;
+            final cellSpacing   = 4.sp;
+            final labelHeight   = 30.h;
             final availableHeight = constraints.maxHeight - labelHeight - 8.sp;
-            final rowCount = rowValues.length;
-            final cellHeight =
+            final rowCount      = rowValues.length;
+            final cellHeight    =
                 (availableHeight - (cellSpacing * (rowCount - 1))) / rowCount;
 
             return Column(
@@ -844,7 +767,8 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: List.generate(rowCount, (rowIndex) {
                               final value =
-                              rowIndex < rowValues.length && colIndex < rowValues[rowIndex].length
+                              rowIndex < rowValues.length &&
+                                  colIndex < rowValues[rowIndex].length
                                   ? rowValues[rowIndex][colIndex].toInt()
                                   : 0;
 
@@ -865,7 +789,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                                       style: TextStyle(
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                        color: ColorPick.white,
                                       ),
                                     ),
                                   ),
@@ -910,9 +834,9 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
         dash.jobOfferRejected;
 
     final items = [
-      _PieItem('Approved', dash.jobOfferApproved.toDouble(), _ChartColors.green),
+      _PieItem('Approved', dash.jobOfferApproved.toDouble(), ColorPick.primary),
       _PieItem('Pending',  dash.jobOfferPending.toDouble(),  _ChartColors.yellow),
-      _PieItem('Rejected', dash.jobOfferRejected.toDouble(), _ChartColors.red),
+      _PieItem('Rejected', dash.jobOfferRejected.toDouble(), ColorPick.red),
     ];
 
     return _chartCard(
@@ -1035,10 +959,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
   Widget _buildEmploymentTypesChart(CareersDashboardData dash) {
     final entries = dash.employmentTypes.entries.toList();
-    final total = entries.fold<double>(0, (sum, e) => sum + e.value);
+    final total   = entries.fold<double>(0, (sum, e) => sum + e.value);
     final typeColors = [
-      _ChartColors.darkGreen,
-      _ChartColors.green,
+      const Color(0xFF1B5E20),
+      ColorPick.primary,
       const Color(0xFF81C784),
       const Color(0xFFC8E6C9),
     ];
@@ -1054,9 +978,9 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: entries.asMap().entries.map((entry) {
-                  final i = entry.key;
-                  final e = entry.value;
-                  final percent = total > 0 ? (e.value / total * 100) : 0.0;
+                  final i        = entry.key;
+                  final e        = entry.value;
+                  final percent  = total > 0 ? (e.value / total * 100) : 0.0;
                   final barColor = i < typeColors.length ? typeColors[i] : typeColors.last;
 
                   return Padding(
@@ -1158,7 +1082,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   _qualityLegendRow(
                     '${dash.malePercent.toInt()}%',
                     'Male',
-                    _ChartColors.green,
+                    ColorPick.primary,
                   ),
                   SizedBox(height: 8.sp),
                   _qualityLegendRow(
@@ -1179,7 +1103,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   sections: [
                     PieChartSectionData(
                       value: dash.malePercent,
-                      color: _ChartColors.green,
+                      color: ColorPick.primary,
                       radius: 60.sp,
                       title: '',
                     ),
@@ -1286,10 +1210,10 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
   }
 
   double _niceInterval(double maxY) {
-    if (maxY <= 5) return 1;
-    if (maxY <= 10) return 2;
-    if (maxY <= 20) return 5;
-    if (maxY <= 50) return 10;
+    if (maxY <= 5)   return 1;
+    if (maxY <= 10)  return 2;
+    if (maxY <= 20)  return 5;
+    if (maxY <= 50)  return 10;
     if (maxY <= 100) return 20;
     if (maxY <= 200) return 50;
     if (maxY <= 500) return 100;
@@ -1297,7 +1221,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
   }
 
   String _formatLargeNumber(int n) {
-    final s = n.toString();
+    final s      = n.toString();
     final buffer = StringBuffer();
     for (int i = 0; i < s.length; i++) {
       if (i > 0 && (s.length - i) % 3 == 0) buffer.write(',');
@@ -1320,13 +1244,13 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
 
 class _LegendItem {
   final String label;
-  final Color color;
+  final Color  color;
   const _LegendItem(this.label, this.color);
 }
 
 class _PieItem {
   final String label;
   final double value;
-  final Color color;
+  final Color  color;
   const _PieItem(this.label, this.value, this.color);
 }

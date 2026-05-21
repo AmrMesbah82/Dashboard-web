@@ -5,7 +5,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
-import '../../domain/repo/about_us_company_repo.dart';
+import '../../domain/repo/about_company_repo.dart';
 import '../../data/model/about_us_company_model.dart';
 import 'about_us_company_state.dart';
 

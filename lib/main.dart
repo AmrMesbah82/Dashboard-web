@@ -9,12 +9,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:web_app_admin/features/about_us/presentation/controller/about_us_company_cubit.dart';
+import 'package:web_app_admin/features/about_us/presentation/controller/about_us_cubit.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/abou_us/data/repo_imp/about_company_repo_imp.dart';
-import 'features/abou_us/presentation/controller/about_us_company_cubit.dart';
-import 'features/abou_us/presentation/controller/about_us_cubit.dart';
+
+import 'package:web_app_admin/features/about_us/data/repo_imp/about_us_company_repo_imp.dart';
 import 'features/careers/presentation/controller/careers_cubit.dart';
 import 'features/careers/presentation/controller/careers_section_cubit.dart';
 import 'features/contact_us/presentation/controller/contacu_us_location_cubit.dart';
