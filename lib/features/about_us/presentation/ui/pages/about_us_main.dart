@@ -16,11 +16,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_main.dart';
 import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_preview.dart';
-
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
@@ -36,6 +34,9 @@ import 'about_us_edit.dart';
 import 'about_us_preview.dart';
 import 'strategy_page/strategy_main.dart';
 import 'strategy_page/strategy_preview.dart';
+
+part '../widget/about_us_main/about_main_helpers.dart';
+
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -100,19 +101,6 @@ class _AboutMainPageMasterDashboardState
     _strategyCubit.close();
     _termsCubit.close();
     super.dispose();
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // Date formatter
-  // ══════════════════════════════════════════════════════════════════════════
-
-  String _fmtDate(DateTime? d) {
-    if (d == null) return '—';
-    const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${d.day} ${months[d.month]} ${d.year}';
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -356,45 +344,6 @@ class _AboutMainPageMasterDashboardState
 
         SizedBox(height: 40.h),
       ],
-    );
-  }
-
-  // ── Tab bar ────────────────────────────────────────────────────────────────
-  Widget _buildTabBar() {
-    return Row(
-      children: List.generate(_tabLabels.length, (i) {
-        final isActive = _tabIndex == i;
-        return Padding(
-          padding: EdgeInsets.only(right: 24.w),
-          child: GestureDetector(
-            onTap: () => setState(() => _tabIndex = i),
-            child: IntrinsicWidth(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 6.h),
-                    child: Text(
-                      _tabLabels[i],
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: isActive
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                        color: isActive ? ColorPick.primary : AppColors.secondaryText,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 2,
-                    color: isActive ? ColorPick.primary : Colors.transparent,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }),
     );
   }
 
@@ -661,145 +610,4 @@ class _AboutMainPageMasterDashboardState
     );
   }
 
-  // ── Last Updated row ───────────────────────────────────────────────────────
-  Widget _lastUpdatedRow({
-    required VoidCallback onEdit,
-    DateTime? lastUpdated,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-          decoration: BoxDecoration(
-              color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
-          child: Text(
-            'Last Updated On ${_fmtDate(lastUpdated)}',
-            style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
-          ),
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: onEdit,
-          child: Container(
-            width: 130.w, height: 36.h,
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: Center(
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Text('Edit Details',
-                    style: StyleText.fontSize14Weight500
-                        .copyWith(color: Colors.black)),
-                SizedBox(width: 6.w),
-                CustomSvg(
-                    assetPath: "assets/control/edit_icon_pick.svg",
-                    width: 20.w, height: 20.h,
-                    fit: BoxFit.scaleDown, color: ColorPick.primary),
-              ]),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Accordion ──────────────────────────────────────────────────────────────
-  Widget _accordion({
-    required String key,
-    required String title,
-    required List<Widget> children,
-  }) {
-    final isOpen = _open[key] ?? true;
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6.r)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => setState(() => _open[key] = !isOpen),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-              decoration: BoxDecoration(
-                color: ColorPick.primary,
-                borderRadius:  BorderRadius.circular(6.r),
-              ),
-              child: Row(children: [
-                Expanded(child: Text(title,
-                    style: StyleText.fontSize14Weight600
-                        .copyWith(color: Colors.white))),
-                Icon(
-                    isOpen
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: Colors.white, size: 25.sp),
-              ]),
-            ),
-          ),
-          if (isOpen)
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children),
-        ],
-      ),
-    );
-  }
-
-  // ── Read-only LTR ──────────────────────────────────────────────────────────
-  Widget _readField(String label, String value, {double height = 36}) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-          SizedBox(height: 4.h),
-          Container(
-            width: double.infinity, height: height.h,
-            padding: EdgeInsets.symmetric(
-                horizontal: 10.w, vertical: height > 36 ? 8.h : 0),
-            decoration: BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.circular(4.r)),
-            alignment: height > 36 ? Alignment.topLeft : Alignment.centerLeft,
-            child: Text(value,
-                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
-                maxLines: height > 36 ? 5 : 1,
-                overflow: TextOverflow.ellipsis),
-          ),
-        ],
-      );
-
-  // ── Read-only RTL ──────────────────────────────────────────────────────────
-  Widget _readFieldRtl(String label, String value, {double height = 36}) =>
-      Directionality(
-        textDirection: TextDirection.rtl,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: StyleText.fontSize12Weight500
-                    .copyWith(color: AppColors.text)),
-            SizedBox(height: 4.h),
-            Container(
-              width: double.infinity, height: height.h,
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.w, vertical: height > 36 ? 8.h : 0),
-              decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(4.r)),
-              alignment:
-              height > 36 ? Alignment.topRight : Alignment.centerRight,
-              child: Text(
-                  value.isEmpty ? 'أكتب هنا' : value,
-                  style: StyleText.fontSize12Weight400
-                      .copyWith(color: AppColors.secondaryText),
-                  textDirection: TextDirection.rtl,
-                  maxLines: height > 36 ? 5 : 1,
-                  overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        ),
-      );
 }
