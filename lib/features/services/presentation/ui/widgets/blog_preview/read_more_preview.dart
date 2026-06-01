@@ -1,0 +1,259 @@
+part of '../../pages/blog_services/blog_preview.dart';
+
+class _ReadMorePreview extends StatelessWidget {
+  final BlogPostModel post;
+  final Uint8List? imageBytes;
+  final bool isPickedSvg;
+
+  const _ReadMorePreview({
+    required this.post,
+    this.imageBytes,
+    this.isPickedSvg = false,
+  });
+
+  MarkdownStyleSheet _mdStyle() {
+    return MarkdownStyleSheet(
+      p: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text, height: 1.7),
+      strong: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text, fontWeight: FontWeight.w700, height: 1.7),
+      em: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text, fontStyle: FontStyle.italic, height: 1.7),
+      h1: StyleText.fontSize22Weight700.copyWith(
+          color: AppColors.text),
+      h2: StyleText.fontSize14Weight600.copyWith(
+          color: AppColors.text, fontSize: 18.sp),
+      h3: StyleText.fontSize14Weight600.copyWith(
+          color: AppColors.text),
+      a: StyleText.fontSize13Weight400.copyWith(
+          color: ColorPick.primary, decoration: TextDecoration.underline),
+      listBullet: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text, height: 1.7),
+      blockquoteDecoration: BoxDecoration(
+        color: ColorPick.background,
+        border: Border(
+          left: BorderSide(color: ColorPick.primary, width: 3.w),
+        ),
+      ),
+      blockquotePadding: EdgeInsets.symmetric(
+          horizontal: 12.w, vertical: 8.h),
+      codeblockDecoration: BoxDecoration(
+        color: const Color(0xFFF0F0F0),
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      codeblockPadding: EdgeInsets.all(12.w),
+      code: TextStyle(
+        fontFamily: 'monospace',
+        fontSize:   12.sp,
+        color:      AppColors.text,
+        backgroundColor: const Color(0xFFF0F0F0),
+      ),
+      tableBorder: TableBorder.all(color: ColorPick.white, width: 1),
+      tableHead: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text, fontWeight: FontWeight.w700),
+      tableBody: StyleText.fontSize13Weight400.copyWith(
+          color: AppColors.text),
+      horizontalRuleDecoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: ColorPick.white, width: 1),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String title = post.question.en.isNotEmpty
+        ? post.question.en
+        : 'Question text';
+    final String sectionHead = post.descriptionTitle.en;
+    final String intro = post.shortDescription.en;
+    final String dateStr = _fmtDate(post.createdAt);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: StyleText.fontSize22Weight700.copyWith(
+                  color:      ColorPick.primary,
+                  fontSize:   22.sp,
+                  fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 20.h),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (sectionHead.isNotEmpty) ...[
+                        Text(sectionHead,
+                            style: StyleText.fontSize14Weight600.copyWith(
+                                color:      AppColors.text,
+                                fontWeight: FontWeight.w700)),
+                        SizedBox(height: 8.h),
+                      ],
+                      if (intro.isNotEmpty) ...[
+                        Text(intro,
+                            style: StyleText.fontSize13Weight400.copyWith(
+                                color: AppColors.text, height: 1.7)),
+                        SizedBox(height: 8.h),
+                      ],
+                      Text(dateStr,
+                          style: StyleText.fontSize12Weight400
+                              .copyWith(color: AppColors.secondaryText)),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 24.w),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: _buildImage(
+                    width:  200.w,
+                    height: 150.h,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20.h),
+
+            ...post.blocks.asMap().entries.map(
+                    (e) => _blockWidget(index: e.key, block: e.value)),
+
+            SizedBox(height: 4.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImage({required double width, required double height}) {
+    // 🟢 Priority 1: Picked bytes
+    if (imageBytes != null) {
+      if (isPickedSvg) {
+        return Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color:        ColorPick.background,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Center(
+            child: SvgPicture.memory(
+              imageBytes!,
+              width:  width * 0.5,
+              height: height * 0.5,
+              fit: BoxFit.scaleDown,
+            ),
+          ),
+        );
+      } else {
+        return Image.memory(
+          imageBytes!,
+          width:  width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (_, error, ___) {
+            return _imagePlaceholder(width, height);
+          },
+        );
+      }
+    }
+
+    // 🟢 Priority 2: Existing URL
+    if (post.imageUrl.isNotEmpty) {
+      return _XhrImage(
+        url:    post.imageUrl,
+        width:  width,
+        height: height,
+      );
+    }
+
+    // 🟡 Fallback
+    return _imagePlaceholder(width, height);
+  }
+
+  Widget _imagePlaceholder(double width, double height) {
+    return Container(
+      width:  width,
+      height: height,
+      decoration: BoxDecoration(
+        color:        ColorPick.white,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Icon(Icons.image_outlined,
+          size: 40.sp, color: AppColors.secondaryText),
+    );
+  }
+
+  Widget _blockWidget(
+      {required int index, required BlogDescriptionBlock block}) {
+    final String text =
+    block.content.en.isNotEmpty ? block.content.en : '';
+    if (text.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: switch (block.type) {
+        BlogBlockType.paragraph => MarkdownBody(
+          data:       text,
+          selectable: true,
+          styleSheet: _mdStyle(),
+          shrinkWrap: true,
+        ),
+
+        BlogBlockType.numbering => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${index + 1}.  ',
+                style: StyleText.fontSize13Weight500.copyWith(
+                    color:      AppColors.text,
+                    fontWeight: FontWeight.w600)),
+            Expanded(
+              child: MarkdownBody(
+                data:       text,
+                selectable: true,
+                styleSheet: _mdStyle(),
+                shrinkWrap: true,
+              ),
+            ),
+          ],
+        ),
+
+        BlogBlockType.bulletPoint => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('•  ',
+                style: StyleText.fontSize13Weight500.copyWith(
+                    color:      ColorPick.primary,
+                    fontWeight: FontWeight.w700)),
+            Expanded(
+              child: MarkdownBody(
+                data:       text,
+                selectable: true,
+                styleSheet: _mdStyle(),
+                shrinkWrap: true,
+              ),
+            ),
+          ],
+        ),
+      },
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// XHR image loader — auto-detects SVG vs raster (PNG/JPG/WebP)
+// Works on Flutter Web, bypasses CORS for Firebase Storage
+// ══════════════════════════════════════════════════════════════════════════════
