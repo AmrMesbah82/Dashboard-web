@@ -16,8 +16,8 @@ import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/contact_us_model_location.dart';
-import '../../controller/contacu_us_location_cubit.dart';
-import '../../controller/contacu_us_location_state.dart';
+import '../../controller/contact_us_location_cubit.dart';
+import '../../controller/contact_us_location_state.dart';
 
 
 
@@ -90,9 +90,9 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
                 children: [
                   AppAdminNavbar(
                     activeLabel: 'Web Page',
-                    homePage: HomeMainPage(),
-                    webPage: HomeMainPage(),
-                    jobListingPage: HomeMainPage(),
+                    homePage: MainMainPage(),
+                    webPage: MainMainPage(),
+                    jobListingPage: MainMainPage(),
                   ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 4),

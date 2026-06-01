@@ -35,7 +35,7 @@ import 'about_us_preview.dart';
 import 'strategy_page/strategy_main.dart';
 import 'strategy_page/strategy_preview.dart';
 
-part '../widget/about_us_main/about_main_helpers.dart';
+part '../widgets/about_us_main/about_main_helpers.dart';
 
 
 // class _C {
@@ -282,9 +282,9 @@ class _AboutMainPageMasterDashboardState
                 children: [
                   AppAdminNavbar(
                     activeLabel: 'Web Page',
-                    homePage: HomeMainPage(),
-                    webPage: HomeMainPage(),
-                    jobListingPage: HomeMainPage(),
+                    homePage: MainMainPage(),
+                    webPage: MainMainPage(),
+                    jobListingPage: MainMainPage(),
                   ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 3),

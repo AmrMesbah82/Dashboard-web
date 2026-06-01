@@ -28,9 +28,9 @@ import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'terms_preview.dart';
 
-part '../../widget/terms_edit/picked_image.dart';
-part '../../widget/terms_edit/doc_item.dart';
-part '../../widget/terms_edit/terms_edit_widgets.dart';
+part '../../widgets/terms_edit/picked_image.dart';
+part '../../widgets/terms_edit/doc_item.dart';
+part '../../widgets/terms_edit/terms_edit_widgets.dart';
 
 const Color _kGreen = Color(0xFF2D8C4E);
 const Color _kGreenSolid = Color(0xFF008037);
@@ -645,7 +645,7 @@ class _TermsEditPageState extends State<TermsEditPage> {
             SizedBox(width: 300.w),
             Expanded(child: _btn(
               label: 'Publish',
-              color: canPublish ? _kGreenSolid : _kGreenSolid.withOpacity(0.4),
+              color: canPublish ? _kGreenSolid : _kGreenSolid.withValues(alpha: 0.4),
               onTap: canPublish ? _showPublishConfirmDialog : null,
             )),
           ],

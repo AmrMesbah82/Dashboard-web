@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // department_detail.dart  (Detail / View Page)
-// Path: lib/pages/dashboard/department/department_detail.dart
+// Path: lib/features/departments/presentation/ui/pages/department_detail.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -62,7 +62,7 @@ class DepartmentDetailPage extends StatelessWidget {
               AppAdminNavbar(
                 activeLabel:    'Home',
                 homePage:       CareersMainPageDashboard(),
-                webPage:        HomeMainPage(),
+                webPage:        MainMainPage(),
                 jobListingPage: JobListingMainPage(),
               ),
               SizedBox(height: 20.h),

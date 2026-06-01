@@ -43,10 +43,10 @@ import '../../controller/about_us_state.dart';
 import 'about_us_main.dart';
 import 'about_us_preview.dart';
 
-part '../widget/about_us_edit/value_item.dart';
-part '../widget/about_us_edit/about_edit_file_pickers.dart';
-part '../widget/about_us_edit/about_edit_image_helpers.dart';
-part '../widget/about_us_edit/about_edit_builders.dart';
+part '../widgets/about_us_edit/value_item.dart';
+part '../widgets/about_us_edit/about_edit_file_pickers.dart';
+part '../widgets/about_us_edit/about_edit_image_helpers.dart';
+part '../widgets/about_us_edit/about_edit_builders.dart';
 
 // const Color _kGreen = Color(0xFF2D8C4E);
 // const Color ColorPick.primary = Color(0xFF008037);
@@ -536,7 +536,7 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
                   AppAdminNavbar(
                     activeLabel: 'Web Page',
                     homePage: CareersMainPageDashboard(),
-                    webPage: HomeMainPage(),
+                    webPage: MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
                   AdminSubNavBar(activeIndex: 3),

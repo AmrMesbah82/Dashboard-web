@@ -360,7 +360,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                       AppAdminNavbar(
                         activeLabel:     'Web Page',
                         homePage:        CareersMainPageDashboard(),
-                        webPage:         HomeMainPage(),
+                        webPage:         MainMainPage(),
                         jobListingPage:  JobListingMainPage(),
                       ),
                       SizedBox(height: 20.h),

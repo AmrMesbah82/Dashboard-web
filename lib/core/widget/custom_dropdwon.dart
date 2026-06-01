@@ -188,10 +188,10 @@ class _CustomDropdownFormFieldInvMasterState
                       color: AppColors.background,
                       borderRadius:
                       BorderRadius.circular(widget.borderRadius.r),
-                      border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                      border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -209,7 +209,7 @@ class _CustomDropdownFormFieldInvMasterState
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
                       if (states.contains(MaterialState.hovered)) {
-                        return (widget.primaryColor ?? AppColors.primary).withOpacity(0.1); // ← fix
+                        return (widget.primaryColor ?? AppColors.primary).withValues(alpha: 0.1); // ← fix
                       }
                       return null;
                     }),

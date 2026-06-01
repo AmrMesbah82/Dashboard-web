@@ -35,10 +35,10 @@ import '../../controller/our_teams_cubit.dart';
 import '../../controller/our_teams_state.dart';
 import 'our_teams_preview.dart';
 
-part '../widget/our_teams_edit/picked_image.dart';
-part '../widget/our_teams_edit/deliverable_edit.dart';
-part '../widget/our_teams_edit/team_item_edit.dart';
-part '../widget/our_teams_edit/our_teams_edit_ui.dart';
+part '../widgets/our_teams_edit/picked_image.dart';
+part '../widgets/our_teams_edit/deliverable_edit.dart';
+part '../widgets/our_teams_edit/team_item_edit.dart';
+part '../widgets/our_teams_edit/our_teams_edit_ui.dart';
 
 // ── Local editable model ─────────────────────────────────────────────────────
 
@@ -401,7 +401,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
             // ── Saving overlay ──────────────────────────────────────────────
             if (_isSaving)
               Container(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -411,7 +411,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
                       borderRadius: BorderRadius.circular(16.r),
                       boxShadow: [
                         BoxShadow(
-                            color:      Colors.black.withOpacity(.15),
+                            color:      Colors.black.withValues(alpha: .15),
                             blurRadius: 24),
                       ],
                     ),

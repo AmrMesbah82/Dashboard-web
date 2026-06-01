@@ -15,8 +15,8 @@ import '../../features/contact_us/presentation/ui/pages/contact_us_preview.dart'
 import '../../features/contact_us/presentation/ui/pages/contact_us_main.dart';
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/ui/pages/home_main.dart';
-import '../../features/job/data/repo_imp/application_repo_imp.dart';
-import '../../features/job/data/repo_imp/job_listing_repo_imp.dart';
+import '../../features/job/data/repository/application_repo_impl.dart';
+import '../../features/job/data/repository/job_listing_repo_impl.dart';
 import '../../features/main/presentation/ui/pages/main_edit.dart';
 import '../../features/main/presentation/ui/pages/main_main.dart';
 import '../../features/main/presentation/ui/pages/main_preview.dart';
@@ -158,7 +158,7 @@ class AppRouter {
         name: 'home_main',
         pageBuilder: (context, state) => animatedPage(
           key: state.pageKey,
-          child: const HomeMainPage(),
+          child: const MainMainPage(),
           slideDirection: SlideDirection.fromBottom,
         ),
       ),
@@ -168,7 +168,7 @@ class AppRouter {
         name: 'home_edit',
         pageBuilder: (context, state) => animatedPage(
           key: state.pageKey,
-          child: const HomeEditPage(),
+          child: const MainEditPage(),
           slideDirection: SlideDirection.fromBottom,
         ),
       ),
@@ -178,7 +178,7 @@ class AppRouter {
         name: 'home_preview',
         pageBuilder: (context, state) => animatedPage(
           key: state.pageKey,
-          child: const HomePreviewPage(),
+          child: const MainPreviewPage(),
           slideDirection: SlideDirection.fromBottom,
         ),
       ),

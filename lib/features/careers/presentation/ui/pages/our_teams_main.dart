@@ -291,7 +291,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
       decoration: BoxDecoration(
         color:        const Color(0xFFE8F5EE),
         borderRadius: BorderRadius.circular(4.r),
-        border:       Border.all(color: ColorPick.primary.withOpacity(0.3)),
+        border:       Border.all(color: ColorPick.primary.withValues(alpha: 0.3)),
       ),
       child: Text(
         text.isEmpty ? '—' : text,

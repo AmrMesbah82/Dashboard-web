@@ -36,8 +36,8 @@ import '../../../controller/blog_cubit.dart';
 import '../services_main/services_main.dart';
 import 'blog_preview.dart';
 
-part '../../widget/blog_edit/xhr_circle_image.dart';
-part '../../widget/blog_edit/blog_edit_sections.dart';
+part '../../widgets/blog_edit/xhr_circle_image.dart';
+part '../../widgets/blog_edit/blog_edit_sections.dart';
 
 class BlogCreateEditPage extends StatefulWidget {
   final BlogPostModel? existing;
@@ -479,7 +479,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                 AppAdminNavbar(
                   activeLabel:     'Web Page',
                   homePage:       CareersMainPageDashboard(),
-                  webPage:        HomeMainPage(),
+                  webPage:        MainMainPage(),
                   jobListingPage: JobListingMainPage(),
                 ),
                 AdminSubNavBar(activeIndex: 2),
@@ -498,7 +498,7 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: ColorPick.discard.withOpacity(0.15),
+                          color: ColorPick.discard.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text('EDITING DRAFT',

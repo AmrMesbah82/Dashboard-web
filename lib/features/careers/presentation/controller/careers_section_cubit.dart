@@ -9,8 +9,8 @@ import 'package:uuid/uuid.dart';
 
 
 import '../../data/models/careers_section_model.dart';
-import '../../data/repo_imp/careers_section_repo_imp.dart';
-import '../../domain/repo/careers_section_repo.dart';
+import '../../data/repository/careers_section_repo_impl.dart';
+import '../../domain/base_repository/careers_section_repo.dart';
 import 'careers_section_state.dart';
 
 

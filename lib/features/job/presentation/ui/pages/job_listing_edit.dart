@@ -43,8 +43,8 @@ import '../../controller/job_listing_state.dart';
 import 'job_listing_main.dart';
 import 'job_listing_preview.dart';
 
-part '../widget/job_listing_edit/edit_sections.dart';
-part '../widget/job_listing_edit/edit_form_helpers.dart';
+part '../widgets/job_listing_edit/edit_sections.dart';
+part '../widgets/job_listing_edit/edit_form_helpers.dart';
 
 
 Color _cmsHexColor(String hex) {
@@ -519,7 +519,7 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
                     AppAdminNavbar(
                       activeLabel: 'Job Listing',
                       homePage: CareersMainPageDashboard(),
-                      webPage: HomeMainPage(),
+                      webPage: MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
                     SizedBox(height: 20.h),

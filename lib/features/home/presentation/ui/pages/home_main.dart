@@ -38,8 +38,8 @@ import '../../controller/home_cubit.dart';
 import '../../controller/home_state.dart';
 import 'home_edit.dart';
 import 'home_preview.dart';
-part '../widget/home_main/home_main_builders.dart';
-part '../widget/home_main/home_main_read_only.dart';
+part '../widgets/home_main/home_main_builders.dart';
+part '../widgets/home_main/home_main_read_only.dart';
 
 
 // class _C {
@@ -166,7 +166,7 @@ class _HomeMainPageMasterState extends State<HomeMainPageMaster>
                   AppAdminNavbar(
                     activeLabel:    'Web Page',
                     homePage:       CareersMainPageDashboard(),
-                    webPage:        HomeMainPage(),
+                    webPage:        MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
 

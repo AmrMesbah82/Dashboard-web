@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: application_filter_dialog.dart
-// Path: lib/pages/dashboard/application/application_filter_dialog.dart
+// Path: lib/core/main_widgets/application_filter_dialog.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ Future<ApplicationFilterData?> showApplicationFilterDialog(
     }) {
   return showDialog<ApplicationFilterData>(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (_) => _ApplicationFilterDialog(initial: initial),
   );
 }

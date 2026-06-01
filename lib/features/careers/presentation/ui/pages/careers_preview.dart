@@ -33,16 +33,16 @@ import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 import 'careers_main_page.dart'; // CareersMainPageMaster
 
-part '../widget/careers_preview/a_c.dart';
-part '../widget/careers_preview/desktop_frame.dart';
-part '../widget/careers_preview/tablet_frame.dart';
-part '../widget/careers_preview/mobile_frame.dart';
-part '../widget/careers_preview/view_bar.dart';
-part '../widget/careers_preview/preview_content.dart';
-part '../widget/careers_preview/site_nav_bar.dart';
-part '../widget/careers_preview/bullet_text.dart';
-part '../widget/careers_preview/stat_card.dart';
-part '../widget/careers_preview/browser_chrome.dart';
+part '../widgets/careers_preview/a_c.dart';
+part '../widgets/careers_preview/desktop_frame.dart';
+part '../widgets/careers_preview/tablet_frame.dart';
+part '../widgets/careers_preview/mobile_frame.dart';
+part '../widgets/careers_preview/view_bar.dart';
+part '../widgets/careers_preview/preview_content.dart';
+part '../widgets/careers_preview/site_nav_bar.dart';
+part '../widgets/careers_preview/bullet_text.dart';
+part '../widgets/careers_preview/stat_card.dart';
+part '../widgets/careers_preview/browser_chrome.dart';
 
 // ── Admin-shell colors ────────────────────────────────────────────────────────
 
@@ -209,7 +209,7 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
                                     height: 44.h,
                                     decoration: BoxDecoration(
                                       color: _isPublishing
-                                          ? ColorPick.primary.withOpacity(0.5)
+                                          ? ColorPick.primary.withValues(alpha: 0.5)
                                           : ColorPick.primary,
                                       borderRadius: BorderRadius.circular(6.r),
                                     ),
@@ -247,7 +247,7 @@ class _CareersPreviewPageState extends State<CareersPreviewPage> {
           // ── Full-screen publishing overlay ─────────────────────────────
           if (_isPublishing)
             Container(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               child: const Center(
                 child: CircularProgressIndicator(color: ColorPick.primary),
               ),

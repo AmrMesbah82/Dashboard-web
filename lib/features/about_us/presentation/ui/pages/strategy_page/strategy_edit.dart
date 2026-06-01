@@ -32,8 +32,8 @@ import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 
-part '../../widget/strategy_edit/strategy_edit_image_widgets.dart';
-part '../../widget/strategy_edit/strategy_edit_form_helpers.dart';
+part '../../widgets/strategy_edit/strategy_edit_image_widgets.dart';
+part '../../widgets/strategy_edit/strategy_edit_form_helpers.dart';
 
 
 
@@ -650,7 +650,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
                   label: 'Publish',
                   color: canPublish
                       ? ColorPick.primary
-                      : ColorPick.primary.withOpacity(0.4),
+                      : ColorPick.primary.withValues(alpha: 0.4),
                   onTap: canPublish ? _showPublishConfirmDialog : null)),
         ]),
         SizedBox(height: 12.h),

@@ -25,10 +25,10 @@ import '../../../data/models/careers_model.dart';
 import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 
-part '../widget/careers_main/chart_colors.dart';
-part '../widget/careers_main/legend_item.dart';
-part '../widget/careers_main/pie_item.dart';
-part '../widget/careers_main/careers_charts.dart';
+part '../widgets/careers_main/chart_colors.dart';
+part '../widgets/careers_main/legend_item.dart';
+part '../widgets/careers_main/pie_item.dart';
+part '../widgets/careers_main/careers_charts.dart';
 
 // ── Chart color palette ──────────────────────────────────────────────────────
 
@@ -89,7 +89,7 @@ class _CareersMainPageDashboardState extends State<CareersMainPageDashboard> {
                   AppAdminNavbar(
                     activeLabel:    'Home',
                     homePage:       CareersMainPageDashboard(),
-                    webPage:        HomeMainPage(),
+                    webPage:        MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
                   SizedBox(height: 20.h),

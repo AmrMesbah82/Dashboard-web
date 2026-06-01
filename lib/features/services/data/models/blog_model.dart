@@ -40,6 +40,20 @@ class BlogDescriptionBlock {
 }
 
 class BlogPostModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String AR = 'ar';
+  static const String BLOCKS = 'blocks';
+  static const String BUTTON_LABEL = 'buttonLabel';
+  static const String CONTENT = 'content';
+  static const String DESCRIPTION_TITLE = 'descriptionTitle';
+  static const String EN = 'en';
+  static const String ID = 'id';
+  static const String IMAGE_URL = 'imageUrl';
+  static const String QUESTION = 'question';
+  static const String SHORT_DESCRIPTION = 'shortDescription';
+  static const String STATUS = 'status';
+  static const String TYPE = 'type';
+
   final String             id;
   final String             status;       // 'published' | 'draft'
   final String             imageUrl;
@@ -88,10 +102,10 @@ class BlogPostModel {
   }
 
   Map<String, dynamic> toMap() => {
-    'status': status, 'imageUrl': imageUrl,
-    'question': question.toMap(), 'shortDescription': shortDescription.toMap(),
-    'buttonLabel': buttonLabel.toMap(), 'descriptionTitle': descriptionTitle.toMap(),
-    'blocks': blocks.map((b) => b.toMap()).toList(),
+    STATUS: status, IMAGE_URL: imageUrl,
+    QUESTION: question.toMap(), SHORT_DESCRIPTION: shortDescription.toMap(),
+    BUTTON_LABEL: buttonLabel.toMap(), DESCRIPTION_TITLE: descriptionTitle.toMap(),
+    BLOCKS: blocks.map((b) => b.toMap()).toList(),
   };
 
   BlogPostModel copyWith({

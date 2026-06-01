@@ -46,7 +46,7 @@ Future<void> showJobListingExportDialog(
     }) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (_) => _JobListingExportDialog(
       job: job,
       applications: applications,

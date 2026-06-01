@@ -1,9 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE 1: inquiry_model.dart (UPDATED)
-// Path: lib/model/inquiry_model.dart
+// Path: lib/features/inquire/data/models/inquiry_model.dart
 // ═══════════════════════════════════════════════════════════════════
-
-import 'package:flutter/material.dart';
 
 import '../../../contact_us/data/models/contact_us_model.dart';
 
@@ -23,17 +21,6 @@ enum InquiryStatus {
     }
   }
 
-  Color get color {
-    switch (this) {
-      case InquiryStatus.newInquiry:
-        return const Color(0xFF008037);
-      case InquiryStatus.replied:
-        return const Color(0xFFFF9800);
-      case InquiryStatus.closed:
-        return const Color(0xFFE53935);
-    }
-  }
-
   static InquiryStatus fromString(String value) {
     switch (value.toLowerCase()) {
       case 'new':
@@ -49,6 +36,27 @@ enum InquiryStatus {
 }
 
 class InquiryModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String CLOSED = 'closed';
+  static const String COUNTRY_CODE = 'countryCode';
+  static const String EMAIL = 'email';
+  static const String ENTITY_NAME = 'entityName';
+  static const String ENTITY_SIZE = 'entitySize';
+  static const String ENTITY_TYPE = 'entityType';
+  static const String FIRST_NAME = 'firstName';
+  static const String FULL_NAME = 'fullName';
+  static const String LAST_NAME = 'lastName';
+  static const String LOCATION = 'location';
+  static const String MESSAGE = 'message';
+  static const String NEW = 'new';
+  static const String NOTE = 'note';
+  static const String PHONE_NUMBER = 'phoneNumber';
+  static const String PREFERRED_LANGUAGE = 'preferredLanguage';
+  static const String REPLIED = 'replied';
+  static const String STATUS = 'status';
+  static const String SUBJECT = 'subject';
+  static const String SUBMISSION_DATE = 'submissionDate';
+
   final String id;
   final String preferredLanguage;
   final String firstName;
@@ -112,11 +120,11 @@ class InquiryModel {
   // ── Factory: From Firestore Map ─────────────────────────────────────────
   factory InquiryModel.fromMap(String id, Map<String, dynamic> map) {
     // Handle backward compatibility with old 'fullName' field
-    String firstName = (map['firstName'] as String?) ?? '';
-    String lastName = (map['lastName'] as String?) ?? '';
+    String firstName = (map[FIRST_NAME] as String?) ?? '';
+    String lastName = (map[LAST_NAME] as String?) ?? '';
 
     if (firstName.isEmpty && lastName.isEmpty) {
-      final legacy = (map['fullName'] as String?) ?? '';
+      final legacy = (map[FULL_NAME] as String?) ?? '';
       if (legacy.isNotEmpty) {
         final parts = legacy.split(' ');
         firstName = parts.first;
@@ -126,44 +134,44 @@ class InquiryModel {
 
     return InquiryModel(
       id: id,
-      preferredLanguage: (map['preferredLanguage'] as String?) ?? 'en',
+      preferredLanguage: (map[PREFERRED_LANGUAGE] as String?) ?? 'en',
       firstName: firstName,
       lastName: lastName,
-      email: (map['email'] as String?) ?? '',
-      countryCode: (map['countryCode'] as String?) ?? '',
-      phone: (map['phoneNumber'] as String?) ?? '',
-      location: (map['location'] as String?) ?? '',
-      entityName: (map['entityName'] as String?) ?? '',
-      entityType: (map['entityType'] as String?) ?? '',
-      entitySize: (map['entitySize'] as String?) ?? '',
-      subject: (map['subject'] as String?) ?? '',
-      message: (map['message'] as String?) ?? '',
-      note: (map['note'] as String?) ?? '',
-      status: InquiryStatus.fromString((map['status'] as String?) ?? 'New'),
-      submissionDate: map['submissionDate'] != null
-          ? DateTime.parse(map['submissionDate'] as String)
+      email: (map[EMAIL] as String?) ?? '',
+      countryCode: (map[COUNTRY_CODE] as String?) ?? '',
+      phone: (map[PHONE_NUMBER] as String?) ?? '',
+      location: (map[LOCATION] as String?) ?? '',
+      entityName: (map[ENTITY_NAME] as String?) ?? '',
+      entityType: (map[ENTITY_TYPE] as String?) ?? '',
+      entitySize: (map[ENTITY_SIZE] as String?) ?? '',
+      subject: (map[SUBJECT] as String?) ?? '',
+      message: (map[MESSAGE] as String?) ?? '',
+      note: (map[NOTE] as String?) ?? '',
+      status: InquiryStatus.fromString((map[STATUS] as String?) ?? 'New'),
+      submissionDate: map[SUBMISSION_DATE] != null
+          ? DateTime.parse(map[SUBMISSION_DATE] as String)
           : null,
     );
   }
 
   // ── To Firestore Map ────────────────────────────────────────────────────
   Map<String, dynamic> toMap() => {
-    'firstName': firstName,
-    'lastName': lastName,
-    'fullName': fullName,
-    'email': email,
-    'countryCode': countryCode,
-    'phoneNumber': phone,
-    'preferredLanguage': preferredLanguage,
-    'location': location,
-    'entityName': entityName,
-    'entityType': entityType,
-    'entitySize': entitySize,
-    'subject': subject,
-    'message': message,
-    'note': note,
-    'status': status.label,
-    'submissionDate': submissionDate?.toIso8601String(),
+    FIRST_NAME: firstName,
+    LAST_NAME: lastName,
+    FULL_NAME: fullName,
+    EMAIL: email,
+    COUNTRY_CODE: countryCode,
+    PHONE_NUMBER: phone,
+    PREFERRED_LANGUAGE: preferredLanguage,
+    LOCATION: location,
+    ENTITY_NAME: entityName,
+    ENTITY_TYPE: entityType,
+    ENTITY_SIZE: entitySize,
+    SUBJECT: subject,
+    MESSAGE: message,
+    NOTE: note,
+    STATUS: status.label,
+    SUBMISSION_DATE: submissionDate?.toIso8601String(),
   };
 
   InquiryModel copyWith({

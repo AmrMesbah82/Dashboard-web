@@ -1,12 +1,12 @@
 /// ******************* FILE INFO *******************
-/// File Name: home_edit.dart
+/// File Name: main_edit.dart
 /// Page 2 — "Editing Main Details"
 ///
 /// ✅ FIXES APPLIED:
 ///   1. SVG ByteBuffer fix — readAsArrayBuffer returns ByteBuffer, not List<int>
 ///   2. Validation gate — Publish blocked until ALL required fields are valid
 ///   3. Only showPublishConfirmDialog used — no success/error snackbars or dialogs
-///   4. Navigation via BlocConsumer listener → HomeMainPage (pushAndRemoveUntil)
+///   4. Navigation via BlocConsumer listener → MainMainPage (pushAndRemoveUntil)
 ///   5. _submitted flag reveals inline field errors on first publish attempt
 
 import 'dart:async';
@@ -41,14 +41,14 @@ import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 import 'main_preview.dart'; // adjust import path as needed
 
-part '../widget/main_edit/picked_image.dart';
-part '../widget/main_edit/link_item.dart';
-part '../widget/main_edit/color_picker_field.dart';
-part '../widget/main_edit/color_wheel_overlay.dart';
-part '../widget/main_edit/edit_save.dart';
-part '../widget/main_edit/edit_sections1.dart';
-part '../widget/main_edit/edit_sections2.dart';
-part '../widget/main_edit/edit_helpers.dart';
+part '../widgets/main_edit/picked_image.dart';
+part '../widgets/main_edit/link_item.dart';
+part '../widgets/main_edit/color_picker_field.dart';
+part '../widgets/main_edit/color_wheel_overlay.dart';
+part '../widgets/main_edit/edit_save.dart';
+part '../widgets/main_edit/edit_sections1.dart';
+part '../widgets/main_edit/edit_sections2.dart';
+part '../widgets/main_edit/edit_helpers.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -98,14 +98,14 @@ const List<Map<String, String>> _kFonts = [
   {'key': 'Noto Sans', 'value': 'Noto Sans'},
 ];
 
-class HomeEditPage extends StatefulWidget {
-  const HomeEditPage({super.key});
+class MainEditPage extends StatefulWidget {
+  const MainEditPage({super.key});
 
   @override
-  State<HomeEditPage> createState() => _HomeEditPageState();
+  State<MainEditPage> createState() => _MainEditPageState();
 }
 
-class _HomeEditPageState extends State<HomeEditPage> {
+class _MainEditPageState extends State<MainEditPage> {
   /// Set to true the first time the user taps Publish, to reveal inline errors.
   bool _submitted = false;
 
@@ -450,7 +450,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
     return BlocConsumer<HomeCmsCubit, HomeCmsState>(
       listener: (context, state) {
 
-        // ── Published / Saved successfully → navigate to HomeMainPage ──────
+        // ── Published / Saved successfully → navigate to MainMainPage ──────
         // ✅ Uses pushAndRemoveUntil to clear the entire back stack,
         //    exactly like master_edit_page.dart does.
         if (state is HomeCmsSaved) {
@@ -458,7 +458,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                    builder: (context) => const HomeMainPage()),
+                    builder: (context) => const MainMainPage()),
                     (route) => false,
               );
             }
@@ -507,7 +507,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                           AppAdminNavbar(
                             activeLabel:    'Home',
                             homePage:       CareersMainPageDashboard(),
-                            webPage:        HomeMainPage(),
+                            webPage:        MainMainPage(),
                             jobListingPage: JobListingMainPage(),
                           ),
 
@@ -566,7 +566,7 @@ class _HomeEditPageState extends State<HomeEditPage> {
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
-                                                  const HomeMainPage(),
+                                                  const MainMainPage(),
                                                 ),
                                               );
                                             }

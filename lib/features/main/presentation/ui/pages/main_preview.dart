@@ -1,5 +1,5 @@
 /// ******************* FILE INFO *******************
-/// File Name: home_preview.dart
+/// File Name: main_preview.dart
 /// UPDATED: Language toggle now drives LanguageCubit (same source AppNavbar uses).
 ///          Removed local _langIndex — isRtl is read from LanguageCubit state.
 ///          Navbar + footer truly full-width in preview frame.
@@ -27,8 +27,8 @@ import '../../../../home/presentation/controller/lang_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 
-part '../widget/main_preview/preview_content.dart';
-part '../widget/main_preview/mobile_phone_shell.dart';
+part '../widgets/main_preview/preview_content.dart';
+part '../widgets/main_preview/mobile_phone_shell.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -51,13 +51,13 @@ const double _kFakeMobileH = 812.0;
 const double _kFakeDesktopW = 1366.0;
 const double _kFakeDesktopH =  768.0;
 
-class HomePreviewPage extends StatefulWidget {
-  const HomePreviewPage({super.key});
+class MainPreviewPage extends StatefulWidget {
+  const MainPreviewPage({super.key});
   @override
-  State<HomePreviewPage> createState() => _HomePreviewPageState();
+  State<MainPreviewPage> createState() => _MainPreviewPageState();
 }
 
-class _HomePreviewPageState extends State<HomePreviewPage> {
+class _MainPreviewPageState extends State<MainPreviewPage> {
   _PreviewDevice _device   = _PreviewDevice.desktop;
   // ✅ REMOVED: int _langIndex — now read from LanguageCubit
   bool           _isSaving = false;
@@ -109,7 +109,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                 AppAdminNavbar(
                                   activeLabel:    'web page',
                                   homePage:       CareersMainPageDashboard(),
-                                  webPage:        HomeMainPage(),
+                                  webPage:        MainMainPage(),
                                   jobListingPage: JobListingMainPage(),
                                 ),
 
@@ -152,7 +152,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                       selectedTextColor:   Colors.white,
                                       unselectedTextColor: AppColors.text,
                                       containerColor:
-                                      ColorPick.white.withOpacity(0.45),
+                                      ColorPick.white.withValues(alpha: 0.45),
                                       equalWidth: false,
                                       containerPadding: EdgeInsets.symmetric(
                                           horizontal: 8.sp, vertical: 4.sp),
@@ -212,7 +212,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                                           height: 44.h,
                                           decoration: BoxDecoration(
                                             color: _isSaving
-                                                ? ColorPick.primary.withOpacity(0.5)
+                                                ? ColorPick.primary.withValues(alpha: 0.5)
                                                 : ColorPick.primary,
                                             borderRadius:
                                             BorderRadius.circular(6.r),
@@ -251,7 +251,7 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
 
                 if (_isSaving)
                   Container(
-                    color: Colors.black.withOpacity(0.35),
+                    color: Colors.black.withValues(alpha: 0.35),
                     child: const Center(
                         child: CircularProgressIndicator(color: ColorPick.primary)),
                   ),

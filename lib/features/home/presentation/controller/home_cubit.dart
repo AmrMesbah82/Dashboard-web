@@ -18,7 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../data/models/home_model.dart';
-import '../../domain/repo/home_repo.dart';
+import '../../domain/base_repository/home_repo.dart';
 import 'home_state.dart';
 
 

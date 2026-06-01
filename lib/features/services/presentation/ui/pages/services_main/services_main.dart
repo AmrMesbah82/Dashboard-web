@@ -38,13 +38,13 @@ import '../../../controller/blog_state.dart';
 import '../../../controller/services_cubit.dart';
 import '../../../controller/services_state.dart';
 import '../blog_services/blog_edit.dart';
-import '../degital_services/services_digital_main.dart';
-import '../degital_services/services_digital_preview.dart';
+import '../digital_services/services_digital_main.dart';
+import '../digital_services/services_digital_preview.dart';
 
-part '../../widget/services_main/blog_card.dart';
-part '../../widget/services_main/xhr_image.dart';
-part '../../widget/services_main/services_main_tabs.dart';
-part '../../widget/services_main/services_main_helpers.dart';
+part '../../widgets/services_main/blog_card.dart';
+part '../../widgets/services_main/xhr_image.dart';
+part '../../widgets/services_main/services_main_tabs.dart';
+part '../../widgets/services_main/services_main_helpers.dart';
 
 // class _C {
 //   static const Color primary    = Color(0xFF008037);
@@ -166,7 +166,7 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                   AppAdminNavbar(
                     activeLabel:     'Web Page',
                     homePage:       CareersMainPageDashboard(),
-                    webPage:        HomeMainPage(),
+                    webPage:        MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
                   SizedBox(height: 20.h),

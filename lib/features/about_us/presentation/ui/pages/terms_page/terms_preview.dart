@@ -21,12 +21,12 @@ import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 
-part '../../widget/terms_preview/a_c.dart';
-part '../../widget/terms_preview/desktop_frame.dart';
-part '../../widget/terms_preview/tablet_frame.dart';
-part '../../widget/terms_preview/mobile_frame.dart';
-part '../../widget/terms_preview/terms_preview_content.dart';
-part '../../widget/terms_preview/browser_chrome.dart';
+part '../../widgets/terms_preview/a_c.dart';
+part '../../widgets/terms_preview/desktop_frame.dart';
+part '../../widgets/terms_preview/tablet_frame.dart';
+part '../../widgets/terms_preview/mobile_frame.dart';
+part '../../widgets/terms_preview/terms_preview_content.dart';
+part '../../widgets/terms_preview/browser_chrome.dart';
 
 // ── Admin-shell colors ────────────────────────────────────────────────────────
 
@@ -188,7 +188,7 @@ class _TermsPreviewPageState extends State<TermsPreviewPage> {
                                 height: 44.h,
                                 decoration: BoxDecoration(
                                     color: _isPublishing
-                                        ? _AC.primary.withOpacity(0.5)
+                                        ? _AC.primary.withValues(alpha: 0.5)
                                         : _AC.primary,
                                     borderRadius: BorderRadius.circular(6.r)),
                                 child: Center(
@@ -217,7 +217,7 @@ class _TermsPreviewPageState extends State<TermsPreviewPage> {
 
           if (_isPublishing)
             Container(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               child: const Center(
                   child: CircularProgressIndicator(color: _AC.primary)),
             ),

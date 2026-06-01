@@ -1,9 +1,15 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE 1: department_model.dart
-// Path: lib/model/department_model.dart
+// Path: lib/features/departments/data/models/department_model.dart
 // ═══════════════════════════════════════════════════════════════════
 
 class DepartmentModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String CREATED_AT = 'createdAt';
+  static const String ICON_URL = 'iconUrl';
+  static const String NAME_AR = 'nameAr';
+  static const String NAME_EN = 'nameEn';
+
   final String id;
   final String nameEn;
   final String nameAr;
@@ -26,20 +32,20 @@ class DepartmentModel {
   factory DepartmentModel.fromMap(String id, Map<String, dynamic> map) {
     return DepartmentModel(
       id: id,
-      nameEn: map['nameEn'] as String? ?? '',
-      nameAr: map['nameAr'] as String? ?? '',
-      iconUrl: map['iconUrl'] as String? ?? '',
-      createdAt: map['createdAt'] != null
-          ? DateTime.tryParse(map['createdAt'] as String)
+      nameEn: map[NAME_EN] as String? ?? '',
+      nameAr: map[NAME_AR] as String? ?? '',
+      iconUrl: map[ICON_URL] as String? ?? '',
+      createdAt: map[CREATED_AT] != null
+          ? DateTime.tryParse(map[CREATED_AT] as String)
           : null,
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'nameEn': nameEn,
-    'nameAr': nameAr,
-    'iconUrl': iconUrl,
-    'createdAt': (createdAt ?? DateTime.now()).toIso8601String(),
+    NAME_EN: nameEn,
+    NAME_AR: nameAr,
+    ICON_URL: iconUrl,
+    CREATED_AT: (createdAt ?? DateTime.now()).toIso8601String(),
   };
 
   DepartmentModel copyWith({

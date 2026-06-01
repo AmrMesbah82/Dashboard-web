@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: application_detail.dart (Detail / Edit Page)
-// Path: lib/pages/dashboard/application/application_detail.dart
+// Path: lib/features/job/presentation/ui/pages/application_detail.dart
 // UPDATED: Single dynamic dropdown for status pipeline
 // UPDATED: All fields use CustomValidatedTextFieldMaster
 // UPDATED: All dropdowns use CustomDropdownFormFieldInvMaster
@@ -33,7 +33,7 @@ import '../../controller/application_cubit.dart';
 import '../../controller/application_state.dart';
 import 'job_listing_main.dart';
 
-part '../widget/application_detail/detail_cards.dart';
+part '../widgets/application_detail/detail_cards.dart';
 
 // class _C {
 //   static const Color primary = Color(0xFF008037);
@@ -421,7 +421,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       height: 36.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: ColorPick.primary.withOpacity(0.05),
+        color: ColorPick.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(4.r),
         border: Border.all(color: ColorPick.primary),
       ),
@@ -448,7 +448,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
       height: 36.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: ColorPick.red.withOpacity(0.05),
+        color: ColorPick.red.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(4.r),
         border: Border.all(color: ColorPick.red),
       ),
@@ -520,7 +520,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
                         AppAdminNavbar(
                           activeLabel: 'Applications',
                           homePage: CareersMainPageDashboard(),
-                          webPage: HomeMainPage(),
+                          webPage: MainMainPage(),
                           jobListingPage: JobListingMainPage(),
                         ),
 

@@ -21,7 +21,7 @@ import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'terms_edit.dart';
 
-part '../../widget/terms_main/c.dart';
+part '../../widgets/terms_main/c.dart';
 
 class TermsMainView extends StatefulWidget {
   const TermsMainView({super.key});

@@ -27,7 +27,7 @@ class BiText {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Nav Button — WITH STATUS FIELD
+// Nav Button — WITH 'status' FIELD
 // ─────────────────────────────────────────────────────────────────────────────
 
 class NavButtonModel {
@@ -235,7 +235,7 @@ class FooterColumnModel {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Social Link — WITH VISIBILITY FIELD ✅
+// Social Link — WITH 'visibility' FIELD ✅
 // ─────────────────────────────────────────────────────────────────────────────
 
 class SocialLinkModel {
@@ -347,6 +347,38 @@ class BrandingModel {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class HomePageModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String AR = 'ar';
+  static const String ARABIC_FONT = 'arabicFont';
+  static const String BACKGROUND_COLOR = 'backgroundColor';
+  static const String BRANDING = 'branding';
+  static const String DESCRIPTION = 'description';
+  static const String EN = 'en';
+  static const String ENGLISH_FONT = 'englishFont';
+  static const String FOOTER_COLUMNS = 'footerColumns';
+  static const String HEADER_FOOTER_COLOR = 'headerFooterColor';
+  static const String HEADER_ITEMS = 'headerItems';
+  static const String ICON_URL = 'iconUrl';
+  static const String ID = 'id';
+  static const String IMAGE_URL = 'imageUrl';
+  static const String LABEL = 'label';
+  static const String LABELS = 'labels';
+  static const String LOGO_URL = 'logoUrl';
+  static const String NAME = 'name';
+  static const String NAV_BUTTONS = 'navButtons';
+  static const String PRIMARY_COLOR = 'primaryColor';
+  static const String PUBLISH_STATUS = 'publishStatus';
+  static const String ROUTE = 'route';
+  static const String SECONDARY_COLOR = 'secondaryColor';
+  static const String SECTIONS = 'sections';
+  static const String SHORT_DESCRIPTION = 'shortDescription';
+  static const String SOCIAL_LINKS = 'socialLinks';
+  static const String STATUS = 'status';
+  static const String TEXT_BOX_COLOR = 'textBoxColor';
+  static const String TITLE = 'title';
+  static const String URL = 'url';
+  static const String VISIBILITY = 'visibility';
+
   final BiText                  title;
   final BiText                  shortDescription;
   final List<NavButtonModel>    navButtons;
@@ -405,37 +437,37 @@ class HomePageModel {
       );
 
   Map<String, dynamic> toMap() => {
-    'title':                title.toMap(),
-    'shortDescription':     shortDescription.toMap(),
-    'navButtons':           navButtons.map((e) => e.toMap()).toList(),
-    'sections':             sections.map((e) => e.toMap()).toList(),
-    'headerItems':          headerItems.map((e) => e.toMap()).toList(),
-    'footerColumns':        footerColumns.map((e) => e.toMap()).toList(),
-    'socialLinks':          socialLinks.map((e) => e.toMap()).toList(),
-    'branding':             branding.toMap(),
-    'publishStatus':        publishStatus,
+    TITLE:                title.toMap(),
+    SHORT_DESCRIPTION:     shortDescription.toMap(),
+    NAV_BUTTONS:           navButtons.map((e) => e.toMap()).toList(),
+    SECTIONS:             sections.map((e) => e.toMap()).toList(),
+    HEADER_ITEMS:          headerItems.map((e) => e.toMap()).toList(),
+    FOOTER_COLUMNS:        footerColumns.map((e) => e.toMap()).toList(),
+    SOCIAL_LINKS:          socialLinks.map((e) => e.toMap()).toList(),
+    BRANDING:             branding.toMap(),
+    PUBLISH_STATUS:        publishStatus,
   };
 
   factory HomePageModel.fromMap(Map<String, dynamic> map) => HomePageModel(
-    title:            BiText.fromMap(map['title'] ?? {}),
-    shortDescription: BiText.fromMap(map['shortDescription'] ?? {}),
-    navButtons: (map['navButtons'] as List<dynamic>? ?? [])
+    title:            BiText.fromMap(map[TITLE] ?? {}),
+    shortDescription: BiText.fromMap(map[SHORT_DESCRIPTION] ?? {}),
+    navButtons: (map[NAV_BUTTONS] as List<dynamic>? ?? [])
         .map((e) => NavButtonModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    sections: (map['sections'] as List<dynamic>? ?? [])
+    sections: (map[SECTIONS] as List<dynamic>? ?? [])
         .map((e) => SectionCardModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    headerItems: (map['headerItems'] as List<dynamic>? ?? [])
+    headerItems: (map[HEADER_ITEMS] as List<dynamic>? ?? [])
         .map((e) => HeaderItemModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    footerColumns: (map['footerColumns'] as List<dynamic>? ?? [])
+    footerColumns: (map[FOOTER_COLUMNS] as List<dynamic>? ?? [])
         .map((e) => FooterColumnModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    socialLinks: (map['socialLinks'] as List<dynamic>? ?? [])
+    socialLinks: (map[SOCIAL_LINKS] as List<dynamic>? ?? [])
         .map((e) => SocialLinkModel.fromMap(e as Map<String, dynamic>))
         .toList(),
-    branding:             BrandingModel.fromMap(map['branding'] ?? {}),
-    publishStatus:        map['publishStatus'] ?? 'draft',
+    branding:             BrandingModel.fromMap(map[BRANDING] ?? {}),
+    publishStatus:        map[PUBLISH_STATUS] ?? 'draft',
     lastUpdatedAt:        _parseDateTime(map['lastUpdatedAt']),
     scheduledPublishDate: _parseDateTime(map['scheduledPublishDate']), // ✅ NEW
   );

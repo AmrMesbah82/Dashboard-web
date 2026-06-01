@@ -1,5 +1,5 @@
 /// ******************* FILE INFO *******************
-/// File Name: home_main.dart
+/// File Name: main_main.dart
 /// Page 1 — "Main" read-only overview page (Figma screens 1 & 2)
 /// UPDATED: Navigation field strips leading '/' before display.
 /// UPDATED: Added Navigation Items read-only accordion section.
@@ -39,13 +39,13 @@ String _displayRoute(String route) {
   return route.startsWith('/') ? route.substring(1) : route;
 }
 
-class HomeMainPage extends StatefulWidget {
-  const HomeMainPage({super.key});
+class MainMainPage extends StatefulWidget {
+  const MainMainPage({super.key});
   @override
-  State<HomeMainPage> createState() => _HomeMainPageState();
+  State<MainMainPage> createState() => _MainMainPageState();
 }
 
-class _HomeMainPageState extends State<HomeMainPage> {
+class _MainMainPageState extends State<MainMainPage> {
   final Map<String, bool> _open = {
     'theme':  true,
     'nav':    true,
@@ -87,7 +87,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                   AppAdminNavbar(
                     activeLabel:    'Web Page',
                     homePage:       CareersMainPageDashboard(),
-                    webPage:        HomeMainPage(),
+                    webPage:        MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
                   SizedBox(height: 20.h),
@@ -366,7 +366,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
                       decoration: BoxDecoration(
                         color: btn.status
                             ? ColorPick.primary
-                            : Colors.grey.withOpacity(0.3),
+                            : Colors.grey.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Align(
@@ -599,7 +599,7 @@ class _HomeMainPageState extends State<HomeMainPage> {
             Container(
               width: 32.w, height: 18.h,
               decoration: BoxDecoration(
-                color: status ? ColorPick.primary : Colors.grey.withOpacity(0.3),
+                color: status ? ColorPick.primary : Colors.grey.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Align(

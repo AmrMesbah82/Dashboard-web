@@ -38,11 +38,11 @@ import '../../controller/our_teams_cubit.dart';
 import 'add_intern.dart';
 import 'our_teams_main.dart';
 
-part '../widget/careers_main_page/interns_tab_body.dart';
-part '../widget/careers_main_page/grid_view.dart';
-part '../widget/careers_main_page/intern_table_view.dart';
-part '../widget/careers_main_page/intern_card.dart';
-part '../widget/careers_main_page/intern_export_dialog.dart';
+part '../widgets/careers_main_page/interns_tab_body.dart';
+part '../widgets/careers_main_page/grid_view.dart';
+part '../widgets/careers_main_page/intern_table_view.dart';
+part '../widgets/careers_main_page/intern_card.dart';
+part '../widgets/careers_main_page/intern_export_dialog.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -135,9 +135,9 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
 
                         AppAdminNavbar(
                           activeLabel: 'Web Page',
-                          homePage: HomeMainPage(),
-                          webPage: HomeMainPage(),
-                          jobListingPage: HomeMainPage(),
+                          homePage: MainMainPage(),
+                          webPage: MainMainPage(),
+                          jobListingPage: MainMainPage(),
                         ),
                         SizedBox(height: 20.h),
                         AdminSubNavBar(activeIndex: 5),

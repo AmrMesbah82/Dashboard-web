@@ -63,7 +63,7 @@ class _StatCard extends StatelessWidget {
             height: 36.sp,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF008037).withOpacity(0.1),
+              color: const Color(0xFF008037).withValues(alpha: 0.1),
             ),
             child: Center(
               child: data.iconAsset != null && data.iconAsset!.isNotEmpty

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: application_main.dart
-// Path: lib/pages/dashboard/application/application_main.dart
+// Path: lib/features/job/presentation/ui/pages/application_main.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'dart:html' as html;
@@ -32,8 +32,8 @@ import '../../controller/application_state.dart';
 import 'application_detail.dart';
 import 'job_listing_main.dart';
 
-part '../widget/application_main/app_card.dart';
-part '../widget/application_main/app_table.dart';
+part '../widgets/application_main/app_card.dart';
+part '../widgets/application_main/app_table.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -266,7 +266,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 width: 64.sp,
                 height: 64.sp,
                 decoration: BoxDecoration(
-                  color: ColorPick.primary.withOpacity(0.1),
+                  color: ColorPick.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.check_circle, color: ColorPick.primary, size: 40.sp),
@@ -363,7 +363,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                     AppAdminNavbar(
                       activeLabel: 'Applications',
                       homePage: CareersMainPageDashboard(),
-                      webPage: HomeMainPage(),
+                      webPage: MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
                     SizedBox(height: 20.h),
@@ -434,7 +434,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                                   height: 36.h,
                                   radius: 6,
                                   color: _activeFilter != null && !_activeFilter!.isEmpty
-                                      ? ColorPick.primary.withOpacity(0.85)
+                                      ? ColorPick.primary.withValues(alpha: 0.85)
                                       : ColorPick.primary,
                                   textColor: Colors.white,
                                   textStyle: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
@@ -594,7 +594,7 @@ class _ApplicationMainPageState extends State<ApplicationMainPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: isActive ? Colors.white.withOpacity(0.3) : ColorPick.primary,
+                    color: isActive ? Colors.white.withValues(alpha: 0.3) : ColorPick.primary,
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Text('$count', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: isActive ? Colors.white : Colors.white)),

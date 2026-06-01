@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE 7: department_create.dart (Create Page)
-// Path: lib/pages/dashboard/department/department_create.dart
+// Path: lib/features/departments/presentation/ui/pages/department_create.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -202,7 +202,7 @@ class _DepartmentCreatePageState extends State<DepartmentCreatePage> {
                     AppAdminNavbar(
                       activeLabel:    'Home',
                       homePage:       CareersMainPageDashboard(),
-                      webPage:        HomeMainPage(),
+                      webPage:        MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
 

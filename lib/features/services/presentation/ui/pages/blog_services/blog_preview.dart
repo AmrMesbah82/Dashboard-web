@@ -35,9 +35,9 @@ import '../../../../../../core/theme/new_theme.dart';
 import '../../../../data/models/blog_model.dart';
 import '../../../controller/blog_cubit.dart';
 
-part '../../widget/blog_preview/card_preview.dart';
-part '../../widget/blog_preview/read_more_preview.dart';
-part '../../widget/blog_preview/xhr_image.dart';
+part '../../widgets/blog_preview/card_preview.dart';
+part '../../widgets/blog_preview/read_more_preview.dart';
+part '../../widgets/blog_preview/xhr_image.dart';
 
 // ── Color palette ──────────────────────────────────────────────────────────────
 
@@ -257,7 +257,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                 onPressed: _loading ? null : _publish,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorPick.primary,
-                  disabledBackgroundColor: ColorPick.primary.withOpacity(0.7),
+                  disabledBackgroundColor: ColorPick.primary.withValues(alpha: 0.7),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -288,7 +288,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                 onPressed: _loading ? null : _discard,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorPick.back,
-                  disabledBackgroundColor: ColorPick.back.withOpacity(0.5),
+                  disabledBackgroundColor: ColorPick.back.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),
@@ -306,7 +306,7 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                 onPressed: _loading ? null : _saveForLater,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorPick.back,
-                  disabledBackgroundColor: ColorPick.back.withOpacity(0.5),
+                  disabledBackgroundColor: ColorPick.back.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r)),
                 ),

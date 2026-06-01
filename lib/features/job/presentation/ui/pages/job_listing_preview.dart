@@ -20,8 +20,8 @@ import '../../controller/job_listing_cubit.dart';
 import '../../controller/job_listing_state.dart';
 import 'job_listing_main.dart';
 
-part '../widget/job_listing_preview/preview_helper_widgets.dart';
-part '../widget/job_listing_preview/job_listing_preview_ui.dart';
+part '../widgets/job_listing_preview/preview_helper_widgets.dart';
+part '../widgets/job_listing_preview/job_listing_preview_ui.dart';
 
 class JobListingPreviewPage extends StatefulWidget {
   final String jobId;

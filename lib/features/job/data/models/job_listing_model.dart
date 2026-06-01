@@ -277,6 +277,60 @@ class SkillItem {
 // ── Job Post Model ────────────────────────────────────────────────────────────
 
 class JobPostModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String ABOUT_THIS_POSITION = 'aboutThisPosition';
+  static const String ACTIVE = 'active';
+  static const String AR = 'ar';
+  static const String BENEFITS = 'benefits';
+  static const String DEPARTMENT = 'department';
+  static const String DOC_TYPE = 'docType';
+  static const String DRAFTED = 'drafted';
+  static const String EMPLOYMENT_DURATION_TEXT = 'employmentDurationText';
+  static const String EMPLOYMENT_DURATION_TYPE = 'employmentDurationType';
+  static const String EMPLOYMENT_TYPE = 'employmentType';
+  static const String EN = 'en';
+  static const String ENDED = 'ended';
+  static const String ENDED_DATE = 'endedDate';
+  static const String EXPERIENCE_LEVEL = 'experienceLevel';
+  static const String FULLTIME = 'fulltime';
+  static const String HIRING_END_DATE = 'hiringEndDate';
+  static const String HIRING_START_DATE = 'hiringStartDate';
+  static const String HYBRID = 'hybrid';
+  static const String ID = 'id';
+  static const String INACTIVE = 'inactive';
+  static const String INTERN = 'intern';
+  static const String JUNIOR = 'junior';
+  static const String LEADERSHIP = 'leadership';
+  static const String LINK = 'link';
+  static const String MAX_APPLICATIONS = 'maxApplications';
+  static const String MONTH = 'month';
+  static const String NAME = 'name';
+  static const String ONSITE = 'onsite';
+  static const String OPEN = 'open';
+  static const String PARTTIME = 'parttime';
+  static const String PDF = 'pdf';
+  static const String POSTED_DATE = 'postedDate';
+  static const String PREFERRED_SKILLS = 'preferredSkills';
+  static const String PUBLISH_STATUS = 'publishStatus';
+  static const String REMOTE = 'remote';
+  static const String REMOTELY = 'remotely';
+  static const String REMOVED = 'removed';
+  static const String REQUIRED_DOCUMENTS = 'requiredDocuments';
+  static const String REQUIRED_QUALIFICATION = 'requiredQualification';
+  static const String REQUIRED_SKILLS = 'requiredSkills';
+  static const String REQUIREMENTS = 'requirements';
+  static const String SALARY_CURRENCY = 'salaryCurrency';
+  static const String SALARY_MAX = 'salaryMax';
+  static const String SALARY_MIN = 'salaryMin';
+  static const String SCHEDULED = 'scheduled';
+  static const String SENIOR = 'senior';
+  static const String SHORT_DESCRIPTION = 'shortDescription';
+  static const String STATUS = 'status';
+  static const String TITLE = 'title';
+  static const String TOTAL_APPLICATIONS = 'totalApplications';
+  static const String WEEK = 'week';
+  static const String WORK_TYPE = 'workType';
+
   final String id;
 
   // Job Information
@@ -356,89 +410,89 @@ class JobPostModel {
     return JobPostModel(
       id: id,
       title: BilingualTextJob.fromMap(
-          (map['title'] as Map<String, dynamic>?) ?? {}),
-      department: map['department'] as String? ?? '',
+          (map[TITLE] as Map<String, dynamic>?) ?? {}),
+      department: map[DEPARTMENT] as String? ?? '',
       workType:
-      WorkTypeExt.fromString(map['workType'] as String? ?? 'On Site'),
+      WorkTypeExt.fromString(map[WORK_TYPE] as String? ?? 'On Site'),
       employmentType: EmploymentTypeExt.fromString(
-          map['employmentType'] as String? ?? 'Full Time'),
+          map[EMPLOYMENT_TYPE] as String? ?? 'Full Time'),
       employmentDurationText:
-      map['employmentDurationText'] as String? ?? '',
+      map[EMPLOYMENT_DURATION_TEXT] as String? ?? '',
       employmentDurationType: EmploymentDurationExt.fromString(
-          map['employmentDurationType'] as String? ?? 'open'),
+          map[EMPLOYMENT_DURATION_TYPE] as String? ?? 'open'),
       experienceLevel: ExperienceLevelExt.fromString(
-          map['experienceLevel'] as String? ?? 'junior'),
-      salaryMin: (map['salaryMin'] as num?)?.toDouble() ?? 0,
-      salaryMax: (map['salaryMax'] as num?)?.toDouble() ?? 0,
-      salaryCurrency: map['salaryCurrency'] as String? ?? 'SAR',
+          map[EXPERIENCE_LEVEL] as String? ?? 'junior'),
+      salaryMin: (map[SALARY_MIN] as num?)?.toDouble() ?? 0,
+      salaryMax: (map[SALARY_MAX] as num?)?.toDouble() ?? 0,
+      salaryCurrency: map[SALARY_CURRENCY] as String? ?? 'SAR',
       requiredQualification: BilingualTextJob.fromMap(
-          (map['requiredQualification'] as Map<String, dynamic>?) ?? {}),
-      requiredSkills: ((map['requiredSkills'] as List<dynamic>?) ?? [])
+          (map[REQUIRED_QUALIFICATION] as Map<String, dynamic>?) ?? {}),
+      requiredSkills: ((map[REQUIRED_SKILLS] as List<dynamic>?) ?? [])
           .whereType<Map<String, dynamic>>()
           .map((s) => SkillItem.fromMap(s))
           .toList(),
       aboutThisPosition: BilingualTextJob.fromMap(
-          (map['aboutThisPosition'] as Map<String, dynamic>?) ?? {}),
+          (map[ABOUT_THIS_POSITION] as Map<String, dynamic>?) ?? {}),
       requirements: BilingualTextJob.fromMap(
-          (map['requirements'] as Map<String, dynamic>?) ?? {}),
+          (map[REQUIREMENTS] as Map<String, dynamic>?) ?? {}),
       preferredSkills: BilingualTextJob.fromMap(
-          (map['preferredSkills'] as Map<String, dynamic>?) ?? {}),
-      benefits: ((map['benefits'] as List<dynamic>?) ?? [])
+          (map[PREFERRED_SKILLS] as Map<String, dynamic>?) ?? {}),
+      benefits: ((map[BENEFITS] as List<dynamic>?) ?? [])
           .whereType<Map<String, dynamic>>()
           .map((b) => BenefitItem.fromMap(b))
           .toList(),
-      hiringStartDate: map['hiringStartDate'] != null
-          ? DateTime.tryParse(map['hiringStartDate'] as String)
+      hiringStartDate: map[HIRING_START_DATE] != null
+          ? DateTime.tryParse(map[HIRING_START_DATE] as String)
           : null,
-      hiringEndDate: map['hiringEndDate'] != null
-          ? DateTime.tryParse(map['hiringEndDate'] as String)
+      hiringEndDate: map[HIRING_END_DATE] != null
+          ? DateTime.tryParse(map[HIRING_END_DATE] as String)
           : null,
-      maxApplications: map['maxApplications'] as int? ?? 0,
+      maxApplications: map[MAX_APPLICATIONS] as int? ?? 0,
       requiredDocuments:
-      ((map['requiredDocuments'] as List<dynamic>?) ?? [])
+      ((map[REQUIRED_DOCUMENTS] as List<dynamic>?) ?? [])
           .whereType<Map<String, dynamic>>()
           .map((d) => RequiredDocument.fromMap(d))
           .toList(),
       status: JobStatusExt.fromString(
-          map['status'] as String? ?? 'drafted'),
-      postedDate: map['postedDate'] != null
-          ? DateTime.tryParse(map['postedDate'] as String)
+          map[STATUS] as String? ?? 'drafted'),
+      postedDate: map[POSTED_DATE] != null
+          ? DateTime.tryParse(map[POSTED_DATE] as String)
           : null,
-      endedDate: map['endedDate'] != null
-          ? DateTime.tryParse(map['endedDate'] as String)
+      endedDate: map[ENDED_DATE] != null
+          ? DateTime.tryParse(map[ENDED_DATE] as String)
           : null,
-      totalApplications: map['totalApplications'] as int? ?? 0,
-      publishStatus: map['publishStatus'] as String? ?? 'draft',
+      totalApplications: map[TOTAL_APPLICATIONS] as int? ?? 0,
+      publishStatus: map[PUBLISH_STATUS] as String? ?? 'draft',
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'title': title.toMap(),
-    'department': department,
-    'workType': workType.label,
-    'employmentType': employmentType.label,
-    'employmentDurationText': employmentDurationText,
-    'employmentDurationType': employmentDurationType.label,
-    'experienceLevel': experienceLevel.label,
-    'salaryMin': salaryMin,
-    'salaryMax': salaryMax,
-    'salaryCurrency': salaryCurrency,
-    'requiredQualification': requiredQualification.toMap(),
-    'requiredSkills': requiredSkills.map((s) => s.toMap()).toList(),
-    'aboutThisPosition': aboutThisPosition.toMap(),
-    'requirements': requirements.toMap(),
-    'preferredSkills': preferredSkills.toMap(),
-    'benefits': benefits.map((b) => b.toMap()).toList(),
-    'hiringStartDate': hiringStartDate?.toIso8601String(),
-    'hiringEndDate': hiringEndDate?.toIso8601String(),
-    'maxApplications': maxApplications,
-    'requiredDocuments':
+    TITLE: title.toMap(),
+    DEPARTMENT: department,
+    WORK_TYPE: workType.label,
+    EMPLOYMENT_TYPE: employmentType.label,
+    EMPLOYMENT_DURATION_TEXT: employmentDurationText,
+    EMPLOYMENT_DURATION_TYPE: employmentDurationType.label,
+    EXPERIENCE_LEVEL: experienceLevel.label,
+    SALARY_MIN: salaryMin,
+    SALARY_MAX: salaryMax,
+    SALARY_CURRENCY: salaryCurrency,
+    REQUIRED_QUALIFICATION: requiredQualification.toMap(),
+    REQUIRED_SKILLS: requiredSkills.map((s) => s.toMap()).toList(),
+    ABOUT_THIS_POSITION: aboutThisPosition.toMap(),
+    REQUIREMENTS: requirements.toMap(),
+    PREFERRED_SKILLS: preferredSkills.toMap(),
+    BENEFITS: benefits.map((b) => b.toMap()).toList(),
+    HIRING_START_DATE: hiringStartDate?.toIso8601String(),
+    HIRING_END_DATE: hiringEndDate?.toIso8601String(),
+    MAX_APPLICATIONS: maxApplications,
+    REQUIRED_DOCUMENTS:
     requiredDocuments.map((d) => d.toMap()).toList(),
-    'status': status.label,
-    'postedDate': postedDate?.toIso8601String(),
-    'endedDate': endedDate?.toIso8601String(),
-    'totalApplications': totalApplications,
-    'publishStatus': publishStatus,
+    STATUS: status.label,
+    POSTED_DATE: postedDate?.toIso8601String(),
+    ENDED_DATE: endedDate?.toIso8601String(),
+    TOTAL_APPLICATIONS: totalApplications,
+    PUBLISH_STATUS: publishStatus,
   };
 
   JobPostModel copyWith({

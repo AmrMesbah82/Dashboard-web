@@ -89,7 +89,7 @@ Future<JobListingFilterData?> showJobListingFilterDialog(
     }) {
   return showDialog<JobListingFilterData>(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (_) => _JobListingFilterDialog(
       initial:               initial,
       departments:           departments           ?? _kDepts,

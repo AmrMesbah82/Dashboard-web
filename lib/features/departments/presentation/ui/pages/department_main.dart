@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE 6: department_main.dart (View Page)
-// Path: lib/pages/dashboard/department/department_main.dart
+// Path: lib/features/departments/presentation/ui/pages/department_main.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -28,7 +28,7 @@ import '../../controller/department_state.dart';
 import 'department_create.dart';
 import 'department_detail.dart';   // ← NEW
 
-part '../widget/department_main/department_card.dart';
+part '../widgets/department_main/department_card.dart';
 
 // class _C {
 //   static const Color primary   = Color(0xFF008037);
@@ -92,7 +92,7 @@ class _DepartmentMainPageState extends State<DepartmentMainPage> {
                     AppAdminNavbar(
                       activeLabel:    'Home',
                       homePage:       CareersMainPageDashboard(),
-                      webPage:        HomeMainPage(),
+                      webPage:        MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
                     SizedBox(height: 20.h),

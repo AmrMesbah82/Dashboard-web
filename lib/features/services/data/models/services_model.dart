@@ -80,6 +80,19 @@ class JourneyItemModel {
 // ── Page Model ────────────────────────────────────────────────────────────────
 
 class ServicePageModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String AR = 'ar';
+  static const String DESCRIPTION = 'description';
+  static const String EN = 'en';
+  static const String ICON_URL = 'iconUrl';
+  static const String ID = 'id';
+  static const String JOURNEY_ITEMS = 'journeyItems';
+  static const String JOURNEY_TITLE = 'journeyTitle';
+  static const String LAST_UPDATED_AT = 'lastUpdatedAt';
+  static const String SHORT_DESCRIPTION = 'shortDescription';
+  static const String SUB_TITLE = 'subTitle';
+  static const String TITLE = 'title';
+
   final BilingualText          title;
   final BilingualText          shortDescription;
   // ✅ Separate field for the "Reasons to Choose..." section heading
@@ -114,24 +127,24 @@ class ServicePageModel {
   );
 
   Map<String, dynamic> toMap() => {
-    'title':            title.toMap(),
-    'shortDescription': shortDescription.toMap(),
-    'journeyTitle':     journeyTitle.toMap(),
-    'journeyItems':     journeyItems.map((j) => j.toMap()).toList(),
+    TITLE:            title.toMap(),
+    SHORT_DESCRIPTION: shortDescription.toMap(),
+    JOURNEY_TITLE:     journeyTitle.toMap(),
+    JOURNEY_ITEMS:     journeyItems.map((j) => j.toMap()).toList(),
     // ✅ lastUpdatedAt is handled by FieldValue.serverTimestamp() in the repo
     //    so we only serialize it for reading, not writing
     if (lastUpdatedAt != null)
-      'lastUpdatedAt': lastUpdatedAt!.toIso8601String(),
+      LAST_UPDATED_AT: lastUpdatedAt!.toIso8601String(),
   };
 
   factory ServicePageModel.fromMap(Map<String, dynamic> map) => ServicePageModel(
-    title:            BilingualText.fromMap(map['title']),
-    shortDescription: BilingualText.fromMap(map['shortDescription']),
-    journeyTitle:     BilingualText.fromMap(map['journeyTitle']),
-    journeyItems:     (map['journeyItems'] as List? ?? [])
+    title:            BilingualText.fromMap(map[TITLE]),
+    shortDescription: BilingualText.fromMap(map[SHORT_DESCRIPTION]),
+    journeyTitle:     BilingualText.fromMap(map[JOURNEY_TITLE]),
+    journeyItems:     (map[JOURNEY_ITEMS] as List? ?? [])
         .map((j) => JourneyItemModel.fromMap(j))
         .toList(),
-    lastUpdatedAt:    _parseDateTime(map['lastUpdatedAt']),
+    lastUpdatedAt:    _parseDateTime(map[LAST_UPDATED_AT]),
   );
 
   static ServicePageModel empty() => const ServicePageModel();

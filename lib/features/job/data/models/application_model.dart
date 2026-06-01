@@ -1,9 +1,48 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE 1: application_model.dart
-// Path: lib/model/application_model.dart
+// Path: lib/features/job/data/models/application_model.dart
 // ═══════════════════════════════════════════════════════════════════
 
 class ApplicationModel {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String APPLICATION_DATE = 'applicationDate';
+  static const String APPLIED = 'applied';
+  static const String COMMENTS = 'comments';
+  static const String COMMUNICATION_SKILLS = 'communicationSkills';
+  static const String COUNTRY_CODE = 'countryCode';
+  static const String COVER_LETTER_NAME = 'coverLetterName';
+  static const String COVER_LETTER_URL = 'coverLetterUrl';
+  static const String CULTURE_FIT = 'cultureFit';
+  static const String CURRENCY = 'currency';
+  static const String DEPARTMENT = 'department';
+  static const String EMAIL = 'email';
+  static const String EMPLOYMENT_DURATION = 'employmentDuration';
+  static const String EMPLOYMENT_TYPE = 'employmentType';
+  static const String EXPERIENCE_BACKGROUND = 'experienceBackground';
+  static const String EXPERIENCE_LEVEL = 'experienceLevel';
+  static const String FIRST_NAME = 'firstName';
+  static const String INTERVIEW_DATE = 'interviewDate';
+  static const String JOB_ID = 'jobId';
+  static const String JOB_LOCATION = 'jobLocation';
+  static const String JOB_TITLE = 'jobTitle';
+  static const String LAST_NAME = 'lastName';
+  static const String LAST_UPDATE = 'lastUpdate';
+  static const String LEADERSHIP_POTENTIAL = 'leadershipPotential';
+  static const String PHONE = 'phone';
+  static const String QUALIFIED = 'qualified';
+  static const String REQUIRED_QUALIFICATION = 'requiredQualification';
+  static const String REQUIRED_SKILLS = 'requiredSkills';
+  static const String RESUME_NAME = 'resumeName';
+  static const String RESUME_URL = 'resumeUrl';
+  static const String SALARY_RANGE = 'salaryRange';
+  static const String SOURCE = 'source';
+  static const String STATUS = 'status';
+  static const String TAG = 'tag';
+  static const String TECHNICAL_SKILLS = 'technicalSkills';
+  static const String UNQUALIFIED = 'unqualified';
+  static const String WORK_TYPE = 'workType';
+  static const String YEAR_OF_GRADUATION = 'yearOfGraduation';
+
   final String id;
   final String jobId;
   final String jobTitle;
@@ -93,84 +132,84 @@ class ApplicationModel {
   factory ApplicationModel.fromMap(String id, Map<String, dynamic> map) {
     return ApplicationModel(
       id: id,
-      jobId: map['jobId'] as String? ?? '',
-      jobTitle: map['jobTitle'] as String? ?? '',
-      department: map['department'] as String? ?? '',
-      firstName: map['firstName'] as String? ?? '',
-      lastName: map['lastName'] as String? ?? '',
-      email: map['email'] as String? ?? '',
-      phone: map['phone'] as String? ?? '',
-      countryCode: map['countryCode'] as String? ?? '+234',
-      yearOfGraduation: map['yearOfGraduation'] as String? ?? '',
-      resumeUrl: map['resumeUrl'] as String? ?? '',
-      resumeName: map['resumeName'] as String? ?? '',
-      coverLetterUrl: map['coverLetterUrl'] as String? ?? '',
-      coverLetterName: map['coverLetterName'] as String? ?? '',
-      status: ApplicationStatusExt.fromString(map['status'] as String? ?? 'Applied'),
-      tag: map['tag'] as String? ?? '',
-      technicalSkills: map['technicalSkills'] as int? ?? 0,
-      communicationSkills: map['communicationSkills'] as int? ?? 0,
-      experienceBackground: map['experienceBackground'] as int? ?? 0,
-      cultureFit: map['cultureFit'] as int? ?? 0,
-      leadershipPotential: map['leadershipPotential'] as int? ?? 0,
-      comments: map['comments'] as String? ?? '',
-      applicationDate: map['applicationDate'] != null
-          ? DateTime.tryParse(map['applicationDate'] as String)
+      jobId: map[JOB_ID] as String? ?? '',
+      jobTitle: map[JOB_TITLE] as String? ?? '',
+      department: map[DEPARTMENT] as String? ?? '',
+      firstName: map[FIRST_NAME] as String? ?? '',
+      lastName: map[LAST_NAME] as String? ?? '',
+      email: map[EMAIL] as String? ?? '',
+      phone: map[PHONE] as String? ?? '',
+      countryCode: map[COUNTRY_CODE] as String? ?? '+234',
+      yearOfGraduation: map[YEAR_OF_GRADUATION] as String? ?? '',
+      resumeUrl: map[RESUME_URL] as String? ?? '',
+      resumeName: map[RESUME_NAME] as String? ?? '',
+      coverLetterUrl: map[COVER_LETTER_URL] as String? ?? '',
+      coverLetterName: map[COVER_LETTER_NAME] as String? ?? '',
+      status: ApplicationStatusExt.fromString(map[STATUS] as String? ?? 'Applied'),
+      tag: map[TAG] as String? ?? '',
+      technicalSkills: map[TECHNICAL_SKILLS] as int? ?? 0,
+      communicationSkills: map[COMMUNICATION_SKILLS] as int? ?? 0,
+      experienceBackground: map[EXPERIENCE_BACKGROUND] as int? ?? 0,
+      cultureFit: map[CULTURE_FIT] as int? ?? 0,
+      leadershipPotential: map[LEADERSHIP_POTENTIAL] as int? ?? 0,
+      comments: map[COMMENTS] as String? ?? '',
+      applicationDate: map[APPLICATION_DATE] != null
+          ? DateTime.tryParse(map[APPLICATION_DATE] as String)
           : null,
-      interviewDate: map['interviewDate'] != null
-          ? DateTime.tryParse(map['interviewDate'] as String)
+      interviewDate: map[INTERVIEW_DATE] != null
+          ? DateTime.tryParse(map[INTERVIEW_DATE] as String)
           : null,
-      lastUpdate: map['lastUpdate'] != null
-          ? DateTime.tryParse(map['lastUpdate'] as String)
+      lastUpdate: map[LAST_UPDATE] != null
+          ? DateTime.tryParse(map[LAST_UPDATE] as String)
           : null,
-      source: map['source'] as String? ?? '',
-      workType: map['workType'] as String? ?? '',
-      employmentType: map['employmentType'] as String? ?? '',
-      experienceLevel: map['experienceLevel'] as String? ?? '',
-      salaryRange: map['salaryRange'] as String? ?? '',
-      currency: map['currency'] as String? ?? '',
-      jobLocation: map['jobLocation'] as String? ?? '',
-      employmentDuration: map['employmentDuration'] as String? ?? '',
-      requiredQualification: map['requiredQualification'] as String? ?? '',
-      requiredSkills: map['requiredSkills'] as String? ?? '',
+      source: map[SOURCE] as String? ?? '',
+      workType: map[WORK_TYPE] as String? ?? '',
+      employmentType: map[EMPLOYMENT_TYPE] as String? ?? '',
+      experienceLevel: map[EXPERIENCE_LEVEL] as String? ?? '',
+      salaryRange: map[SALARY_RANGE] as String? ?? '',
+      currency: map[CURRENCY] as String? ?? '',
+      jobLocation: map[JOB_LOCATION] as String? ?? '',
+      employmentDuration: map[EMPLOYMENT_DURATION] as String? ?? '',
+      requiredQualification: map[REQUIRED_QUALIFICATION] as String? ?? '',
+      requiredSkills: map[REQUIRED_SKILLS] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'jobId': jobId,
-    'jobTitle': jobTitle,
-    'department': department,
-    'firstName': firstName,
-    'lastName': lastName,
-    'email': email,
-    'phone': phone,
-    'countryCode': countryCode,
-    'yearOfGraduation': yearOfGraduation,
-    'resumeUrl': resumeUrl,
-    'resumeName': resumeName,
-    'coverLetterUrl': coverLetterUrl,
-    'coverLetterName': coverLetterName,
-    'status': status.label,
-    'tag': tag,
-    'technicalSkills': technicalSkills,
-    'communicationSkills': communicationSkills,
-    'experienceBackground': experienceBackground,
-    'cultureFit': cultureFit,
-    'leadershipPotential': leadershipPotential,
-    'comments': comments,
-    'applicationDate': (applicationDate ?? DateTime.now()).toIso8601String(),
-    'interviewDate': interviewDate?.toIso8601String(),
-    'lastUpdate': lastUpdate?.toIso8601String(),
-    'source': source,
-    'workType': workType,
-    'employmentType': employmentType,
-    'experienceLevel': experienceLevel,
-    'salaryRange': salaryRange,
-    'currency': currency,
-    'jobLocation': jobLocation,
-    'employmentDuration': employmentDuration,
-    'requiredQualification': requiredQualification,
-    'requiredSkills': requiredSkills,
+    JOB_ID: jobId,
+    JOB_TITLE: jobTitle,
+    DEPARTMENT: department,
+    FIRST_NAME: firstName,
+    LAST_NAME: lastName,
+    EMAIL: email,
+    PHONE: phone,
+    COUNTRY_CODE: countryCode,
+    YEAR_OF_GRADUATION: yearOfGraduation,
+    RESUME_URL: resumeUrl,
+    RESUME_NAME: resumeName,
+    COVER_LETTER_URL: coverLetterUrl,
+    COVER_LETTER_NAME: coverLetterName,
+    STATUS: status.label,
+    TAG: tag,
+    TECHNICAL_SKILLS: technicalSkills,
+    COMMUNICATION_SKILLS: communicationSkills,
+    EXPERIENCE_BACKGROUND: experienceBackground,
+    CULTURE_FIT: cultureFit,
+    LEADERSHIP_POTENTIAL: leadershipPotential,
+    COMMENTS: comments,
+    APPLICATION_DATE: (applicationDate ?? DateTime.now()).toIso8601String(),
+    INTERVIEW_DATE: interviewDate?.toIso8601String(),
+    LAST_UPDATE: lastUpdate?.toIso8601String(),
+    SOURCE: source,
+    WORK_TYPE: workType,
+    EMPLOYMENT_TYPE: employmentType,
+    EXPERIENCE_LEVEL: experienceLevel,
+    SALARY_RANGE: salaryRange,
+    CURRENCY: currency,
+    JOB_LOCATION: jobLocation,
+    EMPLOYMENT_DURATION: employmentDuration,
+    REQUIRED_QUALIFICATION: requiredQualification,
+    REQUIRED_SKILLS: requiredSkills,
   };
 
   ApplicationModel copyWith({
@@ -302,9 +341,9 @@ extension ApplicationStatusExt on ApplicationStatus {
 
   static ApplicationStatus fromString(String s) {
     switch (s.toLowerCase()) {
-      case 'applied':             return ApplicationStatus.applied;
-      case 'qualified':           return ApplicationStatus.qualified;
-      case 'unqualified':         return ApplicationStatus.unqualified;
+      case 'applied':           return ApplicationStatus.applied;
+      case 'qualified':         return ApplicationStatus.qualified;
+      case 'unqualified':       return ApplicationStatus.unqualified;
       case 'interview: passed':   return ApplicationStatus.interviewPassed;
       case 'interview: failed':   return ApplicationStatus.interviewFailed;
       case 'interview: withdrew': return ApplicationStatus.interviewWithdrew;

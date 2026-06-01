@@ -35,7 +35,7 @@ import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
 import 'careers_main_page.dart'; // CareersMainPageMaster lives here
 
-part '../widget/careers_edit/careers_edit_widgets.dart';
+part '../widgets/careers_edit/careers_edit_widgets.dart';
 
 
 
@@ -470,9 +470,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
                 children: [
                   AppAdminNavbar(
                     activeLabel:    'Web Page',
-                    homePage:       HomeMainPage(),
-                    webPage:        HomeMainPage(),
-                    jobListingPage: HomeMainPage(),
+                    homePage:       MainMainPage(),
+                    webPage:        MainMainPage(),
+                    jobListingPage: MainMainPage(),
                   ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 5),

@@ -163,7 +163,7 @@ class _CustomValidatedTextFieldMasterState
                 onSurface: AppColors.text,
               ),
               textSelectionTheme: TextSelectionThemeData(
-                selectionColor: resolvedPrimary.withOpacity(0.3),
+                selectionColor: resolvedPrimary.withValues(alpha: 0.3),
                 selectionHandleColor: resolvedPrimary,
                 cursorColor: resolvedPrimary,
               ),

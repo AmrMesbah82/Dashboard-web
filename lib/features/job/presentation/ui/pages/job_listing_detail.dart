@@ -40,16 +40,16 @@ import '../../controller/job_listing_state.dart';
 import 'job_listing_edit.dart';
 import 'job_listing_main.dart';
 
-part '../widget/job_listing_detail/ch.dart';
-part '../widget/job_listing_detail/table_setting_dialog_content.dart';
-part '../widget/job_listing_detail/job_details_tab.dart';
-part '../widget/job_listing_detail/dashboard_tab.dart';
-part '../widget/job_listing_detail/funnel_item.dart';
-part '../widget/job_listing_detail/pie_item.dart';
-part '../widget/job_listing_detail/score_segment.dart';
-part '../widget/job_listing_detail/applicant_details_tab.dart';
-part '../widget/job_listing_detail/section_card.dart';
-part '../widget/job_listing_detail/trapezoid_clipper.dart';
+part '../widgets/job_listing_detail/ch.dart';
+part '../widgets/job_listing_detail/table_setting_dialog_content.dart';
+part '../widgets/job_listing_detail/job_details_tab.dart';
+part '../widgets/job_listing_detail/dashboard_tab.dart';
+part '../widgets/job_listing_detail/funnel_item.dart';
+part '../widgets/job_listing_detail/pie_item.dart';
+part '../widgets/job_listing_detail/score_segment.dart';
+part '../widgets/job_listing_detail/applicant_details_tab.dart';
+part '../widgets/job_listing_detail/section_card.dart';
+part '../widgets/job_listing_detail/trapezoid_clipper.dart';
 
 // ── Colors ───────────────────────────────────────────────────────────────────
 
@@ -359,7 +359,7 @@ class _JobListingDetailPageState extends State<JobListingDetailPage>
                 AppAdminNavbar(
                   activeLabel: 'Job Listing',
                   homePage: CareersMainPageDashboard(),
-                  webPage: HomeMainPage(),
+                  webPage: MainMainPage(),
                   jobListingPage: JobListingMainPage(),
                 ),
                 SizedBox(height: 20.h),

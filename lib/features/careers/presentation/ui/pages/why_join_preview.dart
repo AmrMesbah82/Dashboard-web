@@ -27,13 +27,13 @@ import '../../../data/models/careers_section_model.dart';
 import '../../controller/careers_section_cubit.dart';
 import '../../controller/careers_section_state.dart';
 
-part '../widget/why_join_preview/desktop_frame.dart';
-part '../widget/why_join_preview/tablet_frame.dart';
-part '../widget/why_join_preview/mobile_frame.dart';
-part '../widget/why_join_preview/view_bar.dart';
-part '../widget/why_join_preview/browser_chrome.dart';
-part '../widget/why_join_preview/preview_content.dart';
-part '../widget/why_join_preview/icon_title_row.dart';
+part '../widgets/why_join_preview/desktop_frame.dart';
+part '../widgets/why_join_preview/tablet_frame.dart';
+part '../widgets/why_join_preview/mobile_frame.dart';
+part '../widgets/why_join_preview/view_bar.dart';
+part '../widgets/why_join_preview/browser_chrome.dart';
+part '../widgets/why_join_preview/preview_content.dart';
+part '../widgets/why_join_preview/icon_title_row.dart';
 
 // ── Admin-shell colors (identical to careers_preview.dart) ───────────────
 // class _AC {
@@ -236,7 +236,7 @@ class _CareersSectionPreviewPageState
                               height: 44.h,
                               decoration: BoxDecoration(
                                 color: _isSaving
-                                    ? ColorPick.primary.withOpacity(0.5)
+                                    ? ColorPick.primary.withValues(alpha: 0.5)
                                     : ColorPick.primary,
                                 borderRadius: BorderRadius.circular(6.r),
                               ),

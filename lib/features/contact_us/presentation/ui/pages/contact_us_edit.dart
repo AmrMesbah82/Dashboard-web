@@ -27,13 +27,13 @@ import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../../data/models/contact_us_model_location.dart';
-import '../../controller/contacu_us_location_cubit.dart';
-import '../../controller/contacu_us_location_state.dart';
+import '../../controller/contact_us_location_cubit.dart';
+import '../../controller/contact_us_location_state.dart';
 
-part '../widget/contact_us_edit/social_link_dropdown.dart';
-part '../widget/contact_us_edit/social_icon_item.dart';
-part '../widget/contact_us_edit/office_location_item.dart';
-part '../widget/contact_us_edit/contact_us_edit_ui.dart';
+part '../widgets/contact_us_edit/social_link_dropdown.dart';
+part '../widgets/contact_us_edit/social_icon_item.dart';
+part '../widgets/contact_us_edit/office_location_item.dart';
+part '../widgets/contact_us_edit/contact_us_edit_ui.dart';
 
 // const Color ColorPick.primary      = Color(0xFF2D8C4E);
 // const Color ColorPick.primary = Color(0xFF008037);

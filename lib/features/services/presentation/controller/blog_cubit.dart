@@ -12,7 +12,7 @@
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/blog_model.dart';
-import '../../domain/repo/blog_repo.dart';
+import '../../domain/base_repository/blog_repo.dart';
 import 'blog_state.dart';
 
 // Import repo — adjust path to match your project structure

@@ -5,6 +5,24 @@
 //          location, entityName, entityType, entitySize)
 
 class ContactSubmission {
+  // ── Firestore field keys ──────────────────────────────────────────────────
+  static const String COUNTRY_CODE = 'countryCode';
+  static const String EMAIL = 'email';
+  static const String ENTITY_NAME = 'entityName';
+  static const String ENTITY_SIZE = 'entitySize';
+  static const String ENTITY_TYPE = 'entityType';
+  static const String FIRST_NAME = 'firstName';
+  static const String FULL_NAME = 'fullName';
+  static const String LAST_NAME = 'lastName';
+  static const String LOCATION = 'location';
+  static const String MESSAGE = 'message';
+  static const String NOTE = 'note';
+  static const String PHONE_NUMBER = 'phoneNumber';
+  static const String PREFERRED_LANGUAGE = 'preferredLanguage';
+  static const String STATUS = 'status';
+  static const String SUBJECT = 'subject';
+  static const String SUBMISSION_DATE = 'submissionDate';
+
   final String id;
   final String firstName;
   final String lastName;
@@ -48,11 +66,11 @@ class ContactSubmission {
 
   factory ContactSubmission.fromMap(String id, Map<String, dynamic> map) {
     // ── Backward compatibility: handle old docs that have 'fullName' ──
-    String firstName = (map['firstName'] as String?) ?? '';
-    String lastName  = (map['lastName']  as String?) ?? '';
+    String firstName = (map[FIRST_NAME] as String?) ?? '';
+    String lastName  = (map[LAST_NAME]  as String?) ?? '';
 
     if (firstName.isEmpty && lastName.isEmpty) {
-      final legacy = (map['fullName'] as String?) ?? '';
+      final legacy = (map[FULL_NAME] as String?) ?? '';
       if (legacy.isNotEmpty) {
         final parts = legacy.split(' ');
         firstName = parts.first;
@@ -64,41 +82,41 @@ class ContactSubmission {
       id:                id,
       firstName:         firstName,
       lastName:          lastName,
-      email:             (map['email']             as String?) ?? '',
-      countryCode:       (map['countryCode']       as String?) ?? '',
-      phoneNumber:       (map['phoneNumber']       as String?) ?? '',
-      preferredLanguage: (map['preferredLanguage'] as String?) ?? 'en',
-      location:          (map['location']          as String?) ?? '',
-      entityName:        (map['entityName']        as String?) ?? '',
-      entityType:        (map['entityType']        as String?) ?? '',
-      entitySize:        (map['entitySize']        as String?) ?? '',
-      subject:           (map['subject']           as String?) ?? '',
-      message:           (map['message']           as String?) ?? '',
-      note:              (map['note']              as String?) ?? '',
-      status:            (map['status']            as String?) ?? 'New',
-      submissionDate:    map['submissionDate'] != null
-          ? DateTime.parse(map['submissionDate'] as String)
+      email:             (map[EMAIL]             as String?) ?? '',
+      countryCode:       (map[COUNTRY_CODE]       as String?) ?? '',
+      phoneNumber:       (map[PHONE_NUMBER]       as String?) ?? '',
+      preferredLanguage: (map[PREFERRED_LANGUAGE] as String?) ?? 'en',
+      location:          (map[LOCATION]          as String?) ?? '',
+      entityName:        (map[ENTITY_NAME]        as String?) ?? '',
+      entityType:        (map[ENTITY_TYPE]        as String?) ?? '',
+      entitySize:        (map[ENTITY_SIZE]        as String?) ?? '',
+      subject:           (map[SUBJECT]           as String?) ?? '',
+      message:           (map[MESSAGE]           as String?) ?? '',
+      note:              (map[NOTE]              as String?) ?? '',
+      status:            (map[STATUS]            as String?) ?? 'New',
+      submissionDate:    map[SUBMISSION_DATE] != null
+          ? DateTime.parse(map[SUBMISSION_DATE] as String)
           : DateTime.now(),
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'firstName':         firstName,
-    'lastName':          lastName,
-    'fullName':          fullName, // ← keep for backward compat / easy queries
-    'email':             email,
-    'countryCode':       countryCode,
-    'phoneNumber':       phoneNumber,
-    'preferredLanguage': preferredLanguage,
-    'location':          location,
-    'entityName':        entityName,
-    'entityType':        entityType,
-    'entitySize':        entitySize,
-    'subject':           subject,
-    'message':           message,
-    'note':              note,
-    'status':            status,
-    'submissionDate':    submissionDate.toIso8601String(),
+    FIRST_NAME:         firstName,
+    LAST_NAME:          lastName,
+    FULL_NAME:          fullName, // ← keep for backward compat / easy queries
+    EMAIL:             email,
+    COUNTRY_CODE:       countryCode,
+    PHONE_NUMBER:       phoneNumber,
+    PREFERRED_LANGUAGE: preferredLanguage,
+    LOCATION:          location,
+    ENTITY_NAME:        entityName,
+    ENTITY_TYPE:        entityType,
+    ENTITY_SIZE:        entitySize,
+    SUBJECT:           subject,
+    MESSAGE:           message,
+    NOTE:              note,
+    STATUS:            status,
+    SUBMISSION_DATE:    submissionDate.toIso8601String(),
   };
 
   ContactSubmission copyWith({

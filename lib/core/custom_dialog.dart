@@ -46,7 +46,7 @@ class _DialogShell extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(-3, 4),
             ),
@@ -137,7 +137,7 @@ Future<void> showConfirmDialog({
 }) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (_) => _ConfirmDialog(
       title: title,
       subtitle: subtitle,
@@ -195,7 +195,7 @@ class _ConfirmDialog extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: StyleText.fontSize12Weight400.copyWith(
-              color: AppColors.text.withOpacity(0.6),
+              color: AppColors.text.withValues(alpha: 0.6),
             ),
           ),
           SizedBox(height: 24.h),
@@ -270,7 +270,7 @@ Future<void> showSuccessDialog({
 }) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (_) => _SuccessDialog(
       title: title,
       subtitle: subtitle,
@@ -319,7 +319,7 @@ class _SuccessDialog extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: StyleText.fontSize12Weight400.copyWith(
-              color: AppColors.text.withOpacity(0.6),
+              color: AppColors.text.withValues(alpha: 0.6),
             ),
           ),
           SizedBox(height: 24.h),
@@ -382,7 +382,7 @@ Future<void> showCommentDialog({
 }) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (_) => _CommentDialog(
       title: title,
       fieldLabel: fieldLabel,
@@ -525,7 +525,7 @@ Future<void> showUploadDialog({
 }) {
   return showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (_) => _UploadDialog(
       dialogTitle: dialogTitle,
       titleFieldLabel: titleFieldLabel,
@@ -682,7 +682,7 @@ class _UploadDialogState extends State<_UploadDialog> {
           color: lightMode ? const Color(0xFFF1F2ED) : AppColors.background,
           borderRadius: BorderRadius.circular(4.r),
           border: Border.all(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -816,7 +816,7 @@ Future<void> showPublishConfirmDialog({
   return showDialog(
     context: context,
     barrierDismissible: false, // prevent accidental dismiss while saving
-    barrierColor: Colors.black.withOpacity(0.4),
+    barrierColor: Colors.black.withValues(alpha: 0.4),
     builder: (_) => _PublishConfirmDialog(
       title: title,
       subtitle: subtitle,
@@ -915,7 +915,7 @@ class _PublishConfirmDialogState extends State<_PublishConfirmDialog> {
                 Text(
                   widget.subtitle,
                   style: StyleText.fontSize13Weight400.copyWith(
-                    color: AppColors.text.withOpacity(0.6),
+                    color: AppColors.text.withValues(alpha: 0.6),
                   ),
                 ),
               ],

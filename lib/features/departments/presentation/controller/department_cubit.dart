@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 import '../../data/models/department_model.dart';
-import '../../domain/repo/department_repo.dart';
+import '../../domain/base_repository/department_repo.dart';
 import 'department_state.dart';
 
 class DepartmentCubit extends Cubit<DepartmentState> {

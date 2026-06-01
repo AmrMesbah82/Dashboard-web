@@ -7,7 +7,6 @@ import 'twilio_constants.dart';
 class TwilioRepository {
   Future<void> sendOTP(String to, String channel, String locale) async {
 
-    // Debug: Check credentials
 
     final credentials = '${TwilioConstants.twilioAccountSid}:${TwilioConstants.twilioAuthToken}';
     final encodedCredentials = base64Encode(utf8.encode(credentials));

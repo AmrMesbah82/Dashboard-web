@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/main_widgets/job_listing_filter_dialog.dart';
 import '../../data/models/job_listing_model.dart';
-import '../../domain/repo/job_listing_repo.dart';
+import '../../domain/base_repository/job_listing_repo.dart';
 import 'job_listing_state.dart';
 
 

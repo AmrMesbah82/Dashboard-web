@@ -336,11 +336,11 @@ class _FooterMobile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Divider(color: primary.withOpacity(0.5), thickness: 1)),
+              Expanded(child: Divider(color: primary.withValues(alpha: 0.5), thickness: 1)),
               SizedBox(width: 10.w),
               ..._socialIconsRaw(model.socialLinks, primary),
               SizedBox(width: 10.w),
-              Expanded(child: Divider(color: primary.withOpacity(0.5), thickness: 1)),
+              Expanded(child: Divider(color: primary.withValues(alpha: 0.5), thickness: 1)),
             ],
           ),
           SizedBox(height: 12.h),

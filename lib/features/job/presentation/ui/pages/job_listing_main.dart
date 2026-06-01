@@ -37,9 +37,9 @@ import '../../controller/job_listing_state.dart';
 import 'job_listing_detail.dart';
 import 'job_listing_edit.dart';
 
-part '../widget/job_listing_main/svg.dart';
-part '../widget/job_listing_main/job_card.dart';
-part '../widget/job_listing_main/company_logo.dart';
+part '../widgets/job_listing_main/svg.dart';
+part '../widgets/job_listing_main/job_card.dart';
+part '../widgets/job_listing_main/company_logo.dart';
 
 // ── SVG asset paths ──────────────────────────────────────────────────────────
 
@@ -143,7 +143,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                     AppAdminNavbar(
                       activeLabel:    'Job Listing',
                       homePage:       CareersMainPageDashboard(),
-                      webPage:        HomeMainPage(),
+                      webPage:        MainMainPage(),
                       jobListingPage: JobListingMainPage(),
 
                     ),
@@ -297,7 +297,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFEBEE),
                                   borderRadius: BorderRadius.circular(8.r),
-                                  border: Border.all(color: const Color(0xFFE53935).withOpacity(0.3)),
+                                  border: Border.all(color: const Color(0xFFE53935).withValues(alpha: 0.3)),
                                 ),
                                 child: Row(
                                   children: [
@@ -446,7 +446,7 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: ColorPick.primary.withOpacity(0.1),
+        color: ColorPick.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6.r),
       ),
       child: Row(

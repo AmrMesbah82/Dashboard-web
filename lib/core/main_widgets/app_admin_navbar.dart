@@ -301,7 +301,7 @@ class _AdminNavbarMobile extends StatelessWidget {
                   width:  36.w,
                   height: 36.w,
                   decoration: BoxDecoration(
-                    color:        primary.withOpacity(0.1),
+                    color:        primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(Icons.menu_rounded, color: primary, size: 20.sp),
@@ -386,7 +386,7 @@ class _AdminMobileDrawer extends StatelessWidget {
                       width:  36.w,
                       height: 36.w,
                       decoration: BoxDecoration(
-                        color:        primary.withOpacity(0.12),
+                        color:        primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Icon(Icons.close_rounded, color: primary, size: 20.sp),
@@ -585,7 +585,7 @@ class _AdminNavLinkState extends State<_AdminNavLink> {
               color: _isActive
                   ? widget.primary
                   : (_hovered
-                  ? widget.primary.withOpacity(0.08)
+                  ? widget.primary.withValues(alpha: 0.08)
                   : Colors.transparent),
               borderRadius: BorderRadius.circular(4.r),
             ),
@@ -650,7 +650,7 @@ class _WebPageButtonState extends State<_WebPageButton> {
             color: widget.isActive
                 ? widget.primary
                 : (_hovered
-                ? widget.primary.withOpacity(0.08)
+                ? widget.primary.withValues(alpha: 0.08)
                 : Colors.transparent),
             borderRadius: BorderRadius.circular(4.r),
           ),

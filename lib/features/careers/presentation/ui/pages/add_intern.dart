@@ -29,7 +29,7 @@ import '../../controller/intern_cubit.dart';
 import '../../controller/intern_state.dart';
 
 
-part '../widget/add_intern/add_intern_widgets.dart';
+part '../widgets/add_intern/add_intern_widgets.dart';
 
 
 // class _C {
@@ -336,9 +336,9 @@ class _AddInternPageState extends State<AddInternPage> {
 
                         AppAdminNavbar(
                           activeLabel: 'Web Page',
-                          homePage: HomeMainPage(),
-                          webPage: HomeMainPage(),
-                          jobListingPage: HomeMainPage(),
+                          homePage: MainMainPage(),
+                          webPage: MainMainPage(),
+                          jobListingPage: MainMainPage(),
                         ),
                         AdminSubNavBar(activeIndex: 5),
                         SizedBox(height: 30.h),
@@ -375,7 +375,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                         decoration: BoxDecoration(
                                           color: _isRemoving
                                               ? Colors.red
-                                              .withOpacity(0.6)
+                                              .withValues(alpha: 0.6)
                                               : Colors.red,
                                           borderRadius:
                                           BorderRadius.circular(6.r),
@@ -520,7 +520,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                             height: 50.h,
                                             decoration: BoxDecoration(
                                               color: busy
-                                                  ? ColorPick.discard.withOpacity(0.5)
+                                                  ? ColorPick.discard.withValues(alpha: 0.5)
                                                   : ColorPick.discard,
                                               borderRadius:
                                               BorderRadius.circular(8.r),
@@ -545,7 +545,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                             height: 50.h,
                                             decoration: BoxDecoration(
                                               color: busy
-                                                  ? ColorPick.primary.withOpacity(0.5)
+                                                  ? ColorPick.primary.withValues(alpha: 0.5)
                                                   : ColorPick.primary,
                                               borderRadius:
                                               BorderRadius.circular(8.r),
@@ -581,7 +581,7 @@ class _AddInternPageState extends State<AddInternPage> {
             // ── Full-screen saving overlay ─────────────────────────────────
             if (busy)
               Container(
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withValues(alpha: 0.35),
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(

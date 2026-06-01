@@ -8,11 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../job/data/models/application_model.dart';
 import '../../../job/data/models/job_listing_model.dart';
-import '../../../job/domain/repo/application_repo.dart';
-import '../../../job/domain/repo/job_listing_repo.dart';
+import '../../../job/domain/base_repository/application_repo.dart';
+import '../../../job/domain/base_repository/job_listing_repo.dart';
 import '../../data/models/careers_model.dart';
-import '../../data/repo_imp/careers_repo_imp.dart';
-import '../../domain/repo/careers_repo.dart';
+import '../../data/repository/careers_repo_impl.dart';
+import '../../domain/base_repository/careers_repo.dart';
 import 'careers_state.dart';
 
 

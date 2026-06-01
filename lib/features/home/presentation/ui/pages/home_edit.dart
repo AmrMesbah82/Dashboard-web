@@ -55,14 +55,14 @@ import '../../controller/home_state.dart';
 import 'home_main.dart';
 import 'home_preview.dart';
 
-part '../widget/home_edit/picked_image.dart';
-part '../widget/home_edit/nav_btn_item.dart';
-part '../widget/home_edit/section_item.dart';
-part '../widget/home_edit/color_picker_field.dart';
-part '../widget/home_edit/color_wheel_overlay.dart';
-part '../widget/home_edit/home_edit_helpers.dart';
-part '../widget/home_edit/home_edit_builders.dart';
-part '../widget/home_edit/home_edit_actions.dart';
+part '../widgets/home_edit/picked_image.dart';
+part '../widgets/home_edit/nav_btn_item.dart';
+part '../widgets/home_edit/section_item.dart';
+part '../widgets/home_edit/color_picker_field.dart';
+part '../widgets/home_edit/color_wheel_overlay.dart';
+part '../widgets/home_edit/home_edit_helpers.dart';
+part '../widgets/home_edit/home_edit_builders.dart';
+part '../widgets/home_edit/home_edit_actions.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -310,7 +310,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                   AppAdminNavbar(
                     activeLabel: 'Web Page',
                     homePage: CareersMainPageDashboard(),
-                    webPage: HomeMainPage(),
+                    webPage: MainMainPage(),
                     jobListingPage: JobListingMainPage(),
                   ),
                   SizedBox(height: 20.h),

@@ -29,13 +29,13 @@ import '../../../data/models/our_teams_model.dart';
 import '../../controller/our_teams_cubit.dart';
 import '../../controller/our_teams_state.dart';
 
-part '../widget/our_teams_preview/desktop_frame.dart';
-part '../widget/our_teams_preview/tablet_frame.dart';
-part '../widget/our_teams_preview/mobile_frame.dart';
-part '../widget/our_teams_preview/preview_content.dart';
-part '../widget/our_teams_preview/row_section.dart';
-part '../widget/our_teams_preview/team_card.dart';
-part '../widget/our_teams_preview/browser_chrome.dart';
+part '../widgets/our_teams_preview/desktop_frame.dart';
+part '../widgets/our_teams_preview/tablet_frame.dart';
+part '../widgets/our_teams_preview/mobile_frame.dart';
+part '../widgets/our_teams_preview/preview_content.dart';
+part '../widgets/our_teams_preview/row_section.dart';
+part '../widgets/our_teams_preview/team_card.dart';
+part '../widgets/our_teams_preview/browser_chrome.dart';
 
 // ── Admin-shell colors ────────────────────────────────────────────────────────
 // class _C {
@@ -198,7 +198,7 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
             // ── Saving overlay ──────────────────────────────────────────────
             if (_isSaving)
               Container(
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withValues(alpha: 0.35),
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -302,7 +302,7 @@ class _OurTeamsPreviewPageState extends State<OurTeamsPreviewPage> {
                   height: 44.h,
                   decoration: BoxDecoration(
                     color: _isSaving
-                        ? ColorPick.primary.withOpacity(0.5)
+                        ? ColorPick.primary.withValues(alpha: 0.5)
                         : ColorPick.primary,
                     borderRadius: BorderRadius.circular(6.r),
                   ),

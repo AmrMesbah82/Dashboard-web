@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/main_widgets/application_filter_dialog.dart';
 import '../../data/models/application_model.dart';
-import '../../domain/repo/application_repo.dart';
+import '../../domain/base_repository/application_repo.dart';
 import 'application_state.dart';
 
 

@@ -30,9 +30,9 @@ import '../../../data/models/careers_section_model.dart';
 import '../../controller/careers_section_cubit.dart';
 import '../../controller/careers_section_state.dart';
 
-part '../widget/why_join_edit/picked_image.dart';
-part '../widget/why_join_edit/item_edit.dart';
-part '../widget/why_join_edit/why_join_edit_ui.dart';
+part '../widgets/why_join_edit/picked_image.dart';
+part '../widgets/why_join_edit/item_edit.dart';
+part '../widgets/why_join_edit/why_join_edit_ui.dart';
 
 
 // class _C {
@@ -332,9 +332,9 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                     children: [
                       AppAdminNavbar(
                         activeLabel: 'Web Page',
-                        homePage: HomeMainPage(),
-                        webPage: HomeMainPage(),
-                        jobListingPage: HomeMainPage(),
+                        homePage: MainMainPage(),
+                        webPage: MainMainPage(),
+                        jobListingPage: MainMainPage(),
                       ),
                       AdminSubNavBar(activeIndex: 5),
                       SizedBox(height: 20.h),
@@ -412,7 +412,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
             // ── Saving overlay ───────────────────────────────────────────────
             if (_isSaving)
               Container(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 child: Center(
                   child: Container(
                     padding: EdgeInsets.symmetric(
@@ -422,7 +422,7 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                       borderRadius: BorderRadius.circular(16.r),
                       boxShadow: [
                         BoxShadow(
-                            color: Colors.black.withOpacity(.15),
+                            color: Colors.black.withValues(alpha: .15),
                             blurRadius: 24),
                       ],
                     ),

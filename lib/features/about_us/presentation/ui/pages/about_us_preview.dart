@@ -24,17 +24,17 @@ import '../../controller/about_us_cubit.dart';
 import '../../controller/about_us_state.dart';
 import 'about_us_main.dart';
 
-part '../widget/about_us_preview/desktop_frame.dart';
-part '../widget/about_us_preview/tablet_frame.dart';
-part '../widget/about_us_preview/mobile_frame.dart';
-part '../widget/about_us_preview/preview_content.dart';
-part '../widget/about_us_preview/desktop_sub_tab.dart';
-part '../widget/about_us_preview/tablet_sub_tab.dart';
-part '../widget/about_us_preview/mobile_accordion.dart';
-part '../widget/about_us_preview/values_grid.dart';
-part '../widget/about_us_preview/value_card.dart';
-part '../widget/about_us_preview/value_detail.dart';
-part '../widget/about_us_preview/browser_chrome.dart';
+part '../widgets/about_us_preview/desktop_frame.dart';
+part '../widgets/about_us_preview/tablet_frame.dart';
+part '../widgets/about_us_preview/mobile_frame.dart';
+part '../widgets/about_us_preview/preview_content.dart';
+part '../widgets/about_us_preview/desktop_sub_tab.dart';
+part '../widgets/about_us_preview/tablet_sub_tab.dart';
+part '../widgets/about_us_preview/mobile_accordion.dart';
+part '../widgets/about_us_preview/values_grid.dart';
+part '../widgets/about_us_preview/value_card.dart';
+part '../widgets/about_us_preview/value_detail.dart';
+part '../widgets/about_us_preview/browser_chrome.dart';
 
 //── Admin-shell colors ────────────────────────────────────────────────────────
 //class _AC {
@@ -65,7 +65,7 @@ double _safeScale(double v) =>
 
 enum _PreviewDevice { desktop, tablet, mobile }
 
-Color _hoverTint(Color c) => c.withOpacity(0.12);
+Color _hoverTint(Color c) => c.withValues(alpha: 0.12);
 
 String _ab(AboutBilingualText b, bool isRtl) {
   final v = isRtl ? b.ar : b.en;
@@ -274,7 +274,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
                                 height: 44.h,
                                 decoration: BoxDecoration(
                                     color: _isPublishing
-                                        ? ColorPick.primary.withOpacity(0.5)
+                                        ? ColorPick.primary.withValues(alpha: 0.5)
                                         : ColorPick.primary,
                                     borderRadius:
                                     BorderRadius.circular(6.r)),
@@ -308,7 +308,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
 
           if (_isPublishing)
             Container(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               child: const Center(
                   child: CircularProgressIndicator(color: ColorPick.primary)),
             ),

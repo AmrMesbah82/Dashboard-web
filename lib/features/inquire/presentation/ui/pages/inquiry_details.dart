@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: inquiry_details.dart (Detail / Edit Page)
-// Path: lib/pages/dashboard/inquiry/inquiry_details.dart
+// Path: lib/features/inquire/presentation/ui/pages/inquiry_details.dart
 // UPDATED: Status dropdown primaryColor driven by HomeCmsCubit (same
 //          logic as AppNavbar) instead of a hardcoded constant.
 // ═══════════════════════════════════════════════════════════════════
@@ -225,7 +225,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                       AppAdminNavbar(
                         activeLabel: 'Inquires',
                         homePage: CareersMainPageDashboard(),
-                        webPage: HomeMainPage(),
+                        webPage: MainMainPage(),
                         jobListingPage: JobListingMainPage(),
                       ),
 

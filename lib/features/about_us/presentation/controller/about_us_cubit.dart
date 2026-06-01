@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 import '../../data/models/about_us_model.dart';
-import '../../data/repo_imp/about_us_repo_imp.dart';
-import '../../domain/repo/about_us_repo.dart';
+import '../../data/repository/about_us_repo_impl.dart';
+import '../../domain/base_repository/about_us_repo.dart';
 import 'about_us_state.dart';
 
 // ── Safe emit — never throws "Cannot emit after close" ────────────────────────

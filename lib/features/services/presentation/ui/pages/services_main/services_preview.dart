@@ -137,9 +137,9 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
                 children: [
                   AppAdminNavbar(
                     activeLabel:    'Web Page',
-                    homePage:       HomeMainPage(),
-                    webPage:        HomeMainPage(),
-                    jobListingPage: HomeMainPage(),
+                    homePage:       MainMainPage(),
+                    webPage:        MainMainPage(),
+                    jobListingPage: MainMainPage(),
                   ),
                   SizedBox(height: 20.h),
 
@@ -192,7 +192,7 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
       unselectedColor:     Colors.transparent,
       selectedTextColor:   Colors.white,
       unselectedTextColor: AppColors.text,
-      containerColor:      ColorPick.white.withOpacity(0.45),
+      containerColor:      ColorPick.white.withValues(alpha: 0.45),
       equalWidth: false,
       containerPadding: EdgeInsets.symmetric(horizontal: 8.sp, vertical: 4.sp),
     );

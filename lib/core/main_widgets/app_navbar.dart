@@ -79,7 +79,7 @@ Color _hexColor(String hex, Color fallback) {
   return fallback;
 }
 
-Color _lightTint(Color primary) => primary.withOpacity(0.12);
+Color _lightTint(Color primary) => primary.withValues(alpha: 0.12);
 
 // ── CMS-driven nav items, filtered by status ──────────────────────────────────
 List<({String label, String route, String svgAsset})> _getVisibleNavItems(
@@ -610,7 +610,7 @@ class _NavItemState extends State<_NavItem> {
               decoration: BoxDecoration(
                 color: _isActive
                     ? widget.primary
-                    : (_hovered ? hoverBg : hoverBg.withOpacity(0)),
+                    : (_hovered ? hoverBg : hoverBg.withValues(alpha: 0)),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Text(
@@ -649,7 +649,7 @@ class _LanguageToggle extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.r),
-            color:        AppColors.secondaryText.withOpacity(.1),
+            color:        AppColors.secondaryText.withValues(alpha: .1),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),

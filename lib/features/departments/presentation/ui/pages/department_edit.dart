@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // department_edit.dart  (Edit Page)
-// Path: lib/pages/dashboard/department/department_edit.dart
+// Path: lib/features/departments/presentation/ui/pages/department_edit.dart
 // ═══════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
@@ -234,7 +234,7 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
                     AppAdminNavbar(
                       activeLabel:    'Home',
                       homePage:       CareersMainPageDashboard(),
-                      webPage:        HomeMainPage(),
+                      webPage:        MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
 

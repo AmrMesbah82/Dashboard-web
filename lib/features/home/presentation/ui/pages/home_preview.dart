@@ -22,8 +22,8 @@ import '../../controller/home_state.dart';
 import '../../controller/lang_state.dart';
 
 
-part '../widget/home_preview/home_preview_builders.dart';
-part '../widget/home_preview/home_preview_cards.dart';
+part '../widgets/home_preview/home_preview_builders.dart';
+part '../widgets/home_preview/home_preview_cards.dart';
 
 
 // class _C {
@@ -147,7 +147,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                                         unselectedColor: Colors.transparent,
                                         selectedTextColor: Colors.white,
                                         unselectedTextColor: AppColors.text,
-                                        containerColor: ColorPick.white.withOpacity(0.45),
+                                        containerColor: ColorPick.white.withValues(alpha: 0.45),
                                         equalWidth: false,
                                         containerPadding: EdgeInsets.symmetric(
                                             horizontal: 8.sp, vertical: 4.sp),
@@ -190,7 +190,7 @@ class _HomePreviewPageMasterState extends State<HomePreviewPageMaster> {
                                           height: 44.h,
                                           decoration: BoxDecoration(
                                             color: _isSaving
-                                                ? ColorPick.primary.withOpacity(0.5)
+                                                ? ColorPick.primary.withValues(alpha: 0.5)
                                                 : ColorPick.primary,
                                             borderRadius: BorderRadius.circular(6.r),
                                           ),

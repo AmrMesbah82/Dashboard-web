@@ -7,7 +7,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/inquiry_model.dart';
-import '../../domain/repo/inquiry_repo.dart';
+import '../../domain/base_repository/inquiry_repo.dart';
 import 'inquiry_state.dart';
 
 class InquiryCubit extends Cubit<InquiryState> {

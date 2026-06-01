@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: inquiry_main.dart (View Page)
-// Path: lib/pages/dashboard/inquiry/inquiry_main.dart
+// Path: lib/features/inquire/presentation/ui/pages/inquiry_main.dart
 // UPDATED: Charts enhanced to match Figma design exactly
 // ═══════════════════════════════════════════════════════════════════
 
@@ -27,9 +27,10 @@ import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/inquiry_model.dart';
 import '../../controller/inquiry_cubit.dart';
 import '../../controller/inquiry_state.dart';
+import '../widgets/inquiry_status_colors.dart';
 import 'inquiry_details.dart';
 
-part '../widget/inquiry_main/pie_chart_painter.dart';
+part '../widgets/inquiry_main/pie_chart_painter.dart';
 
 // class _C {
 //   static const Color primary      = Color(0xFF008037);
@@ -218,7 +219,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
             children: [
               Container(
                 width: 64.sp, height: 64.sp,
-                decoration: BoxDecoration(color: ColorPick.primary.withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: ColorPick.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: Icon(Icons.check_circle, color: ColorPick.primary, size: 40.sp),
               ),
               SizedBox(height: 16.h),
@@ -319,7 +320,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                     AppAdminNavbar(
                       activeLabel: 'Inquires',
                       homePage: CareersMainPageDashboard(),
-                      webPage: HomeMainPage(),
+                      webPage: MainMainPage(),
                       jobListingPage: JobListingMainPage(),
                     ),
                     SizedBox(height: 20.h),
@@ -841,7 +842,7 @@ class _InquiryMainPageState extends State<InquiryMainPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // light (empty) portion on top
-                        Container(height: emptyH.h, color: ColorPick.primary.withOpacity(.5)),
+                        Container(height: emptyH.h, color: ColorPick.primary.withValues(alpha: .5)),
                         // dark (filled) portion on bottom
                         Container(height: fillH.h,  color: ColorPick.primary),
                       ],
