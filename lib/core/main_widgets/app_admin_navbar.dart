@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -500,12 +501,12 @@ class _AdminLogo extends StatelessWidget {
         };
 
         final Widget logoWidget = logoUrl.isNotEmpty
-            ? SvgPicture.network(
-          logoUrl,
+            ? NetworkImageView(
+          url:    logoUrl,
           width:  sz,
           height: sz,
           fit:    BoxFit.fill,
-          placeholderBuilder: (_) => Image(
+          placeholder: Image(
             image:  const AssetImage('assets/images/logo.jpg'),
             width:  sz,
             height: sz,

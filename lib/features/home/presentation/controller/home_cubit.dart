@@ -463,6 +463,10 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
     _model = _model.copyWith(branding: _model.branding.copyWith(headerFooterColor: hex));
   }
 
+  void updateMainWidgetColor(String hex) {
+    _model = _model.copyWith(branding: _model.branding.copyWith(mainWidgetColor: hex));
+  }
+
   void updateEnglishFont(String font) {
     _model = _model.copyWith(branding: _model.branding.copyWith(englishFont: font));
   }

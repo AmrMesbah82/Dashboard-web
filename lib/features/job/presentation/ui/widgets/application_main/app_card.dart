@@ -59,16 +59,11 @@ class _AppCard extends StatelessWidget {
                     if (logoUrl.isNotEmpty) {
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(4.r),
-                        child: SvgPicture.network(
-                          logoUrl,
+                        child: NetworkImageView(
+                          url: logoUrl,
                           width: 18.sp,
                           height: 18.sp,
                           fit: BoxFit.contain,
-                          placeholderBuilder: (_) => Icon(
-                            Icons.work_outline_rounded,
-                            size: 18.sp,
-                            color: ColorPick.primary,
-                          ),
                         ),
                       );
                     }

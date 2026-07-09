@@ -8,44 +8,42 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
       Row(
         children: [
           Expanded(
-            child: CustomValidatedTextFieldMaster(
+            child: CustomTextField(
               label: 'Title',
               hint: 'Text Here',
-              isRequired: true,
+              required: true,
               controller: _titleEn,
-              height: 40,
+              height: 36,
               fillColor: Colors.white,
               submitted: _submitted,
               textDirection: ui.TextDirection.ltr,
               textAlign: TextAlign.left,
-              primaryColor: _resolvedPrimary,
             ),
           ),
           SizedBox(width: 16.w),
           Expanded(
             child: Directionality(
               textDirection: ui.TextDirection.rtl,
-              child: CustomValidatedTextFieldMaster(
+              child: CustomTextField(
                 label: 'العنوان',
-                isRequired: true,
+                required: true,
                 hint: 'أكتب هنا',
                 controller: _titleAr,
                 fillColor: Colors.white,
-                height: 40,
+                height: 36,
                 submitted: _submitted,
                 textDirection: ui.TextDirection.rtl,
                 textAlign: TextAlign.right,
-                primaryColor: _resolvedPrimary,
               ),
             ),
           ),
         ],
       ),
       SizedBox(height: 16.h),
-      CustomValidatedTextFieldMaster(
+      CustomTextField(
         label: 'Short Description',
         hint: 'Text Here',
-        isRequired: true,
+        required: true,
         controller: _shortDescEn,
         height: 80,
         maxLines: 3,
@@ -53,15 +51,14 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
         textDirection: ui.TextDirection.ltr,
         fillColor: Colors.white,
         textAlign: TextAlign.left,
-        primaryColor: _resolvedPrimary,
       ),
       SizedBox(height: 16.h),
       Directionality(
         textDirection: ui.TextDirection.rtl,
-        child: CustomValidatedTextFieldMaster(
+        child: CustomTextField(
           label: 'وصف مختصر',
           hint: 'أكتب هنا',
-          isRequired: true,
+          required: true,
           fillColor: Colors.white,
           controller: _shortDescAr,
           height: 80,
@@ -69,7 +66,6 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
           submitted: _submitted,
           textDirection: ui.TextDirection.rtl,
           textAlign: TextAlign.right,
-          primaryColor: _resolvedPrimary,
         ),
       ),
     ],
@@ -115,32 +111,30 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
             Row(
               children: [
                 Expanded(
-                  child: CustomValidatedTextFieldMaster(
+                  child: CustomTextField(
                     label: 'Button Name',
                     hint: 'Text Here',
                     controller: btn.nameEn,
-                    height: 40,
+                    height: 36,
                     fillColor: Colors.white,
                     submitted: _submitted,
                     textDirection: ui.TextDirection.ltr,
                     textAlign: TextAlign.left,
-                    primaryColor: _resolvedPrimary,
                   ),
                 ),
                 SizedBox(width: 15.w),
                 Expanded(
                   child: Directionality(
                     textDirection: ui.TextDirection.rtl,
-                    child: CustomValidatedTextFieldMaster(
+                    child: CustomTextField(
                       label: 'عنوان الزر',
                       hint: 'أكتب هنا',
                       controller: btn.nameAr,
-                      height: 40,
+                      height: 36,
                       fillColor: Colors.white,
                       submitted: _submitted,
                       textDirection: ui.TextDirection.rtl,
                       textAlign: TextAlign.right,
-                      primaryColor: _resolvedPrimary,
                     ),
                   ),
                 ),
@@ -149,28 +143,18 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
             Row(
               children: [
                 Expanded(
-                  child: CustomDropdownFormFieldInvMaster(
+                  child: CustomDropdown<String>(
                     label: 'Button Navigation',
-                    selectedValue:
-                    _kNavRouteOptions.any((o) => o['route'] == btn.route)
-                        ? btn.route
-                        : null,
+                    value:
+                        _kNavRouteOptions.any((o) => o['route'] == btn.route)
+                            ? btn.route
+                            : null,
                     items: _kNavRouteOptions
-                        .map((opt) => {'key': opt['route']!, 'value': opt['label']!})
+                        .map((opt) => DropdownItem<String>(
+                            value: opt['route']!, label: opt['label']!))
                         .toList(),
                     onChanged: (val) => setState(() => btn.route = val),
-                    hint: Text(
-                      'Select',
-                      style: StyleText.fontSize12Weight400.copyWith(
-                        color: AppColors.secondaryText,
-                      ),
-                    ),
-                    widthIcon: 18,
-                    heightIcon: 18,
-                    height: 36,
-                    dropdownColor: Colors.white,
-                    primaryColor: _resolvedPrimary,
-                    borderRadius: 4,
+                    hint: 'Select',
                   ),
                 ),
                 SizedBox(width: 15.w),
@@ -270,10 +254,10 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
                     SizedBox(width: 8.w),
                     FlutterSwitch(
                       width: 35.sp,
-                      height: 22.sp,
+                      height: 20.sp,
                       padding: 3.sp,
                       borderRadius: 20.sp,
-                      toggleSize: 14.sp,
+                      toggleSize: 16.sp,
                       activeColor: ColorPick.primary,
                       inactiveColor: Colors.grey.withValues(alpha: .16),
                       value: sec.visibility,
@@ -286,9 +270,9 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
           ],
         ),
         SizedBox(height: 14.h),
-        CustomValidatedTextFieldMaster(
+        CustomTextField(
           label: 'Description',
-          isRequired: true,
+          required: true,
           hint: 'Text Here',
           controller: sec.descEn,
           maxLength: 500,
@@ -299,15 +283,14 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
           fillColor: Colors.white,
           textDirection: ui.TextDirection.ltr,
           textAlign: TextAlign.left,
-          primaryColor: _resolvedPrimary,
         ),
         SizedBox(height: 16.h),
         Directionality(
           textDirection: ui.TextDirection.rtl,
-          child: CustomValidatedTextFieldMaster(
+          child: CustomTextField(
             label: 'الوصف',
             hint: 'أكتب هنا',
-            isRequired: true,
+            required: true,
             controller: sec.descAr,
             maxLength: 500,
             showCharCount: true,
@@ -317,7 +300,6 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
             submitted: _submitted,
             textDirection: ui.TextDirection.rtl,
             textAlign: TextAlign.right,
-            primaryColor: _resolvedPrimary,
           ),
         ),
       ],
@@ -345,8 +327,7 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
         decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
         child: ClipOval(child: Padding(
           padding: EdgeInsets.all(15.r),
-          child: SvgPicture.network(picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain,
-              placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2)),
+          child: NetworkImageView(url: picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain),
         )),
       );
     } else {

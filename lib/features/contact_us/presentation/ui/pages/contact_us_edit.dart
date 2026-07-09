@@ -17,6 +17,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/textfield.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_dialog.dart';

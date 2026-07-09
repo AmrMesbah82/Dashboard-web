@@ -59,7 +59,7 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
             SizedBox(height: 6.h),
             Row(children: [
               Expanded(
-                child: CustomValidatedTextFieldMaster(
+                child: CustomTextField(
                   controller: c.titleEnCtrl,
                   hint: 'Text Here',
                   isRequired: true,
@@ -72,7 +72,7 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
               ),
               SizedBox(width: 12.w),
               Expanded(
-                child: CustomValidatedTextFieldMaster(
+                child: CustomTextField(
                   controller: c.titleArCtrl,
                   hint: 'أدخل النص هنا',
                   isRequired: true,
@@ -90,7 +90,7 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
             // ── Description fields ──────────────────────────────────────────
             Text('Description *', style: _labelStyle()),
             SizedBox(height: 6.h),
-            CustomValidatedTextFieldMaster(
+            CustomTextField(
               controller: c.descEnCtrl,
               hint: 'Text Here',
               isRequired: true,
@@ -109,7 +109,7 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
               child: Text('الوصف *', style: _labelStyle()),
             ),
             SizedBox(height: 6.h),
-            CustomValidatedTextFieldMaster(
+            CustomTextField(
               controller: c.descArCtrl,
               hint: 'أدخل النص هنا',
               isRequired: true,
@@ -269,17 +269,8 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
             child: ClipOval(
               child: Padding(
                 padding: EdgeInsets.all(15.r),
-                child: SvgPicture.network(url,
-                    width: 30.w, height: 30.h, fit: BoxFit.contain,
-                    placeholderBuilder: (_) => Center(
-                      child: SizedBox(
-                        width: 20.w, height: 20.h,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: ColorPick.primary),
-                      ),
-                    ),
-                    errorBuilder: (_, __, ___) =>
-                        Icon(Icons.error_outline, color: Colors.red, size: 30.sp)),
+                child: NetworkImageView(url: url,
+                    width: 30.w, height: 30.h, fit: BoxFit.contain),
               ),
             ),
           ),

@@ -17,12 +17,12 @@ class _CompanyLogo extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.r),
         child: logoUrl.isNotEmpty
-            ? SvgPicture.network(
-          logoUrl,
+            ? NetworkImageView(
+          url: logoUrl,
           width: sz,
           height: sz,
           fit: BoxFit.scaleDown,
-          placeholderBuilder: (_) => _fallbackIcon(sz),
+          placeholder: _fallbackIcon(sz),
         )
             : _fallbackIcon(sz),
       ),

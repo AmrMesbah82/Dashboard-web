@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 
 import '../../../../../core/constant/color.dart';
@@ -213,14 +214,9 @@ class DepartmentDetailPage extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.all(70.w * 0.20), // 20% padding = 60% content
                   child: logoUrl.isNotEmpty
-                      ? SvgPicture.network(
-                    logoUrl,
+                      ? NetworkImageView(
+                    url: logoUrl,
                     fit: BoxFit.contain,
-                    placeholderBuilder: (_) => Icon(
-                      Icons.business_rounded,
-                      size: 70.sp * 0.6,
-                      color: ColorPick.primary,
-                    ),
                   )
                       : Icon(
                     Icons.business_rounded,

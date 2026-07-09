@@ -84,16 +84,11 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8.r),
                             child: logoUrl.isNotEmpty
-                                ? SvgPicture.network(
-                              logoUrl,
+                                ? NetworkImageView(
+                              url:    logoUrl,
                               width:  30.sp,
                               height: 30.sp,
                               fit:    BoxFit.fill,
-                              placeholderBuilder: (_) => Icon(
-                                Icons.business_rounded,
-                                size:  18.sp,
-                                color: ColorPick.primary,
-                              ),
                             )
                                 : Icon(Icons.business_rounded,
                                 size:  18.sp, color: ColorPick.primary),

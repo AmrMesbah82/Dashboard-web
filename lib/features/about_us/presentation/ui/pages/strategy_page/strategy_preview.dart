@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
@@ -454,47 +455,11 @@ Widget _buildImageWidget({
       );
     } else {
       // For raster images
-      return Image.network(
-        url,
+      return NetworkImageView(
+        url: url,
         width: double.infinity,
         height: height,
         fit: BoxFit.contain,
-        loadingBuilder: (_, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return SizedBox(
-            height: height,
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!
-                    : null,
-                color: const Color(0xFF008037),
-                strokeWidth: 2,
-              ),
-            ),
-          );
-        },
-        errorBuilder: (_, __, ___) => SizedBox(
-          height: height,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.broken_image,
-                    color: Colors.grey[400], size: 48),
-                SizedBox(height: 8.h),
-                Text(
-                  'Failed to load image',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       );
     }
   }

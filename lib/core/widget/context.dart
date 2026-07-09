@@ -1,4 +1,5 @@
 import 'package:web_app_admin/core/widget/date_picker.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -118,7 +119,7 @@ extension NumberToArabic on String {
   toImage() {
     if (this != null && isNotEmpty) {
       if (contains('http') || contains('https')) {
-        return Image.network(this);
+        return NetworkImageView(url: this);
       } else {
         return Image.asset(this);
       }

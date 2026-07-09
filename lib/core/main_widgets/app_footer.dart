@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -500,12 +501,11 @@ class _LogoBox extends StatelessWidget {
       width:  size.w,
       height: size.h,
       child: logoUrl.isNotEmpty
-          ? SvgPicture.network(
-        logoUrl,
+          ? NetworkImageView(
+        url:     logoUrl,
         width:   size.w,
         height:  size.h,
-        fit:     BoxFit.contain,   // ← was BoxFit.cover (clips sides)
-        placeholderBuilder: (_) => SizedBox(width: size.w, height: size.h),
+        fit:     BoxFit.contain,
       )
           : Image.asset('assets/images/logo.jpg', fit: BoxFit.contain),
     );
@@ -558,13 +558,11 @@ class _SocialIconWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget iconWidget = link.iconUrl.isNotEmpty
-        ? SvgPicture.network(
-      link.iconUrl,
+        ? NetworkImageView(
+      url:    link.iconUrl,
       width:  20.w,
       height: 20.w,
       fit:    BoxFit.contain,
-      colorFilter: ColorFilter.mode(borderColor, BlendMode.srcIn),
-      placeholderBuilder: (_) => SizedBox(width: _ic, height: _ic),
     )
         : Icon(Icons.link, size: _ic, color: borderColor);
 

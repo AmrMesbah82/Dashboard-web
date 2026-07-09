@@ -45,14 +45,9 @@ class _TermsPreviewContentState extends State<_TermsPreviewContent> {
           width: width, height: height, fit: BoxFit.contain);
     }
     if (fallbackUrl.isNotEmpty) {
-      return SvgPicture.network(
-        fallbackUrl,
+      return NetworkImageView(
+        url: fallbackUrl,
         width: width, height: height, fit: BoxFit.contain,
-        placeholderBuilder: (_) => SizedBox(
-          width: width, height: height,
-          child: const Center(child: CircularProgressIndicator(
-              color: _primary, strokeWidth: 2)),
-        ),
       );
     }
     return SizedBox(

@@ -10,8 +10,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:web_app_admin/core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
+import '../../../../../core/custom_svg.dart';
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -39,6 +40,30 @@ String _displayRoute(String route) {
   return route.startsWith('/') ? route.substring(1) : route;
 }
 
+// ── Helper: friendly display name for a route (instead of the raw slug) ───────
+String _routeDisplayName(String route) {
+  if (route.isEmpty) return 'None';
+  final r = route.startsWith('/') ? route : '/$route';
+  const names = <String, String>{
+    '/':          'Home',
+    '/services':  'Services',
+    '/about':     'About Us',
+    '/contact':   'Contact Us',
+    '/careers':   'Careers',
+    '/jobs':      'Jobs',
+    '/careers?tab=why-join-our-team':  'Why Join Our Team',
+    '/careers?tab=interns':            'Our Interns',
+    '/careers?tab=our-team':           'Our Team',
+    '/about?tab=our-strategy':         'Our Strategy',
+    '/about?tab=terms-and-conditions': 'Terms & Conditions',
+    '/about?tab=privacy-policy':       'Privacy Policy',
+    '/about?tab=vision':               'Vision',
+    '/about?tab=mission':              'Mission',
+    '/about?tab=values':               'Values',
+  };
+  return names[r] ?? _displayRoute(route);
+}
+
 class MainMainPage extends StatefulWidget {
   const MainMainPage({super.key});
   @override
@@ -60,6 +85,16 @@ class _MainMainPageState extends State<MainMainPage> {
   ];
 
   void _goToEdit() => context.pushNamed('home_edit');
+
+  // ── Date formatter ──────────────────────────────────────────────────────────
+  String _fmtDate(DateTime? d) {
+    if (d == null) return '—';
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${d.day} ${months[d.month]} ${d.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,39 +166,45 @@ class _MainMainPageState extends State<MainMainPage> {
                           // ── Last updated + Edit row ────────────────────────
                           Row(
                             children: [
-                              GestureDetector(
-                                onTap: () => navigateTo(context, CareersMainPageDashboard()),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                                  decoration: BoxDecoration(
-                                    color: ColorPick.white,
-                                    borderRadius: BorderRadius.circular(4.r),
-                                  ),
-                                  child: Text(
-                                    'Last Updated On 12 Jul 2026',
-                                    style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
-                                  ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                                decoration: BoxDecoration(
+                                  color: ColorPick.white,
+                                  borderRadius: BorderRadius.circular(4.r),
+                                ),
+                                child: Text(
+                                  data?.lastUpdatedAt != null
+                                      ? 'Last Updated On ${_fmtDate(data!.lastUpdatedAt)}'
+                                      : 'Last Updated On —',
+                                  style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary),
                                 ),
                               ),
                               const Spacer(),
                               GestureDetector(
                                 onTap: _goToEdit,
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                                  width: 130.w, height: 36.h,
                                   decoration: BoxDecoration(
                                     color: ColorPick.white,
                                     borderRadius: BorderRadius.circular(4.r),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Edit Main',
-                                        style: StyleText.fontSize14Weight500.copyWith(color: ColorPick.primary),
-                                      ),
-                                      SizedBox(width: 8.w),
-                                      Icon(Icons.edit_outlined, size: 14.sp, color: ColorPick.primary),
-                                    ],
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Edit Details',
+                                          style: StyleText.fontSize14Weight500.copyWith(color: Colors.black),
+                                        ),
+                                        SizedBox(width: 6.w),
+                                        CustomSvg(
+                                          assetPath: 'assets/control/edit_icon_pick.svg',
+                                          width: 20.w, height: 20.h,
+                                          fit: BoxFit.scaleDown,
+                                          color: ColorPick.primary,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -267,24 +308,7 @@ class _MainMainPageState extends State<MainMainPage> {
         SizedBox(height: 15.h),
         Text('Logo', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
-        Container(
-          width: 70.w, height: 70.h,
-          decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
-          child: data.branding.logoUrl.isNotEmpty
-              ? Center(
-            child: ClipOval(
-              child: Padding(
-                padding: EdgeInsets.all(10.w),
-                child: SvgPicture.network(
-                  data.branding.logoUrl,
-                  width: 30.w, height: 30.h, fit: BoxFit.contain,
-                  placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            ),
-          )
-              : const Icon(Icons.image_outlined, color: Colors.grey),
-        ),
+        NetworkImageView.circle(url: data.branding.logoUrl, diameter: 70.w),
         SizedBox(height: 16.h),
         Row(children: [
           Expanded(child: _colorReadField('Primary Color', data.branding.primaryColor)),
@@ -298,6 +322,13 @@ class _MainMainPageState extends State<MainMainPage> {
           SizedBox(width: 16.w),
           Expanded(child: _colorReadField('Header and Footer',
               data.branding.headerFooterColor.isNotEmpty ? data.branding.headerFooterColor : '#D9D9D9')),
+        ]),
+        SizedBox(height: 12.h),
+        Row(children: [
+          Expanded(child: _colorReadField('Main Widget Color',
+              data.branding.mainWidgetColor.isNotEmpty ? data.branding.mainWidgetColor : '#D9D9D9')),
+          SizedBox(width: 16.w),
+          const Expanded(child: SizedBox()),
         ]),
         SizedBox(height: 12.h),
         Row(children: [
@@ -336,22 +367,14 @@ class _MainMainPageState extends State<MainMainPage> {
           children: [
             SizedBox(height: 15.h),
 
-            // ── Row: drag handle indicator + status badge ─────────────────
+            // ── Row: item label + status badge ────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.drag_indicator_rounded,
-                        size: 16.sp, color: AppColors.secondaryText),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Item ${i + 1}',
-                      style: StyleText.fontSize13Weight600
-                          .copyWith(color: AppColors.text),
-                    ),
-                  ],
+                Text(
+                  'Item ${i + 1}',
+                  style: StyleText.fontSize13Weight600
+                      .copyWith(color: AppColors.text),
                 ),
                 // Status indicator
                 Row(
@@ -405,16 +428,6 @@ class _MainMainPageState extends State<MainMainPage> {
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 8.h),
-
-            // ── Route field ───────────────────────────────────────────────
-            SizedBox(
-              width: (1000.w - 8.w) / 2,
-              child: _readField(
-                'Route',
-                btn.route.isEmpty ? 'None' : _displayRoute(btn.route),
-              ),
             ),
             SizedBox(height: 6.h),
           ],
@@ -470,7 +483,7 @@ class _MainMainPageState extends State<MainMainPage> {
             SizedBox(height: 8.h),
             Row(children: [
               // ✅ Strip leading '/' from navigation route
-              Expanded(child: _readField('Navigation', _displayRoute(col.route))),
+              Expanded(child: _readField('Navigation', _routeDisplayName(col.route))),
               SizedBox(width: 10.w),
               const Expanded(child: SizedBox()),
             ]),
@@ -522,24 +535,7 @@ class _MainMainPageState extends State<MainMainPage> {
         SizedBox(height: 15.h),
         Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
-        Container(
-          width: 60.w, height: 60.h,
-          decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
-          child: link.iconUrl.isNotEmpty
-              ? Center(
-            child: ClipOval(
-              child: Padding(
-                padding: EdgeInsets.all(8.w),
-                child: SvgPicture.network(
-                  link.iconUrl,
-                  width: 30.w, height: 30.h, fit: BoxFit.contain,
-                  placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            ),
-          )
-              : const Icon(Icons.add, color: Colors.grey, size: 20),
-        ),
+        NetworkImageView.circle(url: link.iconUrl, diameter: 60.w),
         SizedBox(height: 6.h),
         _readField('Insert Link', link.url.isEmpty ? 'Insert Links' : link.url),
       ],

@@ -179,27 +179,35 @@ extension _HomeEditSections1 on _MainEditPageState {
       ]),
       SizedBox(height: 14.h),
       Row(children: [
-        Expanded(child: CustomDropdownFormFieldInvMaster(
+        Expanded(child: _ColorPickerField(
+            controller: _mainWidgetColor,
+            label: 'Main Widget Color',
+            hintText: '#D9D9D9',
+            onColorChanged: () => setState(() {}))),
+        SizedBox(width: 16.w),
+        const Expanded(child: SizedBox()),
+      ]),
+      SizedBox(height: 14.h),
+      Row(children: [
+        Expanded(child: CustomDropdown<String>(
           label: 'English Font',
-          hint: Text('Select font',
-              style: StyleText.fontSize12Weight400
-                  .copyWith(color: AppColors.secondaryText)),
-          selectedValue: _engFont,
-          dropdownColor: Colors.white,
-          items: _kFonts,
-          widthIcon: 18, heightIcon: 18, height: 36,
+          hint: 'Select font',
+          value: _engFont,
+          items: _kFonts
+              .map((m) => DropdownItem<String>(
+                  value: m['key']!, label: m['value']!))
+              .toList(),
           onChanged: (val) => setState(() => _engFont = val),
         )),
         SizedBox(width: 16.w),
-        Expanded(child: CustomDropdownFormFieldInvMaster(
+        Expanded(child: CustomDropdown<String>(
           label: 'Arabic Font',
-          hint: Text('Select font',
-              style: StyleText.fontSize12Weight400
-                  .copyWith(color: AppColors.secondaryText)),
-          selectedValue: _arFont,
-          dropdownColor: Colors.white,
-          items: _kFonts,
-          widthIcon: 18, heightIcon: 18, height: 36,
+          hint: 'Select font',
+          value: _arFont,
+          items: _kFonts
+              .map((m) => DropdownItem<String>(
+                  value: m['key']!, label: m['value']!))
+              .toList(),
           onChanged: (val) => setState(() => _arFont = val),
         )),
       ]),
@@ -271,78 +279,71 @@ extension _HomeEditSections1 on _MainEditPageState {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 15.h),
-          Stack(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 27.h),
-                    child: ReorderableDragStartListener(
-                      index: index,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
-                        child: Icon(Icons.menu_rounded,
-                            size: 20.sp, color: AppColors.secondaryText),
-                      ),
-                    ),
+              Padding(
+                padding: EdgeInsets.only(top: 27.h),
+                child: ReorderableDragStartListener(
+                  index: index,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
+                    child: Icon(Icons.menu_rounded,
+                        size: 20.sp, color: AppColors.secondaryText),
                   ),
-                  Expanded(
-                    child: CustomValidatedTextFieldMaster(
-                      label: 'Title',
-                      isRequired: true,
-                      fillColor: Colors.white,
-                      hint: 'Home',
-                      controller: nameEnCtrl,
-                      height: 36,
-                      submitted: _submitted,
-                      textDirection: TextDirection.ltr,
-                      textAlign: TextAlign.left,
-                      primaryColor: _resolvedPrimaryColor,
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: CustomValidatedTextFieldMaster(
-                        label: 'عنصر التنقل',
-                        isRequired: true,
-                        fillColor: Colors.white,
-                        hint: 'الرئيسية',
-                        controller: nameArCtrl,
-                        height: 36,
-                        submitted: _submitted,
-                        textDirection: TextDirection.rtl,
-                        textAlign: TextAlign.right,
-                        primaryColor: _resolvedPrimaryColor,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-              Positioned(
-                left: MediaQuery.sizeOf(context).width * .305,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text('Status ',
-                        style: StyleText.fontSize12Weight500
-                            .copyWith(color: AppColors.text)),
-                    FlutterSwitch(
-                      width: 35.sp,
-                      height: 20.sp,
-                      padding: 3.sp,
-                      borderRadius: 20.sp,
-                      toggleSize: 16.sp,
-                      activeColor: ColorPick.primary,
-                      inactiveColor: Colors.grey.withValues(alpha: .16),
-                      value: _navStatus[index],
-                      onToggle: (val) {
-                        setState(() => _navStatus[index] = val);
-                      },
-                    ),
-                  ],
+              Expanded(
+                child: CustomTextField(
+                  label: 'Title',
+                  // Status switch pinned to the END of the first field so it
+                  // always lines up regardless of screen width.
+                  labelTrailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Status ',
+                          style: StyleText.fontSize12Weight500
+                              .copyWith(color: AppColors.text)),
+                      FlutterSwitch(
+                        width: 35.sp,
+                        height: 20.sp,
+                        padding: 3.sp,
+                        borderRadius: 20.sp,
+                        toggleSize: 16.sp,
+                        activeColor: ColorPick.primary,
+                        inactiveColor: Colors.grey.withValues(alpha: .16),
+                        value: _navStatus[index],
+                        onToggle: (val) {
+                          setState(() => _navStatus[index] = val);
+                        },
+                      ),
+                    ],
+                  ),
+                  required: true,
+                  fillColor: Colors.white,
+                  hint: 'Home',
+                  controller: nameEnCtrl,
+                  height: 36,
+                  submitted: _submitted,
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: CustomTextField(
+                    label: 'عنصر التنقل',
+                    required: true,
+                    fillColor: Colors.white,
+                    hint: 'الرئيسية',
+                    controller: nameArCtrl,
+                    height: 36,
+                    submitted: _submitted,
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.right,
+                  ),
                 ),
               ),
             ],

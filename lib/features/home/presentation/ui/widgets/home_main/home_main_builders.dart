@@ -104,10 +104,10 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
             GestureDetector(
               onTap: () => navigateTo(context, HomeEditPageMaster()),
               child: Container(
-                width: 205.w, height: 40.h,
-                decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(8.r)),
+                width: 130.w, height: 36.h,
+                decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
                 child: Center(child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Text('Edit Home Page', style: StyleText.fontSize14Weight500.copyWith(color: Colors.black)),
+                  Text('Edit Details', style: StyleText.fontSize14Weight500.copyWith(color: Colors.black)),
                   SizedBox(width: 6.w),
                   CustomSvg(assetPath: "assets/control/edit_icon_pick.svg",
                       width: 20.w, height: 20.h, fit: BoxFit.scaleDown, color: ColorPick.primary),

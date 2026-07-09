@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/search.dart';
 
 import '../../../../../core/constant/color.dart';

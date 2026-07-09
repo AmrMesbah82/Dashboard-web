@@ -148,16 +148,11 @@ class _PreviewContent extends StatelessWidget {
   Widget _svgWidget(String url, double w, double h,
       {bool centered = false}) {
     final Widget child = url.isNotEmpty
-        ? SvgPicture.network(
-      url,
+        ? NetworkImageView(
+      url:    url,
       width:  w,
       height: h,
       fit:    BoxFit.contain,
-      placeholderBuilder: (_) => Container(
-        width:  w,
-        height: h,
-        color:  const Color(0xFFF0F0F0),
-      ),
     )
         : Container(
       width:  w,

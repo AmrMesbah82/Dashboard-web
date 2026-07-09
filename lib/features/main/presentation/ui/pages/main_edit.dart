@@ -31,7 +31,10 @@ import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/widget/circle_progress.dart';
 import '../../../../../core/widget/custom_dropdwon.dart';
+import '../../../../../core/widget/custom_dropdown_new.dart';
+import '../../../../../core/widget/custom_field.dart';
 import '../../../../../core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../../core/widget/textfield.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/data/models/home_model.dart';
@@ -87,6 +90,16 @@ const List<Map<String, String>> _kLabelDestinations = [
   {'key': '/careers?tab=interns',                'value': 'Our Interns'},
   {'key': '/careers?tab=our-team',               'value': 'Our Team'},
   {'key': '/contact',                            'value': 'Contact Form'},
+];
+
+// ── Footer "Group Title" can also point to a Careers/About sub-tab ────────────
+// Bilingual titles so the read-only Arabic group-title field auto-fills.
+const List<Map<String, String>> _kGroupTitleDestinations = [
+  {'key': '/careers?tab=why-join-our-team', 'value': 'Why Join Our Team', 'ar': 'لماذا تنضم إلى فريقنا'},
+  {'key': '/careers?tab=interns',           'value': 'Our Interns',        'ar': 'المتدربون'},
+  {'key': '/careers?tab=our-team',          'value': 'Our Team',           'ar': 'فريقنا'},
+  {'key': '/about?tab=our-strategy',        'value': 'Our Strategy',       'ar': 'استراتيجيتنا'},
+  {'key': '/about?tab=terms-and-conditions','value': 'Terms & Conditions', 'ar': 'الشروط والأحكام'},
 ];
 
 const List<Map<String, String>> _kFonts = [
@@ -146,6 +159,7 @@ class _MainEditPageState extends State<MainEditPage> {
   final _secondaryColor    = TextEditingController(text: '#D9D9D9');
   final _bgColor           = TextEditingController(text: '#D9D9D9');
   final _headerFooterColor = TextEditingController(text: '#D9D9D9');
+  final _mainWidgetColor   = TextEditingController(text: '#D9D9D9');
   String? _engFont = 'Cairo';
   String? _arFont  = 'Cairo';
 
@@ -293,6 +307,10 @@ class _MainEditPageState extends State<MainEditPage> {
       if (route.isEmpty) continue;
       items.add({'key': route, 'value': en.isNotEmpty ? en : route});
     }
+    // Also allow a footer Group Title to link to a Careers/About sub-tab.
+    for (final d in _kGroupTitleDestinations) {
+      items.add({'key': d['key']!, 'value': d['value']!});
+    }
     return items;
   }
 
@@ -320,6 +338,7 @@ class _MainEditPageState extends State<MainEditPage> {
     _secondaryColor.addListener(_onFieldChanged);
     _bgColor.addListener(_onFieldChanged);
     _headerFooterColor.addListener(_onFieldChanged);
+    _mainWidgetColor.addListener(_onFieldChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<HomeCmsCubit>().load();
@@ -441,6 +460,7 @@ class _MainEditPageState extends State<MainEditPage> {
     _secondaryColor..removeListener(_onFieldChanged)..dispose();
     _bgColor..removeListener(_onFieldChanged)..dispose();
     _headerFooterColor..removeListener(_onFieldChanged)..dispose();
+    _mainWidgetColor..removeListener(_onFieldChanged)..dispose();
     super.dispose();
   }
 

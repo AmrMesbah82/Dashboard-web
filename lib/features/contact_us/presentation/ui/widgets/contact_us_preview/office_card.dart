@@ -18,12 +18,12 @@ class _OfficeCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (location.iconUrl.isNotEmpty)
-            Image.network(
-              location.iconUrl,
+            NetworkImageView(
+              url: location.iconUrl,
               width: 100.w,
               height: 100.h,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Icon(Icons.location_on, size: 100.w, color: ColorPick.primary),
+              placeholder: Icon(Icons.location_on, size: 100.w, color: ColorPick.primary),
             )
           else
             Icon(Icons.location_on, size: 100.w, color: ColorPick.primary),

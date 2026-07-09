@@ -35,6 +35,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
@@ -45,6 +46,8 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/widget/custom_dropdwon.dart';
+import '../../../../../core/widget/custom_dropdown_new.dart';
+import '../../../../../core/widget/custom_field.dart';
 import '../../../../../core/widget/date_pic.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';

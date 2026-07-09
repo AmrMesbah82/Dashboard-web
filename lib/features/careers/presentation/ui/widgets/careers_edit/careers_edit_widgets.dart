@@ -53,7 +53,7 @@ extension _CareersEditWidgets on _CareersEditPageState {
     if (newBytes != null) {
       iconContent = Padding(padding: EdgeInsets.all(8.r), child: SvgPicture.memory(newBytes, fit: BoxFit.contain));
     } else if (savedUrl.isNotEmpty) {
-      iconContent = Padding(padding: EdgeInsets.all(8.r), child: SvgPicture.network(savedUrl, fit: BoxFit.contain));
+      iconContent = Padding(padding: EdgeInsets.all(8.r), child: NetworkImageView(url: savedUrl, fit: BoxFit.contain));
     } else {
       iconContent = Column(
         mainAxisAlignment: MainAxisAlignment.center,

@@ -15,12 +15,12 @@ class _SocialIconScaled extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Center(
-        child: Image.network(
-          iconUrl,
+        child: NetworkImageView(
+          url: iconUrl,
           width: 18.w,
           height: 18.h,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Icon(Icons.link, size: 18.w, color: ColorPick.primary),
+          placeholder: Icon(Icons.link, size: 18.w, color: ColorPick.primary),
         ),
       ),
     );

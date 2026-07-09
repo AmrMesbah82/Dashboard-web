@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -537,10 +538,9 @@ class _BayanatzLogo extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
-              // ✅ SvgPicture.network with no placeholderBuilder —
-              //    renders nothing until the network SVG is ready.
-              child: SvgPicture.network(
-                logoUrl,
+              // ✅ Network logo rendered via HTML <img> (HtmlElementView).
+              child: NetworkImageView(
+                url:    logoUrl,
                 width:  sz,
                 height: sz,
                 fit:    BoxFit.fill,

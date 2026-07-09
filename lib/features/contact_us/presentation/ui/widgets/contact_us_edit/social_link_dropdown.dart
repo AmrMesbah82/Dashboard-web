@@ -74,17 +74,9 @@ class _SocialLinkDropdown extends StatelessWidget {
               ),
               child: Center(
                 child: link.iconUrl.isNotEmpty
-                    ? SvgPicture.network(
-                  link.iconUrl,
+                    ? NetworkImageView(
+                  url:    link.iconUrl,
                   width:  20.w, height: 20.w, fit: BoxFit.contain,
-                  colorFilter: ColorFilter.mode(
-                    hasUrl ? ColorPick.primary : Colors.grey.shade400,
-                    BlendMode.srcIn,
-                  ),
-                  placeholderBuilder: (_) => Icon(
-                    Icons.link, size: 16.sp,
-                    color: hasUrl ? ColorPick.primary : Colors.grey.shade400,
-                  ),
                 )
                     : Icon(
                   Icons.link, size: 16.sp,
@@ -158,12 +150,9 @@ class _SocialLinkDropdown extends StatelessWidget {
       return Row(
         children: [
           if (selectedLink.iconUrl.isNotEmpty)
-            SvgPicture.network(
-              selectedLink.iconUrl,
+            NetworkImageView(
+              url: selectedLink.iconUrl,
               width: 18.w, height: 18.w, fit: BoxFit.contain,
-              colorFilter: const ColorFilter.mode(ColorPick.primary, BlendMode.srcIn),
-              placeholderBuilder: (_) =>
-                  Icon(Icons.link, size: 16.sp, color: ColorPick.primary),
             )
           else
             Icon(Icons.link, size: 16.sp, color: ColorPick.primary),

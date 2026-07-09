@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -261,28 +262,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   Widget _iconCircle(String url) {
-    return Container(
-      width:  60.w,
-      height: 60.h,
-      decoration: BoxDecoration(
-        color: url.isNotEmpty ? Colors.white : const Color(0xFFD9D9D9),
-        shape: BoxShape.circle,
-      ),
-      child: url.isNotEmpty
-          ? ClipOval(
-        child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: SvgPicture.network(
-            url,
-            fit:                BoxFit.contain,
-            placeholderBuilder: (_) => const SizedBox(),
-          ),
-        ),
-      )
-          : Center(
-          child: Icon(Icons.image_outlined,
-              color: Colors.grey, size: 22.sp)),
-    );
+    return NetworkImageView.circle(url: url, diameter: 60.w);
   }
 
   Widget _deliverableChip(String text) {

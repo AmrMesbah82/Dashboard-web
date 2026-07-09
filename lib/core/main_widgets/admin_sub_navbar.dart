@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/controller/home_cubit.dart';
@@ -163,8 +164,8 @@ class _AdminNavLogo extends StatelessWidget {
               onTap: () => context.go('/admin/dashboard'),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),
-                child: SvgPicture.network(
-                  logoUrl,
+                child: NetworkImageView(
+                  url:    logoUrl,
                   width:  sz.w,
                   height: sz.w,
                   fit:    BoxFit.fill,

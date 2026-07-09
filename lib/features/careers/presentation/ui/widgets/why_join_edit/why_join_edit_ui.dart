@@ -130,8 +130,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
         decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
         child: ClipOval(child: Padding(
           padding: EdgeInsets.all(15.r),
-          child: SvgPicture.network(picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain,
-              placeholderBuilder: (_) => const CircularProgressIndicator(strokeWidth: 2)),
+          child: NetworkImageView(url: picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain),
         )),
       );
     } else {

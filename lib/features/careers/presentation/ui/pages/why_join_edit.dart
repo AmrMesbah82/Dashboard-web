@@ -17,6 +17,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/constant/color.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
 

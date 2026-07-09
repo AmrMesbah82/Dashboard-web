@@ -18,12 +18,12 @@ class _OfficeCardMobile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (location.iconUrl.isNotEmpty)
-            Image.network(
-              location.iconUrl,
+            NetworkImageView(
+              url: location.iconUrl,
               width: 120,
               height: 120,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(Icons.location_on, size: 120, color: ColorPick.primary),
+              placeholder: const Icon(Icons.location_on, size: 120, color: ColorPick.primary),
             )
           else
             const Icon(Icons.location_on, size: 120, color: ColorPick.primary),

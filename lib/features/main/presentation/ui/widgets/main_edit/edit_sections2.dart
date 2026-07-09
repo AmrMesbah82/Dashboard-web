@@ -38,27 +38,36 @@ extension _HomeEditSections2 on _MainEditPageState {
         children: [
           Expanded(
             flex: 1,
-            child: CustomDropdownFormFieldInvMaster(
+            child: CustomDropdown<String>(
               label: 'Group Title',
-              hint: Text('Select navigation item',
-                  style: StyleText.fontSize12Weight400
-                      .copyWith(color: AppColors.secondaryText)),
-              selectedValue: col['route'] as String?,
-              items: navDropdownItems,
-              widthIcon: 18,
-              heightIcon: 18,
-              dropdownColor: Colors.white,
-              height: 36,
+              hint: 'Select navigation item',
+              value: col['route'] as String?,
+              items: navDropdownItems
+                  .map((m) => DropdownItem<String>(
+                      value: m['key']!, label: m['value']!))
+                  .toList(),
               onChanged: (val) {
                 setState(() {
                   col['route'] = val;
-                  if (val != null && val.isNotEmpty) {
+                  if (val.isNotEmpty) {
                     final idx = _navRoutes.indexOf(val);
                     if (idx != -1) {
                       (col['titleEn'] as TextEditingController).text =
                           _navBtns[idx]['nameEn']!.text;
                       (col['titleAr'] as TextEditingController).text =
                           _navBtns[idx]['nameAr']!.text;
+                    } else {
+                      // Careers/About sub-tab destination → use bilingual title.
+                      final dest = _kGroupTitleDestinations.firstWhere(
+                        (d) => d['key'] == val,
+                        orElse: () => const <String, String>{},
+                      );
+                      if (dest.isNotEmpty) {
+                        (col['titleEn'] as TextEditingController).text =
+                            dest['value'] ?? '';
+                        (col['titleAr'] as TextEditingController).text =
+                            dest['ar'] ?? '';
+                      }
                     }
                   } else {
                     (col['titleEn'] as TextEditingController).clear();
@@ -84,35 +93,14 @@ extension _HomeEditSections2 on _MainEditPageState {
                     ],
                   ),
                   SizedBox(height: 8.h),
-                  SizedBox(
-                    height: 36.h,
-                    child: TextFormField(
-                      controller: col['titleAr'] as TextEditingController,
-                      readOnly: true,
-                      textAlign: TextAlign.right,
-                      style: StyleText.fontSize12Weight400
-                          .copyWith(color: AppColors.text),
-                      decoration: InputDecoration(
-                        hintText: 'الاسم بالعربي',
-                        hintStyle: StyleText.fontSize12Weight400
-                            .copyWith(color: AppColors.secondaryText),
-                        filled: true,
-                        fillColor: Colors.white,
-                        isDense: true,
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.r),
-                            borderSide:
-                                const BorderSide(color: Colors.transparent)),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.r),
-                            borderSide:
-                                BorderSide(color: ColorPick.primary, width: 1)),
-                        disabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4.r),
-                            borderSide:
-                                const BorderSide(color: Colors.transparent)),
-                      ),
-                    ),
+                  CustomTextField(
+                    controller: col['titleAr'] as TextEditingController,
+                    readOnly: true,
+                    textAlign: TextAlign.right,
+                    textDirection: TextDirection.rtl,
+                    hint: 'الاسم بالعربي',
+                    fillColor: Colors.white,
+                    height: 36,
                   ),
                 ],
               ),
@@ -140,6 +128,44 @@ extension _HomeEditSections2 on _MainEditPageState {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Button name first (EN / AR) ────────────────────────────────────
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: CustomTextField(
+                label: 'Label',
+                hint: 'Text Here',
+                required: true,
+                controller: label['en'] as TextEditingController,
+                height: 36,
+                submitted: _submitted,
+                textDirection: TextDirection.ltr,
+                textAlign: TextAlign.left,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: CustomTextField(
+                  label: 'التسمية',
+                  required: true,
+                  fillColor: Colors.white,
+                  hint: 'أدخل النص هنا',
+                  controller: label['ar'] as TextEditingController,
+                  height: 36,
+                  submitted: _submitted,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12.h),
+        // ── Navigation destination second ──────────────────────────────────
         Stack(
           alignment: AlignmentGeometry.topRight,
           children: [
@@ -149,17 +175,14 @@ extension _HomeEditSections2 on _MainEditPageState {
                   child: Row(
                     children: [
                       Expanded(
-                        child: CustomDropdownFormFieldInvMaster(
+                        child: CustomDropdown<String>(
                           label: 'Navigate To',
-                          hint: Text('Select destination',
-                              style: StyleText.fontSize12Weight400
-                                  .copyWith(color: AppColors.secondaryText)),
-                          selectedValue: label['route'] as String?,
-                          items: _kLabelDestinations,
-                          dropdownColor: Colors.white,
-                          widthIcon: 18,
-                          heightIcon: 18,
-                          height: 36,
+                          hint: 'Select destination',
+                          value: label['route'] as String?,
+                          items: _kLabelDestinations
+                              .map((m) => DropdownItem<String>(
+                                  value: m['key']!, label: m['value']!))
+                              .toList(),
                           onChanged: (val) =>
                               setState(() => label['route'] = val),
                         ),
@@ -195,44 +218,6 @@ extension _HomeEditSections2 on _MainEditPageState {
                 ),
                 SizedBox(width: 15.w),
               ],
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: CustomValidatedTextFieldMaster(
-                label: 'Label',
-                hint: 'Text Here',
-                isRequired: true,
-                controller: label['en'] as TextEditingController,
-                height: 36,
-                submitted: _submitted,
-                textDirection: TextDirection.ltr,
-                textAlign: TextAlign.left,
-                fillColor: Colors.white,
-                primaryColor: _resolvedPrimaryColor,
-              ),
-            ),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: CustomValidatedTextFieldMaster(
-                  label: 'التسمية',
-                  isRequired: true,
-                  fillColor: Colors.white,
-                  hint: 'أدخل النص هنا',
-                  controller: label['ar'] as TextEditingController,
-                  height: 36,
-                  submitted: _submitted,
-                  textDirection: TextDirection.rtl,
-                  textAlign: TextAlign.right,
-                  primaryColor: _resolvedPrimaryColor,
-                ),
-              ),
             ),
           ],
         ),
@@ -336,44 +321,37 @@ extension _HomeEditSections2 on _MainEditPageState {
             ],
           ),
           SizedBox(height: 8.h),
-          Stack(
-            alignment: AlignmentGeometry.topRight,
-            children: [
-              CustomValidatedTextFieldMaster(
-                label: 'Insert Link',
-                isRequired: true,
-                fillColor: Colors.white,
-                hint: 'Insert Links',
-                controller: _links[i].text,
-                height: 36,
-                submitted: _submitted,
-                primaryColor: _resolvedPrimaryColor,
-              ),
-              Positioned(
-                top: -0.5,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Visibility',
-                        style: StyleText.fontSize10Weight500
-                            .copyWith(color: AppColors.text)),
-                    SizedBox(width: 6.w),
-                    FlutterSwitch(
-                      width: 38.sp,
-                      height: 18.sp,
-                      padding: 3.sp,
-                      borderRadius: 17.sp,
-                      toggleSize: 16.sp,
-                      activeColor: ColorPick.primary,
-                      inactiveColor: Colors.grey.withValues(alpha: .16),
-                      value: _links[i].visibility,
-                      onToggle: (val) =>
-                          setState(() => _links[i].visibility = val),
-                    ),
-                  ],
+          CustomTextField(
+            label: 'Insert Link',
+            // Visibility switch pinned to the END of the field, matching the
+            // Navigation Items Status switch.
+            labelTrailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Visibility',
+                    style: StyleText.fontSize12Weight500
+                        .copyWith(color: AppColors.text)),
+                SizedBox(width: 6.w),
+                FlutterSwitch(
+                  width: 35.sp,
+                  height: 20.sp,
+                  padding: 3.sp,
+                  borderRadius: 20.sp,
+                  toggleSize: 16.sp,
+                  activeColor: ColorPick.primary,
+                  inactiveColor: Colors.grey.withValues(alpha: .16),
+                  value: _links[i].visibility,
+                  onToggle: (val) =>
+                      setState(() => _links[i].visibility = val),
                 ),
-              ),
-            ],
+              ],
+            ),
+            required: true,
+            fillColor: Colors.white,
+            hint: 'Insert Links',
+            controller: _links[i].text,
+            height: 36,
+            submitted: _submitted,
           ),
         ],
       );

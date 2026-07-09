@@ -128,6 +128,9 @@ extension _HomeEditSave on _MainEditPageState {
     _headerFooterColor.text = d.branding.headerFooterColor.isNotEmpty
         ? d.branding.headerFooterColor
         : '#D9D9D9';
+    _mainWidgetColor.text = d.branding.mainWidgetColor.isNotEmpty
+        ? d.branding.mainWidgetColor
+        : '#D9D9D9';
     _engFont = d.branding.englishFont.isEmpty ? 'Cairo' : d.branding.englishFont;
     _arFont = d.branding.arabicFont.isEmpty ? 'Cairo' : d.branding.arabicFont;
     _logoPicked = d.branding.logoUrl.isNotEmpty
@@ -259,6 +262,7 @@ extension _HomeEditSave on _MainEditPageState {
       cubit.updateSecondaryColor(_secondaryColor.text);
       cubit.updateBackgroundColor(_bgColor.text);
       cubit.updateHeaderFooterColor(_headerFooterColor.text);
+      cubit.updateMainWidgetColor(_mainWidgetColor.text);
       cubit.updateEnglishFont(_engFont ?? 'Cairo');
       cubit.updateArabicFont(_arFont ?? 'Cairo');
 

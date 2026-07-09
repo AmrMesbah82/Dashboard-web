@@ -34,12 +34,9 @@ class _IconTitleRow extends StatelessWidget {
               ? ClipOval(
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: SvgPicture.network(
-                displayUrl,
-                fit:         BoxFit.contain,
-                colorFilter: const ColorFilter.mode(
-                    Colors.white, BlendMode.srcIn),
-                placeholderBuilder: (_) => const SizedBox(),
+              child: NetworkImageView(
+                url: displayUrl,
+                fit: BoxFit.contain,
               ),
             ),
           )

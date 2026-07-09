@@ -16,6 +16,7 @@ import '../../../../../../core/custom_svg.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../../../core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
@@ -306,33 +307,7 @@ class _TermsMainViewState extends State<TermsMainView> {
             style:
             StyleText.fontSize12Weight500.copyWith(color: _C.labelText)),
         SizedBox(height: 6.h),
-        Container(
-          width: 56.w, height: 56.w,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-          ),
-          child: url.isEmpty
-              ? Icon(
-              isSvg
-                  ? Icons.description_outlined
-                  : Icons.image_outlined,
-              color: Colors.grey,
-              size: 24.sp)
-              : ClipOval(
-            child: Padding(
-              padding: EdgeInsets.all(14.r),
-              child: isSvg
-                  ? SvgPicture.network(url, fit: BoxFit.contain)
-                  : Image.network(url,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Icon(
-                      Icons.broken_image,
-                      color: Colors.red[300],
-                      size: 24.sp)),
-            ),
-          ),
-        ),
+        NetworkImageView.circle(url: url, diameter: 56.w),
       ],
     );
   }

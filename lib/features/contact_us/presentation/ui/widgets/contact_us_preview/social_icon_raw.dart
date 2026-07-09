@@ -15,12 +15,12 @@ class _SocialIconRaw extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
-        child: Image.network(
-          iconUrl,
+        child: NetworkImageView(
+          url: iconUrl,
           width: 18,
           height: 18,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const Icon(Icons.link, size: 18, color: ColorPick.primary),
+          placeholder: const Icon(Icons.link, size: 18, color: ColorPick.primary),
         ),
       ),
     );

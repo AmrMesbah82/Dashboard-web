@@ -23,6 +23,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../core/constant/color.dart';

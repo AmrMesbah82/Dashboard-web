@@ -85,7 +85,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         SizedBox(height: 6.h),
         Row(children: [
           Expanded(
-            child: CustomValidatedTextFieldMaster(
+            child: CustomTextField(
               controller: _questionEnCtrl,
               hint: 'Text Here', isRequired: true, submitted: _submitted,
               fillColor: Colors.white, primaryColor: ColorPick.primary,
@@ -94,7 +94,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
           ),
           SizedBox(width: 12.w),
           Expanded(
-            child: CustomValidatedTextFieldMaster(
+            child: CustomTextField(
               controller: _questionArCtrl,
               hint: 'أكتب هنا', submitted: _submitted, fillColor: Colors.white,
               isRequired: true, primaryColor: ColorPick.primary,
@@ -106,7 +106,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         // ── Short description ─────────────────────────────────────────────────
         Text('Short Description', style: _labelStyle()),
         SizedBox(height: 6.h),
-        CustomValidatedTextFieldMaster(
+        CustomTextField(
           controller: _shortDescEnCtrl, hint: 'Text Here', fillColor: Colors.white,
           submitted: _submitted, maxLength: 150, showCharCount: true,
           isRequired: true, primaryColor: ColorPick.primary,
@@ -115,7 +115,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         Align(alignment: Alignment.centerRight,
             child: Text('وصف مختصر', style: _labelStyle())),
         SizedBox(height: 6.h),
-        CustomValidatedTextFieldMaster(
+        CustomTextField(
           controller: _shortDescArCtrl, hint: 'أكتب هنا', fillColor: Colors.white,
           isRequired: true, submitted: _submitted, maxLength: 150, showCharCount: true,
           primaryColor: ColorPick.primary, textDirection: TextDirection.rtl,
@@ -135,7 +135,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
       SizedBox(height: 6.h),
       Row(children: [
         Expanded(
-          child: CustomValidatedTextFieldMaster(
+          child: CustomTextField(
             controller: _btnLabelEnCtrl, hint: 'Text Here', fillColor: Colors.white,
             submitted: _submitted, isRequired: true, primaryColor: ColorPick.primary,
             textDirection: TextDirection.ltr, height: 40,
@@ -143,7 +143,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         ),
         SizedBox(width: 12.w),
         Expanded(
-          child: CustomValidatedTextFieldMaster(
+          child: CustomTextField(
             controller: _btnLabelArCtrl, fillColor: Colors.white, hint: 'أكتب هنا',
             submitted: _submitted, primaryColor: ColorPick.primary, isRequired: true,
             textDirection: TextDirection.rtl, textAlign: TextAlign.right, height: 40,
@@ -163,7 +163,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
       SizedBox(height: 6.h),
       Row(children: [
         Expanded(
-          child: CustomValidatedTextFieldMaster(
+          child: CustomTextField(
             controller: _descTitleEnCtrl, hint: 'Text Here', isRequired: true,
             submitted: _submitted, primaryColor: ColorPick.primary,
             fillColor: Colors.white, textDirection: TextDirection.ltr, height: 40,
@@ -171,7 +171,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         ),
         SizedBox(width: 12.w),
         Expanded(
-          child: CustomValidatedTextFieldMaster(
+          child: CustomTextField(
             controller: _descTitleArCtrl, hint: 'أكتب هنا', submitted: _submitted,
             fillColor: Colors.white, isRequired: true, primaryColor: ColorPick.primary,
             textDirection: TextDirection.rtl, textAlign: TextAlign.right, height: 40,
@@ -224,7 +224,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
           ),
         ]),
         SizedBox(height: 6.h),
-        CustomValidatedTextFieldMaster(
+        CustomTextField(
           controller: enCtrl, fillColor: Colors.white, hint: 'Text Here',
           submitted: _submitted, isRequired: true, maxLength: 10000,
           primaryColor: ColorPick.primary, textDirection: TextDirection.ltr,
@@ -234,7 +234,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         Align(alignment: Alignment.centerRight,
             child: Text('بالعربية *', style: _labelStyle())),
         SizedBox(height: 4.h),
-        CustomValidatedTextFieldMaster(
+        CustomTextField(
           controller: arCtrl, fillColor: Colors.white, hint: 'أكتب هنا',
           isRequired: true, submitted: _submitted, primaryColor: ColorPick.primary,
           maxLength: 10000, textDirection: TextDirection.rtl,

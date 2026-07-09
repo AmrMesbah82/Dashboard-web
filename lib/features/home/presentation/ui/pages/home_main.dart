@@ -20,6 +20,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 
 

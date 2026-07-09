@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom_svg.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
@@ -380,27 +381,7 @@ width: 165.w,
 
   // ── Image Circle ───────────────────────────────────────────────────────────
   Widget _imgCircle(String url, {bool isSvg = false}) {
-    return Container(
-      width: 60.w, height: 60.h,
-      decoration: BoxDecoration(
-        color: url.isNotEmpty ? Colors.white : const Color(0xFFD9D9D9),
-        shape: BoxShape.circle,
-      ),
-      child: url.isNotEmpty
-          ? ClipOval(
-        child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: SvgPicture.network(url, fit: BoxFit.contain,
-              placeholderBuilder: (_) => const SizedBox()),
-        ),
-      )
-          : Center(
-        child: Icon(
-          isSvg ? Icons.description_outlined : Icons.image_outlined,
-          color: Colors.grey, size: 20.sp,
-        ),
-      ),
-    );
+    return NetworkImageView.circle(url: url, diameter: 60.w);
   }
 
   // ── Accordion ──────────────────────────────────────────────────────────────

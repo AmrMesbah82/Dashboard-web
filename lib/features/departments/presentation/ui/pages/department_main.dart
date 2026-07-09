@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';

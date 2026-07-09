@@ -785,12 +785,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
     } else {
       if (bytes != null) return Image.memory(bytes, fit: BoxFit.cover);
       if (url.isNotEmpty) {
-        return Image.network(
-          url,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
-              Icon(Icons.broken_image, color: Colors.red[300], size: 28.sp),
-        );
+        return NetworkImageView(url: url, fit: BoxFit.cover);
       }
     }
 

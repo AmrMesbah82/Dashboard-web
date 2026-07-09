@@ -20,6 +20,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/core/constant/color.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_edit.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 

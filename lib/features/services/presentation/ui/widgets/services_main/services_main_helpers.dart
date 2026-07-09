@@ -97,9 +97,9 @@ extension _ServicesMainHelpers on _ServicesMainPageMasterState {
         GestureDetector(
           onTap: onEdit,
           child: Container(
-            width: 205.w, height: 40.h,
+            width: 130.w, height: 36.h,
             decoration: BoxDecoration(
-                color: AppColors.card, borderRadius: BorderRadius.circular(8.r)),
+                color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
             child: Center(
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Edit Details',
@@ -163,7 +163,7 @@ extension _ServicesMainHelpers on _ServicesMainPageMasterState {
               borderRadius: BorderRadius.circular(6.r),
               child: Padding(
                 padding: EdgeInsets.all(7.r),
-                child: SvgPicture.network(item.iconUrl,
+                child: NetworkImageView(url: item.iconUrl,
                     width: 14.w, height: 14.w, fit: BoxFit.contain),
               ),
             )

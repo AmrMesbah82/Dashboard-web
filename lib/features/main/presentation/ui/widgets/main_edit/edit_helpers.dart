@@ -78,11 +78,10 @@ extension _HomeEditHelpers on _MainEditPageState {
           child: ClipOval(
             child: Padding(
               padding: EdgeInsets.all(10.w),
-              child: SvgPicture.network(
-                picked.url!,
+              child: NetworkImageView(
+                url: picked.url!,
                 width: 30.w, height: 30.h,
                 fit: BoxFit.contain,
-                placeholderBuilder: (_) => const CircleProgressMaster(),
               ),
             ),
           ),

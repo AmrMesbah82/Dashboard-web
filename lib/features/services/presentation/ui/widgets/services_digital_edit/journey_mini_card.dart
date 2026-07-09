@@ -27,8 +27,8 @@ class _JourneyMiniCard extends StatelessWidget {
             child: item.iconUrl.isNotEmpty
                 ? ClipRRect(
               borderRadius: BorderRadius.circular(6.r),
-              child: SvgPicture.network(
-                item.iconUrl,
+              child: NetworkImageView(
+                url:    item.iconUrl,
                 width:  18.w,
                 height: 18.w,
                 fit:    BoxFit.contain,

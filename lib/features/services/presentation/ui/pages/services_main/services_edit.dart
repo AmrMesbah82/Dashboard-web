@@ -12,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
+import 'package:web_app_admin/core/widget/custom_field.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_main.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 
@@ -455,7 +456,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                   SizedBox(height: 6.h),
                   Row(children: [
                     Expanded(
-                      child: CustomValidatedTextFieldMaster(
+                      child: CustomTextField(
                         controller:    _titleEnCtrl,
                         hint:          'Text Here',
                         submitted:     _submitted,
@@ -469,7 +470,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
-                      child: CustomValidatedTextFieldMaster(
+                      child: CustomTextField(
                         controller:    _titleArCtrl,
                         hint:          'أدخل النص هنا',
                         submitted:     _submitted,
@@ -488,7 +489,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                   // ── Description EN full width ────────────────────────
                   Text('Description', style: _labelStyle()),
                   SizedBox(height: 6.h),
-                  CustomValidatedTextFieldMaster(
+                  CustomTextField(
                     controller:    _descEnCtrl,
                     hint:          'Text Here',
                     submitted:     false,
@@ -508,7 +509,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
                     child: Text('وصف', style: _labelStyle()),
                   ),
                   SizedBox(height: 6.h),
-                  CustomValidatedTextFieldMaster(
+                  CustomTextField(
                     controller:    _descArCtrl,
                     hint:          'أدخل النص هنا',
                     submitted:     false,

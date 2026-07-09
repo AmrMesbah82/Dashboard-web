@@ -79,55 +79,23 @@ class _ColorPickerFieldState extends State<_ColorPickerField> {
         ],
         CompositedTransformTarget(
           link: _layerLink,
-          child: SizedBox(
-            height: 36.h,
-            child: TextFormField(
-              controller: widget.controller,
-              style: StyleText.fontSize12Weight400.copyWith(
-                color: AppColors.text,
-              ),
-              onChanged: (_) {
-                setState(() {});
-                widget.onColorChanged?.call();
-              },
-              onTap: _openPicker,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: StyleText.fontSize12Weight400.copyWith(
-                  color: AppColors.secondaryText,
-                ),
-                filled: true,
-                fillColor: AppColors.background,
-                isDense: true,
-                counterText: '',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Container(
-                    width: 16.w,
-                    height: 16.h,
-                    decoration: BoxDecoration(
-                      color: _currentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color:ColorPick.white),
-                    ),
-                  ),
-                ),
-                prefixIconConstraints: BoxConstraints(
-                  minWidth: 36.w,
-                  minHeight: 36.h,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: BorderSide(color: AppColors.primary, width: 1),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: const BorderSide(color: Colors.transparent),
-                ),
+          child: CustomTextField(
+            controller: widget.controller,
+            hint: widget.hintText,
+            fillColor: AppColors.background,
+            height: 36,
+            onChanged: (_) {
+              setState(() {});
+              widget.onColorChanged?.call();
+            },
+            onTap: _openPicker,
+            prefixIcon: Container(
+              width: 16.w,
+              height: 16.h,
+              decoration: BoxDecoration(
+                color: _currentColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: ColorPick.white),
               ),
             ),
           ),

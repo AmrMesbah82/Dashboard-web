@@ -322,8 +322,7 @@ extension _HomePreviewBuilders on _HomePreviewPageMasterState {
         borderRadius: BorderRadius.circular(r),
         child: Container(
           width: width, height: height, color: AppColors.card, alignment: Alignment.center,
-          child: SvgPicture.network(imageUrl, width: width * 0.75, height: height * 0.75, fit: BoxFit.cover,
-              placeholderBuilder: (_) => Icon(Icons.image, size: 48.sp, color: Colors.grey)),
+          child: NetworkImageView(url: imageUrl, width: width * 0.75, height: height * 0.75, fit: BoxFit.cover),
         ),
       );
     }
@@ -357,8 +356,7 @@ extension _HomePreviewBuilders on _HomePreviewPageMasterState {
   Widget _smartImage({required String url, required double width, required double height, BoxFit fit = BoxFit.contain}) {
     if (url.isEmpty) return Icon(Icons.image_outlined, size: 16.sp, color: Colors.grey);
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      return SvgPicture.network(url, width: width, height: height, fit: fit,
-          placeholderBuilder: (_) => Icon(Icons.image_outlined, size: 16.sp, color: Colors.grey));
+      return NetworkImageView(url: url, width: width, height: height, fit: fit);
     }
     return Icon(Icons.image_outlined, size: 16.sp, color: Colors.grey);
   }

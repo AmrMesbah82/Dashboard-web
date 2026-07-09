@@ -20,7 +20,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:web_app_admin/core/widget/button.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
+import 'package:web_app_admin/core/widget/custom_field.dart';
 
 import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
@@ -574,7 +576,7 @@ class _ServicesDigitalJourneyEditPageState
                                   SizedBox(height: 6.h),
                                   Row(children: [
                                     Expanded(
-                                      child: CustomValidatedTextFieldMaster(
+                                      child: CustomTextField(
                                         controller: _journeyTitleEnCtrl,
                                         hint: 'Text Here',
                                         isRequired: true,
@@ -587,7 +589,7 @@ class _ServicesDigitalJourneyEditPageState
                                     ),
                                     SizedBox(width: 12.w),
                                     Expanded(
-                                      child: CustomValidatedTextFieldMaster(
+                                      child: CustomTextField(
                                         controller: _journeyTitleArCtrl,
                                         hint: 'أدخل النص هنا',
                                         isRequired: true,

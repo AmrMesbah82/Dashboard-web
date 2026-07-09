@@ -14,6 +14,10 @@ import '../theme/new_theme.dart';
 
 class CustomValidatedTextFieldMaster extends StatefulWidget {
   final String? label;
+
+  /// Optional widget pinned to the END of the label row (same width as the
+  /// field). Used e.g. to align a Status switch with the end of this field.
+  final Widget? labelTrailing;
   final String hint;
   final TextEditingController controller;
   final double height;
@@ -46,6 +50,7 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   const CustomValidatedTextFieldMaster({
     super.key,
     this.label,
+    this.labelTrailing,
     required this.hint,
     required this.controller,
     this.height = 36,
@@ -143,13 +148,31 @@ class _CustomValidatedTextFieldMasterState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            textDirection: widget.textDirection,
-            style: StyleText.fontSize12Weight600.copyWith(
-              color: const Color(0xFF1A1A1A),
-            ),
-          ),
+          widget.labelTrailing != null
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.label!,
+                        textDirection: widget.textDirection,
+                        overflow: TextOverflow.ellipsis,
+                        style: StyleText.fontSize12Weight600.copyWith(
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                    ),
+                    widget.labelTrailing!,
+                  ],
+                )
+              : Text(
+                  widget.label!,
+                  textDirection: widget.textDirection,
+                  style: StyleText.fontSize12Weight600.copyWith(
+                    color: const Color(0xFF1A1A1A),
+                  ),
+                ),
           SizedBox(height: 6.h),
         ],
 
