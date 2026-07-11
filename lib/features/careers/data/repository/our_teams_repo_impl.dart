@@ -22,7 +22,7 @@ class OurTeamsRepoImpl implements OurTeamsRepo {
 
   // ── Firestore document reference ────────────────────────────────────────────
   DocumentReference<Map<String, dynamic>> get _docRef =>
-      _db.collection('cms').doc('ourTeams');
+      _db.collection('ourTeams').doc('ourTeams');
 
   // ── Load ────────────────────────────────────────────────────────────────────
   @override

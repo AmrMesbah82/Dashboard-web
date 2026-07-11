@@ -238,24 +238,8 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
             ),
             SizedBox(height: 12.h),
           ],
-          if (targetStatus == 'draft') ...[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Row(children: [
-                Icon(Icons.drafts_outlined, color: Colors.grey.shade600, size: 18.sp),
-                SizedBox(width: 8.w),
-                Text('This is a saved draft — not yet visible to the public.',
-                    style: StyleText.fontSize13Weight500.copyWith(color: Colors.grey.shade700)),
-              ]),
-            ),
-            SizedBox(height: 12.h),
-          ],
+
+
           _accordion(key: 'headings', title: 'Headings', children: [
             SizedBox(height: 15.h), _headingsReadOnly(data),
           ]),

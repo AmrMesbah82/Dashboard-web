@@ -23,6 +23,7 @@ import '../../../../../core/two_tab.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
+import '../../controller/main_cubit.dart';
 import '../../../../home/presentation/controller/lang_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
@@ -62,7 +63,7 @@ class _MainPreviewPageState extends State<MainPreviewPage> {
   // ✅ REMOVED: int _langIndex — now read from LanguageCubit
   bool           _isSaving = false;
 
-  Future<void> _publish(HomeCmsCubit cubit) async {
+  Future<void> _publish(MainCmsCubit cubit) async {
     setState(() => _isSaving = true);
     try {
       await cubit.save(publishStatus: 'published');
@@ -73,10 +74,10 @@ class _MainPreviewPageState extends State<MainPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCmsCubit, HomeCmsState>(
+    return BlocConsumer<MainCmsCubit, HomeCmsState>(
       listener: (context, state) {},
       builder: (context, state) {
-        final cubit = context.read<HomeCmsCubit>();
+        final cubit = context.read<MainCmsCubit>();
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(

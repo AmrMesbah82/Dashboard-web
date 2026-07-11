@@ -12,7 +12,9 @@ import '../../domain/base_repository/about_us_repo.dart';
 import '../models/about_us_model.dart';
 
 class AboutRepoImpl implements AboutRepo {
-  static const String _collection = 'cms';
+  static const String _aboutCollection    = 'aboutPage';
+  static const String _strategyCollection = 'ourStrategy';
+  static const String _termsCollection    = 'termsOfService';
   static const String _aboutDoc    = 'about_page';
   static const String _strategyDoc = 'our_strategy';
   static const String _termsDoc    = 'terms_of_service';
@@ -20,8 +22,14 @@ class AboutRepoImpl implements AboutRepo {
   final FirebaseFirestore _db      = FirebaseFirestore.instance;
   final FirebaseStorage   _storage = FirebaseStorage.instance;
 
-  DocumentReference<Map<String, dynamic>> _ref(String doc) =>
-      _db.collection(_collection).doc(doc);
+  DocumentReference<Map<String, dynamic>> _ref(String doc) {
+    final collection = doc == _strategyDoc
+        ? _strategyCollection
+        : doc == _termsDoc
+            ? _termsCollection
+            : _aboutCollection;
+    return _db.collection(collection).doc(doc);
+  }
 
   @override
   Future<AboutPageModel> fetchAboutPage() async {

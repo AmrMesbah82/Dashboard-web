@@ -26,7 +26,7 @@ class ServiceRepositoryImpl implements ServiceRepository {
   final FirebaseFirestore _firestore;
   final FirebaseStorage   _storage;
 
-  static const String _collection = 'cms';
+  static const String _collection = 'servicesPage';
   static const String _document   = 'service_page';
 
   DocumentReference<Map<String, dynamic>> get _docRef =>

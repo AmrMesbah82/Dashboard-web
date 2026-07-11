@@ -9,7 +9,7 @@ extension _HomeEditSections1 on _MainEditPageState {
   Widget _gap() => SizedBox(height: 10.h);
 
   // ─── Bottom buttons ────────────────────────────────────────────────────────
-  Widget _bottomActions(HomeCmsCubit cubit) {
+  Widget _bottomActions(MainCmsCubit cubit) {
     final bool canPublish = _isFormValid;
 
     return Row(
@@ -354,7 +354,7 @@ extension _HomeEditSections1 on _MainEditPageState {
   }
 
   // ─── Footer ─────────────────────────────────────────────────────────────────
-  Widget _footerSection(HomeCmsCubit cubit) => _accordion(
+  Widget _footerSection(MainCmsCubit cubit) => _accordion(
     key: 'footer',
     title: 'Footer',
     children: [

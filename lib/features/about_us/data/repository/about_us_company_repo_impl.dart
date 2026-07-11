@@ -13,9 +13,9 @@ class AboutCompanyRepoImp implements AboutCompanyRepo {
   AboutCompanyRepoImp({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  /// Single document in 'cmsPages' collection with ID 'about_company'
+  /// Single document in 'aboutCompany' collection with ID 'about_company'
   DocumentReference<Map<String, dynamic>> get _doc =>
-      _firestore.collection('cmsPages').doc('about_company');
+      _firestore.collection('aboutCompany').doc('about_company');
 
   // ══════════════════════════════════════════════════════════════════════════
   //  FETCH

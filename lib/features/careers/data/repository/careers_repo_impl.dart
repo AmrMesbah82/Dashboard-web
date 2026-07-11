@@ -9,7 +9,7 @@ import '../../domain/base_repository/careers_repo.dart';
 import '../models/careers_model.dart';
 
 class CareersCmsRepoImpl implements CareersCmsRepo {
-  static const String _collection = 'cms';
+  static const String _collection = 'careersPage';
   static const String _docId      = 'careers';
 
   final FirebaseFirestore _db;

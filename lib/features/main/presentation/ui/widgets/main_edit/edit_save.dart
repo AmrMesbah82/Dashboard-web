@@ -162,7 +162,7 @@ extension _HomeEditSave on _MainEditPageState {
   // ─────────────────────────────────────────────────────────────────────────
   //  SAVE / PUBLISH
   // ─────────────────────────────────────────────────────────────────────────
-  Future<void> _save(HomeCmsCubit cubit,
+  Future<void> _save(MainCmsCubit cubit,
       {String publishStatus = 'published'}) async {
     try {
       final snapshot = List<NavButtonModel>.from(cubit.current.navButtons);

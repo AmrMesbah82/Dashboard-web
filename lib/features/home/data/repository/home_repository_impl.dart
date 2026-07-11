@@ -25,15 +25,21 @@ class HomeRepositoryImpl implements HomeRepository {
   HomeRepositoryImpl({
     FirebaseFirestore? firestore,
     FirebaseStorage? storage,
+    String collection   = 'homePage',
+    String publishedDoc = 'home_page',
+    String draftDoc     = 'home_page_draft',
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+        _storage = storage ?? FirebaseStorage.instance,
+        _collection = collection,
+        _publishedDoc = publishedDoc,
+        _draftDoc = draftDoc;
 
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  static const String _collection    = 'cms';
-  static const String _publishedDoc  = 'home_page';
-  static const String _draftDoc      = 'home_page_draft';
+  final String _collection;
+  final String _publishedDoc;
+  final String _draftDoc;
 
   DocumentReference<Map<String, dynamic>> get _publishedRef =>
       _firestore.collection(_collection).doc(_publishedDoc);

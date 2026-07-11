@@ -296,7 +296,13 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
 
   void _updateSection(int index, SectionCardModel Function(SectionCardModel) updater) {
     final sections = List<SectionCardModel>.from(_model.sections);
-    while (sections.length <= index) sections.add(const SectionCardModel());
+    while (sections.length <= index) {
+      // ✅ Assign the fixed slot position when padding new section cards.
+      final slot = sections.length;
+      sections.add(SectionCardModel(
+        position: slot < kSectionPositions.length ? kSectionPositions[slot] : 'left',
+      ));
+    }
     sections[index] = updater(sections[index]);
     _model = _model.copyWith(sections: sections);
   }

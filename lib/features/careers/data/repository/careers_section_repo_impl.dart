@@ -21,7 +21,7 @@ class CareersSectionRepoImp implements CareersSectionRepo {
   final _storage = FirebaseStorage.instance;
 
   DocumentReference _doc(String key) =>
-      _db.collection('careers_cms').doc(key);
+      _db.collection('careersSections').doc(key);
 
   // ── Load ────────────────────────────────────────────────────────────────────
   @override

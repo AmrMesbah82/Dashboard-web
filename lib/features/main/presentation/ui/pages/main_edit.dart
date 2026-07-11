@@ -40,6 +40,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
+import '../../controller/main_cubit.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 import 'main_preview.dart'; // adjust import path as needed
@@ -341,7 +342,7 @@ class _MainEditPageState extends State<MainEditPage> {
     _mainWidgetColor.addListener(_onFieldChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<HomeCmsCubit>().load();
+      if (mounted) context.read<MainCmsCubit>().load();
     });
   }
 
@@ -467,7 +468,7 @@ class _MainEditPageState extends State<MainEditPage> {
   // ─── BUILD ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeCmsCubit, HomeCmsState>(
+    return BlocConsumer<MainCmsCubit, HomeCmsState>(
       listener: (context, state) {
 
         // ── Published / Saved successfully → navigate to MainMainPage ──────
@@ -498,7 +499,7 @@ class _MainEditPageState extends State<MainEditPage> {
         } else if (state is HomeCmsSaved) {
           _seedFromModel(state.data); // HomeCmsSaved must expose .data
         }
-        final cubit = context.read<HomeCmsCubit>();
+        final cubit = context.read<MainCmsCubit>();
 
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(

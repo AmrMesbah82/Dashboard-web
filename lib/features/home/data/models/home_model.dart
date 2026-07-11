@@ -70,9 +70,17 @@ class NavButtonModel {
 // Section Card (1–4)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Fixed layout position for each of the 4 home Section cards.
+/// Index 0 → left, 1 → leftCorner, 2 → right, 3 → rightCorner.
+const List<String> kSectionPositions = ['left', 'leftCorner', 'right', 'rightCorner'];
+
+/// Human-readable labels for [kSectionPositions] (same order).
+const List<String> kSectionPositionLabels = ['Left', 'Left Corner', 'Right', 'Right Corner'];
+
 class SectionCardModel {
   final String imageUrl;
   final String iconUrl;
+  final String position; // ✅ left | leftCorner | right | rightCorner
   final String textBoxColor;
   final BiText description;
   final bool   visibility; // ✅ controls whether section shows on public site
@@ -80,6 +88,7 @@ class SectionCardModel {
   const SectionCardModel({
     this.imageUrl     = '',
     this.iconUrl      = '',
+    this.position     = 'left', // ✅ default to first position
     this.textBoxColor = '#008037',
     this.description  = const BiText(),
     this.visibility   = true, // ✅ default visible
@@ -88,6 +97,7 @@ class SectionCardModel {
   SectionCardModel copyWith({
     String? imageUrl,
     String? iconUrl,
+    String? position, // ✅
     String? textBoxColor,
     BiText? description,
     bool?   visibility, // ✅
@@ -95,6 +105,7 @@ class SectionCardModel {
       SectionCardModel(
         imageUrl:     imageUrl     ?? this.imageUrl,
         iconUrl:      iconUrl      ?? this.iconUrl,
+        position:     position     ?? this.position, // ✅
         textBoxColor: textBoxColor ?? this.textBoxColor,
         description:  description  ?? this.description,
         visibility:   visibility   ?? this.visibility, // ✅
@@ -103,6 +114,7 @@ class SectionCardModel {
   Map<String, dynamic> toMap() => {
     'imageUrl':     imageUrl,
     'iconUrl':      iconUrl,
+    'position':     position, // ✅ persisted to Firestore
     'textBoxColor': textBoxColor,
     'description':  description.toMap(),
     'visibility':   visibility, // ✅ persisted to Firestore
@@ -111,6 +123,7 @@ class SectionCardModel {
   factory SectionCardModel.fromMap(Map<String, dynamic> map) => SectionCardModel(
     imageUrl:     map['imageUrl']     ?? '',
     iconUrl:      map['iconUrl']      ?? '',
+    position:     map['position']     ?? 'left', // ✅ old docs default; see fromMap list for slot-based fallback
     textBoxColor: map['textBoxColor'] ?? '#008037',
     description:  BiText.fromMap(map['description'] ?? {}),
     visibility:   map['visibility']   ?? true, // ✅ old docs default to true
@@ -461,7 +474,20 @@ class HomePageModel {
         .map((e) => NavButtonModel.fromMap(e as Map<String, dynamic>))
         .toList(),
     sections: (map[SECTIONS] as List<dynamic>? ?? [])
-        .map((e) => SectionCardModel.fromMap(e as Map<String, dynamic>))
+        .toList()
+        .asMap()
+        .entries
+        .map((entry) {
+          final section = SectionCardModel.fromMap(entry.value as Map<String, dynamic>);
+          // ✅ Each of the 4 slots has a fixed position; fall back to slot index
+          //    for old docs that were saved before the position field existed.
+          final slotPosition = entry.key < kSectionPositions.length
+              ? kSectionPositions[entry.key]
+              : 'left';
+          return (entry.value as Map).containsKey('position')
+              ? section
+              : section.copyWith(position: slotPosition);
+        })
         .toList(),
     headerItems: (map[HEADER_ITEMS] as List<dynamic>? ?? [])
         .map((e) => HeaderItemModel.fromMap(e as Map<String, dynamic>))
@@ -520,6 +546,7 @@ class HomePageModel {
     sections: List.generate(
       4,
           (i) => SectionCardModel(
+        position: kSectionPositions[i], // ✅ left | leftCorner | right | rightCorner
         textBoxColor: '#008037',
         description: BiText(
           en: 'Section ${i + 1} description goes here.',

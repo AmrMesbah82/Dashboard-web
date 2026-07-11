@@ -22,6 +22,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
+import '../../controller/main_cubit.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 
 // class _C {
@@ -98,7 +99,7 @@ class _MainMainPageState extends State<MainMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, HomeCmsState>(
       builder: (context, state) {
         if (state is HomeCmsInitial || state is HomeCmsLoading) {
           return const Scaffold(
@@ -355,6 +356,7 @@ class _MainMainPageState extends State<MainMainPage> {
         ),
       );
     }
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
