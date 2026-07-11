@@ -5,6 +5,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/careers_repo.dart';
 import '../models/careers_model.dart';
 
@@ -28,7 +29,9 @@ class CareersCmsRepoImpl implements CareersCmsRepo {
     if (!snap.exists || snap.data() == null) {
       return CareersCmsModel.empty();
     }
-    final model = CareersCmsModel.fromMap(snap.data()!);
+    final model = CareersCmsModel.fromMap(
+      FlatCodec.decode(snap.data()!, CareersCmsModel.flatTemplate),
+    );
 
     return model;
   }
@@ -37,6 +40,8 @@ class CareersCmsRepoImpl implements CareersCmsRepo {
 
   @override
   Future<void> save(CareersCmsModel model) async {
-    await _ref.set(model.toMap(), SetOptions(merge: true));
+    // Versioned append write; scalar Last_Updated_At added by the codec.
+    final nested = model.toMap()..remove('lastUpdated');
+    await FlatCodec.writeVersioned(_ref, nested);
   }
 }

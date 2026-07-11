@@ -18,6 +18,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/home_repo.dart';
 import '../models/home_model.dart';
 
@@ -59,7 +60,9 @@ class HomeRepositoryImpl implements HomeRepository {
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
-      final model = HomePageModel.fromMap(data);
+      final model = HomePageModel.fromMap(
+        FlatCodec.decode(data, HomePageModel.flatTemplate),
+      );
       return model;
     } catch (e, st) {
       return HomePageModel.defaultModel;
@@ -74,7 +77,9 @@ class HomeRepositoryImpl implements HomeRepository {
         return HomePageModel.defaultModel;
       }
       final data = _sanitize(snapshot.data()!);
-      final model = HomePageModel.fromMap(data);
+      final model = HomePageModel.fromMap(
+        FlatCodec.decode(data, HomePageModel.flatTemplate),
+      );
       return model;
     } catch (e, st) {
       return HomePageModel.defaultModel;
@@ -84,11 +89,11 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<void> saveHomePage(HomePageModel model) async {
     try {
-      final map = {
+      final nested = {
         ...model.toMap(),
-        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'scheduledPublishDate': model.scheduledPublishDate?.toIso8601String(),
       };
-      await _publishedRef.set(map);
+      await FlatCodec.writeVersioned(_publishedRef, nested);
     } catch (e, st) {
       rethrow;
     }
@@ -99,7 +104,9 @@ class HomeRepositoryImpl implements HomeRepository {
     return _publishedRef.snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return HomePageModel.defaultModel;
       try {
-        return HomePageModel.fromMap(snap.data()!);
+        return HomePageModel.fromMap(
+          FlatCodec.decode(_sanitize(snap.data()!), HomePageModel.flatTemplate),
+        );
       } catch (e) {
         return HomePageModel.defaultModel;
       }
@@ -116,7 +123,9 @@ class HomeRepositoryImpl implements HomeRepository {
       final snapshot = await _draftRef.get(const GetOptions(source: Source.server));
       if (snapshot.exists && snapshot.data() != null) {
         final data = _sanitize(snapshot.data()!);
-        return HomePageModel.fromMap(data);
+        return HomePageModel.fromMap(
+          FlatCodec.decode(data, HomePageModel.flatTemplate),
+        );
       }
       return null;
     } catch (e, st) {
@@ -127,11 +136,11 @@ class HomeRepositoryImpl implements HomeRepository {
   @override
   Future<void> saveDraft(HomePageModel model) async {
     try {
-      final map = {
+      final nested = {
         ...model.toMap(),
-        'lastUpdatedAt': FieldValue.serverTimestamp(),
+        'scheduledPublishDate': model.scheduledPublishDate?.toIso8601String(),
       };
-      await _draftRef.set(map);
+      await FlatCodec.writeVersioned(_draftRef, nested);
     } catch (e, st) {
       rethrow;
     }

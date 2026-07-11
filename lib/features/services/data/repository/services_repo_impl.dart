@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../domain/base_repository/services_repo.dart';
+import '../../../../core/utils/flat_codec.dart';
 import '../models/services_model.dart';
 
 
@@ -42,7 +43,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
         return ServicePageModel.empty();
       }
       final data  = _sanitize(snapshot.data()!);
-      final model = ServicePageModel.fromMap(data);
+      final model = ServicePageModel.fromMap(
+        FlatCodec.decode(data, ServicePageModel.flatTemplate),
+      );
       return model;
     } catch (e, st) {
       return ServicePageModel.empty();
@@ -59,7 +62,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
         return ServicePageModel.empty();
       }
       final data  = _sanitize(snapshot.data()!);
-      final model = ServicePageModel.fromMap(data);
+      final model = ServicePageModel.fromMap(
+        FlatCodec.decode(data, ServicePageModel.flatTemplate),
+      );
       if (model.journeyItems.isNotEmpty) {
       }
       return model;
@@ -73,14 +78,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
   @override
   Future<void> saveServicePage(ServicePageModel model) async {
     try {
-      final map = {
-        ...model.toMap(),
-        'lastUpdatedAt': FieldValue.serverTimestamp(),
-      };
-      // ✅ Remove the model's own lastUpdatedAt ISO string if present,
-      //    since we're replacing it with FieldValue.serverTimestamp()
-      // (toMap() may include it as an ISO string — serverTimestamp wins)
-      await _docRef.set(map);
+      // Versioned append write; scalar Last_Updated_At added by the codec.
+      final nested = model.toMap()..remove('lastUpdatedAt');
+      await FlatCodec.writeVersioned(_docRef, nested);
     } catch (e, st) {
       rethrow;
     }

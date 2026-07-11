@@ -570,6 +570,24 @@ class CareersCmsModel {
     'lastUpdated': DateTime.now().toIso8601String(),
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample statistic).
+  static Map<String, dynamic> get flatTemplate => {
+        'overview': {
+          'description': {'en': '', 'ar': ''},
+          'actionButtonLabel': {'en': '', 'ar': ''},
+        },
+        'statistics': [
+          {
+            'id': '',
+            'title': {'en': '', 'ar': ''},
+            'shortDescription': {'en': '', 'ar': ''},
+            'summaryValue': '',
+            'iconUrl': '',
+          }
+        ],
+        'lastUpdated': '',
+      };
+
   CareersCmsModel copyWith({
     CareersOverview? overview,
     List<CareerStatItem>? statistics,

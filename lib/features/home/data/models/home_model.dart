@@ -467,6 +467,15 @@ class HomePageModel {
     PUBLISH_STATUS:        publishStatus,
   };
 
+  /// Nested template used by [FlatCodec.decode] to rebuild this model from the
+  /// FLAT string-key Firestore document. Includes every list (populated from
+  /// [defaultModel]) plus the timestamp keys that live outside [toMap].
+  static Map<String, dynamic> get flatTemplate => {
+    ...defaultModel.toMap(),
+    'lastUpdatedAt': '',
+    'scheduledPublishDate': '',
+  };
+
   factory HomePageModel.fromMap(Map<String, dynamic> map) => HomePageModel(
     title:            BiText.fromMap(map[TITLE] ?? {}),
     shortDescription: BiText.fromMap(map[SHORT_DESCRIPTION] ?? {}),

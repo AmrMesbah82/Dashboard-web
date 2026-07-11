@@ -108,6 +108,25 @@ class BlogPostModel {
     BLOCKS: blocks.map((b) => b.toMap()).toList(),
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample block).
+  /// `createdAt` is intentionally excluded — the repo stores/reads it as a
+  /// separate flat `Created_At` string.
+  static Map<String, dynamic> get flatTemplate => {
+        'status': '',
+        'imageUrl': '',
+        'question': {'en': '', 'ar': ''},
+        'shortDescription': {'en': '', 'ar': ''},
+        'buttonLabel': {'en': '', 'ar': ''},
+        'descriptionTitle': {'en': '', 'ar': ''},
+        'blocks': [
+          {
+            'id': '',
+            'type': '',
+            'content': {'en': '', 'ar': ''}
+          }
+        ],
+      };
+
   BlogPostModel copyWith({
     String? id, String? status, String? imageUrl,
     BlogBilingualText? question, BlogBilingualText? shortDescription,

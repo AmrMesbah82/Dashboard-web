@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/contact_us_location.dart';
 import '../models/contact_us_model_location.dart';
 
@@ -29,11 +30,14 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
         return _defaultModel();
       }
 
-      final model = ContactUsCmsModel.fromJson(doc.data()!);
+      final nested = FlatCodec.decode(doc.data()!, ContactUsCmsModel.flatTemplate);
+      final model = ContactUsCmsModel.fromJson(nested);
 
-      // ── Extract Firestore Timestamp and inject into model ──
-      final raw = doc.data()!['lastUpdatedAt'];
-      final lastUpdatedAt = raw is Timestamp ? raw.toDate() : null;
+      // ── Extract last-updated (scalar Firestore timestamp) ──
+      final raw = doc.data()!['Last_Updated_At'];
+      final lastUpdatedAt = raw is Timestamp
+          ? raw.toDate()
+          : (raw is String && raw.isNotEmpty ? DateTime.tryParse(raw) : null);
 
       return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← THIS was missing
     } catch (e) {
@@ -54,13 +58,9 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
 
       final updatedModel = _updateModelWithUrls(model, uploadedUrls);
 
-      final json = updatedModel.toJson();
-      json['lastUpdatedAt'] = FieldValue.serverTimestamp(); // ← THIS was missing
-
-      await _firestore
-          .collection(_collectionName)
-          .doc(_docId)
-          .set(json, SetOptions(merge: true));
+      // Versioned append write; scalar Last_Updated_At added by the codec.
+      final ref = _firestore.collection(_collectionName).doc(_docId);
+      await FlatCodec.writeVersioned(ref, updatedModel.toJson());
 
     } catch (e) {
       rethrow;

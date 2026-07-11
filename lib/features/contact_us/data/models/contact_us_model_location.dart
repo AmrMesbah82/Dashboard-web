@@ -43,6 +43,32 @@ class ContactUsCmsModel {
     };
   }
 
+  /// Nested template for [FlatCodec.decode] (one populated sample per list).
+  static Map<String, dynamic> get flatTemplate => {
+        'publishStatus': '',
+        'subDescription': {'en': '', 'ar': ''},
+        'email': '',
+        'followUsTitle': {'en': '', 'ar': ''},
+        'socialIcons': [
+          {'id': '', 'iconUrl': '', 'link': ''}
+        ],
+        'officeLocations': [
+          {
+            'id': '',
+            'iconUrl': '',
+            'locationName': {'en': '', 'ar': ''},
+            'text1': {'en': '', 'ar': ''},
+            'text2': {'en': '', 'ar': ''},
+            'mapLink': '',
+          }
+        ],
+        'confirmMessage': {
+          'svgUrl': '',
+          'title': {'en': '', 'ar': ''},
+          'description': {'en': '', 'ar': ''},
+        },
+      };
+
   ContactUsCmsModel copyWith({
     String? publishStatus,
     ContactBilingualText? subDescription,

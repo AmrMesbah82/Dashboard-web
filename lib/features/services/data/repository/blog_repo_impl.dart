@@ -11,6 +11,7 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/blog_repo.dart';
 import '../models/blog_model.dart';
 
@@ -22,7 +23,7 @@ class BlogRepositoryImpl implements BlogRepository {
   final FirebaseFirestore _firestore;
   final FirebaseStorage   _storage;
 
-  static const String _collection = 'blog_posts';
+  static const String _collection = 'blogPosts';
 
   CollectionReference<Map<String, dynamic>> get _col =>
       _firestore.collection(_collection);
@@ -34,11 +35,11 @@ class BlogRepositoryImpl implements BlogRepository {
   @override
   Future<List<BlogPostModel>> fetchAllPosts() async {
     try {
-      final snap = await _col.orderBy('createdAt', descending: true).get();
+      final snap = await _col.orderBy('Last_Updated_At', descending: true).get();
       // Filter out draft documents (those ending with _draft)
       final posts = snap.docs
           .where((d) => !d.id.endsWith('_draft'))
-          .map((d) => BlogPostModel.fromMap(d.id, _sanitize(d.data())))
+          .map((d) => _decodeBlog(d.id, _sanitize(d.data())))
           .toList();
       return posts;
     } catch (e) {
@@ -51,7 +52,7 @@ class BlogRepositoryImpl implements BlogRepository {
     try {
       final snap = await _col.doc(id).get();
       if (!snap.exists || snap.data() == null) return BlogPostModel.empty();
-      return BlogPostModel.fromMap(snap.id, _sanitize(snap.data()!));
+      return _decodeBlog(snap.id, _sanitize(snap.data()!));
     } catch (e) {
       return BlogPostModel.empty();
     }
@@ -62,7 +63,7 @@ class BlogRepositoryImpl implements BlogRepository {
     try {
       final snap = await _col.doc(id).get();
       if (!snap.exists || snap.data() == null) return null;
-      return BlogPostModel.fromMap(snap.id, _sanitize(snap.data()!));
+      return _decodeBlog(snap.id, _sanitize(snap.data()!));
     } catch (e) {
       return null;
     }
@@ -71,10 +72,10 @@ class BlogRepositoryImpl implements BlogRepository {
   @override
   Future<String> createPost(BlogPostModel post) async {
     try {
-      final ref = await _col.add({
+      final ref = await _col.add(FlatCodec.encodeNew({
         ...post.toMap(),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+        'createdAt': DateTime.now().toIso8601String(),
+      }));
       return ref.id;
     } catch (e) {
       rethrow;
@@ -84,27 +85,11 @@ class BlogRepositoryImpl implements BlogRepository {
   @override
   Future<void> updatePost(BlogPostModel post) async {
     try {
-      final docRef = _col.doc(post.id);
-      await docRef.update({
-        'status': post.status,
-        'imageUrl': post.imageUrl,
-        'question.en': post.question.en,
-        'question.ar': post.question.ar,
-        'shortDescription.en': post.shortDescription.en,
-        'shortDescription.ar': post.shortDescription.ar,
-        'buttonLabel.en': post.buttonLabel.en,
-        'buttonLabel.ar': post.buttonLabel.ar,
-        'descriptionTitle.en': post.descriptionTitle.en,
-        'descriptionTitle.ar': post.descriptionTitle.ar,
-        'blocks': post.blocks.map((b) => {
-          'id': b.id,
-          'type': b.type.toString().split('.').last,
-          'content': {
-            'en': b.content.en,
-            'ar': b.content.ar,
-          },
-        }).toList(),
-        'updatedAt': FieldValue.serverTimestamp(),
+      // Versioned append write (append-on-change history per field).
+      await FlatCodec.writeVersioned(_col.doc(post.id), {
+        ...post.toMap(),
+        if (post.createdAt != null)
+          'createdAt': post.createdAt!.toIso8601String(),
       });
     } catch (e) {
       rethrow;
@@ -128,10 +113,10 @@ class BlogRepositoryImpl implements BlogRepository {
 
   @override
   Stream<List<BlogPostModel>> watchAllPosts() {
-    return _col.orderBy('createdAt', descending: true).snapshots().map((snap) =>
+    return _col.orderBy('Last_Updated_At', descending: true).snapshots().map((snap) =>
         snap.docs
             .where((d) => !d.id.endsWith('_draft'))
-            .map((d) => BlogPostModel.fromMap(d.id, _sanitize(d.data())))
+            .map((d) => _decodeBlog(d.id, _sanitize(d.data())))
             .toList());
   }
 
@@ -144,7 +129,7 @@ class BlogRepositoryImpl implements BlogRepository {
     try {
       final snap = await _col.doc('${postId}_draft').get();
       if (snap.exists && snap.data() != null) {
-        return BlogPostModel.fromMap(postId, _sanitize(snap.data()!));
+        return _decodeBlog(postId, _sanitize(snap.data()!));
       }
       return null;
     } catch (e) {
@@ -156,13 +141,10 @@ class BlogRepositoryImpl implements BlogRepository {
   Future<void> saveDraft(BlogPostModel post) async {
     final draftId = '${post.id}_draft';
     try {
-      await _col.doc(draftId).set({
+      await FlatCodec.writeVersioned(_col.doc(draftId), {
         ...post.toMap(),
         'originalPostId': post.id,
-        'createdAt': post.createdAt != null
-            ? Timestamp.fromDate(post.createdAt!)
-            : FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'createdAt': (post.createdAt ?? DateTime.now()).toIso8601String(),
       });
     } catch (e) {
       rethrow;
@@ -221,6 +203,23 @@ class BlogRepositoryImpl implements BlogRepository {
     final copy = Map<String, dynamic>.from(d);
     copy.remove('updatedAt');
     return copy;
+  }
+
+  /// Decode a FLAT Firestore blog document into a model, restoring the
+  /// separately-stored `Created_At` ISO string into the model's createdAt.
+  BlogPostModel _decodeBlog(String id, Map<String, dynamic> data) {
+    final model = BlogPostModel.fromMap(
+      id,
+      FlatCodec.decode(data, BlogPostModel.flatTemplate),
+    );
+    final rawCreated = data['Created_At'];
+    final createdStr = (rawCreated is List && rawCreated.isNotEmpty)
+        ? rawCreated.last
+        : rawCreated;
+    final created = (createdStr is String && createdStr.isNotEmpty)
+        ? DateTime.tryParse(createdStr)
+        : null;
+    return created != null ? model.copyWith(createdAt: created) : model;
   }
 
   String _detectMime(Uint8List b) {

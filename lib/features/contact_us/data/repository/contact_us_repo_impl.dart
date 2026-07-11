@@ -9,7 +9,7 @@ import '../../domain/base_repository/contact_us_repo.dart';
 import '../models/contact_us_model.dart';
 
 class ContactRepoImpl implements ContactRepo {
-  final _col = FirebaseFirestore.instance.collection('contact_submissions');
+  final _col = FirebaseFirestore.instance.collection('contactSubmissions');
 
   // ── Submit (public website) ────────────────────────────────────────────────
 

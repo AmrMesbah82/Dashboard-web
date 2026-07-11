@@ -222,6 +222,37 @@ class AboutPageModel {
     'lastUpdatedAt': DateTime.now().toIso8601String(),
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample value item).
+  static Map<String, dynamic> get flatTemplate => {
+        'publishStatus': '',
+        'title': {'en': '', 'ar': ''},
+        'navigationLabel': {
+          'iconUrl': '',
+          'title': {'en': '', 'ar': ''}
+        },
+        'vision': {
+          'iconUrl': '',
+          'svgUrl': '',
+          'subDescription': {'en': '', 'ar': ''},
+          'description': {'en': '', 'ar': ''},
+        },
+        'mission': {
+          'iconUrl': '',
+          'svgUrl': '',
+          'subDescription': {'en': '', 'ar': ''},
+          'description': {'en': '', 'ar': ''},
+        },
+        'values': [
+          {
+            'id': '',
+            'iconUrl': '',
+            'title': {'en': '', 'ar': ''},
+            'shortDescription': {'en': '', 'ar': ''},
+            'description': {'en': '', 'ar': ''},
+          }
+        ],
+      };
+
   AboutPageModel copyWith({
     String? publishStatus,
     AboutBilingualText? title,
@@ -318,6 +349,21 @@ class OurStrategyModel {
     'strategicHouseEnUrl': strategicHouseEnUrl,
     'strategicHouseArUrl': strategicHouseArUrl,
   };
+
+  /// Nested template for [FlatCodec.decode].
+  static Map<String, dynamic> get flatTemplate => {
+        'publishStatus': '',
+        'navigationLabel': {
+          'iconUrl': '',
+          'title': {'en': '', 'ar': ''}
+        },
+        'vision': {
+          'svgUrl': '',
+          'description': {'en': '', 'ar': ''}
+        },
+        'strategicHouseEnUrl': '',
+        'strategicHouseArUrl': '',
+      };
 
   OurStrategyModel copyWith({
     String? publishStatus,
@@ -424,6 +470,27 @@ class TermsOfServiceModel {
     'termsAndConditions': termsAndConditions.toMap(),
     'privacyPolicy': privacyPolicy.toMap(),
   };
+
+  /// Nested template for [FlatCodec.decode].
+  static Map<String, dynamic> get flatTemplate => {
+        'publishStatus': '',
+        'navigationLabel': {
+          'iconUrl': '',
+          'title': {'en': '', 'ar': ''}
+        },
+        'termsAndConditions': {
+          'svgUrl': '',
+          'description': {'en': '', 'ar': ''},
+          'attachEnUrl': '',
+          'attachArUrl': '',
+        },
+        'privacyPolicy': {
+          'svgUrl': '',
+          'description': {'en': '', 'ar': ''},
+          'attachEnUrl': '',
+          'attachArUrl': '',
+        },
+      };
 
   TermsOfServiceModel copyWith({
     String? publishStatus,

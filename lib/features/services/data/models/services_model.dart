@@ -137,6 +137,23 @@ class ServicePageModel {
       LAST_UPDATED_AT: lastUpdatedAt!.toIso8601String(),
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample journey item).
+  static Map<String, dynamic> get flatTemplate => {
+        'title': {'en': '', 'ar': ''},
+        'shortDescription': {'en': '', 'ar': ''},
+        'journeyTitle': {'en': '', 'ar': ''},
+        'journeyItems': [
+          {
+            'id': '',
+            'subTitle': {'en': '', 'ar': ''},
+            'title': {'en': '', 'ar': ''},
+            'description': {'en': '', 'ar': ''},
+            'iconUrl': '',
+          }
+        ],
+        'lastUpdatedAt': '',
+      };
+
   factory ServicePageModel.fromMap(Map<String, dynamic> map) => ServicePageModel(
     title:            BilingualText.fromMap(map[TITLE]),
     shortDescription: BilingualText.fromMap(map[SHORT_DESCRIPTION]),

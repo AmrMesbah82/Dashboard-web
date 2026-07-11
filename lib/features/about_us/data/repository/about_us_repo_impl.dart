@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/about_us_repo.dart';
 import '../models/about_us_model.dart';
 
@@ -44,14 +45,16 @@ class AboutRepoImpl implements AboutRepo {
 
       // ── Extract lastUpdatedAt BEFORE sanitize() removes it ──
       DateTime? lastUpdatedAt;
-      final ts = raw['lastUpdatedAt'];
+      final ts = raw['Last_Updated_At'];
       if (ts is Timestamp) {
         lastUpdatedAt = ts.toDate();
       } else if (ts is String) {
         lastUpdatedAt = DateTime.tryParse(ts);
       }
 
-      final model = AboutPageModel.fromMap(_sanitize(raw));
+      final model = AboutPageModel.fromMap(
+        FlatCodec.decode(_sanitize(raw), AboutPageModel.flatTemplate),
+      );
       return model.copyWith(lastUpdatedAt: lastUpdatedAt); // ← inject it back
 
     } catch (e) {
@@ -62,10 +65,9 @@ class AboutRepoImpl implements AboutRepo {
   @override
   Future<void> saveAboutPage(AboutPageModel model) async {
     try {
-      final data = model.toMap();
-      // Overwrite the ISO string from toMap() with the accurate server timestamp
-      data['lastUpdatedAt'] = FieldValue.serverTimestamp();
-      await _ref(_aboutDoc).set(data);
+      // Versioned append write; scalar Last_Updated_At added by the codec.
+      final nested = model.toMap()..remove('lastUpdatedAt');
+      await FlatCodec.writeVersioned(_ref(_aboutDoc), nested);
     } catch (e) {
       rethrow;
     }
@@ -84,14 +86,16 @@ class AboutRepoImpl implements AboutRepo {
 
       // ── Extract lastUpdatedAt BEFORE _sanitize() removes it ──
       DateTime? lastUpdatedAt;
-      final ts = raw['lastUpdatedAt'];
+      final ts = raw['Last_Updated_At'];
       if (ts is Timestamp) {
         lastUpdatedAt = ts.toDate();
       } else if (ts is String) {
         lastUpdatedAt = DateTime.tryParse(ts);
       }
 
-      final model = OurStrategyModel.fromMap(_sanitize(raw));
+      final model = OurStrategyModel.fromMap(
+        FlatCodec.decode(_sanitize(raw), OurStrategyModel.flatTemplate),
+      );
       return model.copyWith(lastUpdatedAt: lastUpdatedAt);  // ← inject back
 
     } catch (e) {
@@ -102,11 +106,8 @@ class AboutRepoImpl implements AboutRepo {
   @override
   Future<void> saveStrategy(OurStrategyModel model) async {
     try {
-      final data = model.toMap()
-        ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
-
-
-      await _ref(_strategyDoc).set(data);
+      final nested = model.toMap()..remove('lastUpdatedAt');
+      await FlatCodec.writeVersioned(_ref(_strategyDoc), nested);
     } catch (e) {
       rethrow;
     }
@@ -126,7 +127,7 @@ class AboutRepoImpl implements AboutRepo {
       // ── Debug: print what lastUpdatedAt looks like in Firestore ──
 
       DateTime? lastUpdatedAt;
-      final ts = raw['lastUpdatedAt'];
+      final ts = raw['Last_Updated_At'];
       if (ts is Timestamp) {
         lastUpdatedAt = ts.toDate();
       } else if (ts is String) {
@@ -134,7 +135,9 @@ class AboutRepoImpl implements AboutRepo {
       } else {
       }
 
-      final model = TermsOfServiceModel.fromMap(_sanitize(raw));
+      final model = TermsOfServiceModel.fromMap(
+        FlatCodec.decode(_sanitize(raw), TermsOfServiceModel.flatTemplate),
+      );
       return model.copyWith(lastUpdatedAt: lastUpdatedAt);
 
     } catch (e) {
@@ -145,9 +148,8 @@ class AboutRepoImpl implements AboutRepo {
   @override
   Future<void> saveTerms(TermsOfServiceModel model) async {
     try {
-      final data = model.toMap()
-        ..['lastUpdatedAt'] = FieldValue.serverTimestamp();
-      await _ref(_termsDoc).set(data);
+      final nested = model.toMap()..remove('lastUpdatedAt');
+      await FlatCodec.writeVersioned(_ref(_termsDoc), nested);
     } catch (e) {
       rethrow;
     }

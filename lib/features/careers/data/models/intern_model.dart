@@ -71,6 +71,20 @@ class InternModel {
     'tags':             tags,
   };
 
+  /// Nested template for [FlatCodec.decode]. `tags` is a string list, so it
+  /// flattens to Tags_Count + Tags_0, Tags_1, …
+  static Map<String, dynamic> get flatTemplate => {
+        'id': '',
+        'photoUrl': '',
+        'firstName': '',
+        'lastName': '',
+        'position': '',
+        'degrees': '',
+        'joinedDate': '',
+        'whatHaveILearned': '',
+        'tags': [''],
+      };
+
   factory InternModel.fromMap(Map<String, dynamic> map) => InternModel(
     id:               map['id']               as String? ?? '',
     photoUrl:         map['photoUrl']         as String? ?? '',

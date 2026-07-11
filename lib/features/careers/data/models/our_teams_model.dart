@@ -136,6 +136,30 @@ class OurTeamsModel {
     'lastUpdated': lastUpdated?.toIso8601String(),
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample element per list).
+  static Map<String, dynamic> get flatTemplate => {
+        'items': [
+          {
+            'id': '',
+            'iconUrl': '',
+            'heading': {'en': '', 'ar': ''},
+            'title': {'en': '', 'ar': ''},
+            'description': {'en': '', 'ar': ''},
+            'deliverables': {
+              'id': '',
+              'label': {'en': '', 'ar': ''}
+            },
+            'deliverableItems': [
+              {
+                'id': '',
+                'label': {'en': '', 'ar': ''}
+              }
+            ],
+          }
+        ],
+        'lastUpdated': '',
+      };
+
   OurTeamsModel copyWith({
     List<OurTeamItem>? items,
     DateTime? lastUpdated,

@@ -16,7 +16,7 @@ class InquiryRepoImp implements InquiryRepo {
 
   // ✅ Changed from 'inquiries' to 'contact_submissions'
   CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('contact_submissions');
+      _firestore.collection('contactSubmissions');
 
   @override
   Future<List<InquiryModel>> fetchAllInquiries() async {
