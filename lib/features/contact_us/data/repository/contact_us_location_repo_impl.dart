@@ -15,7 +15,7 @@ class ContactUsCmsRepoImpl implements ContactUsCmsRepo {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  static const String _collectionName = 'contactUsPage';
+  static const String _collectionName = 'contactUs';
   static const String _docId = 'main';
 
   @override

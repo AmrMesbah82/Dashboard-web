@@ -15,7 +15,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
         if (index == 0) ...[
           Row(children: [
             Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-            Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+            Text(' *', style: StyleText.fontSize12Weight600.copyWith(color: Colors.red)),
           ]),
           SizedBox(height: 6.h),
           _imgBox(picked: item.icon, isAdd: true, hasError: iconHasError, onPick: () async {
@@ -24,7 +24,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
           }),
           if (iconHasError) ...[
             SizedBox(height: 4.h),
-            Text('Icon (SVG) is required', style: TextStyle(fontSize: 11.sp, color: Colors.red)),
+            Text('Icon (SVG) is required', style: StyleText.fontSize11Weight400.copyWith(color: Colors.red)),
           ],
           SizedBox(height: 14.h),
           Row(children: [
@@ -60,7 +60,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
               children: [
                 Row(children: [
                   Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-                  Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                  Text(' *', style: StyleText.fontSize12Weight600.copyWith(color: Colors.red)),
                 ]),
                 SizedBox(height: 6.h),
                 _imgBox(picked: item.svg, hasError: svgHasError, onPick: () async {
@@ -69,25 +69,27 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
                 }),
                 if (svgHasError) ...[
                   SizedBox(height: 4.h),
-                  Text('SVG image is required', style: TextStyle(fontSize: 11.sp, color: Colors.red)),
+                  Text('SVG image is required', style: StyleText.fontSize11Weight400.copyWith(color: Colors.red)),
                 ],
               ],
             ),
             const Spacer(),
-            GestureDetector(
-              onTap: () => setState(() => _items.removeAt(index)),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-                decoration: BoxDecoration(color: ColorPick.red, borderRadius: BorderRadius.circular(4.r)),
-                child: Text('Remove', style: StyleText.fontSize12Weight500.copyWith(color: Colors.white)),
+            // First reason is mandatory — it can never be removed.
+            if (index > 0)
+              GestureDetector(
+                onTap: () => setState(() => _items.removeAt(index)),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                  decoration: BoxDecoration(color: ColorPick.red, borderRadius: BorderRadius.circular(4.r)),
+                  child: Text('Remove', style: StyleText.fontSize12Weight500.copyWith(color: Colors.white)),
+                ),
               ),
-            ),
           ],
         ),
         SizedBox(height: 14.h),
 
         CustomValidatedTextFieldMaster(
-          showCharCount: true, maxLength: 500,
+          showCharCount: false, maxLength: 500,
           label: 'Description', hint: 'Text Here', controller: item.descEn,
           height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
           textDirection: TextDirection.ltr, textAlign: TextAlign.left,
@@ -98,7 +100,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
         Directionality(
           textDirection: TextDirection.rtl,
           child: CustomValidatedTextFieldMaster(
-            showCharCount: true, maxLength: 500,
+            showCharCount: false, maxLength: 500,
             label: 'الوصف', hint: 'أدخل النص هنا', controller: item.descAr,
             height: 80, maxLines: 3, fillColor: Colors.white, submitted: _submitted,
             textDirection: TextDirection.rtl, textAlign: TextAlign.right,
@@ -111,56 +113,11 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
   }
 
   Widget _imgBox({required _PickedImage picked, bool isAdd = false, bool hasError = false, VoidCallback? onPick}) {
-    Widget content;
-    if (picked.bytes != null) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(
-          color: Colors.white, shape: BoxShape.circle,
-          border: Border.all(color: hasError ? Colors.red : Colors.transparent, width: hasError ? 1.5 : 0),
-        ),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: SvgPicture.memory(picked.bytes!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else if (picked.url != null && picked.url!.isNotEmpty) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: NetworkImageView(url: picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9), shape: BoxShape.circle,
-          border: Border.all(color: hasError ? Colors.red : Colors.transparent, width: hasError ? 1.5 : 0),
-        ),
-        child: Center(child: Icon(isAdd ? Icons.add : Icons.image_outlined,
-            color: hasError ? Colors.red : Colors.grey, size: 22.sp)),
-      );
-    }
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GestureDetector(onTap: onPick, child: content),
-        Positioned(
-          bottom: 0, right: 0,
-          child: GestureDetector(
-            onTap: onPick,
-            child: Container(
-              width: 25.w, height: 25.h,
-              decoration: BoxDecoration(color: ColorPick.primary, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-              child: Center(child: CustomSvg(assetPath: "assets/control/camera.svg", width: 10.w, height: 10.h, fit: BoxFit.scaleDown)),
-            ),
-          ),
-        ),
-      ],
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircleBare(
+      bytes: picked.bytes,
+      url: picked.url ?? '',
+      onTap: onPick ?? () {},
     );
   }
 
@@ -170,6 +127,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           GestureDetector(
             onTap: () => setState(() => _accordionOpen = !_accordionOpen),
             child: Container(
@@ -208,7 +166,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
               ),
             ),
           ),
-          SizedBox(width: 300.w),
+          SizedBox(width: 400.w),
           Expanded(
             child: GestureDetector(
               onTap: _isSaving ? null : () => _handlePublish(cubit),
@@ -242,7 +200,7 @@ extension _WhyJoinEditUi on _CareersSectionEditPageState {
               ),
             ),
           ),
-          SizedBox(width: 300.w),
+          SizedBox(width: 400.w),
           Expanded(child: Container()),
         ],
       ),

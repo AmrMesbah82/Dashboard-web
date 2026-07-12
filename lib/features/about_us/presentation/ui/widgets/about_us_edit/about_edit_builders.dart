@@ -143,7 +143,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
                 EdgeInsets.symmetric(horizontal: 15.w, vertical: 14.h),
             decoration: BoxDecoration(
               color: ColorPick.primary,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -347,14 +347,6 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
     if (_valueItems.isEmpty) {
       return Column(
         children: [
-          SizedBox(height: 20.h),
-          Center(
-            child: Text(
-              'No values added. Click "Add Point" to create one.',
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
-            ),
-          ),
-          SizedBox(height: 20.h),
           _addValueButton(),
         ],
       );
@@ -390,12 +382,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
             SizedBox(width: 6.w),
             Text(
               'Add Point',
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
             ),
           ],
         ),
@@ -428,28 +415,26 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
                   if (b != null) setState(() => v.iconBytes = b);
                 },
               ),
-              GestureDetector(
-                onTap: () => _removeValueItem(v.id),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
-                    vertical: 7.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  child: Text(
-                    'Remove',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+              // Main (first) value is mandatory — it can never be removed.
+              if (!isMain)
+                GestureDetector(
+                  onTap: () => _removeValueItem(v.id),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 7.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      'Remove',
+                      style: StyleText.fontSize12Weight600
+                          .copyWith(color: Colors.white),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           SizedBox(height: 16.h),
@@ -525,7 +510,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
                 onTap: formValid ? _onPreview : null,
               ),
             ),
-            SizedBox(width: 300.w),
+            SizedBox(width: 400.w),
             Expanded(
               child: _btn(
                 label: 'Publish',
@@ -557,7 +542,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
                 },
               ),
             ),
-            SizedBox(width: 300.w),
+            SizedBox(width: 400.w),
             Expanded(
               child: _btn(
                 label: 'Save For Later',

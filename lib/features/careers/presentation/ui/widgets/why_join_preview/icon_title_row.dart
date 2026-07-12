@@ -48,10 +48,9 @@ class _IconTitleRow extends StatelessWidget {
           child: Text(
             title,
             textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
-            style: const TextStyle(
-              fontSize:   14,
-              fontWeight: FontWeight.w600,
-              color:      Color(0xFF333333),
+            style: StyleText.fontSize14Weight600.copyWith(
+              fontSize: 14,
+              color:    const Color(0xFF333333),
             ),
           ),
         ),

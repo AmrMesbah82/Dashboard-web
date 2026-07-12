@@ -474,7 +474,7 @@ class _CommentDialogState extends State<_CommentDialog> {
             height: 100,
             maxLines: 5,
             maxLength: widget.maxLength,
-            showCharCount: true,
+            showCharCount: false,
             submitted: _submitted,
             textDirection: widget.textDirection,
             onChanged: (_) => setState(() {}),

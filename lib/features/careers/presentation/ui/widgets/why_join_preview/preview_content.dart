@@ -42,7 +42,7 @@ class _PreviewContent extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'No items to preview.',
-                        style: TextStyle(
+                        style: StyleText.fontSize14Weight400.copyWith(
                           fontSize: 14,
                           color:    const Color(0xFFAAAAAA),
                         ),
@@ -96,11 +96,10 @@ class _PreviewContent extends StatelessWidget {
                   Text(
                     desc,
                     textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
-                    style: TextStyle(
-                      fontSize:   textFz,
-                      fontWeight: FontWeight.w400,
-                      color:      const Color(0xFF555555),
-                      height:     1.75,
+                    style: StyleText.fontSize13Weight400.copyWith(
+                      fontSize: textFz,
+                      color:    const Color(0xFF555555),
+                      height:   1.75,
                     ),
                   ),
                 ],
@@ -114,11 +113,10 @@ class _PreviewContent extends StatelessWidget {
             child: Text(
               desc,
               textDirection: isAr ? TextDirection.rtl : TextDirection.ltr,
-              style: TextStyle(
-                fontSize:   textFz,
-                fontWeight: FontWeight.w400,
-                color:      const Color(0xFF555555),
-                height:     1.75,
+              style: StyleText.fontSize13Weight400.copyWith(
+                fontSize: textFz,
+                color:    const Color(0xFF555555),
+                height:   1.75,
               ),
             ),
           );

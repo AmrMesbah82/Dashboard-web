@@ -26,6 +26,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/core/constant/color.dart';
 
+import 'package:web_app_admin/core/custom/image_upload_circle.dart';
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
@@ -124,6 +125,15 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
   @override
   void initState() {
     super.initState();
+    // The first (Main Icon) value must exist from the very first frame,
+    // without clicking "Add Point". _seedFromModel keeps the same guarantee
+    // after data loads.
+    _valueItems.add(
+      _ValueItem(
+        id: 'val_${DateTime.now().millisecondsSinceEpoch}',
+        counter: ++_valueCounter,
+      ),
+    );
     context.read<AboutCubit>().load();
   }
 
@@ -186,6 +196,16 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
       item.shortDescArCtrl.text = v.shortDescription.ar;
       item.iconUrl = v.iconUrl;
       _valueItems.add(item);
+    }
+
+    // Always show the first (Main Icon) value — no need to click "Add Point".
+    if (_valueItems.isEmpty) {
+      _valueItems.add(
+        _ValueItem(
+          id: 'val_${DateTime.now().millisecondsSinceEpoch}',
+          counter: ++_valueCounter,
+        ),
+      );
     }
   }
 

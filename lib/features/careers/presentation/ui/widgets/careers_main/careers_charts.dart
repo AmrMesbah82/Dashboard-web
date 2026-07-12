@@ -46,7 +46,7 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                     final i = v.toInt();
                     if (i >= 0 && i < dash.appReceivedLabels.length) {
                       return Text(dash.appReceivedLabels[i],
-                          style: TextStyle(fontSize: 9.sp, color: Colors.grey));
+                          style: StyleText.fontSize10Weight400.copyWith(fontSize: 9.sp, color: Colors.grey));
                     }
                     return const SizedBox.shrink();
                   },
@@ -73,10 +73,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                 getTooltipItem: (group, _, rod, __) {
                   return BarTooltipItem(
                     rod.toY.toInt().toString(),
-                    TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.text),
+                    StyleText.fontSize10Weight500.copyWith(
+                        fontWeight: FontWeight.w600, color: AppColors.text),
                   );
                 },
               ),
@@ -130,7 +128,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                   reservedSize: 35.sp,
                   interval: _niceInterval(maxY),
                   getTitlesWidget: (v, _) => Text(v.toInt().toString(),
-                      style: TextStyle(fontSize: 10.sp, color: Colors.grey)),
+                      style: StyleText.fontSize10Weight400
+                          .copyWith(color: Colors.grey)),
                 ),
               ),
               bottomTitles: AxisTitles(
@@ -141,7 +140,7 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                     final i = v.toInt();
                     if (i >= 0 && i < dash.jobPostingLabels.length) {
                       return Text(dash.jobPostingLabels[i],
-                          style: TextStyle(fontSize: 9.sp, color: Colors.grey));
+                          style: StyleText.fontSize10Weight400.copyWith(fontSize: 9.sp, color: Colors.grey));
                     }
                     return const SizedBox.shrink();
                   },
@@ -211,9 +210,9 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                               color: statusColors[e.key] ?? Colors.grey),
                         ),
                         SizedBox(width: 6.sp),
-                        Expanded(child: Text(e.key, style: TextStyle(fontSize: 12.sp, color: Colors.black87))),
+                        Expanded(child: Text(e.key, style: StyleText.fontSize12Weight400.copyWith(color: Colors.black87))),
                         Text(e.value.toInt().toString(),
-                            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            style: StyleText.fontSize12Weight600.copyWith(color: Colors.black87)),
                       ],
                     ),
                   );
@@ -237,7 +236,9 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                           radius: 28.sp,
                           title: '$percent%',
                           showTitle: true,
-                          titleStyle: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: ColorPick.white),
+                          titleStyle: StyleText.fontSize10Weight500.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: ColorPick.white),
                           titlePositionPercentageOffset: 0.55,
                         );
                       }).toList(),
@@ -247,9 +248,11 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('Total\nDepartment', textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 9.sp, color: Colors.black54)),
+                          style: StyleText.fontSize10Weight400.copyWith(fontSize: 9.sp, color: Colors.black54)),
                       Text(dash.jobStatusTotal.toString(),
-                          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                          style: StyleText.fontSize18Weight500.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black)),
                     ],
                   ),
                 ],
@@ -298,9 +301,9 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Total Applicants', style: TextStyle(fontSize: 9.sp, color: Colors.black54)),
+                      Text('Total Applicants', style: StyleText.fontSize10Weight400.copyWith(fontSize: 9.sp, color: Colors.black54)),
                       Text(_formatLargeNumber(dash.totalApplications),
-                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
+                          style: StyleText.fontSize16Weight700.copyWith(color: Colors.black)),
                     ],
                   ),
                 ],
@@ -320,8 +323,10 @@ extension _CareersCharts on _CareersMainPageDashboardState {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(percent, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.black)),
-            Text(label, style: TextStyle(fontSize: 11.sp, color: Colors.black54)),
+            Text(percent,
+                style: StyleText.fontSize14Weight700
+                    .copyWith(color: Colors.black)),
+            Text(label, style: StyleText.fontSize11Weight400.copyWith(color: Colors.black54)),
           ],
         ),
       ],
@@ -345,7 +350,10 @@ extension _CareersCharts on _CareersMainPageDashboardState {
           builder: (context, constraints) {
             final roleCount = dash.performanceRoles.length;
             if (roleCount == 0) {
-              return Center(child: Text('No data', style: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText)));
+              return Center(
+                  child: Text('No data',
+                      style: StyleText.fontSize12Weight400
+                          .copyWith(color: AppColors.secondaryText)));
             }
             final rowValues = [dash.performanceApplications, dash.performanceInterviews, dash.performanceHires];
             final cellSpacing = 4.sp;
@@ -376,7 +384,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                                   height: cellHeight.clamp(24.0, 60.0),
                                   decoration: BoxDecoration(color: rowColors[rowIndex], borderRadius: BorderRadius.circular(4.r)),
                                   child: Center(child: Text(value.toString(),
-                                      style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: ColorPick.white))),
+                                      style: StyleText.fontSize12Weight600
+                                          .copyWith(color: ColorPick.white))),
                                 ),
                               );
                             }),
@@ -392,7 +401,7 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                     return Expanded(
                       child: Text(dash.performanceRoles[i], textAlign: TextAlign.center,
                           maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 9.sp, color: Colors.grey)),
+                          style: StyleText.fontSize10Weight400.copyWith(fontSize: 9.sp, color: Colors.grey)),
                     );
                   }),
                 ),
@@ -431,9 +440,9 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                         Container(width: 12.sp, height: 12.sp,
                             decoration: BoxDecoration(shape: BoxShape.circle, color: item.color)),
                         SizedBox(width: 6.sp),
-                        Expanded(child: Text(item.label, style: TextStyle(fontSize: 12.sp, color: Colors.black87))),
+                        Expanded(child: Text(item.label, style: StyleText.fontSize12Weight400.copyWith(color: Colors.black87))),
                         Text(_formatLargeNumber(item.value.toInt()),
-                            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            style: StyleText.fontSize12Weight600.copyWith(color: Colors.black87)),
                       ],
                     ),
                   );
@@ -456,8 +465,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(_formatLargeNumber(total),
-                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Colors.black)),
-                      Text('Total', style: TextStyle(fontSize: 10.sp, color: Colors.black54)),
+                          style: StyleText.fontSize16Weight700.copyWith(color: Colors.black)),
+                      Text('Total', style: StyleText.fontSize10Weight400.copyWith(color: Colors.black54)),
                     ],
                   ),
                 ],
@@ -512,7 +521,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                       children: [
                         SizedBox(width: 40.sp,
                             child: Text('${percent.toInt()}%',
-                                style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: Colors.black87))),
+                                style: StyleText.fontSize11Weight600
+                                    .copyWith(color: Colors.black87))),
                         Expanded(
                           child: Stack(
                             children: [
@@ -528,7 +538,7 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                         ),
                         SizedBox(width: 8.sp),
                         SizedBox(width: 70.sp,
-                            child: Text(e.key, style: TextStyle(fontSize: 11.sp, color: Colors.black54))),
+                            child: Text(e.key, style: StyleText.fontSize11Weight400.copyWith(color: Colors.black54))),
                       ],
                     ),
                   );
@@ -611,7 +621,8 @@ extension _CareersCharts on _CareersMainPageDashboardState {
             children: [
               Expanded(
                 child: Text(title,
-                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.text)),
+                    style: StyleText.fontSize14Weight700
+                        .copyWith(color: AppColors.text)),
               ),
               if (legendItems != null)
                 Wrap(
@@ -622,7 +633,7 @@ extension _CareersCharts on _CareersMainPageDashboardState {
                       Container(width: 8.sp, height: 8.sp,
                           decoration: BoxDecoration(shape: BoxShape.circle, color: l.color)),
                       SizedBox(width: 4.sp),
-                      Text(l.label, style: TextStyle(fontSize: 10.sp, color: Colors.black54)),
+                      Text(l.label, style: StyleText.fontSize10Weight400.copyWith(color: Colors.black54)),
                     ],
                   )).toList(),
                 ),
@@ -630,7 +641,9 @@ extension _CareersCharts on _CareersMainPageDashboardState {
           ),
           if (subtitle != null) ...[
             SizedBox(height: 4.sp),
-            Text(subtitle, style: TextStyle(fontSize: 11.sp, color: Colors.black45)),
+            Text(subtitle,
+                style: StyleText.fontSize11Weight400
+                    .copyWith(color: Colors.black45)),
           ],
           SizedBox(height: 12.sp),
           child,

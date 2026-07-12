@@ -13,7 +13,7 @@ import '../../domain/base_repository/about_us_repo.dart';
 import '../models/about_us_model.dart';
 
 class AboutRepoImpl implements AboutRepo {
-  static const String _aboutCollection    = 'aboutPage';
+  static const String _aboutCollection    = 'aboutUs';
   static const String _strategyCollection = 'ourStrategy';
   static const String _termsCollection    = 'termsOfService';
   static const String _aboutDoc    = 'about_page';

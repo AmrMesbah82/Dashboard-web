@@ -29,11 +29,17 @@ class CareersCmsRepoImpl implements CareersCmsRepo {
     if (!snap.exists || snap.data() == null) {
       return CareersCmsModel.empty();
     }
-    final model = CareersCmsModel.fromMap(
-      FlatCodec.decode(snap.data()!, CareersCmsModel.flatTemplate),
-    );
+    final raw = snap.data()!;
+    final decoded = FlatCodec.decode(raw, CareersCmsModel.flatTemplate);
 
-    return model;
+    // Last_Updated_At is stored as a SCALAR Firestore Timestamp by the codec;
+    // surface it to the model under 'lastUpdated'.
+    final ts = raw['Last_Updated_At'];
+    if (ts is Timestamp) {
+      decoded['lastUpdated'] = ts.toDate().toIso8601String();
+    }
+
+    return CareersCmsModel.fromMap(decoded);
   }
 
   // ── save ───────────────────────────────────────────────────────────────────

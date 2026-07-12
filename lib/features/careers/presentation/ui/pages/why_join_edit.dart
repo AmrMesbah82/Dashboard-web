@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:web_app_admin/core/constant/color.dart';
+import 'package:web_app_admin/core/custom/image_upload_circle.dart';
 
 import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
@@ -98,6 +99,12 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
       ));
     }
 
+    // Always show at least one reason form — no need to click "+ Reason".
+    if (_items.isEmpty) {
+      _items.add(_ItemEdit(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+      ));
+    }
   }
 
   // ── Validation ──────────────────────────────────────────────────────────────
@@ -324,7 +331,6 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: ColorPick.white,
               body: SingleChildScrollView(
                 child: Container(
                   width: double.infinity,
@@ -364,33 +370,36 @@ class _CareersSectionEditPageState extends State<CareersSectionEditPage> {
                                   return _itemEditWidget(i, item);
                                 }),
                                 // + Reason button
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      final newItem = _ItemEdit(
-                                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                      );
-                                      _items.add(newItem);
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w, vertical: 8.h),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF797979),
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.add, color: Colors.white, size: 16.sp),
-                                        SizedBox(width: 6.w),
-                                        Text(
-                                          'Reason',
-                                          style: StyleText.fontSize13Weight500
-                                              .copyWith(color:Colors.white),
-                                        ),
-                                      ],
+                                Padding(
+                                  padding:  EdgeInsets.symmetric(vertical: 15.sp),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        final newItem = _ItemEdit(
+                                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                        );
+                                        _items.add(newItem);
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 14.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFF797979),
+                                        borderRadius: BorderRadius.circular(4.r),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.add, color: Colors.white, size: 16.sp),
+                                          SizedBox(width: 6.w),
+                                          Text(
+                                            'Reason',
+                                            style: StyleText.fontSize13Weight500
+                                                .copyWith(color:Colors.white),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

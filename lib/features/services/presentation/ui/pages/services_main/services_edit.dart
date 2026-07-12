@@ -122,12 +122,7 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
     final bool isEmpty   = text.trim().isEmpty;
     if (isTitle && isEmpty) return false;
 
-    final bool hasArabic  = RegExp(r'[\u0600-\u06FF]').hasMatch(text);
-    final bool hasEnglish = RegExp(r'[a-zA-Z]').hasMatch(text);
-
-    if (language == 'en' && hasArabic  && text.isNotEmpty) return false;
-    if (language == 'ar' && hasEnglish && text.isNotEmpty) return false;
-
+    // NOTE: No language validation - every field accepts Arabic AND English.
     return true;
   }
 
@@ -161,38 +156,20 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
     if (_titleEnCtrl.text.trim().isEmpty) return false;
     if (_titleArCtrl.text.trim().isEmpty) return false;
 
-    final bool titleEnHasArabic  = RegExp(r'[\u0600-\u06FF]').hasMatch(_titleEnCtrl.text);
-    final bool titleArHasEnglish = RegExp(r'[a-zA-Z]').hasMatch(_titleArCtrl.text);
-
-    if (titleEnHasArabic  && _titleEnCtrl.text.isNotEmpty) return false;
-    if (titleArHasEnglish && _titleArCtrl.text.isNotEmpty) return false;
-
+    // NOTE: No language validation \u2014 every field accepts Arabic AND English.
     return true;
   }
 
   void _showValidationError() {
     final List<String> missingFields = [];
 
+    // NOTE: No language validation \u2014 every field accepts Arabic AND English.
     if (_titleEnCtrl.text.trim().isEmpty) {
       missingFields.add('Title (English)');
-    } else if (RegExp(r'[\u0600-\u06FF]').hasMatch(_titleEnCtrl.text)) {
-      missingFields.add('Title (English) - Please use English characters only');
     }
 
     if (_titleArCtrl.text.trim().isEmpty) {
       missingFields.add('Title (Arabic)');
-    } else if (RegExp(r'[a-zA-Z]').hasMatch(_titleArCtrl.text)) {
-      missingFields.add('Title (Arabic) - Please use Arabic characters only');
-    }
-
-    if (_descEnCtrl.text.isNotEmpty &&
-        RegExp(r'[\u0600-\u06FF]').hasMatch(_descEnCtrl.text)) {
-      missingFields.add('Description (English) - Please use English characters only');
-    }
-
-    if (_descArCtrl.text.isNotEmpty &&
-        RegExp(r'[a-zA-Z]').hasMatch(_descArCtrl.text)) {
-      missingFields.add('Description (Arabic) - Please use Arabic characters only');
     }
 
     final message = missingFields.isEmpty
@@ -531,94 +508,91 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
   }
 
   Widget _actionButtons() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        children: [
-          // Preview — half width left
-          Row(children: [
-            Expanded(
+    return Column(
+      children: [
+        // Preview — half width left
+        Row(children: [
+          Expanded(
+            child: SizedBox(
+              height: 44.h,
+              child: ElevatedButton(
+                onPressed: _onPreview,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF608570),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r)),
+                ),
+                child: Text('Preview',
+                    style: StyleText.fontSize14Weight600
+                        .copyWith(color: Colors.white)),
+              ),
+            ),
+          ),
+          SizedBox(width: 400.w),
+          Expanded(
+            child: Tooltip(
+              message: !_isPublishEnabled
+                  ? (_hasChanges
+                  ? (_isFormValid
+                  ? ''
+                  : 'Please fix validation errors before publishing')
+                  : 'No changes to publish')
+                  : '',
               child: SizedBox(
                 height: 44.h,
                 child: ElevatedButton(
-                  onPressed: _onPreview,
+                  onPressed: _isPublishEnabled
+                      ? _showPublishConfirmDialog
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF608570),
+                    backgroundColor:         ColorPick.primary,
+                    disabledBackgroundColor: ColorPick.back,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.r)),
                   ),
-                  child: Text('Preview',
+                  child: Text('Publish',
                       style: StyleText.fontSize14Weight600
                           .copyWith(color: Colors.white)),
+
                 ),
               ),
             ),
-            SizedBox(width: 300.w),
-            Expanded(child: const SizedBox()),
-          ]),
-          SizedBox(height: 10.h),
+          ),
+        ]),
+        SizedBox(height: 10.h),
 
-          // Discard | Publish
-          Row(children: [
-            Expanded(
-              child: customButton(
-                title:     'Discard',
-                function:  _onDiscard,
-                height:    44.h,
-                color:     const Color(0xFF797979),
-                textColor: Colors.white,
-                textStyle: StyleText.fontSize14Weight600
-                    .copyWith(color: Colors.white),
-                radius: 8.r,
+        // Discard | Publish
+        Row(children: [
+          Expanded(
+            child: customButton(
+              title:     'Discard',
+              function:  _onDiscard,
+              height:    44.h,
+              color:     const Color(0xFF797979),
+              textColor: Colors.white,
+              textStyle: StyleText.fontSize14Weight600
+                  .copyWith(color: Colors.white),
+              radius: 8.r,
+            ),
+          ),
+          SizedBox(width: 400.w),
+          Expanded(child: Container())
+        ]),
+
+        // Validation summary message
+        if (!_isFormValid && _hasChanges)
+          Padding(
+            padding: EdgeInsets.only(top: 12.h),
+            child: Text(
+              'Please fix validation errors above before publishing',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(width: 300.w),
-            Expanded(
-              child: Tooltip(
-                message: !_isPublishEnabled
-                    ? (_hasChanges
-                    ? (_isFormValid
-                    ? ''
-                    : 'Please fix validation errors before publishing')
-                    : 'No changes to publish')
-                    : '',
-                child: SizedBox(
-                  height: 44.h,
-                  child: ElevatedButton(
-                    onPressed: _isPublishEnabled
-                        ? _showPublishConfirmDialog
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:         ColorPick.primary,
-                      disabledBackgroundColor: ColorPick.back,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r)),
-                    ),
-                    child: Text('Publish',
-                          style: StyleText.fontSize14Weight600
-                              .copyWith(color: Colors.white)),
-
-                  ),
-                ),
-              ),
-            ),
-          ]),
-
-          // Validation summary message
-          if (!_isFormValid && _hasChanges)
-            Padding(
-              padding: EdgeInsets.only(top: 12.h),
-              child: Text(
-                'Please fix validation errors above before publishing',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 

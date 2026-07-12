@@ -59,8 +59,8 @@ class _MobileAccordionState extends State<_MobileAccordion> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(child: Text(widget.label,
-                    style: TextStyle(fontFamily: 'Cairo', fontSize: 12,
-                        fontWeight: FontWeight.w600, color: widget.primary))),
+                    style: StyleText.fontSize12Weight600.copyWith(
+                        fontSize: 12, color: widget.primary))),
                 if (widget.isExpanded)
                   Container(
                     width: 26, height: 26,

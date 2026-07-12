@@ -135,26 +135,17 @@ extension _JobEditFormHelpers on _JobListingEditPageState {
       children: [
         Expanded(
           flex: 3,
-          child: SizedBox(
-            height: 36.h,
-            child: TextFormField(
-              controller: _requiredDocs[i]['name'] as TextEditingController,
-              style: TextStyle(fontSize: 12.sp),
-              decoration: InputDecoration(
-                hintText: 'Document Name',
-                hintStyle: TextStyle(
-                    fontSize: 12.sp, color: AppColors.secondaryText),
-                filled: true,
-                fillColor: AppColors.background,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: 10.w, vertical: 10.h),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.r),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
+          child: CustomTextField(
+            controller: _requiredDocs[i]['name'] as TextEditingController,
+            height: 36,
+            valueStyle: TextStyle(fontSize: 12.sp),
+            hint: 'Document Name',
+            hintStyle:
+                TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
+            fillColor: AppColors.background,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+            borderRadius: BorderRadius.circular(4.r),
           ),
         ),
         SizedBox(width: 8.w),

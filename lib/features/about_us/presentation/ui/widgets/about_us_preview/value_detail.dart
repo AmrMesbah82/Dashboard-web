@@ -31,14 +31,17 @@ class _ValueDetail extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         if (title.isNotEmpty) ...[
-          Text(title, style: const TextStyle(fontFamily: 'Cairo', fontSize: 14,
-              fontWeight: FontWeight.w700, color: Colors.black87)),
+          Text(title,
+              style: StyleText.fontSize14Weight700.copyWith(
+                  fontSize: 14, color: Colors.black87)),
           const SizedBox(height: 8),
         ],
         if (shortDesc.isNotEmpty)
-          Text(shortDesc, style: TextStyle(fontFamily: 'Cairo', fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.secondaryBlack, height: 1.6)),
+          Text(shortDesc,
+              style: StyleText.fontSize12Weight500.copyWith(
+                  fontSize: 12,
+                  color: AppColors.secondaryBlack,
+                  height: 1.6)),
       ]),
     );
   }

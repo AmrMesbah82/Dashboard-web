@@ -55,15 +55,17 @@ class _DesktopSubTabState extends State<_DesktopSubTab> {
                 ),
                 const SizedBox(width: 12),
                 Flexible(child: Text(widget.label,
-                    style: TextStyle(fontFamily: 'Cairo', fontSize: 14,
-                        fontWeight: FontWeight.w600, color: widget.primary))),
+                    style: StyleText.fontSize14Weight600.copyWith(
+                        fontSize: 14, color: widget.primary))),
               ]),
               if (widget.isSelected && widget.description.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Text(widget.description,
                     maxLines: 5, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontFamily: 'Cairo', fontSize: 11,
-                        height: 1.65, color: AppColors.secondaryBlack)),
+                    style: StyleText.fontSize11Weight400.copyWith(
+                        fontSize: 11,
+                        height: 1.65,
+                        color: AppColors.secondaryBlack)),
               ],
             ],
           ),

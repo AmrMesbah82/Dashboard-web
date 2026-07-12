@@ -7,7 +7,6 @@ extension _HomeEditActions on _HomeEditPageMasterState {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20.h),
             Text('Publish Date',
                 style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
             SizedBox(height: 6.h),
@@ -78,7 +77,7 @@ extension _HomeEditActions on _HomeEditPageMasterState {
           ],
         ),
       ),
-      SizedBox(width: 15.sp),
+      SizedBox(width: 200.sp),
       Expanded(child: Container()),
     ],
   );

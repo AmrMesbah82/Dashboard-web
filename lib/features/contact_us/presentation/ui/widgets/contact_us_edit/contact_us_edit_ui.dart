@@ -9,7 +9,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
       children: [
         Text(
           'Editing Contact Us Details',
-          style: AppTextStyles.font28BlackSemiBoldCairo.copyWith(
+          style: StyleText.fontSize28Weight600.copyWith(
             fontSize:   36.sp,
             color:      ColorPick.primary,
             fontWeight: FontWeight.w700,
@@ -72,11 +72,8 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   16.sp,
-                    fontWeight: FontWeight.w700,
-                    color:      Colors.white,
+                  style: StyleText.fontSize16Weight700.copyWith(
+                    color: Colors.white,
                   ),
                 ),
                 Icon(
@@ -119,7 +116,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
           height:        100,
           maxLines:      4,
           maxLength:     300,
-          showCharCount: true,
+          showCharCount: false,
           submitted:     _submitted,
           textDirection: TextDirection.ltr,
           textAlign:     TextAlign.start,
@@ -135,7 +132,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
           height:        100,
           maxLines:      4,
           maxLength:     300,
-          showCharCount: true,
+          showCharCount: false,
           submitted:     _submitted,
           textDirection: TextDirection.rtl,
           textAlign:     TextAlign.right,
@@ -197,28 +194,17 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
             GestureDetector(
               onTap: _addSocialIcon,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 16.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
                 decoration: BoxDecoration(
-                  color:        const Color(0xFF555555),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add, color: Colors.white, size: 16.sp),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Icon',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize:   13.sp,
-                        fontWeight: FontWeight.w600,
-                        color:      Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                    color: const Color(0xFF797979),
+                    borderRadius: BorderRadius.circular(4.r)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.add, size: 14.sp, color: Colors.white),
+                  SizedBox(width: 4.w),
+                  Text('Icon',
+                      style: StyleText.fontSize12Weight500
+                          .copyWith(color: Colors.white)),
+                ]),
               ),
             ),
 
@@ -255,11 +241,8 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                   ),
                   child: Text(
                     'Remove',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize:   12.sp,
-                      fontWeight: FontWeight.w600,
-                      color:      Colors.white,
+                    style: StyleText.fontSize12Weight600.copyWith(
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -288,27 +271,17 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
         GestureDetector(
           onTap: _addOfficeLocation,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
             decoration: BoxDecoration(
-              color:        const Color(0xFF555555),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add, color: Colors.white, size: 16.sp),
-                SizedBox(width: 6.w),
-                Text(
-                  'Location',
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   13.sp,
-                    fontWeight: FontWeight.w600,
-                    color:      Colors.white,
-                  ),
-                ),
-              ],
-            ),
+                color: const Color(0xFF797979),
+                borderRadius: BorderRadius.circular(4.r)),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.add, size: 14.sp, color: Colors.white),
+              SizedBox(width: 4.w),
+              Text('Location',
+                  style: StyleText.fontSize12Weight500
+                      .copyWith(color: Colors.white)),
+            ]),
           ),
         ),
       ],
@@ -349,11 +322,8 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                   ),
                   child: Text(
                     'Remove',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize:   12.sp,
-                      fontWeight: FontWeight.w600,
-                      color:      Colors.white,
+                    style: StyleText.fontSize12Weight600.copyWith(
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -568,7 +538,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
               fillColor: Colors.white,
               maxLines:      4,
               maxLength:     500,
-              showCharCount: true,
+              showCharCount: false,
               submitted:     _submitted,
               textDirection: TextDirection.ltr,
               textAlign:     TextAlign.start,
@@ -584,7 +554,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
               height:        100,
               maxLines:      4,
               maxLength:     500,
-              showCharCount: true,
+              showCharCount: false,
               submitted:     _submitted,
               textDirection: TextDirection.rtl,
               textAlign:     TextAlign.right,
@@ -658,10 +628,8 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
               SizedBox(height: 12.h),
               Text(
                 'Saving...',
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize:   14.sp,
-                  color:      Colors.black87,
+                style: StyleText.fontSize14Weight400.copyWith(
+                  color: Colors.black87,
                 ),
               ),
             ],
@@ -680,141 +648,14 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
     required VoidCallback onTap,
     bool isSvg = false,
   }) {
-    final hasImage = bytes != null || url.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Cairo',
-            fontSize:   13.sp,
-            fontWeight: FontWeight.w600,
-            color:      Colors.black87,
-          ),
-        ),
-        SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: onTap,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width:  64.w,
-                height: 64.h,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: hasImage
-                    ? ClipOval(child: _buildImageWidget(bytes, url, isSvg))
-                    : Icon(
-                  isSvg
-                      ? Icons.description_outlined
-                      : Icons.add,
-                  color: Colors.grey[600],
-                  size:  28.sp,
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    width: 25.w,
-                    height: 25.h,
-                    decoration: BoxDecoration(
-                      color: Colors.green[700],
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Center(
-                        child: CustomSvg(assetPath: "assets/control/camera.svg", width: 10.w, height: 10.h, fit: BoxFit.scaleDown)
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildImageWidget(Uint8List? bytes, String url, bool isSvg) {
-    bool isSvgData = false;
-    if (bytes != null && bytes.length > 5) {
-      final header = String.fromCharCodes(bytes.sublist(0, 5));
-      isSvgData = header.startsWith('<svg') || header.startsWith('<?xml');
-    }
-
-    if (isSvg || isSvgData) {
-      if (bytes != null) {
-        try {
-          return Padding(
-            padding: EdgeInsets.all(16.r),
-            child: SvgPicture.memory(
-              bytes,
-              fit: BoxFit.contain,
-              placeholderBuilder: (context) =>
-                  Icon(Icons.description, color: Colors.grey[400], size: 28.sp),
-            ),
-          );
-        } catch (_) {
-          return Icon(Icons.broken_image, color: Colors.red[300], size: 28.sp);
-        }
-      } else if (url.isNotEmpty) {
-        return FutureBuilder(
-          future: _loadSvg(url),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Icon(Icons.description, color: Colors.grey[400], size: 28.sp);
-            }
-            if (snapshot.hasError || !snapshot.hasData) {
-              return Icon(Icons.broken_image, color: Colors.red[300], size: 28.sp);
-            }
-            return Padding(
-              padding: EdgeInsets.all(16.r),
-              child: SvgPicture.memory(snapshot.data!, fit: BoxFit.contain),
-            );
-          },
-        );
-      }
-    } else {
-      if (bytes != null) return Image.memory(bytes, fit: BoxFit.cover);
-      if (url.isNotEmpty) {
-        return NetworkImageView(url: url, fit: BoxFit.cover);
-      }
-    }
-
-    return Icon(
-      isSvg ? Icons.description : Icons.image,
-      color: Colors.grey,
-      size:  28.sp,
-    );
-  }
-
-  Future<Uint8List> _loadSvg(String url) async {
-    final response = await html.HttpRequest.request(
-      url,
-      method:       'GET',
-      responseType: 'arraybuffer',
-    );
-    if (response.status != 200) {
-      throw Exception('Failed to load SVG: ${response.status}');
-    }
-    return (response.response as ByteBuffer).asUint8List();
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircle(label: label, bytes: bytes, url: url, onTap: onTap);
   }
 
   Widget _fieldLabel(String text) => Text(
     text,
-    style: TextStyle(
-      fontFamily: 'Cairo',
-      fontSize:   13.sp,
-      fontWeight: FontWeight.w600,
-      color:      Colors.black87,
+    style: StyleText.fontSize13Weight600.copyWith(
+      color: Colors.black87,
     ),
   );
 
@@ -822,11 +663,8 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
     alignment: Alignment.centerRight,
     child: Text(
       text,
-      style: TextStyle(
-        fontFamily: 'Cairo',
-        fontSize:   13.sp,
-        fontWeight: FontWeight.w600,
-        color:      Colors.black87,
+      style: StyleText.fontSize13Weight600.copyWith(
+        color: Colors.black87,
       ),
     ),
   );
@@ -848,11 +686,9 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   15.sp,
+            style: StyleText.fontSize15Weight600.copyWith(
               fontWeight: FontWeight.w700,
-              color:      Colors.white,
+              color: Colors.white,
             ),
           ),
         ),

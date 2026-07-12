@@ -26,14 +26,12 @@ class _SiteNavBar extends StatelessWidget {
               color:        _kGreen,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'B',
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize:   16,
-                  fontWeight: FontWeight.w700,
-                  color:      Colors.white,
+                style: StyleText.fontSize16Weight700.copyWith(
+                  fontSize: 16,
+                  color:    Colors.white,
                 ),
               ),
             ),
@@ -45,10 +43,9 @@ class _SiteNavBar extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   l,
-                  style: const TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   13,
-                    color:      Color(0xFF333333),
+                  style: StyleText.fontSize13Weight400.copyWith(
+                    fontSize: 13,
+                    color:    const Color(0xFF333333),
                   ),
                 ),
               ),
@@ -67,11 +64,9 @@ class _SiteNavBar extends StatelessWidget {
             ),
             child: Text(
               ctaLabel,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   isMobile ? 11 : 13,
-                fontWeight: FontWeight.w600,
-                color:      Colors.white,
+              style: StyleText.fontSize13Weight600.copyWith(
+                fontSize: isMobile ? 11 : 13,
+                color:    Colors.white,
               ),
             ),
           ),

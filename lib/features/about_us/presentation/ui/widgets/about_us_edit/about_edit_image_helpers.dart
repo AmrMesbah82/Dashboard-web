@@ -53,136 +53,17 @@ extension _AboutEditImageHelpers on _AboutEditPageMasterState {
     bool isSvg = false,
     bool showError = false,
   }) {
-    final bool hasBytes = bytes != null;
-    final bool hasUrl = url.isNotEmpty;
-
-    Widget content;
-    if (hasBytes) {
-      content = Container(
-        width: 60.w,
-        height: 60.h,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: ClipOval(
-          child: Padding(
-            padding: EdgeInsets.all(15.r),
-            child: _isSvgMemory(bytes!, isSvg)
-                ? SvgPicture.memory(bytes,
-                    width: 30.w, height: 30.h, fit: BoxFit.contain)
-                : Image.memory(bytes,
-                    width: 30.w, height: 30.h, fit: BoxFit.contain),
-          ),
-        ),
-      );
-    } else if (hasUrl) {
-      content = Container(
-        width: 60.w,
-        height: 60.h,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: ClipOval(
-          child: Padding(
-            padding: EdgeInsets.all(15.r),
-            child: FutureBuilder<Uint8List>(
-              future: _cachedLoad(url, isSvg: isSvg),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: ColorPick.primary),
-                    ),
-                  );
-                }
-                if (snapshot.hasData) {
-                  final data = snapshot.data!;
-                  if (_isSvgMemory(data, isSvg)) {
-                    return SvgPicture.memory(data,
-                        width: 30.w, height: 30.h, fit: BoxFit.contain);
-                  }
-                  return Image.memory(data,
-                      width: 30.w, height: 30.h, fit: BoxFit.contain);
-                }
-                return Center(
-                  child: CustomSvg(
-                    assetPath: "assets/control/camera.svg",
-                    width: 20.w,
-                    height: 20.h,
-                    fit: BoxFit.fill,
-                    color: Colors.grey,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      );
-    } else {
-      content = Container(
-        width: 60.w,
-        height: 60.h,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: CustomSvg(
-              assetPath: "assets/control/camera.svg",
-              width: 20.w,
-              height: 20.h,
-              color: Colors.grey),
-        ),
-      );
-    }
-
+    // Delegates to the single shared image-upload circle (core/custom).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style:
-                StyleText.fontSize14Weight400.copyWith(color: AppColors.text)),
-        SizedBox(height: 8.h),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            GestureDetector(onTap: onTap, child: content),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: GestureDetector(
-                onTap: onTap,
-                child: Container(
-                  width: 25.w,
-                  height: 25.h,
-                  decoration: BoxDecoration(
-                    color: Colors.green[700],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: CustomSvg(
-                      assetPath: "assets/control/camera.svg",
-                      width: 10.w,
-                      height: 10.h,
-                      fit: BoxFit.scaleDown,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        imageUploadCircle(label: label, bytes: bytes, url: url, onTap: onTap),
         if (showError)
           Padding(
             padding: EdgeInsets.only(top: 4.h),
             child: Text(
               'This field is required',
-              style: TextStyle(fontSize: 10.sp, color: Colors.red),
+              style: StyleText.fontSize10Weight400.copyWith(color: Colors.red),
             ),
           ),
       ],
@@ -273,9 +154,7 @@ extension _AboutEditImageHelpers on _AboutEditPageMasterState {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize: 15.sp,
+            style: StyleText.fontSize15Weight600.copyWith(
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),

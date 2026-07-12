@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/widget/format.dart';
 
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_main.dart';
@@ -313,13 +314,15 @@ class _AboutMainPageMasterDashboardState
           GestureDetector(
             onTap: () => _onPreviewTap(model),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              width: 130.w, height: 36.h,
               decoration: BoxDecoration(
                   color: ColorPick.primary,
                   borderRadius: BorderRadius.circular(6.r)),
-              child: Text('Preview Screen',
-                  style: StyleText.fontSize14Weight500
-                      .copyWith(color: Colors.white)),
+              child: Center(
+                child: Text('Preview Screen',
+                    style: StyleText.fontSize14Weight500
+                        .copyWith(color: Colors.white)),
+              ),
             ),
           ),
         ]),
@@ -591,7 +594,7 @@ class _AboutMainPageMasterDashboardState
           ),
           SizedBox(height: 6.h),
           Text(
-            item.title.en.isNotEmpty ? item.title.en : 'Title',
+            item.title.en.isNotEmpty ? FormatHelper.capitalize(item.title.en) : 'Title',
             style: StyleText.fontSize12Weight600
                 .copyWith(color: const Color(0xFF1A1A1A)),
             maxLines: 2, overflow: TextOverflow.ellipsis,
@@ -599,7 +602,7 @@ class _AboutMainPageMasterDashboardState
           SizedBox(height: 4.h),
           Text(
             item.shortDescription.en.isNotEmpty
-                ? item.shortDescription.en
+                ? FormatHelper.capitalize(item.shortDescription.en)
                 : 'Short Description',
             style: StyleText.fontSize12Weight400.copyWith(
                 color: AppColors.secondaryBlack, height: 1.5),

@@ -327,8 +327,7 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
           Padding(
             padding: EdgeInsets.only(bottom: 6.h),
             child: Text(label,
-                style: TextStyle(
-                  fontSize: 15.sp,
+                style: StyleText.fontSize15Weight500.copyWith(
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                   color: active ? ColorPick.primary : AppColors.secondaryText,
                 )),

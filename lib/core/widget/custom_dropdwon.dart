@@ -1,30 +1,35 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
+// ******************* FILE INFO *******************
+// File Name: custom_dropdwon.dart
+// Description: DEPRECATED SHIM — CustomDropdownFormFieldInvMaster is now a
+//              thin wrapper around the single shared dropdown in
+//              lib/core/custom/1-custom_dropdwon.dart. Keeps the legacy
+//              Map<String,String> items API while delegating ALL
+//              rendering/behaviour to the shared widget.
+// Created by: Amr Mesbah
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:web_app_admin/core/custom_svg.dart';
 
-
+import '../custom/1-custom_dropdwon.dart' as custom;
 import '../theme/appcolors.dart';
 import '../theme/new_theme.dart';
 
-
-class CustomDropdownFormFieldInvMaster extends StatefulWidget {
+class CustomDropdownFormFieldInvMaster extends StatelessWidget {
   final String? selectedValue;
-  final double? widthIcon;
-  final Color? primaryColor; // ← add this
+  final double? widthIcon; // kept for compatibility — ignored
+  final Color? primaryColor; // kept for compatibility — ignored
   final Color? dropdownColor;
-  final double? heightIcon;
+  final double? heightIcon; // kept for compatibility — ignored
   final List<Map<String, String>> items;
   final Function(String?) onChanged;
-  final String Function(String?)? validator;
+  final String Function(String?)? validator; // kept for compatibility
   final double? width;
   final double? height;
-  final double? spaceHeight;
-  final double? dropdownWidth;
+  final double? spaceHeight; // kept for compatibility — ignored
+  final double? dropdownWidth; // kept for compatibility — ignored
   final Widget? hint;
   final String? label;
-  final String? iconPath;
+  final String? iconPath; // kept for compatibility — ignored
   final Map<String, Color>? itemColors;
   final bool showColorDots;
   final double borderRadius;
@@ -37,7 +42,7 @@ class CustomDropdownFormFieldInvMaster extends StatefulWidget {
     required this.widthIcon,
     required this.heightIcon,
     this.validator,
-    this.primaryColor, // ← add this
+    this.primaryColor,
     this.width,
     this.height,
     this.spaceHeight,
@@ -51,184 +56,65 @@ class CustomDropdownFormFieldInvMaster extends StatefulWidget {
     this.borderRadius = 8.0,
   }) : super(key: key);
 
-  @override
-  State<CustomDropdownFormFieldInvMaster> createState() =>
-      _CustomDropdownFormFieldInvMasterState();
-}
-
-class _CustomDropdownFormFieldInvMasterState
-    extends State<CustomDropdownFormFieldInvMaster> {
-  String? internalSelectedValue;
-  final GlobalKey _dropdownKey = GlobalKey();
-  double? _popupWidth;
-
-  @override
-  void initState() {
-    super.initState();
-    internalSelectedValue = widget.selectedValue;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _dropdownKey.currentContext;
-      if (ctx != null && mounted) {
-        final box = ctx.findRenderObject() as RenderBox;
-        setState(() => _popupWidth = box.size.width);
-      }
-    });
-  }
-
-  // ── Color helper ──────────────────────────────────────────────────────────
   Color? _getItemColor(Map<String, String> item) {
-    if (widget.itemColors == null) return null;
-    final key   = item['key']   ?? '';
+    if (itemColors == null) return null;
+    final key = item['key'] ?? '';
     final value = item['value'] ?? '';
-    return widget.itemColors![key] ?? widget.itemColors![value];
+    return itemColors![key] ?? itemColors![value];
   }
 
-  // ── Dropdown item builder ─────────────────────────────────────────────────
-  Widget _buildDropdownItem(Map<String, String> item) {
-    final Color? itemColor = _getItemColor(item);
-
-    if (widget.showColorDots && itemColor != null) {
-      return Row(
-        children: [
-          Container(
-            width: 8.sp,
-            height: 8.sp,
-            decoration: BoxDecoration(color: itemColor, shape: BoxShape.circle),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              item['value'] ?? '',
-              style: StyleText.fontSize12Weight400.copyWith(
-                color: AppColors.text,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Text(
-      item['value'] ?? '',
-      style: StyleText.fontSize12Weight400.copyWith(
-        color: itemColor ?? AppColors.text,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
+  String? get _hintText {
+    final h = hint;
+    if (h is Text) return h.data;
+    return null;
   }
-
-  // ── Arrow icon ────────────────────────────────────────────────────────────
-  Widget _arrowIcon() => CustomSvg(assetPath: "assets/arrowdown.svg",width: 20.w,height: 20.h,);
 
   @override
   Widget build(BuildContext context) {
-    final double fieldHeight = widget.height ?? 36;
+    final double fieldHeight = height ?? 36;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ── Label ───────────────────────────────────────────────────────────
-        if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: StyleText.fontSize14Weight400.copyWith(color: AppColors.text),
-          ),
-          SizedBox(height: widget.spaceHeight ?? 6.h),
-        ],
+    final dropdownItems = items.map((item) {
+      final Color? itemColor = _getItemColor(item);
+      return custom.DropdownItem<String>(
+        value: item['key'] ?? '',
+        label: item['value'] ?? '',
+        leading: (showColorDots && itemColor != null)
+            ? Container(
+                width: 8.sp,
+                height: 8.sp,
+                decoration:
+                    BoxDecoration(color: itemColor, shape: BoxShape.circle),
+              )
+            : null,
+      );
+    }).toList();
 
-        // ── Dropdown container ───────────────────────────────────────────────
-        Container(
-          key: _dropdownKey,
-          width: widget.width,
-          height: fieldHeight.h,
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(widget.borderRadius.r),
-          ),
-          child: FormField<String>(
-            initialValue: internalSelectedValue,
-            validator: widget.validator,
-            builder: (FormFieldState<String> field) {
-              return DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  hint: widget.hint,
-                  value: widget.items.any(
-                          (e) => e['key'] == internalSelectedValue)
-                      ? internalSelectedValue
-                      : null,
-                  onChanged: (value) {
-                    setState(() {
-                      internalSelectedValue = value;
-                      field.didChange(value);
-                    });
-                    widget.onChanged(value);
-                  },
-                  buttonStyleData: ButtonStyleData(
-                    height: fieldHeight.h,
-                    width: widget.width?.w,
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    decoration: BoxDecoration(
-                      color: widget.dropdownColor ?? Color(0xFFF1F2ED),
-                      borderRadius:
-                      BorderRadius.circular(widget.borderRadius.r),
-                      border: Border.all(color: Colors.transparent),
-                    ),
-                  ),
-                  dropdownStyleData: DropdownStyleData(
-                    width: widget.dropdownWidth ??
-                        _popupWidth ??
-                        widget.width ??
-                        100.w,
-                    maxHeight: 225.h,
-                    offset: const Offset(0, 0),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius:
-                      BorderRadius.circular(widget.borderRadius.r),
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    scrollbarTheme: ScrollbarThemeData(
-                      thumbVisibility: MaterialStateProperty.all(false),
-                      trackVisibility: MaterialStateProperty.all(false),
-                      thickness: MaterialStateProperty.all(0),
-                      radius: Radius.zero,
-                    ),
-                  ),
-                  menuItemStyleData: MenuItemStyleData(
-                    height: fieldHeight.h,
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
-                      if (states.contains(MaterialState.hovered)) {
-                        return (widget.primaryColor ?? AppColors.primary).withValues(alpha: 0.1); // ← fix
-                      }
-                      return null;
-                    }),
-                  ),
-                  iconStyleData: IconStyleData(icon: _arrowIcon()),
-                  style: StyleText.fontSize12Weight400
-                      .copyWith(color: AppColors.text),
-                  items: widget.items.map((unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit['key'],
-                      child: _buildDropdownItem(unit),
-                    );
-                  }).toList(),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+    final hasSelection =
+        items.any((e) => e['key'] == selectedValue) ? selectedValue : null;
+
+    final dropdown = custom.CustomDropdown<String>(
+      value: hasSelection,
+      items: dropdownItems,
+      onChanged: (v) => onChanged(v),
+      hint: _hintText,
+      label: label,
+      labelStyle:
+          StyleText.fontSize14Weight400.copyWith(color: AppColors.text),
+      fillColor: dropdownColor ?? const Color(0xFFF1F2ED),
+      borderRadius: BorderRadius.circular(borderRadius.r),
+      triggerPadding: EdgeInsets.symmetric(
+        horizontal: 8.w,
+        vertical: ((fieldHeight - 20) / 2).h,
+      ),
+      itemHeight: fieldHeight.h,
+      maxOverlayHeight: 225.h,
+      valueStyle:
+          StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
+      hintStyle: StyleText.fontSize12Weight400
+          .copyWith(color: AppColors.text.withValues(alpha: 0.4)),
     );
+
+    if (width == null) return dropdown;
+    return SizedBox(width: width, child: dropdown);
   }
 }

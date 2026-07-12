@@ -221,6 +221,8 @@ extension _HomeEditSections2 on _MainEditPageState {
             ),
           ],
         ),
+        // Spacing between "Navigate To" and the next "Label" row.
+        SizedBox(height: 10.h),
       ],
     );
   }

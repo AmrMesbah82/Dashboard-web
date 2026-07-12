@@ -19,6 +19,7 @@ import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_ed
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/2-custom_textfield.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -101,7 +102,8 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Error loading data: ${state.message}',
-                      style: TextStyle(color: Colors.red)),
+                      style: StyleText.fontSize14Weight400
+                          .copyWith(color: Colors.red)),
                   SizedBox(height: 16.h),
                   ElevatedButton(
                     onPressed: () => context.read<CareersCmsCubit>().load(),
@@ -177,11 +179,13 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           GestureDetector(
             onTap: () => context.pushNamed('careers-cms-preview'),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              width: 130.w, height: 36.h,
               decoration: BoxDecoration(
                   color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
-              child: Text('Preview Screen',
-                  style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
+              child: Center(
+                child: Text('Preview Screen',
+                    style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
+              ),
             ),
           ),
         ]),
@@ -283,10 +287,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                       ),
                     )),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                      width: 130.w, height: 36.h,
                       decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
-                      child: Text('Preview Screen',
-                          style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
+                      child: Center(
+                        child: Text('Preview Screen',
+                            style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
+                      ),
                     ),
                   ),
                 ],
@@ -338,8 +344,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                 title: sectionTitle,
                 children: [
                   if (data.items.isEmpty)
-                    Text('No items added yet.',
-                        style: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText))
+                  Container()
                   else
                     ...data.items.asMap().entries.map((e) => _itemView(e.key, e.value)),
                 ],
@@ -471,13 +476,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           title: 'Career Statistics',
           children: [
             if (data.statistics.isEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.h),
-                child: Text(
-                    'No statistics added yet. Click "Edit Details" to add statistics.',
-                    textAlign: TextAlign.center,
-                    style: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText)),
-              )
+             Container()
             else
               ...data.statistics.asMap().entries.map((e) {
                 final i    = e.key;
@@ -489,7 +488,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                       SizedBox(height: 12.h),
                     ],
                     Text('${_ordLabel(i + 1)} Statistics',
-                        style: StyleText.fontSize16Weight600.copyWith(color: AppColors.text)),
+                        style: StyleText.fontSize16Weight400.copyWith(color: AppColors.text)),
                     SizedBox(height: 8.h),
                     Row(children: [
                       Expanded(child: _readField('Title', stat.title.en)),
@@ -567,7 +566,6 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
 
   Widget _readField(String label, String value,
       {double height = 36, int? maxLength}) {
-    final current = value.length;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
           style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
@@ -588,22 +586,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      if (maxLength != null) ...[
-        SizedBox(height: 4.h),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            '$current/$maxLength',
-            style: StyleText.fontSize11Weight400.copyWith(color: AppColors.secondaryText),
-          ),
-        ),
-      ],
+      // Character counter removed (app-wide rule: no counters shown)
     ]);
   }
 
   Widget _readFieldRtl(String label, String value,
       {double height = 36, int? maxLength}) {
-    final current = value.length;
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -627,30 +615,12 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        if (maxLength != null) ...[
-          SizedBox(height: 4.h),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '${_toArabicNumerals(maxLength)}/${_toArabicNumerals(current)}',
-              textDirection: TextDirection.rtl,
-              style: StyleText.fontSize11Weight400.copyWith(color: AppColors.secondaryText),
-            ),
-          ),
-        ],
+        // Character counter removed (app-wide rule: no counters shown)
       ]),
     );
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
-
-  String _toArabicNumerals(int n) {
-    const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return n.toString().split('').map((c) {
-      final d = int.tryParse(c);
-      return d != null ? eastern[d] : c;
-    }).join();
-  }
 
   String _ordLabel(int n) {
     if (n == 1) return '1st';

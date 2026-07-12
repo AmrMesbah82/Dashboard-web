@@ -495,6 +495,48 @@ class JobPostModel {
     PUBLISH_STATUS: publishStatus,
   };
 
+  /// Nested template for [FlatCodec.decode] (one populated sample per list).
+  static Map<String, dynamic> get flatTemplate => {
+        'title': {'en': '', 'ar': ''},
+        'department': '',
+        'workType': '',
+        'employmentType': '',
+        'employmentDurationText': '',
+        'employmentDurationType': '',
+        'experienceLevel': '',
+        'salaryMin': 0,
+        'salaryMax': 0,
+        'salaryCurrency': '',
+        'requiredQualification': {'en': '', 'ar': ''},
+        'requiredSkills': [
+          {
+            'id': '',
+            'name': {'en': '', 'ar': ''}
+          }
+        ],
+        'aboutThisPosition': {'en': '', 'ar': ''},
+        'requirements': {'en': '', 'ar': ''},
+        'preferredSkills': {'en': '', 'ar': ''},
+        'benefits': [
+          {
+            'id': '',
+            'title': {'en': '', 'ar': ''},
+            'shortDescription': {'en': '', 'ar': ''},
+          }
+        ],
+        'hiringStartDate': '',
+        'hiringEndDate': '',
+        'maxApplications': 0,
+        'requiredDocuments': [
+          {'id': '', 'name': '', 'docType': ''}
+        ],
+        'status': '',
+        'postedDate': '',
+        'endedDate': '',
+        'totalApplications': 0,
+        'publishStatus': '',
+      };
+
   JobPostModel copyWith({
     String? id,
     BilingualTextJob? title,

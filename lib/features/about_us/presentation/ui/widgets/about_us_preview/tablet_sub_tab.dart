@@ -47,8 +47,8 @@ class _TabletSubTabState extends State<_TabletSubTab> {
                   color: widget.isSelected ? Colors.white : widget.primary),
             const SizedBox(width: 6),
             Flexible(child: Text(widget.label,
-                style: TextStyle(fontFamily: 'Cairo', fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                style: StyleText.fontSize12Weight600.copyWith(
+                    fontSize: 12,
                     color: widget.isSelected ? Colors.white : widget.primary))),
           ]),
         ),

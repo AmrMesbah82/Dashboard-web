@@ -13,6 +13,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:web_app_admin/core/theme/text.dart';
 
 
+import '../constant/color.dart';
 import 'appcolors.dart';
 
 
@@ -51,6 +52,13 @@ abstract class AppTheme {
     ),
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
+    // Cursor / text-selection (copy) highlight — app-wide rule:
+    // always ColorPick.primary, never the theme yellow.
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: ColorPick.primary,
+      selectionColor: ColorPick.primary.withOpacity(0.3),
+      selectionHandleColor: ColorPick.primary,
+    ),
 
     colorScheme: ColorScheme.light(
       primary: AppColors.secondaryPrimary,
@@ -122,6 +130,13 @@ abstract class AppTheme {
 
   static final ThemeData darkTheme = ThemeData.dark().copyWith(
     primaryColor: AppColors.primary,
+    // Cursor / text-selection (copy) highlight — app-wide rule:
+    // always ColorPick.primary, never the theme yellow.
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: ColorPick.primary,
+      selectionColor: ColorPick.primary.withOpacity(0.3),
+      selectionHandleColor: ColorPick.primary,
+    ),
     textTheme: TextTheme(
       headlineMedium: AppTextStyles.font20BlackCairoMedium,
       headlineSmall: AppTextStyles.font16BlackMediumCairo,

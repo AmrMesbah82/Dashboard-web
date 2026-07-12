@@ -1,18 +1,16 @@
 // ******************* FILE INFO *******************
 // File Name: strategy_edit.dart
 // Screen 2 of 3 — Our Strategy CMS: Edit page
-// UPDATED: Added Strategic House - ENG and Strategic House - ARB accordions
-// UPDATED: Added device preview tabs (Large Screen / Tablet / Mobile)
-// UPDATED: Added custom validation dialog for missing fields
-// UPDATED: Added publish confirmation dialog and removed snackbars
-// UPDATED: Publish button disabled until ALL fields valid (not just hasChanges)
-// UPDATED: Image caching — prevents reload on every keystroke setState
-// UPDATED: Fixed change detection - publish disabled until actual changes made
+// UPDATED: Multi-device image support (Desktop, Tablet, Mobile) for both EN and AR
+// UPDATED: Each device has separate upload button and preview
+// UPDATED: Validation requires all 3 device images for each language on publish
+// Ported from beauty_admin strategy_edit.dart
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,6 +25,7 @@ import 'package:web_app_admin/features/about_us/presentation/ui/pages/strategy_p
 import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
+import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
 import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
@@ -36,15 +35,37 @@ part '../../widgets/strategy_edit/strategy_edit_image_widgets.dart';
 part '../../widgets/strategy_edit/strategy_edit_form_helpers.dart';
 
 
+// ── Device type enum for image uploads ────────────────────────────────────────
+enum DeviceType { desktop, tablet, mobile }
 
-// const Color ColorPick.primary      = Color(0xFF2D8C4E);
-// const Color ColorPick.primary = Color(0xFF008037);
-// const Color _kRed        = Color(0xFFD32F2F);
-// const Color _kSurface    = Color(0xFFFFFFFF);
-// const Color _kBg         = Color(0xFFF2F2F2);
+extension DeviceTypeExtension on DeviceType {
+  String get displayName {
+    switch (this) {
+      case DeviceType.desktop: return 'Desktop';
+      case DeviceType.tablet: return 'Tablet';
+      case DeviceType.mobile: return 'Mobile';
+    }
+  }
 
-// ── Device preview tab enum ─────────────────────────────────────────────────
-enum DeviceTab { largeScreen, tablet, mobile }
+  String get storagePathSuffix {
+    switch (this) {
+      case DeviceType.desktop: return 'desktop';
+      case DeviceType.tablet: return 'tablet';
+      case DeviceType.mobile: return 'mobile';
+    }
+  }
+
+  double get previewWidth {
+    switch (this) {
+      case DeviceType.desktop: return double.infinity;
+      case DeviceType.tablet: return 600;
+      case DeviceType.mobile: return 320;
+    }
+  }
+}
+
+// ── Device preview tab enum for display ───────────────────────────────────────
+enum DisplayDeviceTab { largeScreen, tablet, mobile }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -61,151 +82,281 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
   final _navTitleArCtrl = TextEditingController();
   Uint8List? _navIconBytes;
   String _navIconUrl = '';
+  bool _navIconIsSvg = false;
 
-  // ── Strategic House — ENG ──
-  Uint8List? _strategicHouseEnBytes;
-  String _strategicHouseEnUrl = '';
+  // ── Strategic House — ENG (3 devices) ──
+  // Desktop
+  Uint8List? _strategicHouseEnDesktopBytes;
+  String _strategicHouseEnDesktopUrl = '';
+  bool _strategicHouseEnDesktopIsSvg = false;
 
-  // ── Strategic House — ARB ──
-  Uint8List? _strategicHouseArBytes;
-  String _strategicHouseArUrl = '';
+  // Tablet
+  Uint8List? _strategicHouseEnTabletBytes;
+  String _strategicHouseEnTabletUrl = '';
+  bool _strategicHouseEnTabletIsSvg = false;
 
-  bool _navLabelOpen         = true;
+  // Mobile
+  Uint8List? _strategicHouseEnMobileBytes;
+  String _strategicHouseEnMobileUrl = '';
+  bool _strategicHouseEnMobileIsSvg = false;
+
+  // ── Strategic House — ARB (3 devices) ──
+  // Desktop
+  Uint8List? _strategicHouseArDesktopBytes;
+  String _strategicHouseArDesktopUrl = '';
+  bool _strategicHouseArDesktopIsSvg = false;
+
+  // Tablet
+  Uint8List? _strategicHouseArTabletBytes;
+  String _strategicHouseArTabletUrl = '';
+  bool _strategicHouseArTabletIsSvg = false;
+
+  // Mobile
+  Uint8List? _strategicHouseArMobileBytes;
+  String _strategicHouseArMobileUrl = '';
+  bool _strategicHouseArMobileIsSvg = false;
+
+  bool _navLabelOpen        = true;
   bool _strategicHouseEnOpen = true;
   bool _strategicHouseArOpen = true;
 
-  bool _submitted  = false;
-  bool _seeded     = false;
-  bool _isSaving   = false;
-  bool _hasChanges = false;
+  bool _submitted = false;
+  bool _seeded    = false;
+  bool _isSaving  = false;
 
-  // Store original values to track changes
-  String _originalNavTitleEn = '';
-  String _originalNavTitleAr = '';
-  String _originalNavIconUrl = '';
-  String _originalStrategicHouseEnUrl = '';
-  String _originalStrategicHouseArUrl = '';
+  /// Whether the data currently loaded came from a draft document.
+  bool _isEditingDraft = false;
 
-  // ── Device preview tabs ──
-  DeviceTab _strategicHouseEnTab = DeviceTab.largeScreen;
-  DeviceTab _strategicHouseArTab = DeviceTab.largeScreen;
+  // ── Validation errors per device ──
+  String? _navIconError;
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // URL → bytes cache — avoids re-fetching on every rebuild / setState
-  // ══════════════════════════════════════════════════════════════════════════
-  final Map<String, Future<Uint8List>> _urlBytesCache = {};
+  // EN device errors
+  String? _strategicHouseEnDesktopError;
+  String? _strategicHouseEnTabletError;
+  String? _strategicHouseEnMobileError;
 
-  Future<Uint8List> _cachedLoadSvg(String url) {
-    return _urlBytesCache.putIfAbsent(url, () => _loadSvgBytes(url));
-  }
+  // AR device errors
+  String? _strategicHouseArDesktopError;
+  String? _strategicHouseArTabletError;
+  String? _strategicHouseArMobileError;
 
-  Future<Uint8List> _cachedLoadImage(String url) {
-    return _urlBytesCache.putIfAbsent(url, () async {
-      try {
-        final res = await html.HttpRequest.request(
-          url,
-          method: 'GET',
-          responseType: 'arraybuffer',
-        );
-        if (res.status == 200 && res.response != null) {
-          return (res.response as ByteBuffer).asUint8List();
-        }
-        throw Exception('HTTP ${res.status}');
-      } catch (e) {
-        throw Exception('Failed to load image: $e');
-      }
-    });
-  }
+  // ── Display preview tabs for each section ──
+  DisplayDeviceTab _strategicHouseEnDisplayTab = DisplayDeviceTab.largeScreen;
+  DisplayDeviceTab _strategicHouseArDisplayTab = DisplayDeviceTab.largeScreen;
 
-  /// Computed live — true when every required field has a value.
-  bool get _isFormValid {
-    return _navTitleEnCtrl.text.trim().isNotEmpty &&
-        _navTitleArCtrl.text.trim().isNotEmpty &&
-        (_navIconUrl.isNotEmpty || _navIconBytes != null) &&
-        (_strategicHouseEnUrl.isNotEmpty || _strategicHouseEnBytes != null) &&
-        (_strategicHouseArUrl.isNotEmpty || _strategicHouseArBytes != null);
+  // ── Cache for loaded SVG URLs to prevent reloading ──
+  final Map<String, Uint8List> _svgCache = {};
+
+  // ── Keys to prevent unnecessary rebuilds ──
+  final _navIconKey = GlobalKey();
+
+  // ── Field change listener for reactive validation ──
+  List<TextEditingController> get _allControllers => [
+    _navTitleEnCtrl,
+    _navTitleArCtrl,
+  ];
+
+  void _onFieldChanged() {
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    for (final ctrl in _allControllers) {
+      ctrl.addListener(_onFieldChanged);
+    }
     context.read<StrategyCubit>().load();
-
-    _navTitleEnCtrl.addListener(_checkForChanges);
-    _navTitleArCtrl.addListener(_checkForChanges);
   }
 
   @override
   void dispose() {
-    _navTitleEnCtrl.removeListener(_checkForChanges);
-    _navTitleArCtrl.removeListener(_checkForChanges);
-    _navTitleEnCtrl.dispose();
-    _navTitleArCtrl.dispose();
+    for (final ctrl in _allControllers) {
+      ctrl.removeListener(_onFieldChanged);
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
-  // Check if any changes exist compared to original values
-  void _checkForChanges() {
-    if (!_seeded) return; // Don't check changes until data is seeded
+  // ── Validation helpers ────────────────────────────────────────────────────
+  // Language enforcement removed — valid when non-empty, any language.
+  bool _isValidEnglish(String text) => text.trim().isNotEmpty;
 
-    final bool hasTextChanges =
-        _navTitleEnCtrl.text != _originalNavTitleEn ||
-            _navTitleArCtrl.text != _originalNavTitleAr;
+  bool _isValidArabic(String text) => text.trim().isNotEmpty;
 
-    final bool hasImageChanges =
-        _navIconUrl != _originalNavIconUrl ||
-            _strategicHouseEnUrl != _originalStrategicHouseEnUrl ||
-            _strategicHouseArUrl != _originalStrategicHouseArUrl ||
-            _navIconBytes != null ||
-            _strategicHouseEnBytes != null ||
-            _strategicHouseArBytes != null;
+  // ── SVG validation helpers ────────────────────────────────────────────────
+  bool _isSvgUrl(String url) {
+    if (url.isEmpty) return false;
+    final decodedUrl = Uri.decodeFull(url).toLowerCase();
+    return decodedUrl.contains('.svg') ||
+        decodedUrl.contains('%2Esvg') ||
+        decodedUrl.contains('image/svg+xml');
+  }
 
-    final bool hasChanges = hasTextChanges || hasImageChanges;
+  // ── File picker - SVG or PNG ──────────────────────────────────────────────
+  Future<Uint8List?> _pickSvgImage() async {
+    final c = Completer<Uint8List?>();
+    final input = html.FileUploadInputElement()
+      ..accept = 'image/svg+xml,image/png,image/jpeg,image/webp,.svg,.png,.jpg,.jpeg,.webp';
 
-    if (hasChanges != _hasChanges) {
-      setState(() {
-        _hasChanges = hasChanges;
+    input.onChange.listen((_) {
+      final files = input.files;
+      if (files == null || files.isEmpty) {
+        c.complete(null);
+        return;
+      }
+
+      final file = files.first;
+
+      // Validate file type (SVG or raster image)
+      if (!(file.type.startsWith('image/') ||
+          file.name.toLowerCase().endsWith('.svg'))) {
+        c.complete(null);
+        return;
+      }
+
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+
+      reader.onLoadEnd.listen((_) {
+        final r = reader.result;
+        Uint8List? bytes;
+        if (r is ByteBuffer) {
+          bytes = r.asUint8List();
+        } else if (r is Uint8List) {
+          bytes = r;
+        }
+
+        if (bytes != null) {
+          c.complete(bytes);
+        } else {
+          c.complete(null);
+        }
       });
+
+      reader.onError.listen((e) {
+        c.complete(null);
+      });
+    });
+
+    input.click();
+    return c.future;
+  }
+
+  // ── Upload SVG for the device currently selected in the Desktop/Tablet/
+  //    Mobile tab bar. Tapping the preview triggers this. ────────────────────
+  Future<void> _uploadStrategicHouseForSelectedTab({required bool isAr}) async {
+    final b = await _pickSvgImage();
+    if (b == null) return;
+    final tab = isAr ? _strategicHouseArDisplayTab : _strategicHouseEnDisplayTab;
+    setState(() {
+      if (isAr) {
+        switch (tab) {
+          case DisplayDeviceTab.largeScreen:
+            _strategicHouseArDesktopBytes = b;
+            _strategicHouseArDesktopIsSvg = true;
+            _strategicHouseArDesktopError = null;
+            break;
+          case DisplayDeviceTab.tablet:
+            _strategicHouseArTabletBytes = b;
+            _strategicHouseArTabletIsSvg = true;
+            _strategicHouseArTabletError = null;
+            break;
+          case DisplayDeviceTab.mobile:
+            _strategicHouseArMobileBytes = b;
+            _strategicHouseArMobileIsSvg = true;
+            _strategicHouseArMobileError = null;
+            break;
+        }
+      } else {
+        switch (tab) {
+          case DisplayDeviceTab.largeScreen:
+            _strategicHouseEnDesktopBytes = b;
+            _strategicHouseEnDesktopIsSvg = true;
+            _strategicHouseEnDesktopError = null;
+            break;
+          case DisplayDeviceTab.tablet:
+            _strategicHouseEnTabletBytes = b;
+            _strategicHouseEnTabletIsSvg = true;
+            _strategicHouseEnTabletError = null;
+            break;
+          case DisplayDeviceTab.mobile:
+            _strategicHouseEnMobileBytes = b;
+            _strategicHouseEnMobileIsSvg = true;
+            _strategicHouseEnMobileError = null;
+            break;
+        }
+      }
+    });
+  }
+
+  // Error (if any) for the device currently selected in the tab bar.
+  String? _strategicHouseSelectedError({required bool isAr}) {
+    if (isAr) {
+      switch (_strategicHouseArDisplayTab) {
+        case DisplayDeviceTab.largeScreen: return _strategicHouseArDesktopError;
+        case DisplayDeviceTab.tablet:      return _strategicHouseArTabletError;
+        case DisplayDeviceTab.mobile:      return _strategicHouseArMobileError;
+      }
+    } else {
+      switch (_strategicHouseEnDisplayTab) {
+        case DisplayDeviceTab.largeScreen: return _strategicHouseEnDesktopError;
+        case DisplayDeviceTab.tablet:      return _strategicHouseEnTabletError;
+        case DisplayDeviceTab.mobile:      return _strategicHouseEnMobileError;
+      }
     }
   }
 
-  // Reset changes tracking after save
-  void _resetChangesTracking() {
-    _originalNavTitleEn = _navTitleEnCtrl.text;
-    _originalNavTitleAr = _navTitleArCtrl.text;
-    _originalNavIconUrl = _navIconUrl;
-    _originalStrategicHouseEnUrl = _strategicHouseEnUrl;
-    _originalStrategicHouseArUrl = _strategicHouseArUrl;
-
-    _navIconBytes = null;
-    _strategicHouseEnBytes = null;
-    _strategicHouseArBytes = null;
-
-    _hasChanges = false;
-  }
-
   // ── Seed ─────────────────────────────────────────────────────────────────
-  void _seed(OurStrategyModel m) {
+  void _seed(OurStrategyModel m, {bool isFromDraft = false}) {
     if (_seeded) return;
     _seeded = true;
+    _isEditingDraft = isFromDraft;
 
 
-    _originalNavTitleEn          = m.navigationLabel.title.en;
-    _originalNavTitleAr          = m.navigationLabel.title.ar;
-    _originalNavIconUrl          = m.navigationLabel.iconUrl;
-    _originalStrategicHouseEnUrl = m.strategicHouseEnUrl;
-    _originalStrategicHouseArUrl = m.strategicHouseArUrl;
+    // Remove listeners temporarily
+    for (final ctrl in _allControllers) {
+      ctrl.removeListener(_onFieldChanged);
+    }
 
-    _navTitleEnCtrl.text  = _originalNavTitleEn;
-    _navTitleArCtrl.text  = _originalNavTitleAr;
-    _navIconUrl           = _originalNavIconUrl;
-    _strategicHouseEnUrl  = _originalStrategicHouseEnUrl;
-    _strategicHouseArUrl  = _originalStrategicHouseArUrl;
+    _navTitleEnCtrl.text = m.navigationLabel.title.en;
+    _navTitleArCtrl.text = m.navigationLabel.title.ar;
+    _navIconUrl = m.navigationLabel.iconUrl;
+    _navIconIsSvg = _isSvgUrl(m.navigationLabel.iconUrl);
 
-    // Ensure hasChanges is false initially
-    _hasChanges = false;
+    // EN device URLs
+    _strategicHouseEnDesktopUrl = m.strategicHouseEnDesktopUrl;
+    _strategicHouseEnDesktopIsSvg = _isSvgUrl(m.strategicHouseEnDesktopUrl);
+
+    _strategicHouseEnTabletUrl = m.strategicHouseEnTabletUrl;
+    _strategicHouseEnTabletIsSvg = _isSvgUrl(m.strategicHouseEnTabletUrl);
+
+    _strategicHouseEnMobileUrl = m.strategicHouseEnMobileUrl;
+    _strategicHouseEnMobileIsSvg = _isSvgUrl(m.strategicHouseEnMobileUrl);
+
+    // AR device URLs
+    _strategicHouseArDesktopUrl = m.strategicHouseArDesktopUrl;
+    _strategicHouseArDesktopIsSvg = _isSvgUrl(m.strategicHouseArDesktopUrl);
+
+    _strategicHouseArTabletUrl = m.strategicHouseArTabletUrl;
+    _strategicHouseArTabletIsSvg = _isSvgUrl(m.strategicHouseArTabletUrl);
+
+    _strategicHouseArMobileUrl = m.strategicHouseArMobileUrl;
+    _strategicHouseArMobileIsSvg = _isSvgUrl(m.strategicHouseArMobileUrl);
+
+    // Re-add listeners
+    for (final ctrl in _allControllers) {
+      ctrl.addListener(_onFieldChanged);
+    }
+
+    setState(() {});
   }
 
+  // ── Build Model ───────────────────────────────────────────────────────────
   OurStrategyModel _buildModel(String status) => OurStrategyModel(
     publishStatus: status,
     navigationLabel: AboutNavigationLabel(
@@ -216,66 +367,235 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
       ),
     ),
     vision: const StrategySection(),
-    strategicHouseEnUrl: _strategicHouseEnUrl,
-    strategicHouseArUrl: _strategicHouseArUrl,
+    strategicHouseEnDesktopUrl: _strategicHouseEnDesktopUrl,
+    strategicHouseEnTabletUrl: _strategicHouseEnTabletUrl,
+    strategicHouseEnMobileUrl: _strategicHouseEnMobileUrl,
+    strategicHouseArDesktopUrl: _strategicHouseArDesktopUrl,
+    strategicHouseArTabletUrl: _strategicHouseArTabletUrl,
+    strategicHouseArMobileUrl: _strategicHouseArMobileUrl,
   );
 
   Map<String, Uint8List> _collectUploads() {
     final uploads = <String, Uint8List>{};
-    if (_navIconBytes != null)
+
+    // Navigation icon
+    if (_navIconBytes != null && _navIconIsSvg)
       uploads['strategy_cms/navLabel/icon'] = _navIconBytes!;
-    if (_strategicHouseEnBytes != null)
-      uploads['strategy_cms/strategicHouse/en'] = _strategicHouseEnBytes!;
-    if (_strategicHouseArBytes != null)
-      uploads['strategy_cms/strategicHouse/ar'] = _strategicHouseArBytes!;
+
+    // EN device uploads
+    if (_strategicHouseEnDesktopBytes != null && _strategicHouseEnDesktopIsSvg)
+      uploads['strategy_cms/strategicHouse/en/desktop'] = _strategicHouseEnDesktopBytes!;
+
+    if (_strategicHouseEnTabletBytes != null && _strategicHouseEnTabletIsSvg)
+      uploads['strategy_cms/strategicHouse/en/tablet'] = _strategicHouseEnTabletBytes!;
+
+    if (_strategicHouseEnMobileBytes != null && _strategicHouseEnMobileIsSvg)
+      uploads['strategy_cms/strategicHouse/en/mobile'] = _strategicHouseEnMobileBytes!;
+
+    // AR device uploads
+    if (_strategicHouseArDesktopBytes != null && _strategicHouseArDesktopIsSvg)
+      uploads['strategy_cms/strategicHouse/ar/desktop'] = _strategicHouseArDesktopBytes!;
+
+    if (_strategicHouseArTabletBytes != null && _strategicHouseArTabletIsSvg)
+      uploads['strategy_cms/strategicHouse/ar/tablet'] = _strategicHouseArTabletBytes!;
+
+    if (_strategicHouseArMobileBytes != null && _strategicHouseArMobileIsSvg)
+      uploads['strategy_cms/strategicHouse/ar/mobile'] = _strategicHouseArMobileBytes!;
+
     return uploads;
   }
 
+  // ── Check if a device image is present ─────────────────────────────────────
+  bool _hasEnDeviceImage(DeviceType device) {
+    switch (device) {
+      case DeviceType.desktop:
+        return _strategicHouseEnDesktopBytes != null || _strategicHouseEnDesktopUrl.isNotEmpty;
+      case DeviceType.tablet:
+        return _strategicHouseEnTabletBytes != null || _strategicHouseEnTabletUrl.isNotEmpty;
+      case DeviceType.mobile:
+        return _strategicHouseEnMobileBytes != null || _strategicHouseEnMobileUrl.isNotEmpty;
+    }
+  }
+
+  bool _hasArDeviceImage(DeviceType device) {
+    switch (device) {
+      case DeviceType.desktop:
+        return _strategicHouseArDesktopBytes != null || _strategicHouseArDesktopUrl.isNotEmpty;
+      case DeviceType.tablet:
+        return _strategicHouseArTabletBytes != null || _strategicHouseArTabletUrl.isNotEmpty;
+      case DeviceType.mobile:
+        return _strategicHouseArMobileBytes != null || _strategicHouseArMobileUrl.isNotEmpty;
+    }
+  }
+
   // ── Validation ────────────────────────────────────────────────────────────
+  bool _validate({bool forPublish = false}) {
+    bool isValid = true;
+
+    // Clear previous errors
+    setState(() {
+      _navIconError = null;
+      _strategicHouseEnDesktopError = null;
+      _strategicHouseEnTabletError = null;
+      _strategicHouseEnMobileError = null;
+      _strategicHouseArDesktopError = null;
+      _strategicHouseArTabletError = null;
+      _strategicHouseArMobileError = null;
+    });
+
+    // Validate text fields
+    if (!_isValidEnglish(_navTitleEnCtrl.text)) {
+      isValid = false;
+    }
+    if (!_isValidArabic(_navTitleArCtrl.text)) {
+      isValid = false;
+    }
+
+    // Validate Navigation Icon (any image format allowed)
+    final hasNavIcon = _navIconBytes != null || _navIconUrl.isNotEmpty;
+    if (!hasNavIcon) {
+      setState(() => _navIconError = 'Navigation icon is required');
+      isValid = false;
+    }
+
+    // For publish, ALL 6 Strategic House images are REQUIRED (EN & AR x 3 devices)
+    if (forPublish) {
+      if (!_hasEnDeviceImage(DeviceType.desktop)) {
+        setState(() => _strategicHouseEnDesktopError = 'Strategic House (ENG) Desktop image is required for publishing');
+        isValid = false;
+      }
+      if (!_hasEnDeviceImage(DeviceType.tablet)) {
+        setState(() => _strategicHouseEnTabletError = 'Strategic House (ENG) Tablet image is required for publishing');
+        isValid = false;
+      }
+      if (!_hasEnDeviceImage(DeviceType.mobile)) {
+        setState(() => _strategicHouseEnMobileError = 'Strategic House (ENG) Mobile image is required for publishing');
+        isValid = false;
+      }
+      if (!_hasArDeviceImage(DeviceType.desktop)) {
+        setState(() => _strategicHouseArDesktopError = 'Strategic House (ARB) Desktop image is required for publishing');
+        isValid = false;
+      }
+      if (!_hasArDeviceImage(DeviceType.tablet)) {
+        setState(() => _strategicHouseArTabletError = 'Strategic House (ARB) Tablet image is required for publishing');
+        isValid = false;
+      }
+      if (!_hasArDeviceImage(DeviceType.mobile)) {
+        setState(() => _strategicHouseArMobileError = 'Strategic House (ARB) Mobile image is required for publishing');
+        isValid = false;
+      }
+    }
+
+    return isValid;
+  }
+
+  // ── Check if form is valid for publishing ────────────────────────────────
+  bool get _isFormValid {
+    // Check text fields
+    if (!_isValidEnglish(_navTitleEnCtrl.text)) return false;
+    if (!_isValidArabic(_navTitleArCtrl.text)) return false;
+
+    // Check navigation icon (any image format allowed)
+    final hasNavIcon = _navIconBytes != null || _navIconUrl.isNotEmpty;
+    if (!hasNavIcon) return false;
+
+    // Check all 6 strategic house images exist (any image format allowed)
+    // EN
+    if (!_hasEnDeviceImage(DeviceType.desktop)) return false;
+    if (!_hasEnDeviceImage(DeviceType.tablet)) return false;
+    if (!_hasEnDeviceImage(DeviceType.mobile)) return false;
+
+    // AR
+    if (!_hasArDeviceImage(DeviceType.desktop)) return false;
+    if (!_hasArDeviceImage(DeviceType.tablet)) return false;
+    if (!_hasArDeviceImage(DeviceType.mobile)) return false;
+
+    // Check for validation errors
+    if (_navIconError != null) return false;
+    if (_strategicHouseEnDesktopError != null) return false;
+    if (_strategicHouseEnTabletError != null) return false;
+    if (_strategicHouseEnMobileError != null) return false;
+    if (_strategicHouseArDesktopError != null) return false;
+    if (_strategicHouseArTabletError != null) return false;
+    if (_strategicHouseArMobileError != null) return false;
+
+    return true;
+  }
+
+  // ── Get missing fields for error dialog ──────────────────────────────────
   List<String> _getMissingFields() {
     final missing = <String>[];
 
-    if (_navTitleEnCtrl.text.trim().isEmpty) {
-      missing.add('Navigation Title (English)');
+    if (_navTitleEnCtrl.text.trim().isEmpty) missing.add('Navigation Title (EN)');
+    if (_navTitleArCtrl.text.trim().isEmpty) missing.add('Navigation Title (AR)');
+
+    final hasNavIcon = _navIconBytes != null || _navIconUrl.isNotEmpty;
+    if (!hasNavIcon) missing.add('Navigation Icon');
+
+    // EN devices
+    if (!_hasEnDeviceImage(DeviceType.desktop)) {
+      missing.add('Strategic House (ENG) Desktop image');
     }
-    if (_navTitleArCtrl.text.trim().isEmpty) {
-      missing.add('Navigation Title (Arabic)');
+    if (!_hasEnDeviceImage(DeviceType.tablet)) {
+      missing.add('Strategic House (ENG) Tablet image');
     }
-    if (_navIconUrl.isEmpty && _navIconBytes == null) {
-      missing.add('Navigation Icon');
+    if (!_hasEnDeviceImage(DeviceType.mobile)) {
+      missing.add('Strategic House (ENG) Mobile image');
     }
-    if (_strategicHouseEnUrl.isEmpty && _strategicHouseEnBytes == null) {
-      missing.add('Strategic House Image (English)');
+
+    // AR devices
+    if (!_hasArDeviceImage(DeviceType.desktop)) {
+      missing.add('Strategic House (ARB) Desktop image');
     }
-    if (_strategicHouseArUrl.isEmpty && _strategicHouseArBytes == null) {
-      missing.add('Strategic House Image (Arabic)');
+    if (!_hasArDeviceImage(DeviceType.tablet)) {
+      missing.add('Strategic House (ARB) Tablet image');
+    }
+    if (!_hasArDeviceImage(DeviceType.mobile)) {
+      missing.add('Strategic House (ARB) Mobile image');
     }
 
     return missing;
   }
 
-  void _showValidationDialog() {
-    final missingFields = _getMissingFields();
+  // ── Show validation error dialog ──────────────────────────────────────────
+  void _showValidationError() {
+    final missing = _getMissingFields();
+    if (missing.isEmpty) return;
 
-    final message = missingFields.isEmpty
-        ? 'Please check all required fields.'
-        : 'Please fill the following required fields:\n\n• ${missingFields.join('\n• ')}';
-
-    showConfirmDialog(
+    showDialog(
       context: context,
-      title: 'Required Fields Missing',
-      subtitle: message,
-      confirmLabel: 'OK',
-      cancelLabel: '',
-      onConfirm: () {},
-      iconWidget: Container(
-        width: 60.r,
-        height: 60.r,
-        decoration: const BoxDecoration(
-          color: Color(0xFFE53935),
-          shape: BoxShape.circle,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: const Color(0xFFD32F2F), size: 24.sp),
+            SizedBox(width: 8.w),
+            const Text('Validation Error'),
+          ],
         ),
-        child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Please fill all required fields correctly:'),
+            const SizedBox(height: 12),
+            ...missing.map((field) => Padding(
+              padding: const EdgeInsets.only(left: 8, top: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('• ', style: TextStyle(color: const Color(0xFFD32F2F))),
+                  Expanded(child: Text(field)),
+                ],
+              ),
+            )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }
@@ -283,13 +603,12 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
   // ── Preview ───────────────────────────────────────────────────────────────
   void _onPreview() {
     setState(() => _submitted = true);
-    if (!_isFormValid) {
-      _showValidationDialog();
-      return;
-    }
+    if (!_validate(forPublish: false)) return;
+
     final cubit   = context.read<StrategyCubit>();
     final model   = _buildModel('draft');
     final uploads = _collectUploads();
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -301,150 +620,131 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
     );
   }
 
-  // ── Save / Publish ────────────────────────────────────────────────────────
-  Future<void> _onSave() async {
-    setState(() => _submitted = true);
-
-    if (!_isFormValid) {
-      _showValidationDialog();
-      return;
+  // ── Save ──────────────────────────────────────────────────────────────────
+  Future<void> _save(String status) async {
+    // For publish, validate all 6 images are present
+    if (status == 'published') {
+      setState(() => _submitted = true);
+      if (!_validate(forPublish: true)) {
+        _showValidationError();
+        return;
+      }
     }
 
     setState(() => _isSaving = true);
 
-    final model   = _buildModel('published');
+    final model = _buildModel(status);
     final uploads = _collectUploads();
 
 
-    try {
-      await context.read<StrategyCubit>().save(
-        model: model,
-        imageUploads: uploads.isEmpty ? null : uploads,
-      );
-    } catch (e) {
-      setState(() => _isSaving = false);
-      if (mounted) {
-        showConfirmDialog(
-          context: context,
-          title: 'Error',
-          subtitle: 'Failed to save: ${e.toString()}',
-          confirmLabel: 'OK',
-          cancelLabel: '',
-          onConfirm: () {},
-          iconWidget: Container(
-            width: 60.r,
-            height: 60.r,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE53935),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
-          ),
-        );
-      }
-    }
-  }
-
-  void _showPublishConfirmDialog() {
-    setState(() => _submitted = true);
-
-    if (!_isFormValid) {
-      _showValidationDialog();
-      return;
-    }
-
-    showPublishConfirmDialog(
-      context: context,
-      title: 'PUBLISH STRATEGY',
-      subtitle: 'Do you want to publish this strategy page now?',
-      confirmLabel: 'Publish',
-      onConfirm: _onSave,
+    await context.read<StrategyCubit>().save(
+      model: model,
+      imageUploads: uploads.isEmpty ? null : uploads,
     );
   }
 
-  void _onDiscard() {
-    if (_hasChanges) {
-      showConfirmDialog(
-        context: context,
-        title: 'Discard Changes',
-        subtitle: 'Are you sure you want to discard all changes?',
-        confirmLabel: 'Discard',
-        cancelLabel: 'Cancel',
-        onConfirm: () => Navigator.pop(context),
+  // ── Load SVG from URL with caching ────────────────────────────────────────
+  Future<Uint8List> _loadSvgBytes(String url) async {
+    if (_svgCache.containsKey(url)) {
+      return _svgCache[url]!;
+    }
+
+    try {
+      final res = await html.HttpRequest.request(
+        url,
+        method: 'GET',
+        responseType: 'arraybuffer',
       );
-    } else {
-      Navigator.pop(context);
+      if (res.status != 200) {
+        throw Exception('Failed to load SVG: ${res.status}');
+      }
+      final bytes = (res.response as ByteBuffer).asUint8List();
+
+      _svgCache[url] = bytes;
+      return bytes;
+    } catch (e) {
+      rethrow;
     }
   }
 
-  // ── Device preview width helper ───────────────────────────────────────────
-  double _previewWidth(DeviceTab tab) {
-    switch (tab) {
-      case DeviceTab.largeScreen:
-        return double.infinity;
-      case DeviceTab.tablet:
-        return 600.w;
-      case DeviceTab.mobile:
-        return 320.w;
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUILD
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── BUILD ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StrategyCubit, StrategyState>(
       listener: (context, state) {
+
         if (state is StrategyLoaded) {
           _seed(state.data);
         }
+
         if (state is StrategySaved) {
           setState(() => _isSaving = false);
 
           setState(() {
-            _navIconUrl          = state.data.navigationLabel.iconUrl;
-            _strategicHouseEnUrl = state.data.strategicHouseEnUrl;
-            _strategicHouseArUrl = state.data.strategicHouseArUrl;
+            _navIconUrl = state.data.navigationLabel.iconUrl;
+            _navIconIsSvg = _isSvgUrl(state.data.navigationLabel.iconUrl);
 
-            // Reset change tracking
-            _resetChangesTracking();
+            // EN device URLs
+            _strategicHouseEnDesktopUrl = state.data.strategicHouseEnDesktopUrl;
+            _strategicHouseEnDesktopIsSvg = _isSvgUrl(state.data.strategicHouseEnDesktopUrl);
 
-            // Clear cache
-            _urlBytesCache.clear();
+            _strategicHouseEnTabletUrl = state.data.strategicHouseEnTabletUrl;
+            _strategicHouseEnTabletIsSvg = _isSvgUrl(state.data.strategicHouseEnTabletUrl);
+
+            _strategicHouseEnMobileUrl = state.data.strategicHouseEnMobileUrl;
+            _strategicHouseEnMobileIsSvg = _isSvgUrl(state.data.strategicHouseEnMobileUrl);
+
+            // AR device URLs
+            _strategicHouseArDesktopUrl = state.data.strategicHouseArDesktopUrl;
+            _strategicHouseArDesktopIsSvg = _isSvgUrl(state.data.strategicHouseArDesktopUrl);
+
+            _strategicHouseArTabletUrl = state.data.strategicHouseArTabletUrl;
+            _strategicHouseArTabletIsSvg = _isSvgUrl(state.data.strategicHouseArTabletUrl);
+
+            _strategicHouseArMobileUrl = state.data.strategicHouseArMobileUrl;
+            _strategicHouseArMobileIsSvg = _isSvgUrl(state.data.strategicHouseArMobileUrl);
+
+            // Clear bytes after successful upload
+            _navIconBytes = null;
+            _strategicHouseEnDesktopBytes = null;
+            _strategicHouseEnTabletBytes = null;
+            _strategicHouseEnMobileBytes = null;
+            _strategicHouseArDesktopBytes = null;
+            _strategicHouseArTabletBytes = null;
+            _strategicHouseArMobileBytes = null;
+
+            // Clear cache for updated URLs
+            _svgCache.remove(_navIconUrl);
+            _svgCache.remove(_strategicHouseEnDesktopUrl);
+            _svgCache.remove(_strategicHouseEnTabletUrl);
+            _svgCache.remove(_strategicHouseEnMobileUrl);
+            _svgCache.remove(_strategicHouseArDesktopUrl);
+            _svgCache.remove(_strategicHouseArTabletUrl);
+            _svgCache.remove(_strategicHouseArMobileUrl);
           });
 
           if (mounted) {
             Future.delayed(const Duration(milliseconds: 1500), () {
-              if (mounted) Navigator.pop(context);
+              if (mounted && Navigator.canPop(context)) Navigator.pop(context);
             });
           }
         }
+
         if (state is StrategyError) {
           setState(() => _isSaving = false);
           if (mounted) {
-            showConfirmDialog(
-              context: context,
-              title: 'Error',
-              subtitle: state.message,
-              confirmLabel: 'OK',
-              cancelLabel: '',
-              onConfirm: () {},
-              iconWidget: Container(
-                width: 60.r,
-                height: 60.r,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE53935),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.error_outline, color: Colors.white, size: 36.r),
-              ),
-            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Error: ${state.message}',
+                  style: StyleText.fontSize14Weight400.copyWith(color: Colors.white)),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ));
           }
         }
       },
       builder: (context, state) {
         final loading = state is StrategyLoading || state is StrategyInitial;
+        final canPublish = _isFormValid;
 
         return Scaffold(
           backgroundColor: ColorPick.background,
@@ -464,10 +764,10 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
                             AdminSubNavBar(activeIndex: 3),
                             SizedBox(height: 20.h),
                             loading
-                                ?  Center(
+                                ? Center(
                                 child: CircularProgressIndicator(
                                     color: ColorPick.primary))
-                                : _buildForm(),
+                                : _buildForm(canPublish),
                           ],
                         ),
                       ),
@@ -483,19 +783,45 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // FORM
-  // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildForm() {
-    final bool formValid = _isFormValid;
-    final bool canPublish = formValid && _hasChanges && !_isSaving;
-
+  // ── Form ──────────────────────────────────────────────────────────────────
+  Widget _buildForm(bool canPublish) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Editing Our Strategy',
-            style: StyleText.fontSize45Weight600.copyWith(
-                color: ColorPick.primary, fontWeight: FontWeight.w700)),
+        // ── Title row with draft badge ─────────────────────────────────────
+        Row(
+          children: [
+            Text('Editing Our Strategy',
+                style: StyleText.fontSize45Weight600.copyWith(
+                    color: ColorPick.primary, fontWeight: FontWeight.w700)),
+            if (_isEditingDraft) ...[
+              SizedBox(width: 12.w),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+                child: Text(
+                  'EDITING DRAFT',
+                  style: StyleText.fontSize12Weight600.copyWith(
+                    color: const Color(0xFFF59E0B),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (_isEditingDraft)
+          Padding(
+            padding: EdgeInsets.only(top: 4.h),
+            child: Text(
+              'You are editing a saved draft. The published version is still live.',
+              style: StyleText.fontSize12Weight400.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
         SizedBox(height: 24.h),
 
         // ── Navigation Label ──────────────────────────────────────────────
@@ -507,25 +833,33 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _imageUploadCircle(
-                label: 'Icon *',
+              _NavIconUploadWidget(
+                key: _navIconKey,
                 bytes: _navIconBytes,
                 url: _navIconUrl,
-                showError: _submitted &&
-                    _navIconBytes == null &&
-                    _navIconUrl.isEmpty,
+                isSvg: _navIconIsSvg,
+                errorText: _navIconError,
+                loadSvgBytes: _loadSvgBytes,
                 onTap: () async {
-                  final b = await _pickSvgFile();
+                  final b = await _pickSvgImage();
                   if (b != null) {
                     setState(() {
                       _navIconBytes = b;
-                      _checkForChanges();
+                      _navIconIsSvg = true;
+                      _navIconError = null;
                     });
                   }
                 },
+                onRemove: (_navIconBytes != null || _navIconUrl.isNotEmpty)
+                    ? () => setState(() {
+                  _navIconBytes = null;
+                  _navIconUrl = '';
+                  _navIconIsSvg = false;
+                })
+                    : null,
               ),
               SizedBox(height: 16.h),
-              _fieldLabel('Title *'),
+              _fieldLabel('Title'),
               SizedBox(height: 8.h),
               _bilingualRow(
                   enCtrl: _navTitleEnCtrl,
@@ -535,140 +869,374 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
             ],
           ),
         ),
-        SizedBox(height: 16.h),
 
-        // ── Strategic House — ENG ─────────────────────────────────────────
+        // ── Strategic House — ENG (3 devices) ─────────────────────────────────────────
         _accordion(
-          title: 'Strategic House - ENG',
+          title: 'Strategic House - EN',
           isOpen: _strategicHouseEnOpen,
           onToggle: () =>
               setState(() => _strategicHouseEnOpen = !_strategicHouseEnOpen),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Display preview selector
               Container(
                 width: 300.w,
-                child: _deviceTabBar(
-                  selected: _strategicHouseEnTab,
+                child: _deviceDisplayTabBar(
+                  selected: _strategicHouseEnDisplayTab,
                   onChanged: (tab) =>
-                      setState(() => _strategicHouseEnTab = tab),
+                      setState(() => _strategicHouseEnDisplayTab = tab),
                 ),
               ),
               SizedBox(height: 16.h),
-              _imageUploadBox(
-                label: 'Upload Image *',
-                bytes: _strategicHouseEnBytes,
-                url: _strategicHouseEnUrl,
-                previewWidth: _previewWidth(_strategicHouseEnTab),
-                showError: _submitted &&
-                    _strategicHouseEnBytes == null &&
-                    _strategicHouseEnUrl.isEmpty,
-                onTap: () async {
-                  final b = await _pickImage();
-                  if (b != null) {
-                    setState(() {
-                      _strategicHouseEnBytes = b;
-                      _checkForChanges();
-                    });
-                  }
-                },
-                onRemove: (_strategicHouseEnBytes != null ||
-                    _strategicHouseEnUrl.isNotEmpty)
-                    ? () => setState(() {
-                  _strategicHouseEnBytes = null;
-                  _strategicHouseEnUrl   = '';
-                  _urlBytesCache.remove(_originalStrategicHouseEnUrl);
-                  _checkForChanges();
-                })
-                    : null,
+
+              // Current display preview — TAP to upload/replace the SVG for
+              // the device selected in the tab bar above.
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    _uploadStrategicHouseForSelectedTab(isAr: false),
+                child: _StrategicHouseDisplayWidget(
+                  displayTab: _strategicHouseEnDisplayTab,
+                  desktopBytes: _strategicHouseEnDesktopBytes,
+                  desktopUrl: _strategicHouseEnDesktopUrl,
+                  desktopIsSvg: _strategicHouseEnDesktopIsSvg,
+                  tabletBytes: _strategicHouseEnTabletBytes,
+                  tabletUrl: _strategicHouseEnTabletUrl,
+                  tabletIsSvg: _strategicHouseEnTabletIsSvg,
+                  mobileBytes: _strategicHouseEnMobileBytes,
+                  mobileUrl: _strategicHouseEnMobileUrl,
+                  mobileIsSvg: _strategicHouseEnMobileIsSvg,
+                  loadSvgBytes: _loadSvgBytes,
+                ),
               ),
+              SizedBox(height: 8.h),
+
+              if (_strategicHouseSelectedError(isAr: false) != null) ...[
+                SizedBox(height: 6.h),
+                Text(
+                  _strategicHouseSelectedError(isAr: false)!,
+                  style: TextStyle(fontSize: 12.sp, color: Colors.red),
+                ),
+              ],
             ],
           ),
         ),
         SizedBox(height: 16.h),
 
-        // ── Strategic House — ARB ─────────────────────────────────────────
+        // ── Strategic House — ARB (3 devices) ─────────────────────────────────────────
         _accordion(
-          title: 'Strategic House - ARB',
+          title: 'Strategic House - AR',
           isOpen: _strategicHouseArOpen,
           onToggle: () =>
               setState(() => _strategicHouseArOpen = !_strategicHouseArOpen),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Display preview selector
               Container(
                 width: 300.w,
-                child: _deviceTabBar(
-                  selected: _strategicHouseArTab,
+                child: _deviceDisplayTabBar(
+                  selected: _strategicHouseArDisplayTab,
                   onChanged: (tab) =>
-                      setState(() => _strategicHouseArTab = tab),
+                      setState(() => _strategicHouseArDisplayTab = tab),
                 ),
               ),
               SizedBox(height: 16.h),
-              _imageUploadBox(
-                label: 'Upload Image *',
-                bytes: _strategicHouseArBytes,
-                url: _strategicHouseArUrl,
-                previewWidth: _previewWidth(_strategicHouseArTab),
-                showError: _submitted &&
-                    _strategicHouseArBytes == null &&
-                    _strategicHouseArUrl.isEmpty,
-                onTap: () async {
-                  final b = await _pickImage();
-                  if (b != null) {
-                    setState(() {
-                      _strategicHouseArBytes = b;
-                      _checkForChanges();
-                    });
-                  }
-                },
-                onRemove: (_strategicHouseArBytes != null ||
-                    _strategicHouseArUrl.isNotEmpty)
-                    ? () => setState(() {
-                  _strategicHouseArBytes = null;
-                  _strategicHouseArUrl   = '';
-                  _urlBytesCache.remove(_originalStrategicHouseArUrl);
-                  _checkForChanges();
-                })
-                    : null,
+
+              // Current display preview — TAP to upload/replace the SVG for
+              // the device selected in the tab bar above.
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    _uploadStrategicHouseForSelectedTab(isAr: true),
+                child: _StrategicHouseDisplayWidget(
+                  displayTab: _strategicHouseArDisplayTab,
+                  desktopBytes: _strategicHouseArDesktopBytes,
+                  desktopUrl: _strategicHouseArDesktopUrl,
+                  desktopIsSvg: _strategicHouseArDesktopIsSvg,
+                  tabletBytes: _strategicHouseArTabletBytes,
+                  tabletUrl: _strategicHouseArTabletUrl,
+                  tabletIsSvg: _strategicHouseArTabletIsSvg,
+                  mobileBytes: _strategicHouseArMobileBytes,
+                  mobileUrl: _strategicHouseArMobileUrl,
+                  mobileIsSvg: _strategicHouseArMobileIsSvg,
+                  loadSvgBytes: _loadSvgBytes,
+                ),
               ),
+
+              if (_strategicHouseSelectedError(isAr: true) != null) ...[
+                SizedBox(height: 6.h),
+                Text(
+                  _strategicHouseSelectedError(isAr: true)!,
+                  style: TextStyle(fontSize: 12.sp, color: Colors.red),
+                ),
+              ],
             ],
           ),
         ),
         SizedBox(height: 32.h),
 
         // ── Action buttons ────────────────────────────────────────────────
-        Row(children: [
-          Expanded(
-              child: _btn(
-                  label: 'Preview',
-                  color: Color(0XFF608570),
-                  onTap: formValid ? _onPreview : null)),
-          SizedBox(width: 300.w),
-          Expanded(
-              child: _btn(
-                  label: 'Publish',
-                  color: canPublish
-                      ? ColorPick.primary
-                      : ColorPick.primary.withValues(alpha: 0.4),
-                  onTap: canPublish ? _showPublishConfirmDialog : null)),
-        ]),
+        _actionRow(canPublish),
         SizedBox(height: 12.h),
-        Row(
-          children: [
-            Expanded(
-              child: _btn(
-                  label: 'Discard',
-                  color: const Color(0xFF9E9E9E),
-                  onTap: _onDiscard),
-            ),
-            SizedBox(width: 300.w),
-            Expanded(child: Column())
-          ],
-        ),
+        _secondaryRow(),
         SizedBox(height: 48.h),
       ],
     );
   }
 
+  // ── Action Buttons Row ────────────────────────────────────────────────────
+  Widget _actionRow(bool canPublish) {
+    return Row(children: [
+      Expanded(
+        child: _btn(
+          label: 'Preview',
+          color: ColorPick.preview,
+          onTap: _onPreview,
+        ),
+      ),
+      SizedBox(width: 300.w),
+      Expanded(
+        child: AbsorbPointer(
+          absorbing: !canPublish,
+          child: Opacity(
+            opacity: canPublish ? 1.0 : 0.6,
+            child: _btn(
+              label: 'Publish',
+              color: canPublish ? ColorPick.primary : ColorPick.primary.withValues(alpha: 0.35),
+              onTap: () {
+                if (!canPublish) {
+                  setState(() => _submitted = true);
+                  _showValidationError();
+                  return;
+                }
+
+                showPublishConfirmDialog(
+                  context: context,
+                  title: 'PUBLISHING STRATEGY',
+                  subtitle: 'Do you want to publish this strategy?',
+                  onConfirm: () async => _save('published'),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    ]);
+  }
+
+  // ── Secondary Buttons Row ─────────────────────────────────────────────────
+  Widget _secondaryRow() {
+    return Row(children: [
+      Expanded(
+        child: _btn(
+          label: 'Discard',
+          color: const Color(0xFF9E9E9E),
+          onTap: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ),
+      SizedBox(width: 300.w),
+      Expanded(child: Column())
+    ]);
+  }
+
+  // ── Shared helpers ────────────────────────────────────────────────────────
+  Widget _accordion({
+    required String title,
+    required bool isOpen,
+    required VoidCallback onToggle,
+    required Widget child,
+  }) {
+    return Column(children: [
+      GestureDetector(
+        onTap: onToggle,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 9.h),
+          decoration: BoxDecoration(
+            color: ColorPick.primary,
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title,
+                  style: StyleText.fontSize14Weight500.copyWith(
+                      color: Colors.white
+                  )),
+              Icon(
+                  isOpen
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 22.sp),
+            ],
+          ),
+        ),
+      ),
+      if (isOpen)
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(12.r)),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 16.h),
+          child: child,
+        ),
+    ]);
+  }
+
+  // ── Device Display Tab Bar ────────────────────────────────────────────────
+  Widget _deviceDisplayTabBar({
+    required DisplayDeviceTab selected,
+    required ValueChanged<DisplayDeviceTab> onChanged,
+  }) {
+    Widget tab(String label, DisplayDeviceTab value) {
+      final isActive = selected == value;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onChanged(value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.symmetric(vertical: 10.h),
+            decoration: BoxDecoration(
+              color: isActive ? ColorPick.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Cairo',
+                  fontSize: 13.sp,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: isActive ? Colors.white : Colors.black54,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F0F0),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Row(
+        children: [
+          tab('Desktop', DisplayDeviceTab.largeScreen),
+          SizedBox(width: 4.w),
+          tab('Tablet', DisplayDeviceTab.tablet),
+          SizedBox(width: 4.w),
+          tab('Mobile', DisplayDeviceTab.mobile),
+        ],
+      ),
+    );
+  }
+
+  Widget _bilingualRow({
+    required TextEditingController enCtrl,
+    required TextEditingController arCtrl,
+    required String enHint,
+    required String arHint,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: CustomValidatedTextFieldMaster(
+            hint: enHint,
+            controller: enCtrl,
+            height: 42,
+            maxLines: 1,
+            fillColor: Colors.white,
+            maxLength: 200,
+            submitted: _submitted,
+            textDirection: ui.TextDirection.ltr,
+            textAlign: TextAlign.start,
+            onChanged: (_) {},
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: CustomValidatedTextFieldMaster(
+            hint: arHint,
+            controller: arCtrl,
+            height: 42,
+            fillColor: Colors.white,
+            maxLines: 1,
+            maxLength: 200,
+            submitted: _submitted,
+            textDirection: ui.TextDirection.rtl,
+            textAlign: TextAlign.right,
+            onChanged: (_) {},
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _fieldLabel(String t) => Text(t,
+      style: TextStyle(
+          fontFamily: 'Cairo',
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87));
+
+  Widget _btn({
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          height: 48.h,
+          decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(6.r)),
+          child: Center(
+            child: Text(label,
+                style: StyleText
+                    .fontSize14Weight600
+                    .copyWith(
+                    color:
+                    Colors.white)),
+          ),
+        ),
+      );
+
+  Widget _savingOverlay() => Container(
+    color: Colors.black54,
+    child: Center(
+      child: Container(
+        width: 180.w,
+        height: 100.h,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12.r)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(color: ColorPick.primary),
+            SizedBox(height: 12.h),
+            Text('Saving...',
+                style: TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 14.sp,
+                    color: Colors.black87)),
+          ],
+        ),
+      ),
+    ),
+  );
 }

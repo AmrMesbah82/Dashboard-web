@@ -69,7 +69,32 @@ class HomeCmsCubit extends Cubit<HomeCmsState> {
         .toList();
 
     final merged = [...deduped, ...missing];
-    return loaded.copyWith(navButtons: merged);
+    return loaded.copyWith(
+      navButtons: merged,
+      footerColumns: _normalizeFooterIds(loaded.footerColumns),
+    );
+  }
+
+  /// Ensures every footer column and label has a unique, non-empty id.
+  /// Old documents stored labels without ids ('' after fromMap), which made
+  /// id-based updates hit multiple labels at once → duplicated label text.
+  List<FooterColumnModel> _normalizeFooterIds(List<FooterColumnModel> columns) {
+    final colIds = <String>{};
+    return columns.map((c) {
+      var colId = c.id;
+      if (colId.isEmpty || colIds.contains(colId)) colId = 'fc_${_uid()}';
+      colIds.add(colId);
+
+      final lblIds = <String>{};
+      final labels = c.labels.map((l) {
+        var lblId = l.id;
+        if (lblId.isEmpty || lblIds.contains(lblId)) lblId = 'fl_${_uid()}';
+        lblIds.add(lblId);
+        return lblId == l.id ? l : l.copyWith(id: lblId);
+      }).toList();
+
+      return c.copyWith(id: colId, labels: labels);
+    }).toList();
   }
 
   // ══════════════════════════════════════════════════════════════════════════

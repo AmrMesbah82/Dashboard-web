@@ -45,7 +45,7 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
               children: [
                 Row(children: [
                   Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-                  Text(' *', style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                  Text(' *', style: StyleText.fontSize12Weight600.copyWith(color: Colors.red)),
                 ]),
                 SizedBox(height: 6.h),
                 _imgBox(
@@ -58,7 +58,7 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
                 ),
                 if (iconHasError) ...[
                   SizedBox(height: 4.h),
-                  Text('Icon (SVG) is required', style: TextStyle(fontSize: 11.sp, color: ColorPick.red)),
+                  Text('Icon (SVG) is required', style: StyleText.fontSize11Weight400.copyWith(color: ColorPick.red)),
                 ],
               ],
             ),
@@ -181,52 +181,11 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
   }
 
   Widget _imgBox({required _PickedImage picked, bool hasError = false, VoidCallback? onPick}) {
-    Widget content;
-    if (picked.bytes != null) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: SvgPicture.memory(picked.bytes!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else if (picked.url != null && picked.url!.isNotEmpty) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: NetworkImageView(url: picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: BoxDecoration(
-          color: hasError ? ColorPick.red.withValues(alpha: 0.08) : const Color(0xFFD9D9D9),
-          shape: BoxShape.circle,
-        ),
-        child: Center(child: Icon(Icons.add, color: hasError ? ColorPick.red : Colors.grey, size: 22.sp)),
-      );
-    }
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GestureDetector(onTap: onPick, child: content),
-        Positioned(
-          bottom: 0, right: 0,
-          child: GestureDetector(
-            onTap: onPick,
-            child: Container(
-              width: 25.w, height: 25.h,
-              decoration: BoxDecoration(color: ColorPick.primary, shape: BoxShape.circle),
-              child: Center(child: CustomSvg(assetPath: 'assets/control/camera.svg', width: 10.w, height: 10.h, fit: BoxFit.scaleDown)),
-            ),
-          ),
-        ),
-      ],
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircleBare(
+      bytes: picked.bytes,
+      url: picked.url ?? '',
+      onTap: onPick ?? () {},
     );
   }
 

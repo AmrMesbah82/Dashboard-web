@@ -12,6 +12,7 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
@@ -430,48 +431,8 @@ class _DepartmentEditPageState extends State<DepartmentEditPage> {
         children: [
 
           SizedBox(height: 20.h),
-          // ── Icon placeholder ──
-          Container(
-            width:  70.w,
-            height: 70.h,
-            decoration: const BoxDecoration(
-              color: Color(0xFFD9D9D9),
-              shape: BoxShape.circle,
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Center(
-                  child: CustomSvg(
-                    assetPath: 'assets/control/image.svg',
-                    width:  35.w,
-                    height: 35.h,
-                    fit:    BoxFit.scaleDown,
-                    color:  Colors.black,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right:  0,
-                  child: Container(
-                    width:  20.sp,
-                    height: 20.sp,
-                    decoration: const BoxDecoration(
-                        color: ColorPick.primary, shape: BoxShape.circle),
-                    child: Center(
-                      child: CustomSvg(
-                        assetPath: 'assets/control/camera.svg',
-                        width:  10.sp,
-                        height: 10.sp,
-                        fit:    BoxFit.scaleDown,
-                        color:  Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // ── Icon placeholder (shared image-upload circle) ──
+          imageUploadCircleBare(bytes: null, url: '', onTap: () {}),
           SizedBox(height: 20.h),
 
           // ── Name EN / AR ──

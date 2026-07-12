@@ -21,6 +21,7 @@ import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../../core/custom_dialog.dart';
+import '../../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
 import '../../../../../../core/theme/new_theme.dart';
@@ -643,7 +644,7 @@ class _TermsEditPageState extends State<TermsEditPage> {
               color: const Color(0xFF608570),
               onTap: _onPreview,
             )),
-            SizedBox(width: 300.w),
+            SizedBox(width: 400.w),
             Expanded(child: _btn(
               label: 'Publish',
               color: canPublish ? _kGreenSolid : _kGreenSolid.withValues(alpha: 0.4),
@@ -659,7 +660,7 @@ class _TermsEditPageState extends State<TermsEditPage> {
               color: const Color(0xFF9E9E9E),
               onTap: _onDiscard,
             )),
-            SizedBox(width: 300.w),
+            SizedBox(width: 400.w),
             Expanded(child: Column()),
           ],
         ),

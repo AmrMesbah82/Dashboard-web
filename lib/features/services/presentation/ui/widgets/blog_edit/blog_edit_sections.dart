@@ -14,66 +14,11 @@ extension _BlogEditSections on _BlogCreateEditPageState {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── SVG image picker ──────────────────────────────────────────────────
-        Stack(
-          alignment: AlignmentGeometry.bottomRight,
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                width: 60.w, height: 60.w,
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  shape: BoxShape.circle,
-                  border: imageError
-                      ? Border.all(color: ColorPick.red, width: 1.5)
-                      : null,
-                ),
-                child: _imageBytes != null
-                    ? ClipOval(
-                  child: SizedBox(
-                    width: 60.w, height: 60.w,
-                    child: Center(
-                      child: SvgPicture.memory(_imageBytes!,
-                          width: 30.w, height: 30.w, fit: BoxFit.scaleDown),
-                    ),
-                  ),
-                )
-                    : _existingImageUrl.isNotEmpty
-                    ? ClipOval(
-                  child: SizedBox(
-                    width: 60.w, height: 60.w,
-                    child: Center(
-                      child: _XhrCircleImage(url: _existingImageUrl, size: 30.w),
-                    ),
-                  ),
-                )
-                    : Center(
-                  child: CustomSvg(
-                    assetPath: "assets/control/image.svg",
-                    width: 30.w, height: 30.h, fit: BoxFit.scaleDown,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0, right: 0,
-              child: GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: 25.w, height: 25.h,
-                  decoration: BoxDecoration(
-                    color: ColorPick.primary, shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: Center(
-                    child: CustomSvg(assetPath: "assets/control/camera.svg",
-                        width: 10.w, height: 10.h, fit: BoxFit.scaleDown),
-                  ),
-                ),
-              ),
-            ),
-          ],
+        // ── SVG image picker (shared image-upload circle) ────────────────────
+        imageUploadCircleBare(
+          bytes: _imageBytes,
+          url: _existingImageUrl,
+          onTap: _pickImage,
         ),
         SizedBox(height: 10.h),
 
@@ -108,7 +53,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         SizedBox(height: 6.h),
         CustomTextField(
           controller: _shortDescEnCtrl, hint: 'Text Here', fillColor: Colors.white,
-          submitted: _submitted, maxLength: 150, showCharCount: true,
+          submitted: _submitted, maxLength: 150, showCharCount: false,
           isRequired: true, primaryColor: ColorPick.primary,
           textDirection: TextDirection.ltr, maxLines: 4, height: 100,
         ),
@@ -117,7 +62,7 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         SizedBox(height: 6.h),
         CustomTextField(
           controller: _shortDescArCtrl, hint: 'أكتب هنا', fillColor: Colors.white,
-          isRequired: true, submitted: _submitted, maxLength: 150, showCharCount: true,
+          isRequired: true, submitted: _submitted, maxLength: 150, showCharCount: false,
           primaryColor: ColorPick.primary, textDirection: TextDirection.rtl,
           textAlign: TextAlign.right, maxLines: 4, height: 100,
         ),

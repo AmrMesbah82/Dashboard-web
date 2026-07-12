@@ -20,10 +20,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:web_app_admin/core/constant/color.dart';
+import 'package:web_app_admin/core/widget/format.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_edit.dart';
 import 'package:web_app_admin/features/services/presentation/ui/pages/services_main/services_preview.dart';
 
+import '../../../../../../core/custom/2-custom_textfield.dart';
 import '../../../../../../core/custom_svg.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -227,8 +229,8 @@ class _ServicesMainPageMasterState extends State<ServicesMainPageMaster> {
                   }
                 },
                 child: Container(
-                  width: 165.w,
-                  height: 45.h,
+                  width: 130.w,
+                  height: 36.h,
                   decoration: BoxDecoration(
                     color: ColorPick.primary,
                     borderRadius: BorderRadius.circular(6.r),

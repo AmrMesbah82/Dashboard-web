@@ -20,8 +20,8 @@ class _ValuesGridState extends State<_ValuesGrid> {
         decoration: BoxDecoration(
             color: _kSurface, borderRadius: BorderRadius.circular(10)),
         child: Center(child: Text('No additional values.',
-            style: TextStyle(fontFamily: 'Cairo', fontSize: 12,
-                color: Colors.grey[500]))),
+            style: StyleText.fontSize12Weight400.copyWith(
+                fontSize: 12, color: Colors.grey[500]))),
       );
 
     final int idx = _sel.clamp(0, widget.values.length - 1);

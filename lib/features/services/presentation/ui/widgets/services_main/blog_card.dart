@@ -66,11 +66,18 @@ class _BlogCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    '$_datePrefix ${_fmtDate(post.createdAt)}',
-                    style: StyleText.fontSize11Weight400
-                        .copyWith(color: AppColors.secondaryText),
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Text(
+                        '$_datePrefix ',
+                        style: StyleText.fontSize11Weight400
+                            .copyWith(color: AppColors.secondaryText),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text('${_fmtDate(post.createdAt)}' ,   style: StyleText.fontSize11Weight400
+                          .copyWith(color: AppColors.text),
+                  overflow: TextOverflow.ellipsis,)
+                    ],
                   ),
                 ),
                 Container(
@@ -100,7 +107,7 @@ class _BlogCard extends StatelessWidget {
                     children: [
                       Text(
                         post.question.en.isNotEmpty
-                            ? post.question.en
+                            ? FormatHelper.capitalize(post.question.en)
                             : 'Untitled',
                         style: StyleText.fontSize13Weight600.copyWith(
                           color: ColorPick.primary,
@@ -112,7 +119,7 @@ class _BlogCard extends StatelessWidget {
                       SizedBox(height: 6.h),
                       Text(
                         post.shortDescription.en.isNotEmpty
-                            ? post.shortDescription.en
+                            ? FormatHelper.capitalize(post.shortDescription.en)
                             : 'Short Description...',
                         style: StyleText.fontSize12Weight400
                             .copyWith(color: AppColors.secondaryText),

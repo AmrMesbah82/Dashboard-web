@@ -48,6 +48,14 @@ class DepartmentModel {
     CREATED_AT: (createdAt ?? DateTime.now()).toIso8601String(),
   };
 
+  /// Nested template for [FlatCodec.decode].
+  static Map<String, dynamic> get flatTemplate => {
+        NAME_EN: '',
+        NAME_AR: '',
+        ICON_URL: '',
+        CREATED_AT: '',
+      };
+
   DepartmentModel copyWith({
     String? id,
     String? nameEn,

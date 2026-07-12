@@ -3,13 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
-
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
+import '../custom/2-custom_textfield.dart';
 import '../theme/app_theme.dart';
 import '../theme/appcolors.dart';
 import '../theme/text.dart';
-import 'default_form.dart';
 
 class AppSearchTextField extends StatelessWidget {
   AppSearchTextField({
@@ -36,8 +35,8 @@ class AppSearchTextField extends StatelessWidget {
   Color _primaryFromState(HomeCmsState state) {
     return switch (state) {
       HomeCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
-      HomeCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
-      _                          => AppColors.primary,
+      HomeCmsSaved(:final data) => _cmsHexColor(data.branding.primaryColor),
+      _ => AppColors.primary,
     };
   }
 
@@ -45,15 +44,18 @@ class AppSearchTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCmsCubit, HomeCmsState>(
       builder: (context, cmsState) {
-        final Color primary = _primaryFromState(cmsState);
+        // Kept so the CMS branding state still rebuilds the field.
+        _primaryFromState(cmsState);
 
         return Expanded(
-          child: DefaultFormField(
-            height: 36,
-            hintText: hintText ?? "search",
+          child: CustomTextField(
+            controller: controller,
+            onChanged: (v) => onChanged?.call(v),
+            hint: hintText ?? "search",
             maxLines: 1,
-            radius: 8.r,
-            backGroundColor: fillColor ?? AppColors.card,
+            height: 36,
+            borderRadius: BorderRadius.circular(8.r),
+            fillColor: fillColor ?? AppColors.card,
             hintStyle: AppTextStyles.font14SecondaryBlackCairo.copyWith(
               height: 1,
               color: AppTheme.isDark
@@ -69,20 +71,10 @@ class AppSearchTextField extends StatelessWidget {
                   ? AppColors.lightGrey
                   : AppColors.secondaryBlack,
             ),
-            // ── CMS-driven focused border ──
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: primary, width: 1.5),
-            ),
-            showBorder: true,
-            collapsed: true,
             contentPadding: EdgeInsets.symmetric(
-              horizontal: 0.sp,
-              vertical: 11.h,
+              horizontal: 8.w,
+              vertical: 8.h,
             ),
-            controller: controller,
-            onChanged: onChanged,
-            onTap: () {},
           ),
         );
       },

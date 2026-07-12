@@ -25,6 +25,7 @@ import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/core/widget/custom_field.dart';
 
 import '../../../../../../core/constant/color.dart';
+import '../../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
@@ -80,52 +81,32 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
 
   bool get _isEdit => widget.existing != null;
 
-  bool _isArabicOnly(String text) {
-    // Allows Arabic letters, spaces, punctuation, numbers
-    final arabicRegex = RegExp(r'^[\u0600-\u06FF\s\d.,،؟!؛:()«»\-]+$');
-    return text.trim().isEmpty || arabicRegex.hasMatch(text.trim());
-  }
-
-  bool _isEnglishOnly(String text) {
-    // Allows standard ASCII printable characters (English letters, numbers, punctuation)
-    final englishRegex = RegExp(r'^[\x20-\x7E]+$');
-    return text.trim().isEmpty || englishRegex.hasMatch(text.trim());
-  }
+  // NOTE: No language validation - every field accepts Arabic AND English.
 
   bool get _isPublishEnabled {
     if (_imageBytes == null && _existingImageUrl.isEmpty) return false;
 
     // Question
     if (_questionEnCtrl.text.trim().isEmpty) return false;
-    if (!_isEnglishOnly(_questionEnCtrl.text)) return false;
     if (_questionArCtrl.text.trim().isEmpty) return false;
-    if (!_isArabicOnly(_questionArCtrl.text)) return false;
 
     // Short description
     if (_shortDescEnCtrl.text.trim().isEmpty) return false;
-    if (!_isEnglishOnly(_shortDescEnCtrl.text)) return false;
     if (_shortDescArCtrl.text.trim().isEmpty) return false;
-    if (!_isArabicOnly(_shortDescArCtrl.text)) return false;
 
     // Button label
     if (_btnLabelEnCtrl.text.trim().isEmpty) return false;
-    if (!_isEnglishOnly(_btnLabelEnCtrl.text)) return false;
     if (_btnLabelArCtrl.text.trim().isEmpty) return false;
-    if (!_isArabicOnly(_btnLabelArCtrl.text)) return false;
 
     // Description title
     if (_descTitleEnCtrl.text.trim().isEmpty) return false;
-    if (!_isEnglishOnly(_descTitleEnCtrl.text)) return false;
     if (_descTitleArCtrl.text.trim().isEmpty) return false;
-    if (!_isArabicOnly(_descTitleArCtrl.text)) return false;
 
     // Blocks
     for (final b in _blocks) {
       final en = (b['enCtrl'] as TextEditingController).text.trim();
       final ar = (b['arCtrl'] as TextEditingController).text.trim();
       if (en.isEmpty || ar.isEmpty) return false;
-      if (!_isEnglishOnly(en)) return false;
-      if (!_isArabicOnly(ar)) return false;
     }
     return true;
   }

@@ -24,11 +24,10 @@ class _BulletText extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   fontSize,
-              height:     1.7,
-              color:      const Color(0xFF444444),
+            style: StyleText.fontSize13Weight400.copyWith(
+              fontSize: fontSize,
+              height:   1.7,
+              color:    const Color(0xFF444444),
             ),
           ),
         ),

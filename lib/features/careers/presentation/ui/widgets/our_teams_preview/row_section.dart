@@ -46,20 +46,16 @@ class _RowSection extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 _rowLabel,
-                style: const TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize:   13,
-                  fontWeight: FontWeight.w600,
-                  color:      _labelText,
+                style: StyleText.fontSize13Weight600.copyWith(
+                  fontSize: 13,
+                  color:    _labelText,
                 ),
               ),
               const Spacer(),
               Text(
                 '${items.length} Card',
-                style: const TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   12,
-                    color:      _labelText),
+                style: StyleText.fontSize12Weight400.copyWith(
+                    fontSize: 12, color: _labelText),
               ),
             ],
           ),

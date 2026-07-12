@@ -17,6 +17,7 @@ import 'package:web_app_admin/core/custom_svg.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -402,7 +403,19 @@ class _AddInternPageState extends State<AddInternPage> {
                                 ],
                               ),
                               SizedBox(height: 15.h),
-
+                              // ── Card header: title ────────────────
+                              Row(
+                                children: [
+                                  Text(
+                                    'Intern Information',
+                                    style: StyleText.fontSize16Weight600
+                                        .copyWith(
+                                      color:      ColorPick.primary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               // ── Card ────────────────────────────────────
                               Container(
                                 width: double.infinity,
@@ -414,22 +427,6 @@ class _AddInternPageState extends State<AddInternPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-
-                                    // ── Card header: title ────────────────
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Intern Information',
-                                          style: StyleText.fontSize16Weight600
-                                              .copyWith(
-                                            color:      ColorPick.primary,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 20.h),
-
                                     // ── Photo + Joined Date ─────────────────
                                     Row(
                                       crossAxisAlignment:
@@ -507,67 +504,67 @@ class _AddInternPageState extends State<AddInternPage> {
                                       primaryColor: ColorPick.primary,
                                       isRequired:   true,
                                     ),
-                                    SizedBox(height: 24.h),
-
                                     // ── Discard / Publish buttons ───────────
-                                    Row(children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: busy
-                                              ? null
-                                              : () => Navigator.pop(context),
-                                          child: Container(
-                                            height: 50.h,
-                                            decoration: BoxDecoration(
-                                              color: busy
-                                                  ? ColorPick.discard.withValues(alpha: 0.5)
-                                                  : ColorPick.discard,
-                                              borderRadius:
-                                              BorderRadius.circular(8.r),
-                                            ),
-                                            child: Center(
-                                              child: Text('Discard',
-                                                  style: StyleText
-                                                      .fontSize16Weight600
-                                                      .copyWith(
-                                                      color: Colors.white)),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 300.w),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: busy ? null : _handlePublish,
-                                          child: AnimatedContainer(
-                                            duration: const Duration(
-                                                milliseconds: 200),
-                                            height: 50.h,
-                                            decoration: BoxDecoration(
-                                              color: busy
-                                                  ? ColorPick.primary.withValues(alpha: 0.5)
-                                                  : ColorPick.primary,
-                                              borderRadius:
-                                              BorderRadius.circular(8.r),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                _isEdit ? 'Save' : 'Publish',
-                                                style: StyleText
-                                                    .fontSize16Weight600
-                                                    .copyWith(
-                                                    color:
-                                                    Colors.white),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ]),
+
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 40.h),
+                              SizedBox(height: 20.h),
+                              Row(children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: busy
+                                        ? null
+                                        : () => Navigator.pop(context),
+                                    child: Container(
+                                      height: 50.h,
+                                      decoration: BoxDecoration(
+                                        color: busy
+                                            ? ColorPick.discard.withValues(alpha: 0.5)
+                                            : ColorPick.discard,
+                                        borderRadius:
+                                        BorderRadius.circular(8.r),
+                                      ),
+                                      child: Center(
+                                        child: Text('Discard',
+                                            style: StyleText
+                                                .fontSize16Weight600
+                                                .copyWith(
+                                                color: Colors.white)),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 400.w),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: busy ? null : _handlePublish,
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                          milliseconds: 200),
+                                      height: 50.h,
+                                      decoration: BoxDecoration(
+                                        color: busy
+                                            ? ColorPick.primary.withValues(alpha: 0.5)
+                                            : ColorPick.primary,
+                                        borderRadius:
+                                        BorderRadius.circular(8.r),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          _isEdit ? 'Save' : 'Publish',
+                                          style: StyleText
+                                              .fontSize16Weight600
+                                              .copyWith(
+                                              color:
+                                              Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                              SizedBox(height: 20.h),
                             ],
                           ),
                         ),

@@ -33,9 +33,17 @@ class OurTeamsRepoImpl implements OurTeamsRepo {
       if (!snap.exists || snap.data() == null) {
         return const OurTeamsModel();
       }
-      return OurTeamsModel.fromMap(
-        FlatCodec.decode(snap.data()!, OurTeamsModel.flatTemplate),
-      );
+      final raw = snap.data()!;
+      final decoded = FlatCodec.decode(raw, OurTeamsModel.flatTemplate);
+
+      // Last_Updated_At is stored as a SCALAR Firestore Timestamp by the
+      // codec; surface it to the model under 'lastUpdated'.
+      final ts = raw['Last_Updated_At'];
+      if (ts is Timestamp) {
+        decoded['lastUpdated'] = ts.toDate().toIso8601String();
+      }
+
+      return OurTeamsModel.fromMap(decoded);
     } catch (e) {
       throw Exception('OurTeamsRepo.load failed: $e');
     }

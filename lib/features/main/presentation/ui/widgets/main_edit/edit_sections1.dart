@@ -31,7 +31,7 @@ extension _HomeEditSections1 on _MainEditPageState {
             ),
           ),
         ),
-        SizedBox(width: 300.w),
+        SizedBox(width: 400.w),
         Expanded(
           child: AbsorbPointer(
             absorbing: !canPublish,

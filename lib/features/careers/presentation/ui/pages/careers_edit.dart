@@ -23,17 +23,20 @@ import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/network_image_view.dart';
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
-import '../../../../../core/widget/textfield.dart';
+import '../../../../../core/custom/2-custom_textfield.dart';
+import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/careers_model.dart';
 import '../../controller/careers_cubit.dart';
 import '../../controller/careers_state.dart';
+import 'careers_main.dart'; // CareersMainPageDashboard
 import 'careers_main_page.dart'; // CareersMainPageMaster lives here
 
 part '../widgets/careers_edit/careers_edit_widgets.dart';
@@ -462,7 +465,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: ColorPick.back,
           body: SizedBox(
             width: double.infinity,
             child: SingleChildScrollView(
@@ -471,9 +473,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
                 children: [
                   AppAdminNavbar(
                     activeLabel:    'Web Page',
-                    homePage:       MainMainPage(),
+                    homePage:       CareersMainPageDashboard(),
                     webPage:        MainMainPage(),
-                    jobListingPage: MainMainPage(),
+                    jobListingPage: JobListingMainPage(),
                   ),
                   SizedBox(height: 20.h),
                   AdminSubNavBar(activeIndex: 5),

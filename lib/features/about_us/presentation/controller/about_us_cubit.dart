@@ -139,11 +139,29 @@ class StrategyCubit extends Cubit<StrategyState> {
                 navigationLabel:
                 updated.navigationLabel.copyWith(iconUrl: url));
           }
-          else if (path.contains('strategicHouse/en')) {
-            updated = updated.copyWith(strategicHouseEnUrl: url);
+          // Strategic House EN - Desktop
+          else if (path.contains('strategicHouse/en/desktop')) {
+            updated = updated.copyWith(strategicHouseEnDesktopUrl: url);
           }
-          else if (path.contains('strategicHouse/ar')) {
-            updated = updated.copyWith(strategicHouseArUrl: url);
+          // Strategic House EN - Tablet
+          else if (path.contains('strategicHouse/en/tablet')) {
+            updated = updated.copyWith(strategicHouseEnTabletUrl: url);
+          }
+          // Strategic House EN - Mobile
+          else if (path.contains('strategicHouse/en/mobile')) {
+            updated = updated.copyWith(strategicHouseEnMobileUrl: url);
+          }
+          // Strategic House AR - Desktop
+          else if (path.contains('strategicHouse/ar/desktop')) {
+            updated = updated.copyWith(strategicHouseArDesktopUrl: url);
+          }
+          // Strategic House AR - Tablet
+          else if (path.contains('strategicHouse/ar/tablet')) {
+            updated = updated.copyWith(strategicHouseArTabletUrl: url);
+          }
+          // Strategic House AR - Mobile
+          else if (path.contains('strategicHouse/ar/mobile')) {
+            updated = updated.copyWith(strategicHouseArMobileUrl: url);
           }
           else if (path.contains('vision/svg')) {
             updated = updated.copyWith(

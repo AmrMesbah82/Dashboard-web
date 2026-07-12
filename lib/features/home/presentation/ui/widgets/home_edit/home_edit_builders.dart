@@ -195,7 +195,7 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20.h),
+        // SizedBox(height: 20.h),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -276,7 +276,7 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
           hint: 'Text Here',
           controller: sec.descEn,
           maxLength: 500,
-          showCharCount: true,
+          showCharCount: false,
           height: 80,
           maxLines: 3,
           submitted: _submitted,
@@ -293,7 +293,7 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
             required: true,
             controller: sec.descAr,
             maxLength: 500,
-            showCharCount: true,
+            showCharCount: false,
             height: 80,
             maxLines: 3,
             fillColor: Colors.white,
@@ -311,54 +311,11 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
     bool isAdd = false,
     VoidCallback? onPick,
   }) {
-    Widget content;
-    if (picked.bytes != null) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: SvgPicture.memory(picked.bytes!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else if (picked.url != null && picked.url!.isNotEmpty) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(child: Padding(
-          padding: EdgeInsets.all(15.r),
-          child: NetworkImageView(url: picked.url!, width: 30.w, height: 30.h, fit: BoxFit.contain),
-        )),
-      );
-    } else {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
-        child: Center(child: Icon(isAdd ? Icons.add : Icons.image_outlined, color: Colors.grey, size: 22.sp)),
-      );
-    }
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GestureDetector(onTap: onPick, child: content),
-        Positioned(
-          bottom: 0, right: 0,
-          child: GestureDetector(
-            onTap: onPick,
-            child: Container(
-              width: 25.w, height: 25.h,
-              decoration: BoxDecoration(
-                color: ColorPick.primary, shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Center(child: CustomSvg(
-                assetPath: 'assets/control/camera.svg',
-                width: 10.w, height: 10.h, fit: BoxFit.scaleDown,
-              )),
-            ),
-          ),
-        ),
-      ],
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircleBare(
+      bytes: picked.bytes,
+      url: picked.url ?? '',
+      onTap: onPick ?? () {},
     );
   }
 }

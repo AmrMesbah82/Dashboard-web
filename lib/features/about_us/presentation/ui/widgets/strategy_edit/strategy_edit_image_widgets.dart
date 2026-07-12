@@ -1,402 +1,384 @@
+// ******************* FILE INFO *******************
+// File Name: strategy_edit_image_widgets.dart
+// Description: Nav icon upload + Strategic house display widgets for Strategy edit
+// Ported from beauty_admin (nav_icon_upload_widget.dart + strategic_house_display_widget.dart)
+
 part of '../../pages/strategy_page/strategy_edit.dart';
 
-extension _StrategyImageWidgets on _StrategyEditPageState {
-  // ══════════════════════════════════════════════════════════════════════════
-  // SVG / Image detection helpers
-  // ══════════════════════════════════════════════════════════════════════════
+class _NavIconUploadWidget extends StatelessWidget {
+  final Uint8List? bytes;
+  final String url;
+  final bool isSvg;
+  final String? errorText;
+  final Future<Uint8List> Function(String) loadSvgBytes;
+  final VoidCallback onTap;
+  final VoidCallback? onRemove;
 
-  bool _isSvgBytesCheck(Uint8List? bytes) {
-    if (bytes == null || bytes.length < 5) return false;
-    final checkLen = bytes.length > 100 ? 100 : bytes.length;
-    final headerStr = String.fromCharCodes(bytes.sublist(0, checkLen));
-    return headerStr.contains('<svg') || headerStr.contains('<?xml');
-  }
+  const _NavIconUploadWidget({
+    super.key,
+    required this.bytes,
+    required this.url,
+    required this.isSvg,
+    this.errorText,
+    required this.loadSvgBytes,
+    required this.onTap,
+    this.onRemove,
+  });
 
-  bool _isSvgUrlCheck(String url) {
-    final decodedUrl = Uri.decodeFull(url).toLowerCase();
-    return decodedUrl.contains('.svg') ||
-        decodedUrl.contains('%2Esvg') ||
-        decodedUrl.contains('image/svg+xml');
-  }
-
-  Future<Uint8List> _loadSvgBytes(String url) async {
-    try {
-      final res = await html.HttpRequest.request(
-        url,
-        method: 'GET',
-        responseType: 'arraybuffer',
-      );
-      if (res.status != 200) {
-        throw Exception('Failed to load SVG: ${res.status}');
-      }
-      return (res.response as ByteBuffer).asUint8List();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Widget _brokenImagePlaceholder() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.broken_image, color: Colors.grey[400], size: 48.sp),
-          SizedBox(height: 8.h),
-          Text(
-            'Failed to load image',
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // IMAGE UPLOAD BOX — large rectangle (Strategic House sections)
-  // ══════════════════════════════════════════════════════════════════════════
-  Widget _imageUploadBox({
-    required String label,
-    required Uint8List? bytes,
-    required String url,
-    required VoidCallback onTap,
-    VoidCallback? onRemove,
-    double previewWidth = double.infinity,
-    bool showError = false,
-  }) {
+  @override
+  Widget build(BuildContext context) {
     final hasImage = bytes != null || url.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            width: previewWidth,
-            height: 220.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: hasImage
-                ? Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
-                  child: Builder(
-                    builder: (context) {
-                      if (bytes != null) {
-                        if (_isSvgBytesCheck(bytes)) {
-                          return SvgPicture.memory(
-                            bytes,
-                            width: previewWidth,
-                            height: 220.h,
-                            fit: BoxFit.contain,
-                            placeholderBuilder: (_) =>
-                            const Center(child: CircularProgressIndicator()),
-                          );
-                        } else {
-                          return Image.memory(
-                            bytes,
-                            width: previewWidth,
-                            height: 220.h,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.broken_image,
-                              color: Colors.grey[400],
-                              size: 48.sp,
-                            ),
-                          );
-                        }
-                      }
-
-                      if (url.isNotEmpty) {
-                        final isSvg = _isSvgUrlCheck(url);
-                        if (isSvg) {
-                          return FutureBuilder<Uint8List>(
-                            future: _cachedLoadSvg(url),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              if (snapshot.hasData) {
-                                return SvgPicture.memory(
-                                  snapshot.data!,
-                                  width: previewWidth,
-                                  height: 220.h,
-                                  fit: BoxFit.contain,
+        Text('Icon',
+            style: StyleText.fontSize16Weight500.copyWith(
+                color: AppColors.text
+            )
+        ),
+        SizedBox(height: 8.h),
+        Row(
+          children: [
+            GestureDetector(
+              onTap: onTap,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 64.w,
+                    height: 64.h,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: errorText != null
+                          ? Border.all(color: const Color(0xFFD32F2F), width: 2)
+                          : null,
+                    ),
+                    child: hasImage
+                        ? ClipOval(
+                      child: Builder(
+                        builder: (context) {
+                          if (bytes != null) {
+                            final b = bytes!;
+                            final isPng = b.length >= 4 &&
+                                b[0] == 0x89 && b[1] == 0x50 &&
+                                b[2] == 0x4E && b[3] == 0x47;
+                            return isPng
+                                ? Image.memory(b, fit: BoxFit.cover)
+                                : SvgPicture.memory(
+                                    b,
+                                    fit: BoxFit.cover,
+                                    placeholderBuilder: (context) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                          }
+                          if (url.isNotEmpty && isSvg) {
+                            return FutureBuilder<Uint8List>(
+                              key: ValueKey(url),
+                              future: loadSvgBytes(url),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                if (snapshot.hasData) {
+                                  return SvgPicture.memory(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                  );
+                                }
+                                return Icon(
+                                  Icons.broken_image,
+                                  color: Colors.grey[400],
+                                  size: 28.sp,
                                 );
-                              }
-                              return _brokenImagePlaceholder();
-                            },
+                              },
+                            );
+                          }
+                          if (url.isNotEmpty) {
+                            return Image.network(
+                              url,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.broken_image,
+                                color: Colors.grey[400],
+                                size: 28.sp,
+                              ),
+                            );
+                          }
+                          return Icon(
+                            Icons.broken_image,
+                            color: Colors.grey[400],
+                            size: 28.sp,
                           );
-                        } else {
-                          return FutureBuilder<Uint8List>(
-                            future: _cachedLoadImage(url),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              if (snapshot.hasData) {
-                                return Image.memory(
-                                  snapshot.data!,
-                                  width: previewWidth,
-                                  height: 220.h,
-                                  fit: BoxFit.contain,
-                                );
-                              }
-                              return _brokenImagePlaceholder();
-                            },
-                          );
-                        }
-                      }
-
-                      return const SizedBox.shrink();
-                    },
+                        },
+                      ),
+                    )
+                        : Icon(Icons.add,
+                        color: errorText != null ? const Color(0xFFD32F2F) : Colors.grey[600],
+                        size: 28.sp),
                   ),
-                ),
-                if (onRemove != null)
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: GestureDetector(
-                      onTap: onRemove,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 6.h),
-                        decoration: BoxDecoration(
-                          color: ColorPick.red,
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        child: Text(
-                          'Remove',
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
+                  if (hasImage && onRemove != null)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: GestureDetector(
+                        onTap: onRemove,
+                        child: Container(
+                          width: 20.w,
+                          height: 20.h,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFD32F2F),
+                          ),
+                          child: Icon(
+                            Icons.close,
                             color: Colors.white,
+                            size: 12.sp,
                           ),
                         ),
                       ),
                     ),
+                  // ✅ Camera badge always shown bottom-right, matching the
+                  // standard image-upload circle used across the app.
+                  Positioned(
+                    bottom: 0, right: 0,
+                    child: Container(
+                      width: 25.w,
+                      height: 25.h,
+                      decoration: BoxDecoration(
+                        color: ColorPick.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Center(
+                        child: CustomSvg(
+                          assetPath: "assets/control/camera.svg",
+                          width: 10.w,
+                          height: 10.h,
+                          fit: BoxFit.scaleDown,
+                        ),
+                      ),
+                    ),
                   ),
-              ],
-            )
-                : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomSvg(
-                  assetPath: "assets/images/upload-image.svg",
-                  width: 100.w,
-                  height: 100.h,
-                  fit: BoxFit.fill,
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Drop your image here',
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 13.sp,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        if (showError)
-          Padding(
-            padding: EdgeInsets.only(top: 4.h),
-            child: Text(
-              'This field is required',
-              style: TextStyle(fontSize: 10.sp, color: Colors.red),
-            ),
-          ),
-
-        SizedBox(height: 12.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            customButtonWithImage(
-              title: label,
-              function: onTap,
-              textStyle: StyleText.fontSize14Weight500.copyWith(
-                  color: Colors.white),
-              height: 38.h,
-              space: 8.sp,
-              width: 250.w,
-              radius: 8.r,
-              color: ColorPick.primary,
-              image: "",
-              widthImage: 16.w,
-              heightImage: 16.h,
-              colorBorder: Colors.transparent,
+                ],
+              ),
             ),
           ],
         ),
+        if (errorText != null) ...[
+          SizedBox(height: 4.h),
+          Text(
+            errorText!,
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: 11.sp,
+              color: const Color(0xFFD32F2F),
+            ),
+          ),
+        ],
       ],
     );
   }
+}
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // IMAGE UPLOAD CIRCLE — Navigation Label icon
-  // ══════════════════════════════════════════════════════════════════════════
-  Widget _imageUploadCircle({
-    required String label,
-    required Uint8List? bytes,
-    required String url,
-    required VoidCallback onTap,
-    bool showError = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Cairo',
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+/// Widget for displaying the selected device preview
+class _StrategicHouseDisplayWidget extends StatelessWidget {
+  final DisplayDeviceTab displayTab;
+  final Uint8List? desktopBytes;
+  final String desktopUrl;
+  final bool desktopIsSvg;
+  final Uint8List? tabletBytes;
+  final String tabletUrl;
+  final bool tabletIsSvg;
+  final Uint8List? mobileBytes;
+  final String mobileUrl;
+  final bool mobileIsSvg;
+  final Future<Uint8List> Function(String) loadSvgBytes;
+
+  const _StrategicHouseDisplayWidget({
+    required this.displayTab,
+    required this.desktopBytes,
+    required this.desktopUrl,
+    required this.desktopIsSvg,
+    required this.tabletBytes,
+    required this.tabletUrl,
+    required this.tabletIsSvg,
+    required this.mobileBytes,
+    required this.mobileUrl,
+    required this.mobileIsSvg,
+    required this.loadSvgBytes,
+  });
+
+  double _getPreviewWidth() {
+    switch (displayTab) {
+      case DisplayDeviceTab.largeScreen:
+        return double.infinity;
+      case DisplayDeviceTab.tablet:
+        return 600;
+      case DisplayDeviceTab.mobile:
+        return 320;
+    }
+  }
+
+  Uint8List? _getCurrentBytes() {
+    switch (displayTab) {
+      case DisplayDeviceTab.largeScreen:
+        return desktopBytes;
+      case DisplayDeviceTab.tablet:
+        return tabletBytes;
+      case DisplayDeviceTab.mobile:
+        return mobileBytes;
+    }
+  }
+
+  String _getCurrentUrl() {
+    switch (displayTab) {
+      case DisplayDeviceTab.largeScreen:
+        return desktopUrl;
+      case DisplayDeviceTab.tablet:
+        return tabletUrl;
+      case DisplayDeviceTab.mobile:
+        return mobileUrl;
+    }
+  }
+
+  bool _getCurrentIsSvg() {
+    switch (displayTab) {
+      case DisplayDeviceTab.largeScreen:
+        return desktopIsSvg;
+      case DisplayDeviceTab.tablet:
+        return tabletIsSvg;
+      case DisplayDeviceTab.mobile:
+        return mobileIsSvg;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bytes = _getCurrentBytes();
+    final url = _getCurrentUrl();
+    final isSvg = _getCurrentIsSvg();
+    final hasImage = bytes != null || url.isNotEmpty;
+
+    return Center(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        width: _getPreviewWidth(),
+        height: 220.h,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8.r),
+          color: Colors.grey[100],
         ),
-        SizedBox(height: 8.h),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            GestureDetector(
-              onTap: onTap,
-              child: Container(
-                width: 60.w,
-                height: 60.h,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFD9D9D9),
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: Builder(
-                    builder: (context) {
-                      if (bytes != null) {
-                        if (_isSvgBytesCheck(bytes)) {
-                          return Padding(
-                            padding: EdgeInsets.all(15.r),
-                            child: SvgPicture.memory(
-                              bytes,
-                              width: 30.w,
-                              height: 30.h,
-                              fit: BoxFit.contain,
-                            ),
-                          );
-                        }
-                        return Image.memory(
-                          bytes,
-                          width: 60.w,
-                          height: 60.h,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Icon(
-                            Icons.broken_image,
-                            color: Colors.grey[400],
-                            size: 28.sp,
-                          ),
-                        );
-                      }
-
-                      if (url.isNotEmpty) {
-                        final isSvg = _isSvgUrlCheck(url);
-                        final Future<Uint8List> future = isSvg
-                            ? _cachedLoadSvg(url)
-                            : _cachedLoadImage(url);
-
-                        return FutureBuilder<Uint8List>(
-                          future: future,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                    color: Color(0xFF008037), strokeWidth: 2),
-                              );
-                            }
-                            if (snapshot.hasData) {
-                              final data = snapshot.data!;
-                              if (isSvg || _isSvgBytesCheck(data)) {
-                                return Padding(
-                                  padding: EdgeInsets.all(15.r),
-                                  child: SvgPicture.memory(
-                                    data,
-                                    width: 30.w,
-                                    height: 30.h,
-                                    fit: BoxFit.contain,
-                                  ),
-                                );
-                              }
-                              return Image.memory(
-                                data,
-                                width: 60.w,
-                                height: 60.h,
-                                fit: BoxFit.cover,
-                              );
-                            }
-                            return Icon(
-                              Icons.broken_image,
-                              color: Colors.grey[400],
-                              size: 28.sp,
-                            );
-                          },
-                        );
-                      }
-
-                      return Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          color: Colors.grey,
-                          size: 22.sp,
+        child: hasImage
+            ? ClipRRect(
+          borderRadius: BorderRadius.circular(8.r),
+          child: Builder(
+            builder: (context) {
+              if (bytes != null) {
+                final isPng = bytes.length >= 4 &&
+                    bytes[0] == 0x89 && bytes[1] == 0x50 &&
+                    bytes[2] == 0x4E && bytes[3] == 0x47;
+                return isPng
+                    ? Image.memory(bytes,
+                        width: _getPreviewWidth(),
+                        height: 220.h,
+                        fit: BoxFit.contain)
+                    : SvgPicture.memory(
+                        bytes,
+                        width: _getPreviewWidth(),
+                        height: 220.h,
+                        fit: BoxFit.contain,
+                        placeholderBuilder: (context) => const Center(
+                          child: CircularProgressIndicator(),
                         ),
                       );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: GestureDetector(
-                onTap: onTap,
-                child: Container(
-                  width: 25.w,
-                  height: 25.h,
-                  decoration: BoxDecoration(
-                    color: ColorPick.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: CustomSvg(
-                      assetPath: "assets/control/camera.svg",
-                      width: 10.w,
-                      height: 10.h,
-                      fit: BoxFit.scaleDown,
+              }
+              if (url.isNotEmpty && isSvg) {
+                return FutureBuilder<Uint8List>(
+                  key: ValueKey(url),
+                  future: loadSvgBytes(url),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.hasData) {
+                      return SvgPicture.memory(
+                        snapshot.data!,
+                        width: _getPreviewWidth(),
+                        height: 220.h,
+                        fit: BoxFit.contain,
+                      );
+                    }
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.broken_image,
+                            color: Colors.grey[400],
+                            size: 48.sp,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Failed to load SVG',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }
+              if (url.isNotEmpty) {
+                return Image.network(
+                  url,
+                  width: _getPreviewWidth(),
+                  height: 220.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      color: Colors.grey[400],
+                      size: 48.sp,
                     ),
                   ),
-                ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        )
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CustomSvg(
+              assetPath: "assets/images/upload-image.svg",
+              width: 100.w,
+              height: 100.h,
+              fit: BoxFit.fill,
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'No image uploaded for ${displayTab == DisplayDeviceTab.largeScreen ? "Desktop" : displayTab == DisplayDeviceTab.tablet ? "Tablet" : "Mobile"}',
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: 13.sp,
+                color: Colors.grey[500],
               ),
             ),
           ],
         ),
-        if (showError)
-          Padding(
-            padding: EdgeInsets.only(top: 4.h),
-            child: Text(
-              'This field is required',
-              style: TextStyle(fontSize: 10.sp, color: Colors.red),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

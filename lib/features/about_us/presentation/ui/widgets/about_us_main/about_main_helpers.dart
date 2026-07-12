@@ -89,10 +89,12 @@ extension _AboutMainHelpers on _AboutMainPageMasterDashboardState {
                     padding: EdgeInsets.only(bottom: 6.h),
                     child: Text(
                       _tabLabels[i],
-                      style: TextStyle(
-                        fontSize: 15.sp,
+                      style: (isActive
+                              ? StyleText.fontSize15Weight600
+                              : StyleText.fontSize15Weight500)
+                          .copyWith(
                         fontWeight:
-                        isActive ? FontWeight.w700 : FontWeight.w500,
+                            isActive ? FontWeight.w700 : FontWeight.w500,
                         color: isActive
                             ? ColorPick.primary
                             : AppColors.secondaryText,

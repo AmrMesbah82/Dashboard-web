@@ -34,23 +34,20 @@ class _StatCard extends StatelessWidget {
           if (title.isNotEmpty)
             Text(
               title,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   titleFz,
-                fontWeight: FontWeight.w700,
-                color:      _kGreen,
-                height:     1.1,
+              style: StyleText.fontSize22Weight700.copyWith(
+                fontSize: titleFz,
+                color:    _kGreen,
+                height:   1.1,
               ),
             ),
           if (shortDesc.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
               shortDesc,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   descFz,
-                height:     1.55,
-                color:      const Color(0xFF555555),
+              style: StyleText.fontSize11Weight400.copyWith(
+                fontSize: descFz,
+                height:   1.55,
+                color:    const Color(0xFF555555),
               ),
             ),
           ],

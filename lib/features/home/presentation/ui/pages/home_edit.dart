@@ -40,6 +40,7 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -160,21 +161,11 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
       return false;
     if (_shortDescEn.text.trim().isEmpty || _shortDescAr.text.trim().isEmpty)
       return false;
-    final hasArabicInEn = RegExp(r'[\u0600-\u06FF]');
-    final hasEnglishInAr = RegExp(r'[a-zA-Z]');
-    if (hasArabicInEn.hasMatch(_titleEn.text) ||
-        hasArabicInEn.hasMatch(_shortDescEn.text))
-      return false;
-    if (hasEnglishInAr.hasMatch(_titleAr.text) ||
-        hasEnglishInAr.hasMatch(_shortDescAr.text))
-      return false;
+    // NOTE: No language validation - every field accepts Arabic AND English.
     for (final sec in _sections) {
       if (sec.descEn.text.trim().isEmpty || sec.descAr.text.trim().isEmpty)
         return false;
       if (sec.image.isEmpty || sec.icon.isEmpty) return false;
-      if (hasArabicInEn.hasMatch(sec.descEn.text) ||
-          hasEnglishInAr.hasMatch(sec.descAr.text))
-        return false;
     }
     return true;
   }

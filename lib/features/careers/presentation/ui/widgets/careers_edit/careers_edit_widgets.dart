@@ -11,12 +11,13 @@ extension _CareersEditWidgets on _CareersEditPageState {
   }) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: CustomValidatedTextFieldMaster(
+      child: CustomTextField(
         label: label, hint: hint, controller: ctrl,
-        height: height, maxLines: maxLines, fillColor: Colors.white,
-        showCharCount: true, maxLength: 500,
+        maxLines: maxLines, maxLength: 500,
+        height: maxLines > 1 ? null : height,
+        fillColor: Colors.white,
         textDirection: TextDirection.rtl, textAlign: TextAlign.right,
-        primaryColor: ColorPick.primary, submitted: _submitted, isRequired: isRequired,
+        required: isRequired, submitted: _submitted,
       ),
     );
   }
@@ -29,74 +30,31 @@ extension _CareersEditWidgets on _CareersEditPageState {
     int maxLines = 1,
     bool isRequired = true,
   }) {
-    return CustomValidatedTextFieldMaster(
-      label: label, hint: hint, fillColor: Colors.white,
-      controller: ctrl, maxLength: 500, showCharCount: true,
-      height: height, maxLines: maxLines,
-      textDirection: TextDirection.ltr,
-      primaryColor: ColorPick.primary, submitted: _submitted, isRequired: isRequired,
+    return CustomTextField(
+      label: label, hint: hint, controller: ctrl,
+      maxLines: maxLines, maxLength: 500,
+      height: maxLines > 1 ? null : height,
+      fillColor: Colors.white,
+      textDirection: TextDirection.ltr, textAlign: TextAlign.left,
+      required: isRequired, submitted: _submitted,
     );
   }
 
   Widget _iconUploadWidget({required String statId, required String label}) {
     final newBytes = _statIcons[statId];
     final savedUrl = _statIconUrls[statId] ?? '';
-    final hasIcon = newBytes != null || savedUrl.isNotEmpty;
-    final hasError = _submitted && !hasIcon;
 
     Future<void> pickIcon() async {
       final bytes = await _pickSvgFile();
       if (bytes != null) setState(() { _statIcons[statId] = bytes; _hasChanges = true; });
     }
 
-    Widget iconContent;
-    if (newBytes != null) {
-      iconContent = Padding(padding: EdgeInsets.all(8.r), child: SvgPicture.memory(newBytes, fit: BoxFit.contain));
-    } else if (savedUrl.isNotEmpty) {
-      iconContent = Padding(padding: EdgeInsets.all(8.r), child: NetworkImageView(url: savedUrl, fit: BoxFit.contain));
-    } else {
-      iconContent = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CustomSvg(assetPath: "assets/control/camera.svg", width: 20.w, height: 20.h, fit: BoxFit.scaleDown, color: hasError ? Colors.red : null),
-          SizedBox(height: 2.h),
-        ],
-      );
-    }
-
-    final Widget circle = Container(
-      width: 56.w, height: 56.w,
-      decoration: BoxDecoration(
-        color: hasError ? Colors.red.withValues(alpha: 0.08) : Colors.white,
-        shape: BoxShape.circle,
-        border: hasError ? Border.all(color: Colors.red, width: 1.5) : null,
-      ),
-      child: ClipOval(child: iconContent),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: StyleText.fontSize13Weight600.copyWith(color: AppColors.text)),
-        SizedBox(height: 6.h),
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            GestureDetector(onTap: pickIcon, child: circle),
-            Positioned(
-              bottom: -4, right: -4,
-              child: GestureDetector(
-                onTap: pickIcon,
-                child: Container(
-                  width: 20.w, height: 20.h,
-                  decoration: BoxDecoration(color: ColorPick.primary, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                  child: Center(child: CustomSvg(assetPath: "assets/control/camera.svg", width: 10.w, height: 10.h, fit: BoxFit.scaleDown)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircle(
+      label: label,
+      bytes: newBytes,
+      url: savedUrl,
+      onTap: pickIcon,
     );
   }
 
@@ -123,7 +81,7 @@ extension _CareersEditWidgets on _CareersEditPageState {
           Padding(
             padding: EdgeInsets.only(top: 12.h),
             child: Text('Please fix validation errors above before publishing',
-                style: TextStyle(color: Colors.red, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+                style: StyleText.fontSize12Weight500.copyWith(color: Colors.red)),
           ),
       ],
     );

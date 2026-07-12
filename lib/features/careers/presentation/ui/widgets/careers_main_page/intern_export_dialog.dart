@@ -109,23 +109,16 @@ class _InternExportDialogState extends State<_InternExportDialog> {
             Text('File Name',
                 style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
             SizedBox(height: 6.h),
-            Container(
-              height: 36.h,
-              decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(6.r)),
-              child: TextField(
-                controller: _nameCtrl,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'e.g. interns_2025',
-                  hintStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  isDense: true,
-                ),
-                style: StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
-              ),
+            CustomTextField(
+              controller: _nameCtrl,
+              onChanged: (_) => setState(() {}),
+              height: 36,
+              fillColor: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(6.r),
+              hint: 'e.g. interns_2025',
+              hintStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.secondaryText),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              valueStyle: StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
             ),
             SizedBox(height: 24.h),
             Row(children: [

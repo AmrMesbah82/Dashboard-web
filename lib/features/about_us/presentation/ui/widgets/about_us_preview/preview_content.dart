@@ -57,8 +57,7 @@ class _PreviewContentState extends State<_PreviewContent> {
                     _ab(widget.model.title, widget.isAr).isNotEmpty
                         ? _ab(widget.model.title, widget.isAr)
                         : (widget.isAr ? 'من نحن' : 'About Us'),
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
+                    style: StyleText.fontSize45Weight600.copyWith(
                       fontSize: _isDesktop ? 48 : 28,
                       fontWeight: FontWeight.w700,
                       color: _primary,
@@ -143,11 +142,9 @@ class _PreviewContentState extends State<_PreviewContent> {
               SizedBox(width: _isDesktop ? 10 : 6),
               Text(
                 labels[i],
-                style: TextStyle(
-                  fontFamily: 'Cairo',
+                style: StyleText.fontSize13Weight500.copyWith(
                   fontSize: _isDesktop ? 13 : 11,
-                  fontWeight:
-                  sel ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
                   color: sel ? _primary : AppColors.secondaryBlack,
                 ),
               ),
@@ -193,8 +190,7 @@ class _PreviewContentState extends State<_PreviewContent> {
     child: Center(
       child: Text(msg,
           textAlign: TextAlign.center,
-          style: TextStyle(
-              fontFamily: 'Cairo',
+          style: StyleText.fontSize14Weight400.copyWith(
               fontSize: _isDesktop ? 14 : 12,
               color: Colors.grey[500])),
     ),
@@ -254,8 +250,10 @@ class _PreviewContentState extends State<_PreviewContent> {
         children: [
           Expanded(
             child: Text(_ab(s.description, widget.isAr),
-                style: const TextStyle(fontFamily: 'Cairo',
-                    fontSize: 13, height: 1.75, color: Color(0xFF444444))),
+                style: StyleText.fontSize13Weight400.copyWith(
+                    fontSize: 13,
+                    height: 1.75,
+                    color: const Color(0xFF444444))),
           ),
           if (s.svgUrl.isNotEmpty) ...[
             const SizedBox(width: 16),
@@ -315,8 +313,8 @@ class _PreviewContentState extends State<_PreviewContent> {
           const SizedBox(height: 12),
         ],
         Text(_ab(s.description, widget.isAr),
-            style: const TextStyle(fontFamily: 'Cairo',
-                fontSize: 11, height: 1.75)),
+            style: StyleText.fontSize11Weight400
+                .copyWith(fontSize: 11, height: 1.75)),
       ]),
     );
   }
@@ -365,8 +363,8 @@ class _PreviewContentState extends State<_PreviewContent> {
         const SizedBox(height: 10),
       ],
       Text(_ab(s.description, widget.isAr),
-          style: const TextStyle(fontFamily: 'Cairo',
-              fontSize: 10, height: 1.7)),
+          style: StyleText.fontSize10Weight400
+              .copyWith(fontSize: 10, height: 1.7)),
     ]);
   }
 

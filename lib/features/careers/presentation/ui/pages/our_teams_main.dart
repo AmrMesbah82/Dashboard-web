@@ -94,16 +94,17 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                     ),
                   ),
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20.w, vertical: 10.h),
+                    width: 130.w, height: 36.h,
                     decoration: BoxDecoration(
                       color:        ColorPick.primary,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
-                    child: Text(
-                      'Preview Screen',
-                      style: StyleText.fontSize14Weight500
-                          .copyWith(color: Colors.white),
+                    child: Center(
+                      child: Text(
+                        'Preview Screen',
+                        style: StyleText.fontSize14Weight500
+                            .copyWith(color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -181,13 +182,14 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
                   setState(() => _accordionOpen = !_accordionOpen),
               children: [
                 if (data.items.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 16.w, vertical: 14.h),
-                    child: Text(
-                      'No teams added yet.',
-                      style: StyleText.fontSize12Weight400
-                          .copyWith(color: AppColors.secondaryText),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 40.h),
+                    alignment: Alignment.center,
+                    child: SvgPicture.asset(
+                      'assets/images/null.svg',
+                      width: 200.w,
+                      height: 200.h,
                     ),
                   )
                 else

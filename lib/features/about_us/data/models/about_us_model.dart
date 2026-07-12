@@ -317,37 +317,69 @@ class OurStrategyModel {
   final String publishStatus;
   final AboutNavigationLabel navigationLabel;
   final StrategySection vision;
-  final String strategicHouseEnUrl;
-  final String strategicHouseArUrl;
+
+  // ── Strategic House — multi-device image support (EN & AR × Desktop/Tablet/Mobile)
+  final String strategicHouseEnDesktopUrl;
+  final String strategicHouseEnTabletUrl;
+  final String strategicHouseEnMobileUrl;
+
+  final String strategicHouseArDesktopUrl;
+  final String strategicHouseArTabletUrl;
+  final String strategicHouseArMobileUrl;
+
   final DateTime? lastUpdatedAt;          // ← ADD
 
   const OurStrategyModel({
     this.publishStatus = 'draft',
     this.navigationLabel = const AboutNavigationLabel(),
     this.vision = const StrategySection(),
-    this.strategicHouseEnUrl = '',
-    this.strategicHouseArUrl = '',
+    this.strategicHouseEnDesktopUrl = '',
+    this.strategicHouseEnTabletUrl = '',
+    this.strategicHouseEnMobileUrl = '',
+    this.strategicHouseArDesktopUrl = '',
+    this.strategicHouseArTabletUrl = '',
+    this.strategicHouseArMobileUrl = '',
     this.lastUpdatedAt,                   // ← ADD
   });
 
   factory OurStrategyModel.empty() => const OurStrategyModel();
 
-  factory OurStrategyModel.fromMap(Map<String, dynamic> map) => OurStrategyModel(
-    publishStatus: (map['publishStatus'] as String?) ?? 'draft',
-    navigationLabel: AboutNavigationLabel.fromMap(
-        map['navigationLabel'] as Map<String, dynamic>?),
-    vision: StrategySection.fromMap(map['vision'] as Map<String, dynamic>?),
-    strategicHouseEnUrl: (map['strategicHouseEnUrl'] as String?) ?? '',
-    strategicHouseArUrl: (map['strategicHouseArUrl'] as String?) ?? '',
-    // lastUpdatedAt intentionally omitted — injected by repo after Timestamp extraction
-  );
+  factory OurStrategyModel.fromMap(Map<String, dynamic> map) {
+    // Read a string key; if empty/missing, fall back to a legacy key
+    // (FlatCodec fills missing template keys with '' — never null).
+    String read(String key, [String? legacyKey]) {
+      final v = (map[key] as String?) ?? '';
+      if (v.isNotEmpty) return v;
+      if (legacyKey != null) return (map[legacyKey] as String?) ?? '';
+      return '';
+    }
+
+    return OurStrategyModel(
+      publishStatus: (map['publishStatus'] as String?) ?? 'draft',
+      navigationLabel: AboutNavigationLabel.fromMap(
+          map['navigationLabel'] as Map<String, dynamic>?),
+      vision: StrategySection.fromMap(map['vision'] as Map<String, dynamic>?),
+      // New multi-device keys — fall back to legacy single-image keys (desktop)
+      strategicHouseEnDesktopUrl: read('strategicHouseEnDesktopUrl', 'strategicHouseEnUrl'),
+      strategicHouseEnTabletUrl: read('strategicHouseEnTabletUrl'),
+      strategicHouseEnMobileUrl: read('strategicHouseEnMobileUrl'),
+      strategicHouseArDesktopUrl: read('strategicHouseArDesktopUrl', 'strategicHouseArUrl'),
+      strategicHouseArTabletUrl: read('strategicHouseArTabletUrl'),
+      strategicHouseArMobileUrl: read('strategicHouseArMobileUrl'),
+      // lastUpdatedAt intentionally omitted — injected by repo after Timestamp extraction
+    );
+  }
 
   Map<String, dynamic> toMap() => {
     'publishStatus': publishStatus,
     'navigationLabel': navigationLabel.toMap(),
     'vision': vision.toMap(),
-    'strategicHouseEnUrl': strategicHouseEnUrl,
-    'strategicHouseArUrl': strategicHouseArUrl,
+    'strategicHouseEnDesktopUrl': strategicHouseEnDesktopUrl,
+    'strategicHouseEnTabletUrl': strategicHouseEnTabletUrl,
+    'strategicHouseEnMobileUrl': strategicHouseEnMobileUrl,
+    'strategicHouseArDesktopUrl': strategicHouseArDesktopUrl,
+    'strategicHouseArTabletUrl': strategicHouseArTabletUrl,
+    'strategicHouseArMobileUrl': strategicHouseArMobileUrl,
   };
 
   /// Nested template for [FlatCodec.decode].
@@ -361,6 +393,14 @@ class OurStrategyModel {
           'svgUrl': '',
           'description': {'en': '', 'ar': ''}
         },
+        'strategicHouseEnDesktopUrl': '',
+        'strategicHouseEnTabletUrl': '',
+        'strategicHouseEnMobileUrl': '',
+        'strategicHouseArDesktopUrl': '',
+        'strategicHouseArTabletUrl': '',
+        'strategicHouseArMobileUrl': '',
+        // Legacy single-image keys — kept so FlatCodec.decode surfaces them
+        // for the fromMap desktop fallback on old documents.
         'strategicHouseEnUrl': '',
         'strategicHouseArUrl': '',
       };
@@ -369,16 +409,24 @@ class OurStrategyModel {
     String? publishStatus,
     AboutNavigationLabel? navigationLabel,
     StrategySection? vision,
-    String? strategicHouseEnUrl,
-    String? strategicHouseArUrl,
+    String? strategicHouseEnDesktopUrl,
+    String? strategicHouseEnTabletUrl,
+    String? strategicHouseEnMobileUrl,
+    String? strategicHouseArDesktopUrl,
+    String? strategicHouseArTabletUrl,
+    String? strategicHouseArMobileUrl,
     DateTime? lastUpdatedAt,              // ← ADD
   }) =>
       OurStrategyModel(
         publishStatus: publishStatus ?? this.publishStatus,
         navigationLabel: navigationLabel ?? this.navigationLabel,
         vision: vision ?? this.vision,
-        strategicHouseEnUrl: strategicHouseEnUrl ?? this.strategicHouseEnUrl,
-        strategicHouseArUrl: strategicHouseArUrl ?? this.strategicHouseArUrl,
+        strategicHouseEnDesktopUrl: strategicHouseEnDesktopUrl ?? this.strategicHouseEnDesktopUrl,
+        strategicHouseEnTabletUrl: strategicHouseEnTabletUrl ?? this.strategicHouseEnTabletUrl,
+        strategicHouseEnMobileUrl: strategicHouseEnMobileUrl ?? this.strategicHouseEnMobileUrl,
+        strategicHouseArDesktopUrl: strategicHouseArDesktopUrl ?? this.strategicHouseArDesktopUrl,
+        strategicHouseArTabletUrl: strategicHouseArTabletUrl ?? this.strategicHouseArTabletUrl,
+        strategicHouseArMobileUrl: strategicHouseArMobileUrl ?? this.strategicHouseArMobileUrl,
         lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,   // ← ADD
       );
 }

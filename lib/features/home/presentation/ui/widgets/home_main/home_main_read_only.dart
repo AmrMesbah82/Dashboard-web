@@ -40,19 +40,7 @@ extension _HomeMainReadOnly on _HomeMainPageMasterState {
             children: [
               Row(children: [
                 Text('${_ordinal(i + 1)} Button',
-                    style: StyleText.fontSize14Weight600.copyWith(color: AppColors.text)),
-                const Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: btn.status ? ColorPick.primary.withValues(alpha: 0.12) : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                  child: Text(btn.status ? 'Active' : 'Hidden', style: TextStyle(
-                    fontSize: 11.sp, fontWeight: FontWeight.w600,
-                    color: btn.status ? ColorPick.primary : Colors.grey.shade600,
-                  )),
-                ),
+                    style: StyleText.fontSize14Weight500.copyWith(color: AppColors.text)),
               ]),
               SizedBox(height: 8.h),
               Row(children: [
@@ -61,7 +49,11 @@ extension _HomeMainReadOnly on _HomeMainPageMasterState {
                 Expanded(child: _readFieldRtl('عنوان الزر', btn.name.ar)),
               ]),
               SizedBox(height: 10.h),
-              _readField('Button Navigation', routeLabel.isNotEmpty ? routeLabel : 'Not set'),
+              Row(children: [
+                Expanded(child: _readField('Button Navigation', routeLabel.isNotEmpty ? routeLabel : 'Not set')),
+                SizedBox(width: 16.w),
+                const Expanded(child: SizedBox()),
+              ]),
               if (i < data.navButtons.length - 1) ...[
                 SizedBox(height: 14.h),
                 Divider(color: ColorPick.white, thickness: 1),

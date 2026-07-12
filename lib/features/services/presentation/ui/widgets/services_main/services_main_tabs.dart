@@ -184,19 +184,15 @@ extension _ServicesMainTabs on _ServicesMainPageMasterState {
                           width: 20.w, height: 20.h, fit: BoxFit.fill),
                       SizedBox(width: 8.w),
                       Expanded(
-                        child: TextField(
-                          cursorColor: const Color(0xFF008037),
+                        child: CustomTextField(
                           controller: _searchCtrl,
-                          style: StyleText.fontSize13Weight400
+                          valueStyle: StyleText.fontSize13Weight400
                               .copyWith(color: AppColors.text),
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            hintStyle: StyleText.fontSize13Weight400
-                                .copyWith(color: AppColors.secondaryText),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
+                          hint: 'Search',
+                          hintStyle: StyleText.fontSize13Weight400
+                              .copyWith(color: AppColors.secondaryText),
+                          fillColor: AppColors.card,
+                          contentPadding: EdgeInsets.zero,
                         ),
                       ),
                       SizedBox(width: 8.w),
@@ -264,14 +260,11 @@ extension _ServicesMainTabs on _ServicesMainPageMasterState {
                   ? Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 40.h),
-                  child: Column(children: [
-                    Icon(Icons.article_outlined,
-                        size: 40.sp, color: AppColors.secondaryText),
-                    SizedBox(height: 8.h),
-                    Text('No posts found.',
-                        style: StyleText.fontSize13Weight400
-                            .copyWith(color: AppColors.secondaryText)),
-                  ]),
+                  child: SvgPicture.asset(
+                    'assets/images/null.svg',
+                    width: 200.w,
+                    height: 200.h,
+                  ),
                 ),
               )
                   : _blogCardGrid(filtered),

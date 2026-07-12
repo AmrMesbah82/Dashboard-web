@@ -132,8 +132,8 @@ class _ContactUsMainPageState extends State<ContactUsMainPage> {
             GestureDetector(
               onTap: () => context.push('/admin/contact-cms/preview'),
               child: Container(
-width: 165.w,
-                height: 45.h,
+                width: 150.w,
+                height: 40.h,
                 decoration: BoxDecoration(
                   color: ColorPick.primary,
                   borderRadius: BorderRadius.circular(6.r),

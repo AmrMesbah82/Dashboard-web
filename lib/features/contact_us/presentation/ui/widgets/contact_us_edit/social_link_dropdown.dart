@@ -39,10 +39,8 @@ class _SocialLinkDropdown extends StatelessWidget {
             SizedBox(width: 10.w),
             Text(
               'Loading footer social links...',
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   12.sp,
-                color:      Colors.grey.shade500,
+              style: StyleText.fontSize12Weight400.copyWith(
+                color: Colors.grey.shade500,
               ),
             ),
           ],
@@ -56,53 +54,36 @@ class _SocialLinkDropdown extends StatelessWidget {
       final link   = entry.value;
       final hasUrl = link.url.isNotEmpty;
 
-      return DropdownMenuItem<int>(
+      return DropdownItem<int>(
         value:   index,        // ← always unique
         enabled: hasUrl,       // disabled when no URL
-        child: Row(
-          children: [
-            // Icon preview box
-            Container(
-              width:  36.w,
-              height: 36.w,
-              decoration: BoxDecoration(
-                color:        hasUrl
-                    ? const Color(0xFFE8F5EE)
-                    : const Color(0xFFF0F0F0),
-                borderRadius: BorderRadius.circular(6.r),
-
-              ),
-              child: Center(
-                child: link.iconUrl.isNotEmpty
-                    ? NetworkImageView(
-                  url:    link.iconUrl,
-                  width:  20.w, height: 20.w, fit: BoxFit.contain,
-                )
-                    : Icon(
-                  Icons.link, size: 16.sp,
-                  color: hasUrl ? ColorPick.primary : Colors.grey.shade400,
-                ),
-              ),
-            ),
-            SizedBox(width: 10.w),
-            // URL text
-            Expanded(
-              child: Text(
-                hasUrl
-                    ? _truncateUrl(link.url)
-                    : 'Social ${index + 1} — no URL set',
-                overflow:  TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize:   12.sp,
-                  color:      hasUrl ? Colors.black87 : Colors.grey.shade400,
-                  fontStyle:  hasUrl ? FontStyle.normal : FontStyle.italic,
-                ),
-              ),
-            ),
-            // "No URL" badge for disabled items
-            if (!hasUrl)
-              Container(
+        label: hasUrl
+            ? _truncateUrl(link.url)
+            : 'Social ${index + 1} — no URL set',
+        leading: Container(
+          width:  36.w,
+          height: 36.w,
+          decoration: BoxDecoration(
+            color: hasUrl
+                ? const Color(0xFFE8F5EE)
+                : const Color(0xFFF0F0F0),
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Center(
+            child: link.iconUrl.isNotEmpty
+                ? NetworkImageView(
+                    url: link.iconUrl,
+                    width: 20.w, height: 20.w, fit: BoxFit.contain,
+                  )
+                : Icon(
+                    Icons.link, size: 16.sp,
+                    color: hasUrl ? ColorPick.primary : Colors.grey.shade400,
+                  ),
+          ),
+        ),
+        // "No URL" badge for disabled items
+        trailing: !hasUrl
+            ? Container(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 decoration: BoxDecoration(
                   color:        Colors.grey.shade200,
@@ -110,130 +91,47 @@ class _SocialLinkDropdown extends StatelessWidget {
                 ),
                 child: Text(
                   'No URL',
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   10.sp,
-                    color:      Colors.grey.shade500,
+                  style: StyleText.fontSize10Weight400.copyWith(
+                    color: Colors.grey.shade500,
                   ),
                 ),
-              ),
-          ],
-        ),
+              )
+            : null,
       );
     }).toList();
 
-    // ── Selected item display (shown in the closed dropdown) ───────────────
-    // Flutter calls selectedItemBuilder[selectedIndex] to render the closed
-    // state — so every entry must show the SELECTED link, not its own link.
-    final selectedLink = selectedIndex != null &&
-        selectedIndex! < footerLinks.length
-        ? footerLinks[selectedIndex!]
-        : null;
-
-    Widget _selectedDisplay() {
-      if (selectedLink == null) {
-        return Row(
-          children: [
-            Icon(Icons.link, size: 16.sp, color: Colors.grey.shade400),
-            SizedBox(width: 8.w),
-            Text(
-              'Select a social link from footer',
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   12.sp,
-                color:      Colors.grey.shade400,
-              ),
-            ),
-          ],
-        );
-      }
-      return Row(
-        children: [
-          if (selectedLink.iconUrl.isNotEmpty)
-            NetworkImageView(
-              url: selectedLink.iconUrl,
-              width: 18.w, height: 18.w, fit: BoxFit.contain,
-            )
-          else
-            Icon(Icons.link, size: 16.sp, color: ColorPick.primary),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              selectedLink.url.isNotEmpty
-                  ? _truncateUrl(selectedLink.url)
-                  : 'Social ${selectedIndex! + 1}',
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   12.sp,
-                color:      Colors.black87,
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    // One identical widget per item — Flutter picks by index, all show the same selected state
-    final selectedItemWidgets =
-    List.generate(footerLinks.length, (_) => _selectedDisplay());
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 48.h,
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<int>(
-              value:      selectedIndex,   // int? — always unique
-              isExpanded: true,
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 20.sp, color: Colors.grey.shade600,
-              ),
-              hint: Row(
-                children: [
-                  Icon(Icons.link, size: 16.sp, color: Colors.grey.shade400),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'Select a social link from footer',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize:   12.sp,
-                      color:      Colors.grey.shade400,
-                    ),
-                  ),
-                ],
-              ),
-              selectedItemBuilder: (_) => selectedItemWidgets,
-              items:     items,
-              onChanged: (idx) {
-                if (idx == null) return;
-                // Extra guard: don't allow selecting a link with no URL
-                if (footerLinks[idx].url.isEmpty) return;
-                onChanged(idx);
-              },
-            ),
-          ),
-        ),
-        if (hasError) ...[
-          SizedBox(height: 4.h),
-          Text(
-            'Please select a social link',
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   11.sp,
-              color:      ColorPick.red,
-            ),
-          ),
-        ],
-      ],
+    return CustomDropdown<int>(
+      value: selectedIndex,
+      items: items,
+      hint: 'Select a social link from footer',
+      hintStyle: StyleText.fontSize12Weight400.copyWith(
+        color: Colors.grey.shade400,
+      ),
+      prefixIcon: selectedIndex == null
+          ? Icon(Icons.link, size: 16.sp, color: Colors.grey.shade400)
+          : null,
+      valueStyle: StyleText.fontSize12Weight400.copyWith(
+        color: Colors.black87,
+      ),
+      itemStyle: StyleText.fontSize12Weight400,
+      fillColor: Colors.white,
+      borderRadius: BorderRadius.circular(8.r),
+      itemHeight: 48.h,
+      triggerPadding:
+          EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+      suffixIcon: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        size: 20.sp, color: Colors.grey.shade600,
+      ),
+      errorText: hasError ? 'Please select a social link' : null,
+      errorStyle: StyleText.fontSize11Weight400.copyWith(
+        color: ColorPick.red,
+      ),
+      onChanged: (idx) {
+        // Extra guard: don't allow selecting a link with no URL
+        if (footerLinks[idx].url.isEmpty) return;
+        onChanged(idx);
+      },
     );
   }
 

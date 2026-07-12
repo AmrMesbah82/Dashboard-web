@@ -15,6 +15,7 @@ import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
+import '../../../../../core/custom/2-custom_textfield.dart';
 import '../../../../../core/widget/custom_dropdwon.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
@@ -333,25 +334,15 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
                                     Text('Our Notes',
                                         style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text)),
                                     SizedBox(height: 6.h),
-                                    SizedBox(
-                                      height: 80.h,
-                                      child: TextFormField(
-                                        controller: _noteCtrl,
-                                        maxLines: 4,
-                                        style: TextStyle(fontSize: 12.sp, color: AppColors.text),
-                                        decoration: InputDecoration(
-                                          hoverColor: Colors.transparent,
-                                          hintText: 'Text Here',
-                                          hintStyle: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
-                                          filled: true,
-                                          fillColor: const Color(0xFFF1F2ED),
-                                          isDense: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(4.r),
-                                            borderSide: BorderSide.none,
-                                          ),
-                                        ),
-                                      ),
+                                    CustomTextField(
+                                      controller: _noteCtrl,
+                                      maxLines: 4,
+                                      height: 80,
+                                      valueStyle: TextStyle(fontSize: 12.sp, color: AppColors.text),
+                                      hint: 'Text Here',
+                                      hintStyle: TextStyle(fontSize: 12.sp, color: AppColors.secondaryText),
+                                      fillColor: const Color(0xFFF1F2ED),
+                                      borderRadius: BorderRadius.circular(4.r),
                                     ),
                                   ],
                                 ),

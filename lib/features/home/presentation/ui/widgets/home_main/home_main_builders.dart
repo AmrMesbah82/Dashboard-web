@@ -55,7 +55,7 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
             GestureDetector(
               onTap: () => navigateTo(context, HomePreviewPageMaster()),
               child: Container(
-                width: 165.w, height: 45.h,
+                width: 130.w, height: 36.h,
                 decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(6.r)),
                 child: Center(child: Text('Preview Screen',
                     style: StyleText.fontSize14Weight500.copyWith(color: Colors.white))),

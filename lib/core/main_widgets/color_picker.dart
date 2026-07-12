@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../custom/2-custom_textfield.dart';
+
 class ColorPickerField extends StatelessWidget {
   final String label;
   final Color selectedColor;
@@ -50,25 +52,19 @@ class ColorPickerField extends StatelessWidget {
     return GestureDetector(
       onTap: () => _openColorPicker(context),
       child: AbsorbPointer(
-        child: TextFormField(
+        child: CustomTextField(
           readOnly: true,
-          decoration: InputDecoration(
-            labelText: label,
-            border: const OutlineInputBorder(),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: selectedColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey.shade400),
-                ),
-              ),
+          label: label,
+          prefixIcon: Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: selectedColor,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade400),
             ),
-            suffixIcon: const Icon(Icons.colorize),
           ),
+          suffixIcon: const Icon(Icons.colorize),
           controller: TextEditingController(
             text: '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
           ),

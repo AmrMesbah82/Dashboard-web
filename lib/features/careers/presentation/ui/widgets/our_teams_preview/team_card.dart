@@ -90,11 +90,9 @@ class _TeamCard extends StatelessWidget {
                     ? 'Strategy & Planning Team'
                     : _t(item.title),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize:   12,
-                  fontWeight: FontWeight.w600,
-                  color:      Colors.white,
+                style: StyleText.fontSize12Weight600.copyWith(
+                  fontSize: 12,
+                  color:    Colors.white,
                 ),
               ),
             ),
@@ -109,11 +107,10 @@ class _TeamCard extends StatelessWidget {
                 'is mapped to measurable business outcomes.'
                 : _t(item.description),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   11,
-              color:      Colors.black54,
-              height:     1.5,
+            style: StyleText.fontSize11Weight400.copyWith(
+              fontSize: 11,
+              color:    Colors.black54,
+              height:   1.5,
             ),
             maxLines:  5,
             overflow:  TextOverflow.ellipsis,
@@ -125,8 +122,7 @@ class _TeamCard extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               isAr ? 'المخرجات:' : 'Deliverables:',
-              style: const TextStyle(
-                fontFamily: 'Cairo',
+              style: StyleText.fontSize11Weight600.copyWith(
                 fontSize:   11,
                 fontWeight: FontWeight.w700,
                 color:      Colors.black87,
@@ -160,11 +156,9 @@ class _TeamCard extends StatelessWidget {
       ),
       child: Text(
         text.isEmpty ? 'Inactive' : text,
-        style: TextStyle(
-          fontFamily: 'Cairo',
-          fontSize:   10,
-          fontWeight: FontWeight.w700,
-          color:      inactive ? _hintText : _primary,
+        style: StyleText.fontSize10Weight700.copyWith(
+          fontSize: 10,
+          color:    inactive ? _hintText : _primary,
         ),
       ),
     );

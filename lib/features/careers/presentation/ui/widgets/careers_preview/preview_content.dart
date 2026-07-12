@@ -85,8 +85,7 @@ class _PreviewContent extends StatelessWidget {
           // Hero headline
           Text(
             headline,
-            style: TextStyle(
-              fontFamily: 'Cairo',
+            style: StyleText.fontSize28Weight600.copyWith(
               fontSize:   titleFz,
               fontWeight: FontWeight.w700,
               color:      const Color(0xFF1A1A1A),
@@ -109,11 +108,10 @@ class _PreviewContent extends StatelessWidget {
             isAr
                 ? 'نفخر ببيئة ديناميكية وشاملة تعترف بمواهبك وترعاها. ثقافتنا تعزز النمو المستمر والتطوير الشخصي والتميز المهني.'
                 : 'We take pride in fostering a dynamic and inclusive environment where your talents are not only recognized, but also nurtured. Our culture promotes continuous growth, personal development, and professional excellence.',
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   descFz,
-              height:     1.7,
-              color:      const Color(0xFF444444),
+            style: StyleText.fontSize13Weight400.copyWith(
+              fontSize: descFz,
+              height:   1.7,
+              color:    const Color(0xFF444444),
             ),
           ),
           SizedBox(height: descFz * 0.8),
@@ -123,11 +121,10 @@ class _PreviewContent extends StatelessWidget {
             isAr
                 ? 'نؤمن بالتوازن. لهذا نولي أهمية لرفاهية الموظف، ونوفر بيئة عمل داعمة ومرنة تمكّنك من الازدهار مهنياً وشخصياً.'
                 : 'We believe in balance. That\'s why we prioritize employee well-being, offering a supportive and flexible work environment that empowers you to thrive—both professionally and personally.',
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   descFz,
-              height:     1.7,
-              color:      const Color(0xFF444444),
+            style: StyleText.fontSize13Weight400.copyWith(
+              fontSize: descFz,
+              height:   1.7,
+              color:    const Color(0xFF444444),
             ),
           ),
           SizedBox(height: descFz * 0.8),
@@ -146,11 +143,10 @@ class _PreviewContent extends StatelessWidget {
             isAr
                 ? 'كن جزءاً من بيئة عمل مبنية على الإبداع والتعاون والابتكار الجريء.'
                 : 'Be a part of a workplace built on creativity, collaboration, and bold innovation.',
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   descFz,
-              height:     1.7,
-              color:      const Color(0xFF444444),
+            style: StyleText.fontSize13Weight400.copyWith(
+              fontSize: descFz,
+              height:   1.7,
+              color:    const Color(0xFF444444),
             ),
           ),
 
@@ -159,11 +155,10 @@ class _PreviewContent extends StatelessWidget {
             SizedBox(height: descFz * 0.8),
             Text(
               desc,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   descFz,
-                height:     1.7,
-                color:      const Color(0xFF444444),
+              style: StyleText.fontSize13Weight400.copyWith(
+                fontSize: descFz,
+                height:   1.7,
+                color:    const Color(0xFF444444),
               ),
             ),
           ],
@@ -174,11 +169,10 @@ class _PreviewContent extends StatelessWidget {
           if (_isMobView) ...[
             Text(
               tagline,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize:   taglineFz,
-                color:      const Color(0xFF555555),
-                fontStyle:  FontStyle.italic,
+              style: StyleText.fontSize12Weight400.copyWith(
+                fontSize:  taglineFz,
+                color:     const Color(0xFF555555),
+                fontStyle: FontStyle.italic,
               ),
             ),
             const SizedBox(height: 12),
@@ -188,11 +182,10 @@ class _PreviewContent extends StatelessWidget {
               children: [
                 Text(
                   tagline,
-                  style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize:   taglineFz,
-                    color:      const Color(0xFF555555),
-                    fontStyle:  FontStyle.italic,
+                  style: StyleText.fontSize12Weight400.copyWith(
+                    fontSize:  taglineFz,
+                    color:     const Color(0xFF555555),
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
                 const Spacer(),
@@ -213,11 +206,9 @@ class _PreviewContent extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontFamily: 'Cairo',
-          fontSize:   fontSize,
-          fontWeight: FontWeight.w600,
-          color:      Colors.white,
+        style: StyleText.fontSize13Weight600.copyWith(
+          fontSize: fontSize,
+          color:    Colors.white,
         ),
       ),
     );

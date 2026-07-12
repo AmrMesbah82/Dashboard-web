@@ -115,6 +115,19 @@ class CareersSectionModel {
     lastUpdated: null,
   );
 
+  /// Nested template for [FlatCodec.decode] (one populated sample item).
+  static Map<String, dynamic> get flatTemplate => {
+        'items': [
+          {
+            'id': '',
+            'iconUrl': '',
+            'title': {'en': '', 'ar': ''},
+            'svgUrl': '',
+            'description': {'en': '', 'ar': ''},
+          }
+        ],
+      };
+
   CareersSectionModel copyWith({
     String? sectionKey,
     List<CareersSectionItem>? items,

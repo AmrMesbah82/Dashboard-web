@@ -149,14 +149,16 @@ class _MainMainPageState extends State<MainMainPage> {
                               GestureDetector(
                                 onTap: () => context.pushNamed('home_preview'),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                                  width: 130.w, height: 36.h,
                                   decoration: BoxDecoration(
                                     color: ColorPick.primary,
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
-                                  child: Text(
-                                    'Preview Screen',
-                                    style: StyleText.fontSize14Weight500.copyWith(color: Colors.white),
+                                  child: Center(
+                                    child: Text(
+                                      'Preview Screen',
+                                      style: StyleText.fontSize14Weight500.copyWith(color: Colors.white),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -371,18 +373,14 @@ class _MainMainPageState extends State<MainMainPage> {
 
             // ── Row: item label + status badge ────────────────────────────
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  'Item ${i + 1}',
-                  style: StyleText.fontSize13Weight600
-                      .copyWith(color: AppColors.text),
-                ),
+
                 // Status indicator
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Status: ',
+                    Text('Status ',
                         style: StyleText.fontSize11Weight400
                             .copyWith(color: AppColors.text)),
                     Container(
@@ -490,13 +488,34 @@ class _MainMainPageState extends State<MainMainPage> {
               const Expanded(child: SizedBox()),
             ]),
             SizedBox(height: 8.h),
+            // Caption shown ONCE — the rows below are this column's labels
+            // (one box per label; they are separate labels, not duplicates).
+            if (col.labels.isNotEmpty) ...[
+              Row(children: [
+                Expanded(
+                  child: Text('Navigation Label',
+                      style: StyleText.fontSize12Weight500
+                          .copyWith(color: AppColors.text)),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text('تسمية التنقل',
+                        style: StyleText.fontSize12Weight500
+                            .copyWith(color: AppColors.text)),
+                  ),
+                ),
+              ]),
+              SizedBox(height: 4.h),
+            ],
             ...col.labels.map((lbl) => Padding(
               padding: EdgeInsets.only(bottom: 6.h),
               child: Row(children: [
-                Expanded(child: _readField('Navigation Label',
+                Expanded(child: _valueBox(
                     lbl.label.en.isEmpty ? 'Text Here' : lbl.label.en)),
                 SizedBox(width: 8.w),
-                Expanded(child: _readFieldRtl('تسمية التنقل', lbl.label.ar)),
+                Expanded(child: _valueBoxRtl(lbl.label.ar)),
               ]),
             )),
             SizedBox(height: 8.h),
@@ -543,6 +562,34 @@ class _MainMainPageState extends State<MainMainPage> {
       ],
     );
   }
+
+  // ── Caption-less value boxes (used when the caption is rendered once) ───────
+  Widget _valueBox(String value) => Container(
+    width: double.infinity, height: 36.h,
+    padding: EdgeInsets.symmetric(horizontal: 10.w),
+    decoration: BoxDecoration(
+        color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
+    alignment: Alignment.centerLeft,
+    child: Text(value,
+        style: StyleText.fontSize12Weight400
+            .copyWith(color: AppColors.secondaryText),
+        overflow: TextOverflow.ellipsis),
+  );
+
+  Widget _valueBoxRtl(String value) => Container(
+    width: double.infinity, height: 36.h,
+    padding: EdgeInsets.symmetric(horizontal: 10.w),
+    decoration: BoxDecoration(
+        color: AppColors.card, borderRadius: BorderRadius.circular(4.r)),
+    alignment: Alignment.centerRight,
+    child: Text(
+      value.isEmpty ? 'أدخل النص هنا' : value,
+      style: StyleText.fontSize12Weight400
+          .copyWith(color: AppColors.secondaryText),
+      overflow: TextOverflow.ellipsis,
+      textDirection: TextDirection.rtl,
+    ),
+  );
 
   // ── Shared read-only field helpers ───────────────────────────────────────────
   Widget _readField(String label, String value) => Column(

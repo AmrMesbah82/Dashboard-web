@@ -1,18 +1,23 @@
 // ******************* FILE INFO *******************
-// File Name: custom_textformfield.dart
-// Description: this is custom Text field can reuse
+// File Name: textfield.dart
+// Description: DEPRECATED SHIM — CustomValidatedTextFieldMaster is now a
+//              thin wrapper around the single shared text field in
+//              lib/core/custom/2-custom_textfield.dart.
+//              App-wide rules (enforced by the shared widget):
+//              • NO character counter is ever shown (showCharCount ignored).
+//              • NO language restriction — Arabic AND English always allowed.
 // Created by: Amr Mesbah
-// Last Update: 16/5/2026
+// Last Update: 12/7/2026
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-
+import '../custom/2-custom_textfield.dart' as custom;
 import '../theme/appcolors.dart';
 import '../theme/new_theme.dart';
 
-class CustomValidatedTextFieldMaster extends StatefulWidget {
+class CustomValidatedTextFieldMaster extends StatelessWidget {
   final String? label;
 
   /// Optional widget pinned to the END of the label row (same width as the
@@ -24,6 +29,8 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   final double? width;
   final int maxLines;
   final bool enabled;
+
+  /// IGNORED — no character counter anywhere in the app.
   final bool showCharCount;
   final ValueChanged<String>? onChanged;
   final TextDirection textDirection;
@@ -33,12 +40,10 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   final TextStyle? hintStyle;
   final Color? fillColor;
 
-  /// Dynamic primary color from CMS branding (used for focused border,
-  /// cursor, and text selection highlight).
-  /// Falls back to AppColors.primary if not provided.
+  /// Kept for call-site compatibility — ignored internally.
   final Color? primaryColor;
 
-  /// Hard character cap (default 500)
+  /// Hard character cap (default 500) — enforced silently, no counter.
   final int maxLength;
 
   // Kept for call-site compatibility — ignored internally
@@ -74,193 +79,82 @@ class CustomValidatedTextFieldMaster extends StatefulWidget {
   });
 
   @override
-  State<CustomValidatedTextFieldMaster> createState() =>
-      _CustomValidatedTextFieldMasterState();
-}
-
-class _CustomValidatedTextFieldMasterState
-    extends State<CustomValidatedTextFieldMaster> {
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_onControllerChanged);
-  }
-
-  @override
-  void didUpdateWidget(CustomValidatedTextFieldMaster oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) {
-      oldWidget.controller.removeListener(_onControllerChanged);
-      widget.controller.addListener(_onControllerChanged);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_onControllerChanged);
-    super.dispose();
-  }
-
-  void _onControllerChanged() {
-    if (mounted) setState(() {});
-  }
-
-  String _toArabicNum(int number) {
-    const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return number
-        .toString()
-        .split('')
-        .map((e) => arabicNums[int.parse(e)])
-        .join();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Color resolvedPrimary = widget.primaryColor ?? const Color(0xFF008037);
-
     final bool lightMode = Theme.of(context).brightness == Brightness.light;
-    final bool showCounter =
-        widget.showCharCount && widget.controller.text.isNotEmpty;
+    final bool isMultiline = maxLines > 1;
 
-    final Color resolvedFill = widget.fillColor ??
+    final Color resolvedFill = fillColor ??
         (lightMode ? const Color(0xFFF1F2ED) : AppColors.background);
 
-    final List<TextInputFormatter> formatters = [
-      if (widget.onlyDigits) FilteringTextInputFormatter.digitsOnly,
-      LengthLimitingTextInputFormatter(widget.maxLength),
-    ];
+    final EdgeInsetsGeometry contentPadding = isMultiline
+        ? EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w)
+        : EdgeInsets.symmetric(
+            vertical: (height - 20).h / 2,
+            horizontal: 12.w,
+          );
 
-    final int currentLen = widget.controller.text.characters.length;
-    final borderRadius = BorderRadius.circular(4.r);
+    final Widget labelText = Text(
+      label ?? '',
+      textDirection: textDirection,
+      style: StyleText.fontSize12Weight600.copyWith(
+        color: const Color(0xFF1A1A1A),
+      ),
+    );
 
-    EdgeInsetsGeometry contentPadding;
-    if (widget.maxLines > 1) {
-      contentPadding = EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w);
-    } else {
-      contentPadding = EdgeInsets.symmetric(
-        vertical: (widget.height - 20).h / 2,
-        horizontal: 12.w,
-      );
-    }
+    final field = custom.CustomTextField(
+      controller: controller,
+      hint: hint,
+      // Label row is rendered here (legacy style + trailing support).
+      label: null,
+      enabled: enabled,
+      maxLines: maxLines,
+      maxLength: maxLength,
+      width: width,
+      height: isMultiline ? null : height,
+      textDirection: textDirection,
+      textAlign: textAlign,
+      onlyDigits: onlyDigits,
+      keyboardType: onlyDigits ? TextInputType.number : TextInputType.text,
+      onChanged: onChanged,
+      fillColor: resolvedFill,
+      contentPadding: contentPadding,
+      valueStyle: textStyle ??
+          StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
+      hintStyle: hintStyle ??
+          StyleText.fontSize12Weight400.copyWith(
+            color: lightMode ? const Color(0xFF9E9E9E) : ColorAppDark.titleKey,
+          ),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(maxLength),
+      ],
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null) ...[
-          widget.labelTrailing != null
+        if (label != null) ...[
+          labelTrailing != null
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
-                        widget.label!,
-                        textDirection: widget.textDirection,
+                        label!,
+                        textDirection: textDirection,
                         overflow: TextOverflow.ellipsis,
                         style: StyleText.fontSize12Weight600.copyWith(
                           color: const Color(0xFF1A1A1A),
                         ),
                       ),
                     ),
-                    widget.labelTrailing!,
+                    labelTrailing!,
                   ],
                 )
-              : Text(
-                  widget.label!,
-                  textDirection: widget.textDirection,
-                  style: StyleText.fontSize12Weight600.copyWith(
-                    color: const Color(0xFF1A1A1A),
-                  ),
-                ),
+              : labelText,
           SizedBox(height: 6.h),
         ],
-
-        SizedBox(
-          height: widget.height.h,
-          width: widget.width,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: resolvedPrimary,
-                onSurface: AppColors.text,
-              ),
-              textSelectionTheme: TextSelectionThemeData(
-                selectionColor: resolvedPrimary.withValues(alpha: 0.3),
-                selectionHandleColor: resolvedPrimary,
-                cursorColor: resolvedPrimary,
-              ),
-            ),
-            child: TextField(
-              controller: widget.controller,
-              maxLines: widget.maxLines,
-              enabled: widget.enabled,
-              textDirection: widget.textDirection,
-              textAlign: widget.textAlign,
-              cursorColor: resolvedPrimary,
-              keyboardType:
-              widget.onlyDigits ? TextInputType.number : TextInputType.text,
-              style: widget.textStyle ??
-                  StyleText.fontSize12Weight400.copyWith(color: AppColors.text),
-              onChanged: (value) {
-                if (widget.onChanged != null) widget.onChanged!(value);
-                if (mounted) setState(() {});
-              },
-              inputFormatters: formatters,
-              maxLength: widget.maxLength,
-              maxLengthEnforcement: MaxLengthEnforcement.enforced,
-              autofillHints: const [],
-              decoration: InputDecoration(
-                hoverColor: Colors.transparent,
-                hintText: widget.hint,
-                hintStyle: widget.hintStyle ??
-                    StyleText.fontSize12Weight400.copyWith(
-                      color: lightMode
-                          ? const Color(0xFF9E9E9E)
-                          : ColorAppDark.titleKey,
-                    ),
-                filled: true,
-                fillColor: resolvedFill,
-                isDense: true,
-                counterText: '',
-                contentPadding: contentPadding,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: borderRadius,
-                  borderSide:
-                  const BorderSide(color: Colors.transparent, width: 1),
-                ),
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: borderRadius,
-                  borderSide:
-                  const BorderSide(color: Colors.transparent, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: borderRadius,
-                  borderSide: BorderSide(color: resolvedPrimary, width: 1.5),
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        if (showCounter)
-          Align(
-            alignment: widget.textDirection == TextDirection.rtl
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 4.h, right: 4.w, left: 4.w),
-              child: Text(
-                widget.textDirection == TextDirection.rtl
-                    ? "${_toArabicNum(currentLen)}/${_toArabicNum(widget.maxLength)}"
-                    : "$currentLen/${widget.maxLength}",
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: const Color(0xFF9E9E9E),
-                ),
-              ),
-            ),
-          ),
+        field,
       ],
     );
   }

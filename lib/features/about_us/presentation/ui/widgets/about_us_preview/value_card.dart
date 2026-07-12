@@ -47,8 +47,8 @@ class _ValueCardState extends State<_ValueCard> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             ico, const SizedBox(height: 6),
             Text(widget.title, textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: 'Cairo', fontSize: widget.fontSize,
-                    fontWeight: FontWeight.w600,
+                style: StyleText.fontSize14Weight600.copyWith(
+                    fontSize: widget.fontSize,
                     color: sel ? Colors.white
                         : (_hov ? widget.primary : Colors.black87),
                     height: 1.35)),

@@ -6,6 +6,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
+import '../../../../core/utils/flat_codec.dart';
 import '../../domain/base_repository/job_listing_repo.dart';
 import '../models/job_listing_model.dart';
 
@@ -27,11 +28,14 @@ class JobListingRepoImp implements JobListingRepo {
   Future<List<JobPostModel>> fetchAllJobs() async {
     try {
       final snapshot = await _collection
-          .orderBy('postedDate', descending: true)
+          .orderBy('Last_Updated_At', descending: true)
           .get(const GetOptions(source: Source.server));
 
       final jobs = snapshot.docs.map((doc) {
-        return JobPostModel.fromMap(doc.id, doc.data());
+        return JobPostModel.fromMap(
+          doc.id,
+          FlatCodec.decode(doc.data(), JobPostModel.flatTemplate),
+        );
       }).toList();
 
       return jobs;
@@ -39,10 +43,13 @@ class JobListingRepoImp implements JobListingRepo {
       // Fallback to cache if server fails
       try {
         final snapshot = await _collection
-            .orderBy('postedDate', descending: true)
+            .orderBy('Last_Updated_At', descending: true)
             .get(const GetOptions(source: Source.cache));
         final jobs = snapshot.docs.map((doc) {
-          return JobPostModel.fromMap(doc.id, doc.data());
+          return JobPostModel.fromMap(
+          doc.id,
+          FlatCodec.decode(doc.data(), JobPostModel.flatTemplate),
+        );
         }).toList();
         return jobs;
       } catch (cacheError) {
@@ -62,7 +69,10 @@ class JobListingRepoImp implements JobListingRepo {
       if (!doc.exists || doc.data() == null) {
         return null;
       }
-      final job = JobPostModel.fromMap(doc.id, doc.data()!);
+      final job = JobPostModel.fromMap(
+        doc.id,
+        FlatCodec.decode(doc.data()!, JobPostModel.flatTemplate),
+      );
       return job;
     } catch (e) {
       rethrow;
@@ -76,7 +86,7 @@ class JobListingRepoImp implements JobListingRepo {
   @override
   Future<JobPostModel> createJob(JobPostModel job) async {
     try {
-      final docRef = await _collection.add(job.toMap());
+      final docRef = await _collection.add(FlatCodec.encodeNew(job.toMap()));
       final created = job.copyWith(id: docRef.id);
       return created;
     } catch (e) {
@@ -91,7 +101,7 @@ class JobListingRepoImp implements JobListingRepo {
   @override
   Future<void> updateJob(JobPostModel job) async {
     try {
-      await _collection.doc(job.id).update(job.toMap());
+      await FlatCodec.writeVersioned(_collection.doc(job.id), job.toMap());
     } catch (e) {
       rethrow;
     }
@@ -117,7 +127,8 @@ class JobListingRepoImp implements JobListingRepo {
   @override
   Future<void> removeJob(String id) async {
     try {
-      await _collection.doc(id).update({
+      // Partial update — writeVersioned appends only these changed fields.
+      await FlatCodec.writeVersioned(_collection.doc(id), {
         'status': JobStatus.removed.label,
         'endedDate': DateTime.now().toIso8601String(),
       });
@@ -140,7 +151,8 @@ class JobListingRepoImp implements JobListingRepo {
       if (status == JobStatus.active) {
         data['postedDate'] = DateTime.now().toIso8601String();
       }
-      await _collection.doc(id).update(data);
+      // Partial update — writeVersioned appends only these changed fields.
+      await FlatCodec.writeVersioned(_collection.doc(id), data);
     } catch (e) {
       rethrow;
     }
@@ -157,7 +169,10 @@ class JobListingRepoImp implements JobListingRepo {
         .snapshots()
         .map((snapshot) {
       final jobs = snapshot.docs.map((doc) {
-        return JobPostModel.fromMap(doc.id, doc.data());
+        return JobPostModel.fromMap(
+          doc.id,
+          FlatCodec.decode(doc.data(), JobPostModel.flatTemplate),
+        );
       }).toList();
       return jobs;
     });

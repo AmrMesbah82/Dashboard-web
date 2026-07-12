@@ -18,18 +18,16 @@ class _ViewBar extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
-        children: const [
+        children: [
           Text(
             'View',
-            style: TextStyle(
-              fontFamily: 'Cairo',
-              fontSize:   13,
-              fontWeight: FontWeight.w600,
-              color:      Colors.white,
+            style: StyleText.fontSize13Weight600.copyWith(
+              fontSize: 13,
+              color:    Colors.white,
             ),
           ),
-          Spacer(),
-          Icon(Icons.keyboard_arrow_up, color: Colors.white, size: 20),
+          const Spacer(),
+          const Icon(Icons.keyboard_arrow_up, color: Colors.white, size: 20),
         ],
       ),
     );

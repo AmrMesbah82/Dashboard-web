@@ -61,11 +61,9 @@ class _PreviewContentState extends State<_PreviewContent> {
                         Expanded(
                           child: Text(
                             'View',
-                            style: const TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize:   14,
-                              fontWeight: FontWeight.w600,
-                              color:      Colors.white,
+                            style: StyleText.fontSize14Weight600.copyWith(
+                              fontSize: 14,
+                              color:    Colors.white,
                             ),
                           ),
                         ),
@@ -91,21 +89,17 @@ class _PreviewContentState extends State<_PreviewContent> {
                         children: [
                           TextSpan(
                             text: widget.isAr ? 'تعرف على ' : 'Meet ',
-                            style: TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize:   _isDesktop ? 28 : (_isMob ? 18 : 22),
-                              fontWeight: FontWeight.w600,
-                              color:      Colors.black87,
+                            style: StyleText.fontSize28Weight600.copyWith(
+                              fontSize: _isDesktop ? 28 : (_isMob ? 18 : 22),
+                              color:    Colors.black87,
                             ),
                           ),
                           TextSpan(
                             text: widget.isAr ? 'فرقنا' : 'Our Teams',
-                            style: TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize:   _isDesktop ? 28 : (_isMob ? 18 : 22),
-                              fontWeight: FontWeight.w600,
-                              color:      _primary,
-                              fontStyle:  FontStyle.italic,
+                            style: StyleText.fontSize28Weight600.copyWith(
+                              fontSize:  _isDesktop ? 28 : (_isMob ? 18 : 22),
+                              color:     _primary,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
                         ],
@@ -123,10 +117,8 @@ class _PreviewContentState extends State<_PreviewContent> {
                           widget.isAr
                               ? 'لا توجد فرق بعد.'
                               : 'No teams added yet.',
-                          style: const TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize:   14,
-                              color:      _hintText),
+                          style: StyleText.fontSize14Weight400.copyWith(
+                              fontSize: 14, color: _hintText),
                         ),
                       ),
                     )

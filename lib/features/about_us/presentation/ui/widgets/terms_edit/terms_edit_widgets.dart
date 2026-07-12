@@ -7,67 +7,11 @@ extension _TermsEditWidgets on _TermsEditPageState {
     bool isAdd = false,
     VoidCallback? onPick,
   }) {
-    Widget content;
-    if (picked.bytes != null) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(
-          child: Padding(
-            padding: EdgeInsets.all(15.r),
-            child: SvgPicture.memory(picked.bytes!,
-                width: 30.w, height: 30.h, fit: BoxFit.contain),
-          ),
-        ),
-      );
-    } else if (picked.url != null && picked.url!.isNotEmpty) {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: ClipOval(
-          child: Padding(
-            padding: EdgeInsets.all(15.r),
-            child: NetworkImageView(url: picked.url!,
-                width: 30.w, height: 30.h, fit: BoxFit.contain),
-          ),
-        ),
-      );
-    } else {
-      content = Container(
-        width: 60.w, height: 60.h,
-        decoration: const BoxDecoration(
-            color: Color(0xFFD9D9D9), shape: BoxShape.circle),
-        child: Center(
-          child: Icon(isAdd ? Icons.add : Icons.image_outlined,
-              color: Colors.grey, size: 22.sp),
-        ),
-      );
-    }
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GestureDetector(onTap: onPick, child: content),
-        Positioned(
-          bottom: 0, right: 0,
-          child: GestureDetector(
-            onTap: onPick,
-            child: Container(
-              width: 25.w, height: 25.h,
-              decoration: BoxDecoration(
-                color: _kGreenSolid,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Center(
-                child: CustomSvg(
-                  assetPath: "assets/control/camera.svg",
-                  width: 10.w, height: 10.h, fit: BoxFit.scaleDown,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircleBare(
+      bytes: picked.bytes,
+      url: picked.url ?? '',
+      onTap: onPick ?? () {},
     );
   }
 
@@ -94,6 +38,7 @@ extension _TermsEditWidgets on _TermsEditPageState {
         SizedBox(height: 8.h),
         CustomValidatedTextFieldMaster(
           fillColor: Colors.white,
+
           hint: 'Text Here',
           controller: descEnCtrl,
           height: 120,
@@ -108,7 +53,7 @@ extension _TermsEditWidgets on _TermsEditPageState {
           onChanged: (_) => setState(() {}),
         ),
         SizedBox(height: 8.h),
-        _fieldLabelAr('Description'),
+        _fieldLabelAr('الوصف'),
         SizedBox(height: 4.h),
         CustomValidatedTextFieldMaster(
           fillColor: Colors.white,
@@ -171,13 +116,18 @@ extension _TermsEditWidgets on _TermsEditPageState {
         SizedBox(height: 8.h),
         docItem.hasFile
             ? Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(8.r)),
+              borderRadius: BorderRadius.circular(4.r)),
           child: Row(
             children: [
-              Icon(Icons.picture_as_pdf, size: 18.sp, color: _kRed),
+              SvgPicture.asset(
+                'assets/images/pdf 1.svg',
+                width: 28.w,
+                height: 28.h,
+                fit: BoxFit.contain,
+              ),
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(docItem.displayName,
@@ -188,7 +138,7 @@ extension _TermsEditWidgets on _TermsEditPageState {
               GestureDetector(
                 onTap: onRemove,
                 child: Container(
-                  width: 22.w, height: 22.h,
+                  width: 16.w, height: 16.h,
                   decoration: BoxDecoration(
                       color: _kRed, shape: BoxShape.circle),
                   child: Icon(Icons.remove,
@@ -202,22 +152,18 @@ extension _TermsEditWidgets on _TermsEditPageState {
           onTap: onPick,
           child: Container(
             width: double.infinity,
-            height: 44.h,
+            height: 34.h,
             decoration: BoxDecoration(
                 color: _kGreenSolid,
-                borderRadius: BorderRadius.circular(8.r)),
+                borderRadius: BorderRadius.circular(4.r)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.upload_file, color: Colors.white, size: 18.sp),
+                CustomSvg(assetPath: "assets/Upload.svg"),
                 SizedBox(width: 8.w),
                 Text('Attach Document',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    )),
+                    style: StyleText.fontSize13Weight600
+                        .copyWith(color: Colors.white)),
               ],
             ),
           ),
@@ -242,7 +188,7 @@ extension _TermsEditWidgets on _TermsEditPageState {
             padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 14.h),
             decoration: BoxDecoration(
                 color: _kGreenSolid,
-                borderRadius: BorderRadius.circular(8.r)),
+                borderRadius: BorderRadius.circular(6.r)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -325,12 +271,8 @@ extension _TermsEditWidgets on _TermsEditPageState {
   Widget _fieldLabelAr(String t) => Align(
     alignment: Alignment.centerRight,
     child: Text(t,
-        style: TextStyle(
-          fontFamily: 'Cairo',
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        )),
+        style: StyleText.fontSize13Weight600
+            .copyWith(color: Colors.black87)),
   );
 
   // ── Button ────────────────────────────────────────────────────────────────
@@ -349,7 +291,7 @@ extension _TermsEditWidgets on _TermsEditPageState {
           child: Center(
             child: Text(label,
                 style: StyleText.fontSize16Weight400
-                    .copyWith(color: Colors.white)),
+                    .copyWith(color: AppColors.white)),
           ),
         ),
       );
@@ -369,10 +311,8 @@ extension _TermsEditWidgets on _TermsEditPageState {
             const CircularProgressIndicator(color: _kGreenSolid),
             SizedBox(height: 12.h),
             Text('Saving...',
-                style: TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 14.sp,
-                    color: Colors.black87)),
+                style: StyleText.fontSize14Weight400
+                    .copyWith(color: Colors.black87)),
           ],
         ),
       ),

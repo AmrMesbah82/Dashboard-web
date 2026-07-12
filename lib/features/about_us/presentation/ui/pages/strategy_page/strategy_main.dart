@@ -3,15 +3,12 @@
 // Screen 1 of 3 — Our Strategy CMS: Main view (read-only accordions)
 // UPDATED: Added Strategic House ENG + ARB accordions
 
-// ignore_for_file: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 import '../../../../../../core/constant/color.dart';
 import '../../../../../../core/custom_svg.dart';
@@ -22,87 +19,6 @@ import '../../../../data/models/about_us_model.dart';
 import '../../../controller/about_us_cubit.dart';
 import '../../../controller/about_us_state.dart';
 import 'strategy_edit.dart';
-
-// class _C {
-//   static const Color primary   = Color(0xFF008037);
-//   static const Color sectionBg = Color(0xFFF5F5F5);
-//   static const Color cardBg    = Color(0xFFFFFFFF);
-//   static const Color labelText = Color(0xFF333333);
-//   static const Color hintText  = Color(0xFFAAAAAA);
-// }
-
-// ── XHR image cache ───────────────────────────────────────────────────────────
-
-final Map<String, Future<Uint8List>> _strategyUrlCache = {};
-
-Future<Uint8List> _xhrLoad(String url, {bool isSvg = false}) {
-  return _strategyUrlCache.putIfAbsent(url, () async {
-    try {
-      final response = await html.HttpRequest.request(
-        url,
-        method: 'GET',
-        responseType: 'arraybuffer',
-        mimeType: isSvg ? 'image/svg+xml' : null,
-      );
-      if (response.status == 200 && response.response != null) {
-        return (response.response as ByteBuffer).asUint8List();
-      }
-      throw Exception('HTTP ${response.status}');
-    } catch (e) {
-      throw Exception('XHR failed: $e');
-    }
-  });
-}
-
-bool _isSvgBytes(Uint8List b) {
-  if (b.length < 5) return false;
-  final header =
-  String.fromCharCodes(b.sublist(0, b.length.clamp(0, 100))).trimLeft();
-  return header.startsWith('<svg') || header.startsWith('<?xml');
-}
-
-bool _isSvgUrl(String url) {
-  final decoded = Uri.decodeFull(url).toLowerCase();
-  return decoded.contains('.svg') ||
-      decoded.contains('/svg?') ||
-      decoded.contains('/svg/') ||
-      decoded.endsWith('/svg');
-}
-
-Widget _netImg({
-  required String url,
-  double? width,
-  double? height,
-  BoxFit fit = BoxFit.cover,
-  ColorFilter? colorFilter,
-}) {
-  if (url.isEmpty) return const SizedBox.shrink();
-  final bool hintSvg = _isSvgUrl(url);
-  return FutureBuilder<Uint8List>(
-    future: _xhrLoad(url, isSvg: hintSvg),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return SizedBox(width: width, height: height);
-      }
-      if (snapshot.hasData) {
-        final bytes = snapshot.data!;
-        if (hintSvg || _isSvgBytes(bytes)) {
-          return SvgPicture.memory(
-            bytes,
-            width: width,
-            height: height,
-            fit: fit,
-            colorFilter: colorFilter,
-          );
-        }
-        return Image.memory(bytes, width: width, height: height, fit: fit);
-      }
-      return Icon(Icons.broken_image,
-          color: Colors.grey[400],
-          size: (width ?? height ?? 24).toDouble());
-    },
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -119,6 +35,10 @@ class _StrategyMainViewState extends State<StrategyMainView> {
     'strategicHouseEn': true,
     'strategicHouseAr': true,
   };
+
+  // ── Selected device per section (0 = Desktop, 1 = Tablet, 2 = Mobile) ──
+  int _enSelectedDevice = 0;
+  int _arSelectedDevice = 0;
 
   @override
   void initState() {
@@ -193,30 +113,52 @@ class _StrategyMainViewState extends State<StrategyMainView> {
             ),
             SizedBox(height: 12.h),
 
-            // ② Strategic House — ENG
+            // ② Strategic House — ENG (Multi-device)
             _accordion(
               key: 'strategicHouseEn',
               title: 'Strategic House - ENG',
               children: [
                 SizedBox(height: 20.h),
+                // Device selector tabs - aligned to the right
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _deviceSelector(
+                      selectedIndex: _enSelectedDevice,
+                      onChanged: (index) => setState(() => _enSelectedDevice = index),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
                 _imagePreviewBox(
-                  label: 'Image (English)',
-                  url: model.strategicHouseEnUrl,
+                  label: '',
+                  url: _getEnUrlForDevice(model, _enSelectedDevice),
                 ),
                 SizedBox(height: 16.h),
               ],
             ),
             SizedBox(height: 12.h),
 
-            // ③ Strategic House — ARB
+            // ③ Strategic House — ARB (Multi-device)
             _accordion(
               key: 'strategicHouseAr',
               title: 'Strategic House - ARB',
               children: [
                 SizedBox(height: 20.h),
+                // Device selector tabs - aligned to the right
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _deviceSelector(
+                      selectedIndex: _arSelectedDevice,
+                      onChanged: (index) => setState(() => _arSelectedDevice = index),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
                 _imagePreviewBox(
-                  label: 'Image (Arabic)',
-                  url: model.strategicHouseArUrl,
+                  label: '',
+                  url: _getArUrlForDevice(model, _arSelectedDevice),
                 ),
                 SizedBox(height: 16.h),
               ],
@@ -225,6 +167,67 @@ class _StrategyMainViewState extends State<StrategyMainView> {
           ],
         );
       },
+    );
+  }
+
+  // Helper to get EN URL based on selected device
+  String _getEnUrlForDevice(OurStrategyModel model, int deviceIndex) {
+    switch (deviceIndex) {
+      case 0: return model.strategicHouseEnDesktopUrl;
+      case 1: return model.strategicHouseEnTabletUrl;
+      case 2: return model.strategicHouseEnMobileUrl;
+      default: return model.strategicHouseEnDesktopUrl;
+    }
+  }
+
+  // Helper to get AR URL based on selected device
+  String _getArUrlForDevice(OurStrategyModel model, int deviceIndex) {
+    switch (deviceIndex) {
+      case 0: return model.strategicHouseArDesktopUrl;
+      case 1: return model.strategicHouseArTabletUrl;
+      case 2: return model.strategicHouseArMobileUrl;
+      default: return model.strategicHouseArDesktopUrl;
+    }
+  }
+
+  // ── Device Selector Widget ────────────────────────────────────────────────
+  Widget _deviceSelector({
+    required int selectedIndex,
+    required ValueChanged<int> onChanged,
+  }) {
+    final List<String> devices = ['Desktop', 'Tablet', 'Mobile'];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(devices.length, (index) {
+          final isSelected = selectedIndex == index;
+          return GestureDetector(
+            onTap: () => onChanged(index),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: isSelected ? ColorPick.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+              child: Text(
+                devices[index],
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
     );
   }
 
@@ -348,19 +351,18 @@ class _StrategyMainViewState extends State<StrategyMainView> {
         Container(
           width: double.infinity,
           height: 200.h,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEEEEEE),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
           child: url.isEmpty
               ? Center(
-              child: Icon(Icons.image_outlined,
-                  color: Colors.grey[400], size: 48.sp))
+              child: SvgPicture.asset(
+                'assets/images/null.svg',
+                width: 120.w,
+                height: 120.h,
+              ))
               : ClipRRect(
             borderRadius: BorderRadius.circular(8.r),
-            child: _netImg(
+            child: NetworkImageView(
               url: url,
-              width: double.infinity,
+              width: 300.w,
               height: 200.h,
               fit: BoxFit.contain,
             ),
@@ -399,7 +401,7 @@ class _StrategyMainViewState extends State<StrategyMainView> {
               : ClipOval(
             child: Padding(
               padding: EdgeInsets.all(14.r),
-              child: _netImg(
+              child: NetworkImageView(
                 url: url,
                 width: 28.w,
                 height: 28.w,

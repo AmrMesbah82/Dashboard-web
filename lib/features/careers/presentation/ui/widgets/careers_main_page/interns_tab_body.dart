@@ -67,16 +67,13 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                     Icon(Icons.search, color: AppColors.secondaryText, size: 18.sp),
                     SizedBox(width: 8.w),
                     Expanded(
-                      child: TextField(
+                      child: CustomTextField(
                         controller: _searchCtrl,
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          hintStyle: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        style: StyleText.fontSize13Weight400.copyWith(color: AppColors.text),
+                        hint: 'Search',
+                        hintStyle: StyleText.fontSize13Weight400.copyWith(color: AppColors.secondaryText),
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                        valueStyle: StyleText.fontSize13Weight400.copyWith(color: AppColors.text),
                         onChanged: (v) => setState(() => _search = v),
                       ),
                     ),
@@ -122,8 +119,8 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                       color: ColorPick.white, borderRadius: BorderRadius.circular(6.r)),
                   child: Text(
                     'Total Interns:  ${filtered.length}',
-                    style: TextStyle(
-                        fontSize: 12.sp, fontWeight: FontWeight.w500, color: AppColors.text),
+                    style: StyleText.fontSize12Weight500
+                        .copyWith(color: AppColors.text),
                   ),
                 ),
                 const Spacer(),
@@ -131,8 +128,8 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                   title: 'Export',
                   function: () => showDialog(context: context,
                       builder: (_) => _InternExportDialog(interns: filtered)),
-                  textStyle: TextStyle(
-                      fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                  textStyle: StyleText.fontSize12Weight600
+                      .copyWith(color: Colors.white),
                   height: 32.h, space: 4.w, radius: 6,
                   color: ColorPick.primary, image: 'assets/images/export.svg',
                   widthImage: 14.sp, heightImage: 14.sp,
@@ -142,7 +139,7 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                 SizedBox(width: 8.w),
                 customButtonWithImage(
                   title: '', function: () => setState(() => _isGrid = true),
-                  textStyle: const TextStyle(),
+                  textStyle: StyleText.fontSize12Weight400,
                   height: 32.sp, width: 32.sp, space: 0, radius: 6,
                   color: _isGrid ? ColorPick.primary : ColorPick.white,
                   image: 'assets/images/grid.svg',
@@ -150,10 +147,10 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
                   colorBorder: Colors.transparent,
                   svgColor: _isGrid ? Colors.white : AppColors.secondaryText,
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 8.w),
                 customButtonWithImage(
                   title: '', function: () => setState(() => _isGrid = false),
-                  textStyle: const TextStyle(),
+                  textStyle: StyleText.fontSize12Weight400,
                   height: 32.sp, width: 32.sp, space: 0, radius: 6,
                   color: !_isGrid ? ColorPick.primary : ColorPick.white,
                   image: 'assets/images/table.svg',
@@ -171,13 +168,18 @@ class _InternsTabBodyState extends State<_InternsTabBody> {
               Center(
                 child: Padding(
                   padding: EdgeInsets.all(40.w),
-                  child: Text(
-                    _search.isEmpty
-                        ? 'No interns yet. Tap "Add New Intern" to get started.'
-                        : 'No results for "$_search".',
-                    style: StyleText.fontSize14Weight400.copyWith(color: AppColors.secondaryText),
-                    textAlign: TextAlign.center,
-                  ),
+                  child: _search.isEmpty
+                      ? SvgPicture.asset(
+                          'assets/images/null.svg',
+                          width: 200.w,
+                          height: 200.h,
+                        )
+                      : Text(
+                          'No results for "$_search".',
+                          style: StyleText.fontSize14Weight400
+                              .copyWith(color: AppColors.secondaryText),
+                          textAlign: TextAlign.center,
+                        ),
                 ),
               )
             else if (_isGrid)

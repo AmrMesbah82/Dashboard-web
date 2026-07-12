@@ -47,74 +47,12 @@ extension _HomeEditHelpers on _MainEditPageState {
     String pickIconAsset    = 'assets/control/camera.svg',
     VoidCallback? onPick,
   }) {
-    Widget content;
-
-    if (picked.bytes != null) {
-      content = Container(
-        width: 70.w, height: 70.h,
-        decoration:
-            const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: Center(
-          child: ClipOval(
-            child: Padding(
-              padding: EdgeInsets.all(10.w),
-              child: SvgPicture.memory(
-                picked.bytes!,
-                width: 30.w, height: 30.h,
-                fit: BoxFit.scaleDown,
-                placeholderBuilder: (_) =>
-                    _placeholderCircle(placeholderAsset),
-              ),
-            ),
-          ),
-        ),
-      );
-    } else if (picked.url != null && picked.url!.isNotEmpty) {
-      content = Container(
-        width: 70.w, height: 70.h,
-        decoration:
-            const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: Center(
-          child: ClipOval(
-            child: Padding(
-              padding: EdgeInsets.all(10.w),
-              child: NetworkImageView(
-                url: picked.url!,
-                width: 30.w, height: 30.h,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      content = _placeholderCircle(placeholderAsset);
-    }
-
-    return Stack(clipBehavior: Clip.none, children: [
-      GestureDetector(onTap: onPick, child: content),
-      Positioned(
-        bottom: 0, right: 0,
-        child: GestureDetector(
-          onTap: onPick,
-          child: Container(
-            width: 24.w, height: 24.h,
-            decoration: BoxDecoration(
-              color: ColorPick.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: Center(
-              child: CustomSvg(
-                assetPath: pickIconAsset,
-                width: 12.w, height: 12.h,
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-        ),
-      ),
-    ]);
+    // Delegates to the single shared image-upload circle (core/custom).
+    return imageUploadCircleBare(
+      bytes: picked.bytes,
+      url: picked.url ?? '',
+      onTap: onPick ?? () {},
+    );
   }
 
   Widget _placeholderCircle(String assetPath) => Container(

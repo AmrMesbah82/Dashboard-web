@@ -23,6 +23,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -188,9 +189,7 @@ class _MainEditPageState extends State<MainEditPage> {
   //    Publish button is disabled (dimmed + tap-blocked) until this is true.
   // ─────────────────────────────────────────────────────────────────────────
   bool get _isFormValid {
-    // ── Helper: has Arabic characters ──────────────────────────────────────
-    bool hasArabic(String t) => RegExp(r'[\u0600-\u06FF]').hasMatch(t);
-    bool hasEnglish(String t) => RegExp(r'[a-zA-Z]').hasMatch(t);
+    // NOTE: No language validation - every field accepts Arabic AND English.
 
     // Logo required
     if (_logoPicked.isEmpty) return false;
@@ -202,8 +201,8 @@ class _MainEditPageState extends State<MainEditPage> {
 
       final en = _navBtns[i]['nameEn']!.text;
       final ar = _navBtns[i]['nameAr']!.text;
-      if (en.trim().isEmpty || hasArabic(en)) return false;
-      if (ar.trim().isEmpty || hasEnglish(ar)) return false;
+      if (en.trim().isEmpty) return false;
+      if (ar.trim().isEmpty) return false;
     }
 
     // Footer columns
@@ -218,8 +217,8 @@ class _MainEditPageState extends State<MainEditPage> {
 
         final en = (label['en'] as TextEditingController).text;
         final ar = (label['ar'] as TextEditingController).text;
-        if (en.trim().isEmpty || hasArabic(en)) return false;
-        if (ar.trim().isEmpty || hasEnglish(ar)) return false;
+        if (en.trim().isEmpty) return false;
+        if (ar.trim().isEmpty) return false;
       }
     }
 
@@ -306,7 +305,12 @@ class _MainEditPageState extends State<MainEditPage> {
       final en    = _navBtns[i]['nameEn']!.text.trim();
       final route = _navRoutes[i] ?? '';
       if (route.isEmpty) continue;
-      items.add({'key': route, 'value': en.isNotEmpty ? en : route});
+      var label = en.isNotEmpty ? en : route;
+      // Display rule: the About page is always shown as "About Us".
+      if (route == '/about' && (label == 'About' || label == '/about')) {
+        label = 'About Us';
+      }
+      items.add({'key': route, 'value': label});
     }
     // Also allow a footer Group Title to link to a Careers/About sub-tab.
     for (final d in _kGroupTitleDestinations) {
@@ -611,7 +615,7 @@ class _MainEditPageState extends State<MainEditPage> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 300.w),
+                                      SizedBox(width: 400.w),
                                       Expanded(child: Container()),
                                     ],
                                   ),

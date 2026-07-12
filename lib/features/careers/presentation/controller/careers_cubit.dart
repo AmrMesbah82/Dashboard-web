@@ -97,7 +97,9 @@ class CareersCmsCubit extends Cubit<CareersCmsState> {
     emit(CareersCmsLoading());
     try {
       await _repo.save(model);
-      emit(CareersCmsSaved(model));
+      // Stamp locally so the main page shows the new date without a reload
+      // (the server timestamp is read back on the next fetch).
+      emit(CareersCmsSaved(model.copyWith(lastUpdated: DateTime.now())));
     } catch (e) {
       emit(CareersCmsError(e.toString(), lastData: previous));
     }

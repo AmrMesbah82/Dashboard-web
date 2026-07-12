@@ -81,8 +81,7 @@ class _TermsPreviewContentState extends State<_TermsPreviewContent> {
                   // ── Page title ───────────────────────────────────────
                   Text(
                     widget.isAr ? 'الشروط والسياسات' : 'Terms & Policies',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
+                    style: StyleText.fontSize45Weight600.copyWith(
                       fontSize: _isDesktop ? 38 : (_isMobView ? 22 : 28),
                       fontWeight: FontWeight.w700,
                       color: _primary,
@@ -156,10 +155,8 @@ class _TermsPreviewContentState extends State<_TermsPreviewContent> {
               child: Row(children: [
                 Expanded(
                   child: Text(title,
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
+                      style: StyleText.fontSize16Weight600.copyWith(
                         fontSize: _isDesktop ? 16 : (_isMobView ? 13 : 14),
-                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                       )),
                 ),
@@ -210,8 +207,7 @@ class _TermsPreviewContentState extends State<_TermsPreviewContent> {
       desc.isEmpty
           ? (widget.isAr ? 'وصف القسم…' : 'Section description…')
           : desc,
-      style: TextStyle(
-        fontFamily: 'Cairo',
+      style: StyleText.fontSize13Weight400.copyWith(
         fontSize: fontSize,
         height: 1.75,
         color: const Color(0xFF444444),

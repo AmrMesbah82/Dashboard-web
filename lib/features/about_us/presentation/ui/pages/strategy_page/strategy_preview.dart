@@ -54,11 +54,45 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
   bool _strategicHouseEnOpen = true;
   bool _strategicHouseArOpen = true;
 
-  // In-memory bytes (freshly picked, not yet uploaded)
-  Uint8List? get _strategicHouseEnBytes =>
-      widget.imageUploads['strategy_cms/strategicHouse/en'];
-  Uint8List? get _strategicHouseArBytes =>
-      widget.imageUploads['strategy_cms/strategicHouse/ar'];
+  // In-memory bytes (freshly picked, not yet uploaded) — per selected device
+  Uint8List? get _strategicHouseEnBytes {
+    switch (_mode) {
+      case _PreviewMode.desktop:
+        return widget.imageUploads['strategy_cms/strategicHouse/en/desktop'];
+      case _PreviewMode.tablet:
+        return widget.imageUploads['strategy_cms/strategicHouse/en/tablet'];
+      case _PreviewMode.mobile:
+        return widget.imageUploads['strategy_cms/strategicHouse/en/mobile'];
+    }
+  }
+
+  Uint8List? get _strategicHouseArBytes {
+    switch (_mode) {
+      case _PreviewMode.desktop:
+        return widget.imageUploads['strategy_cms/strategicHouse/ar/desktop'];
+      case _PreviewMode.tablet:
+        return widget.imageUploads['strategy_cms/strategicHouse/ar/tablet'];
+      case _PreviewMode.mobile:
+        return widget.imageUploads['strategy_cms/strategicHouse/ar/mobile'];
+    }
+  }
+
+  // Saved URLs — per selected device
+  String get _strategicHouseEnUrl {
+    switch (_mode) {
+      case _PreviewMode.desktop: return widget.model.strategicHouseEnDesktopUrl;
+      case _PreviewMode.tablet:  return widget.model.strategicHouseEnTabletUrl;
+      case _PreviewMode.mobile:  return widget.model.strategicHouseEnMobileUrl;
+    }
+  }
+
+  String get _strategicHouseArUrl {
+    switch (_mode) {
+      case _PreviewMode.desktop: return widget.model.strategicHouseArDesktopUrl;
+      case _PreviewMode.tablet:  return widget.model.strategicHouseArTabletUrl;
+      case _PreviewMode.mobile:  return widget.model.strategicHouseArMobileUrl;
+    }
+  }
 
   // ── Save ──────────────────────────────────────────────────────────────────
   void _onSave() async {
@@ -161,7 +195,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                               !_strategicHouseEnOpen),
                               child: _strategicHousePreviewBody(
                                 bytes: _strategicHouseEnBytes,
-                                url: widget.model.strategicHouseEnUrl,
+                                url: _strategicHouseEnUrl,
                               ),
                             ),
                             SizedBox(height: 16.h),
@@ -175,7 +209,7 @@ class _StrategyPreviewPageState extends State<StrategyPreviewPage> {
                               !_strategicHouseArOpen),
                               child: _strategicHousePreviewBody(
                                 bytes: _strategicHouseArBytes,
-                                url: widget.model.strategicHouseArUrl,
+                                url: _strategicHouseArUrl,
                               ),
                             ),
                             SizedBox(height: 24.h),
@@ -440,10 +474,8 @@ Widget _buildImageWidget({
                     SizedBox(height: 8.h),
                     Text(
                       'Failed to load image',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey[600],
-                      ),
+                      style: StyleText.fontSize12Weight400
+                          .copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),

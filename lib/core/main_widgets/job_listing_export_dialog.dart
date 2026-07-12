@@ -21,6 +21,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../../features/job/data/models/application_model.dart';
 import '../../features/job/data/models/job_listing_model.dart';
+import '../custom/2-custom_textfield.dart';
 import '../theme/new_theme.dart';
 
 // ── Colors ───────────────────────────────────────────────────────────────────
@@ -474,34 +475,29 @@ class _JobListingExportDialogState extends State<_JobListingExportDialog> {
                   ),
                 ),
                 SizedBox(height: 6.sp),
-                Container(
-                  height: 40.sp,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(6.r),
+                CustomTextField(
+                  controller: _fileNameController,
+                  height: 40,
+                  valueStyle: TextStyle(fontSize: 13.sp),
+                  fillColor: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(6.r),
+                  hint: 'Enter file name',
+                  hintStyle: TextStyle(
+                    fontSize: 13.sp,
+                    color: const Color(0xFFAAAAAA),
                   ),
-                  child: TextField(
-                    controller: _fileNameController,
-                    style: TextStyle(fontSize: 13.sp),
-                    decoration: InputDecoration(
-                      hintText: 'Enter file name',
-                      hintStyle: TextStyle(
-                        fontSize: 13.sp,
-                        color: const Color(0xFFAAAAAA),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 10.h,
-                      ),
-                      border: InputBorder.none,
-                      suffixText: '.pdf',
-                      suffixStyle: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFF999999),
-                      ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 10.h,
+                  ),
+                  suffixIcon: Text(
+                    '.pdf',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: const Color(0xFF999999),
                     ),
-                    onChanged: (_) => setState(() {}),
                   ),
+                  onChanged: (_) => setState(() {}),
                 ),
                 SizedBox(height: 20.sp),
 
