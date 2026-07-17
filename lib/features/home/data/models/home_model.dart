@@ -376,7 +376,6 @@ class HomePageModel {
   static const String ENGLISH_FONT = 'englishFont';
   static const String FOOTER_COLUMNS = 'footerColumns';
   static const String HEADER_FOOTER_COLOR = 'headerFooterColor';
-  static const String HEADER_ITEMS = 'headerItems';
   static const String ICON_URL = 'iconUrl';
   static const String ID = 'id';
   static const String IMAGE_URL = 'imageUrl';
@@ -402,23 +401,30 @@ class HomePageModel {
   final BiText                  shortDescription;
   final List<NavButtonModel>    navButtons;
   final List<SectionCardModel>  sections;
-  final List<HeaderItemModel>   headerItems;
-  final List<FooterColumnModel> footerColumns;
-  final List<SocialLinkModel>   socialLinks;
-  final BrandingModel           branding;
   final String                  publishStatus; // 'published' | 'scheduled' | 'draft'
   final DateTime?               lastUpdatedAt;
   final DateTime?               scheduledPublishDate; // ✅ NEW — when to auto-publish
+
+  // ── Header items are STATIC ────────────────────────────────────────────────
+  // They do NOT belong to the CMS document: never uploaded to Firebase,
+  // never read from it. Kept only for UI display (e.g. main_main header row).
+  static final List<HeaderItemModel> staticHeaderItems = List.generate(
+    5,
+    (i) => HeaderItemModel(
+      id: 'hi_$i',
+      title: BiText(en: 'Header Title ${i + 1}', ar: 'عنوان ${i + 1}'),
+      status: true,
+    ),
+  );
+
+  /// Instance alias so existing `model.headerItems` call sites keep working.
+  List<HeaderItemModel> get headerItems => staticHeaderItems;
 
   const HomePageModel({
     this.title            = const BiText(),
     this.shortDescription = const BiText(),
     this.navButtons       = const [],
     this.sections         = const [],
-    this.headerItems      = const [],
-    this.footerColumns    = const [],
-    this.socialLinks      = const [],
-    this.branding         = const BrandingModel(),
     this.publishStatus    = 'draft',
     this.lastUpdatedAt,
     this.scheduledPublishDate, // ✅ NEW
@@ -429,10 +435,6 @@ class HomePageModel {
     BiText?                  shortDescription,
     List<NavButtonModel>?    navButtons,
     List<SectionCardModel>?  sections,
-    List<HeaderItemModel>?   headerItems,
-    List<FooterColumnModel>? footerColumns,
-    List<SocialLinkModel>?   socialLinks,
-    BrandingModel?           branding,
     String?                  publishStatus,
     DateTime?                lastUpdatedAt,
     DateTime?                scheduledPublishDate, // ✅ NEW
@@ -444,10 +446,6 @@ class HomePageModel {
         shortDescription:     shortDescription     ?? this.shortDescription,
         navButtons:           navButtons           ?? this.navButtons,
         sections:             sections             ?? this.sections,
-        headerItems:          headerItems          ?? this.headerItems,
-        footerColumns:        footerColumns        ?? this.footerColumns,
-        socialLinks:          socialLinks          ?? this.socialLinks,
-        branding:             branding             ?? this.branding,
         publishStatus:        publishStatus        ?? this.publishStatus,
         lastUpdatedAt:        lastUpdatedAt        ?? this.lastUpdatedAt,
         scheduledPublishDate: clearScheduledPublishDate
@@ -460,10 +458,6 @@ class HomePageModel {
     SHORT_DESCRIPTION:     shortDescription.toMap(),
     NAV_BUTTONS:           navButtons.map((e) => e.toMap()).toList(),
     SECTIONS:             sections.map((e) => e.toMap()).toList(),
-    HEADER_ITEMS:          headerItems.map((e) => e.toMap()).toList(),
-    FOOTER_COLUMNS:        footerColumns.map((e) => e.toMap()).toList(),
-    SOCIAL_LINKS:          socialLinks.map((e) => e.toMap()).toList(),
-    BRANDING:             branding.toMap(),
     PUBLISH_STATUS:        publishStatus,
   };
 
@@ -498,16 +492,6 @@ class HomePageModel {
               : section.copyWith(position: slotPosition);
         })
         .toList(),
-    headerItems: (map[HEADER_ITEMS] as List<dynamic>? ?? [])
-        .map((e) => HeaderItemModel.fromMap(e as Map<String, dynamic>))
-        .toList(),
-    footerColumns: (map[FOOTER_COLUMNS] as List<dynamic>? ?? [])
-        .map((e) => FooterColumnModel.fromMap(e as Map<String, dynamic>))
-        .toList(),
-    socialLinks: (map[SOCIAL_LINKS] as List<dynamic>? ?? [])
-        .map((e) => SocialLinkModel.fromMap(e as Map<String, dynamic>))
-        .toList(),
-    branding:             BrandingModel.fromMap(map[BRANDING] ?? {}),
     publishStatus:        map[PUBLISH_STATUS] ?? 'draft',
     lastUpdatedAt:        _parseDateTime(map['lastUpdatedAt']),
     scheduledPublishDate: _parseDateTime(map['scheduledPublishDate']), // ✅ NEW
@@ -563,49 +547,6 @@ class HomePageModel {
         ),
       ),
     ),
-    headerItems: List.generate(
-      5,
-          (i) => HeaderItemModel(
-        id: 'hi_$i',
-        title: BiText(en: 'Header Title ${i + 1}', ar: 'عنوان ${i + 1}'),
-        status: true,
-      ),
-    ),
-    footerColumns: const [
-      FooterColumnModel(
-        id: 'fc_1',
-        title: BiText(en: 'Services', ar: 'الخدمات'),
-        route: '/services',
-        labels: [
-          FooterLabelModel(id: 'fl_1a', label: BiText(en: 'Digital Strategy', ar: 'الاستراتيجية الرقمية')),
-          FooterLabelModel(id: 'fl_1b', label: BiText(en: 'Data Analytics',   ar: 'تحليل البيانات')),
-        ],
-      ),
-      FooterColumnModel(
-        id: 'fc_2',
-        title: BiText(en: 'About Us', ar: 'من نحن'),
-        route: '/about',
-        labels: [
-          FooterLabelModel(id: 'fl_2a', label: BiText(en: 'Mission', ar: 'الرسالة')),
-          FooterLabelModel(id: 'fl_2b', label: BiText(en: 'Vision',  ar: 'الرؤية')),
-        ],
-      ),
-      FooterColumnModel(
-        id: 'fc_3',
-        title: BiText(en: 'Contact Us', ar: 'اتصل بنا'),
-        route: '/contact',
-        labels: [
-          FooterLabelModel(id: 'fl_3a', label: BiText(en: 'Contact Form', ar: 'نموذج التواصل')),
-        ],
-      ),
-    ],
-    socialLinks: [
-      SocialLinkModel(id: 'sl_0', iconUrl: '', url: '', visibility: true),
-      SocialLinkModel(id: 'sl_1', iconUrl: '', url: '', visibility: true),
-      SocialLinkModel(id: 'sl_2', iconUrl: '', url: '', visibility: true),
-      SocialLinkModel(id: 'sl_3', iconUrl: '', url: '', visibility: true),
-    ],
-    branding:             const BrandingModel(),
     publishStatus:        'draft',
     lastUpdatedAt:        null,
     scheduledPublishDate: null, // ✅ NEW

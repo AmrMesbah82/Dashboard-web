@@ -151,11 +151,8 @@ extension _HomePreviewBuilders on _HomePreviewPageMasterState {
     return HomePageModel(
       title: BiText(en: '', ar: ''),
       shortDescription: BiText(en: '', ar: ''),
-      branding: BrandingModel(logoUrl: '', primaryColor: '#008037'),
       sections: [],
       navButtons: [],
-      footerColumns: [],
-      socialLinks: [],
     );
   }
 
@@ -176,7 +173,7 @@ extension _HomePreviewBuilders on _HomePreviewPageMasterState {
   }
 
   Widget _buildHeroSection(HomePageModel data, double w, bool isAr) {
-    final Color primary = _hexColor(data.branding.primaryColor);
+    final Color primary = context.primaryBrandColor;
     final bool isMobile = w < 600.w;
     final String titleText = isAr
         ? (data.title.ar.isNotEmpty ? data.title.ar : data.title.en)
@@ -220,7 +217,7 @@ extension _HomePreviewBuilders on _HomePreviewPageMasterState {
 
   Widget _buildDesktopCards(HomePageModel data, bool isAr) {
     const Color sectionBg = Color(0xFFF2F6EF);
-    final Color primary = _hexColor(data.branding.primaryColor);
+    final Color primary = context.primaryBrandColor;
     final double innerOffset = 36.h + 10.h + 90.h;
     final double btnOffset = innerOffset + 36.h + 10.h;
     final sec = data.sections;

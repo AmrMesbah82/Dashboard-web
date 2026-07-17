@@ -18,8 +18,8 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../../job/data/models/job_listing_model.dart';
 import '../../../../job/presentation/controller/job_listing_cubit.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
@@ -196,11 +196,11 @@ class DepartmentDetailPage extends StatelessWidget {
       children: [
         SizedBox(height: 20.h),
         // ── Company logo / icon ──
-        BlocBuilder<HomeCmsCubit, HomeCmsState>(
+        BlocBuilder<MainCmsCubit, MainCmsState>(
           builder: (context, state) {
             final String logoUrl = switch (state) {
-              HomeCmsLoaded(:final data) => data.branding.logoUrl,
-              HomeCmsSaved(:final data)  => data.branding.logoUrl,
+              MainCmsLoaded(:final data) => data.branding.logoUrl,
+              MainCmsSaved(:final data)  => data.branding.logoUrl,
               _                          => '',
             };
             return Container(

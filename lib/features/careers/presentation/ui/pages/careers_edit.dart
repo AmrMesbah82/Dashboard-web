@@ -259,9 +259,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
       if (ctrls['titleAr']!.text.trim().isEmpty)     return false;
       if (ctrls['shortDescEn']!.text.trim().isEmpty) return false;
       if (ctrls['shortDescAr']!.text.trim().isEmpty) return false;
-      final hasIcon = (_statIcons[stat.id] != null) ||
-          (_statIconUrls[stat.id]?.isNotEmpty ?? false);
-      if (!hasIcon) return false;
     }
     return true;
   }
@@ -436,7 +433,9 @@ class _CareersEditPageState extends State<CareersEditPage> {
     return BlocConsumer<CareersCmsCubit, CareersCmsState>(
       listener: (context, state) {
         if (state is CareersCmsSaved) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (!mounted) return;
 
             if (_navigatingToPreview) {
@@ -574,8 +573,6 @@ class _CareersEditPageState extends State<CareersEditPage> {
                                     ],
                                   ),
                                   SizedBox(height: 10.h),
-                                  _iconUploadWidget(statId: stat.id, label: 'Icon'),
-                                  SizedBox(height: 12.h),
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [

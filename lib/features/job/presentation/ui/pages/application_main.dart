@@ -17,6 +17,8 @@ import 'package:web_app_admin/core/widget/button.dart';
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/core/widget/search.dart';
+import 'package:web_app_admin/features/main/presentation/controller/main_cubit.dart';
+import 'package:web_app_admin/features/main/presentation/controller/main_state.dart';
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';

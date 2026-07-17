@@ -52,7 +52,7 @@ class _InternExportDialogState extends State<_InternExportDialog> {
         _escapeCsv(n.degrees),
         _escapeCsv(n.joinDateLabel),
         _escapeCsv(n.whatHaveILearned),
-        _escapeCsv(n.tags.join('; ')),
+        // _escapeCsv(n.tags.join('; ')),
       ].join(','));
     }
 

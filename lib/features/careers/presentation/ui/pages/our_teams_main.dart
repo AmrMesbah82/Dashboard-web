@@ -72,45 +72,7 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Title row ─────────────────────────────────────────────────────
-            Row(
-              children: [
-                Text(
-                  'Our Teams',
-                  style: StyleText.fontSize45Weight600.copyWith(
-                    color:      ColorPick.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: cubit,
-                        child: const OurTeamsPreviewPage(),
-                      ),
-                    ),
-                  ),
-                  child: Container(
-                    width: 130.w, height: 36.h,
-                    decoration: BoxDecoration(
-                      color:        ColorPick.primary,
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Preview Screen',
-                        style: StyleText.fontSize14Weight500
-                            .copyWith(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 14.h),
+
 
             // ── Last updated + Edit Details ───────────────────────────────────
             Row(
@@ -181,6 +143,8 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
               onToggle: () =>
                   setState(() => _accordionOpen = !_accordionOpen),
               children: [
+                // ── Section header (icon + title) — matches edit design ──────
+                _headerView(data),
                 if (data.items.isEmpty)
                   Container(
                     width: double.infinity,
@@ -205,6 +169,29 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
     );
   }
 
+  // ── Section header view (icon + title) — mirrors the edit page ──────────────
+  Widget _headerView(OurTeamsModel data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 12.h),
+        Text('Icon',
+            style: StyleText.fontSize12Weight500
+                .copyWith(color: AppColors.text)),
+        SizedBox(height: 6.h),
+        _iconCircle(data.headerIconUrl),
+        SizedBox(height: 14.h),
+        Row(children: [
+          Expanded(child: _readField('Title', data.headerTitle.en)),
+          SizedBox(width: 16.w),
+          Expanded(child: _readFieldRtl('العنوان', data.headerTitle.ar)),
+        ]),
+        SizedBox(height: 14.h),
+        Divider(color: const Color(0xFFE8E8E8), height: 1),
+      ],
+    );
+  }
+
   // ── Single team item view ───────────────────────────────────────────────────
   Widget _teamItemView(int index, OurTeamItem item) {
     return Container(
@@ -212,14 +199,6 @@ class _OurTeamsViewPageState extends State<OurTeamsViewPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // Heading EN / AR
-          Row(children: [
-            Expanded(child: _readField('Heading', item.heading.en)),
-            SizedBox(width: 16.w),
-            Expanded(child: _readFieldRtl('العنوان', item.heading.ar)),
-          ]),
-          SizedBox(height: 14.h),
 
           // Icon
           Text('Icon',

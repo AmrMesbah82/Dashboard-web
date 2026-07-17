@@ -13,29 +13,65 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
         ] else
           SizedBox(height: 12.h),
 
-        Row(children: [
-          Expanded(
-            child: CustomValidatedTextFieldMaster(
-              label: 'Heading', hint: 'Text Here', controller: item.headingEn,
-              height: 36, fillColor: Colors.white, submitted: _submitted,
-              textDirection: TextDirection.ltr, textAlign: TextAlign.left,
-              primaryColor: ColorPick.primary, isRequired: true,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: CustomValidatedTextFieldMaster(
-                label: 'العنوان', hint: 'أدخل النص هنا', controller: item.headingAr,
-                height: 36, fillColor: Colors.white, submitted: _submitted,
-                textDirection: TextDirection.rtl, textAlign: TextAlign.right,
-                primaryColor: ColorPick.primary, isRequired: true,
+        // ── Section header (icon + title) — first team only ─────────────────
+        if (index == 0) ...[
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Row 1 — SVG icon
+              Row(children: [
+                Text('Icon',
+                    style: StyleText.fontSize12Weight500
+                        .copyWith(color: AppColors.text)),
+                Text(' *',
+                    style: StyleText.fontSize12Weight600
+                        .copyWith(color: Colors.red)),
+              ]),
+              SizedBox(height: 6.h),
+              _imgBox(
+                picked: _headerIcon,
+                hasError: _submitted && !_headerIcon.hasImage,
+                onPick: () async {
+                  final p = await _pickSvg();
+                  if (p != null) setState(() => _headerIcon = p);
+                },
               ),
-            ),
+              if (_submitted && !_headerIcon.hasImage) ...[
+                SizedBox(height: 4.h),
+                Text('Icon (SVG) is required',
+                    style: StyleText.fontSize11Weight400
+                        .copyWith(color: Colors.red)),
+              ],
+              SizedBox(height: 14.h),
+              // Row 2 — Title EN / AR
+              Row(children: [
+                Expanded(
+                  child: CustomValidatedTextFieldMaster(
+                    label: 'Title', hint: 'Text Here',
+                    controller: _headerTitleEnCtrl,
+                    height: 36, fillColor: Colors.white, submitted: _submitted,
+                    textDirection: TextDirection.ltr, textAlign: TextAlign.left,
+                    primaryColor: ColorPick.primary, isRequired: true,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: CustomValidatedTextFieldMaster(
+                      label: 'العنوان', hint: 'أدخل النص هنا',
+                      controller: _headerTitleArCtrl,
+                      height: 36, fillColor: Colors.white, submitted: _submitted,
+                      textDirection: TextDirection.rtl, textAlign: TextAlign.right,
+                      primaryColor: ColorPick.primary, isRequired: true,
+                    ),
+                  ),
+                ),
+              ]),
+            ],
           ),
-        ]),
-        SizedBox(height: 14.h),
+          SizedBox(height: 12.h),
+        ],
 
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -90,7 +126,7 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
               textDirection: TextDirection.rtl,
               child: CustomValidatedTextFieldMaster(
                 label: 'العنوان', hint: 'أدخل النص هنا', controller: item.titleAr,
-                height: 36, fillColor: Colors.white, submitted: _submitted,
+                height: 36, fillColor: AppColors.card, submitted: _submitted,
                 textDirection: TextDirection.rtl, textAlign: TextAlign.right,
                 primaryColor: ColorPick.primary, isRequired: true,
               ),
@@ -188,6 +224,8 @@ extension _OurTeamsEditUi on _OurTeamsEditPageState {
       onTap: onPick ?? () {},
     );
   }
+
+
 
   Widget _accordion({required String title, required List<Widget> children}) {
     return Container(

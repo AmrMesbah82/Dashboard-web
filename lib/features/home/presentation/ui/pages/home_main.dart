@@ -25,6 +25,7 @@ import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/widget/branding_helper.dart';
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/main_widgets/app_admin_navbar.dart';
@@ -54,12 +55,26 @@ part '../widgets/home_main/home_main_read_only.dart';
 //   static const Color scheduled = Color(0xFFFF8F00);
 // }
 
-/// Available route labels for display in the read-only view
+/// Available route labels for display in the read-only view.
+/// Mirrors the "Navigate To" destinations (_kLabelDestinations) so saved
+/// routes render with the same labels shown in the edit dropdown. Legacy
+/// top-level routes are kept so previously saved buttons still display.
 const Map<String, String> _kRouteLabelMap = {
+  // Navigate To destinations
+  '/about?tab=our-strategy':         'Our Strategy',
+  '/about?tab=terms-and-conditions': 'Terms & Conditions',
+  '/about?tab=privacy-policy':       'Privacy Policy',
+  '/about?tab=vision':               'Vision',
+  '/about?tab=mission':              'Mission',
+  '/about?tab=values':               'Values',
+  '/careers?tab=why-join-our-team':  'Why Join Our Team',
+  '/careers?tab=interns':            'Our Interns',
+  '/careers?tab=our-team':           'Our Team',
+  '/contact':                        'Contact Form',
+  // Legacy top-level routes (previously saved buttons)
   '/':         'Home',
   '/services': 'Services',
   '/about':    'About',
-  '/contact':  'Contact Us',
   '/careers':  'Careers',
 };
 

@@ -198,7 +198,7 @@ class _AddInternPageState extends State<AddInternPage> {
       degrees:          _degreesCtrl.text.trim(),
       joinedDate:       _joinedDate,
       whatHaveILearned: _whatLearnedCtrl.text.trim(),
-      tags:             tags,
+      // tags:             tags,
     );
 
     try {
@@ -326,7 +326,7 @@ class _AddInternPageState extends State<AddInternPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: ColorPick.background,
+
               body: SingleChildScrollView(
                 child: Center(
                   child: SizedBox(
@@ -403,25 +403,12 @@ class _AddInternPageState extends State<AddInternPage> {
                                 ],
                               ),
                               SizedBox(height: 15.h),
-                              // ── Card header: title ────────────────
-                              Row(
-                                children: [
-                                  Text(
-                                    'Intern Information',
-                                    style: StyleText.fontSize16Weight600
-                                        .copyWith(
-                                      color:      ColorPick.primary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
                               // ── Card ────────────────────────────────────
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.all(20.w),
+
                                 decoration: BoxDecoration(
-                                  color:        Colors.white,
+
                                   borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Column(
@@ -446,6 +433,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                           label:        'First Name',
                                           hint:         'Text Here',
                                           controller:   _firstNameCtrl,
+                                          fillColor: AppColors.white,
                                           height:       44,
                                           submitted:    _submitted,
                                           primaryColor: ColorPick.primary,
@@ -456,6 +444,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                       Expanded(
                                         child: CustomValidatedTextFieldMaster(
                                           label:        'Last Name',
+                                          fillColor: AppColors.white,
                                           hint:         'Text Here',
                                           controller:   _lastNameCtrl,
                                           height:       44,
@@ -473,6 +462,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                         child: CustomValidatedTextFieldMaster(
                                           label:        'Position',
                                           hint:         'Text Here',
+                                          fillColor: AppColors.white,
                                           controller:   _positionCtrl,
                                           height:       44,
                                           submitted:    _submitted,
@@ -484,6 +474,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                         child: CustomValidatedTextFieldMaster(
                                           label:        'Degrees',
                                           hint:         'Text Here',
+                                          fillColor: AppColors.white,
                                           controller:   _degreesCtrl,
                                           height:       44,
                                           submitted:    _submitted,
@@ -497,6 +488,7 @@ class _AddInternPageState extends State<AddInternPage> {
                                     CustomValidatedTextFieldMaster(
                                       label:        'What Have I Learned',
                                       hint:         'Text Here',
+                                      fillColor: AppColors.white,
                                       controller:   _whatLearnedCtrl,
                                       height:       100,
                                       maxLines:     5,

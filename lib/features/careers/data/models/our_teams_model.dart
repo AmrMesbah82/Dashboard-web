@@ -114,15 +114,22 @@ class OurTeamItem {
 }
 
 class OurTeamsModel {
+  final String headerIconUrl;
+  final BilingualText headerTitle;
   final List<OurTeamItem> items;
   final DateTime? lastUpdated;
 
   const OurTeamsModel({
+    this.headerIconUrl = '',
+    this.headerTitle = const BilingualText(),
     this.items = const [],
     this.lastUpdated,
   });
 
   factory OurTeamsModel.fromMap(Map<String, dynamic> map) => OurTeamsModel(
+    headerIconUrl: map['headerIconUrl'] ?? '',
+    headerTitle: BilingualText.fromMap(
+        Map<String, dynamic>.from(map['headerTitle'] ?? {})),
     items: (map['items'] as List<dynamic>? ?? [])
         .map((e) => OurTeamItem.fromMap(Map<String, dynamic>.from(e)))
         .toList(),
@@ -132,12 +139,16 @@ class OurTeamsModel {
   );
 
   Map<String, dynamic> toMap() => {
+    'headerIconUrl': headerIconUrl,
+    'headerTitle': headerTitle.toMap(),
     'items': items.map((i) => i.toMap()).toList(),
     'lastUpdated': lastUpdated?.toIso8601String(),
   };
 
   /// Nested template for [FlatCodec.decode] (one populated sample element per list).
   static Map<String, dynamic> get flatTemplate => {
+        'headerIconUrl': '',
+        'headerTitle': {'en': '', 'ar': ''},
         'items': [
           {
             'id': '',
@@ -161,10 +172,14 @@ class OurTeamsModel {
       };
 
   OurTeamsModel copyWith({
+    String? headerIconUrl,
+    BilingualText? headerTitle,
     List<OurTeamItem>? items,
     DateTime? lastUpdated,
   }) =>
       OurTeamsModel(
+        headerIconUrl: headerIconUrl ?? this.headerIconUrl,
+        headerTitle: headerTitle ?? this.headerTitle,
         items: items ?? this.items,
         lastUpdated: lastUpdated ?? this.lastUpdated,
       );

@@ -297,7 +297,9 @@ class _ServicesMainEditPageState extends State<ServicesMainEditPage> {
         listener: (context, state) {
           // ── Published successfully → navigate to ServicesMainPageMaster ──
           if (state is ServiceCmsSaved) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
               if (mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(

@@ -94,8 +94,55 @@ class HomeRepositoryImpl implements HomeRepository {
         'scheduledPublishDate': model.scheduledPublishDate?.toIso8601String(),
       };
       await FlatCodec.writeVersioned(_publishedRef, nested);
+      await _removeLegacyHeaderItemKeys(_publishedRef);
     } catch (e, st) {
       rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveNavButtons(List<NavButtonModel> navButtons) async {
+    // Partial write — ONLY Nav_Buttons_* keys, no stamp, no publish status,
+    // no title/sections. Publishing Main must never upload home content.
+    //
+    // GUARD: if the home document does not exist yet (Home was never
+    // published), do NOTHING — publishing Main must not create the home doc.
+    final snap = await _publishedRef.get();
+    if (!snap.exists) return;
+
+    final nested = {
+      HomePageModel.NAV_BUTTONS: navButtons.map((e) => e.toMap()).toList(),
+    };
+    await FlatCodec.writeVersioned(_publishedRef, nested, stampKey: null);
+    await _removeLegacyHeaderItemKeys(_publishedRef);
+  }
+
+  /// Cleanup: these keys no longer belong to the HOME CMS document —
+  /// • Header_Items_*   → header items are STATIC (never stored)
+  /// • Branding_*       → branding/theme/logo belongs to MAIN (mainPage)
+  /// • Footer_Columns_* → footer belongs to MAIN (mainPage)
+  /// • Social_Links_*   → social links belong to MAIN (mainPage)
+  /// Delete any legacy keys that older versions of the app uploaded here.
+  static const List<String> _legacyMainPrefixes = [
+    'Header_Items',
+    'Branding_',
+    'Footer_Columns_',
+    'Social_Links_',
+  ];
+
+  Future<void> _removeLegacyHeaderItemKeys(
+      DocumentReference<Map<String, dynamic>> ref) async {
+    try {
+      final snap = await ref.get();
+      final data = snap.data();
+      if (data == null) return;
+      final stale = data.keys
+          .where((k) => _legacyMainPrefixes.any((p) => k.startsWith(p)))
+          .toList();
+      if (stale.isEmpty) return;
+      await ref.update({for (final k in stale) k: FieldValue.delete()});
+    } catch (_) {
+      // best-effort cleanup — never block a save
     }
   }
 
@@ -141,6 +188,7 @@ class HomeRepositoryImpl implements HomeRepository {
         'scheduledPublishDate': model.scheduledPublishDate?.toIso8601String(),
       };
       await FlatCodec.writeVersioned(_draftRef, nested);
+      await _removeLegacyHeaderItemKeys(_draftRef);
     } catch (e, st) {
       rethrow;
     }

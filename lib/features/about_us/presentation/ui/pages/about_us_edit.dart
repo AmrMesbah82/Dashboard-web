@@ -315,9 +315,14 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     if (_missionSvgBytes == null && _missionSvgUrl.isEmpty) return false;
 
     // Check Values
-    for (final v in _valueItems) {
-      if (v.titleEnCtrl.text.trim().isEmpty) return false;
-      if (v.titleArCtrl.text.trim().isEmpty) return false;
+    for (var i = 0; i < _valueItems.length; i++) {
+      final v = _valueItems[i];
+      final bool isMain = i == 0;
+      // Main Icon (first item) has NO title fields — not used on user site.
+      if (!isMain) {
+        if (v.titleEnCtrl.text.trim().isEmpty) return false;
+        if (v.titleArCtrl.text.trim().isEmpty) return false;
+      }
       if (v.shortDescEnCtrl.text.trim().isEmpty) return false;
       if (v.shortDescArCtrl.text.trim().isEmpty) return false;
       if (v.iconBytes == null && v.iconUrl.isEmpty) return false;
@@ -373,10 +378,12 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
     // Check Values
     for (var i = 0; i < _valueItems.length; i++) {
       final v = _valueItems[i];
-      final prefix = 'Value ${i + 1}';
-      if (v.titleEnCtrl.text.trim().isEmpty)
+      final bool isMain = i == 0;
+      final prefix = isMain ? 'Main Icon' : 'Value ${i + 1}';
+      // Main Icon (first item) has NO title fields — not used on user site.
+      if (!isMain && v.titleEnCtrl.text.trim().isEmpty)
         missingFields.add('$prefix - Title (English)');
-      if (v.titleArCtrl.text.trim().isEmpty)
+      if (!isMain && v.titleArCtrl.text.trim().isEmpty)
         missingFields.add('$prefix - Title (Arabic)');
       if (v.shortDescEnCtrl.text.trim().isEmpty)
         missingFields.add('$prefix - Short Description (English)');
@@ -510,7 +517,9 @@ class _AboutEditPageMasterState extends State<AboutEditPageMaster> {
       listener: (context, state) {
         if (state is AboutLoaded) _seedFromModel(state.data);
         if (state is AboutSaved) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(

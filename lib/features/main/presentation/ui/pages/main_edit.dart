@@ -21,6 +21,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:web_app_admin/features/main/data/models/main_model.dart';
 
 import '../../../../../core/constant/color.dart';
 import '../../../../../core/custom/image_upload_circle.dart';
@@ -42,6 +43,7 @@ import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../controller/main_cubit.dart';
+import '../../controller/main_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
 import 'main_preview.dart'; // adjust import path as needed
@@ -346,7 +348,10 @@ class _MainEditPageState extends State<MainEditPage> {
     _mainWidgetColor.addListener(_onFieldChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<MainCmsCubit>().load();
+      if (mounted) {
+        context.read<MainCmsCubit>().load();
+        context.read<HomeCmsCubit>().load(); // nav buttons live in HOME
+      }
     });
   }
 
@@ -472,14 +477,16 @@ class _MainEditPageState extends State<MainEditPage> {
   // ─── BUILD ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MainCmsCubit, HomeCmsState>(
+    return BlocConsumer<MainCmsCubit, MainCmsState>(
       listener: (context, state) {
 
         // ── Published / Saved successfully → navigate to MainMainPage ──────
         // ✅ Uses pushAndRemoveUntil to clear the entire back stack,
         //    exactly like master_edit_page.dart does.
-        if (state is HomeCmsSaved) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (state is MainCmsSaved) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
@@ -491,21 +498,22 @@ class _MainEditPageState extends State<MainEditPage> {
         }
 
         // ── Error state ───────────────────────────────────────────────────
-        if (state is HomeCmsError) {
+        if (state is MainCmsError) {
           // Errors are visible to the user through the cubit state;
           // add a snackbar/dialog here if you want, but no success dialogs.
         }
       },
       builder: (context, state) {
 
-        if (state is HomeCmsLoaded) {
-          _seedFromModel(state.data);
-        } else if (state is HomeCmsSaved) {
-          _seedFromModel(state.data); // HomeCmsSaved must expose .data
+        final homeModel = context.watch<HomeCmsCubit>().current;
+        if (state is MainCmsLoaded) {
+          _seedFromModel(state.data, homeModel);
+        } else if (state is MainCmsSaved) {
+          _seedFromModel(state.data, homeModel);
         }
         final cubit = context.read<MainCmsCubit>();
 
-        if (state is HomeCmsInitial || state is HomeCmsLoading) {
+        if (state is MainCmsInitial || state is MainCmsLoading) {
           return const Scaffold(
             backgroundColor: ColorPick.white,
             body: Center(

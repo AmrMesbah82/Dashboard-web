@@ -437,12 +437,16 @@ class OurStrategyModel {
 
 /// Holds an SVG, bilingual description, and two optional document URLs
 class TermsSection {
+  final String iconUrl;
+  final AboutBilingualText title;
   final String svgUrl;
   final AboutBilingualText description;
   final String attachEnUrl;
   final String attachArUrl;
 
   const TermsSection({
+    this.iconUrl = '',
+    this.title = const AboutBilingualText(),
     this.svgUrl = '',
     this.description = const AboutBilingualText(),
     this.attachEnUrl = '',
@@ -454,6 +458,8 @@ class TermsSection {
   factory TermsSection.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const TermsSection();
     return TermsSection(
+      iconUrl: (map['iconUrl'] as String?) ?? '',
+      title: AboutBilingualText.fromMap(map['title'] as Map<String, dynamic>?),
       svgUrl: (map['svgUrl'] as String?) ?? '',
       description: AboutBilingualText.fromMap(
           map['description'] as Map<String, dynamic>?),
@@ -463,6 +469,8 @@ class TermsSection {
   }
 
   Map<String, dynamic> toMap() => {
+    'iconUrl': iconUrl,
+    'title': title.toMap(),
     'svgUrl': svgUrl,
     'description': description.toMap(),
     'attachEnUrl': attachEnUrl,
@@ -470,12 +478,16 @@ class TermsSection {
   };
 
   TermsSection copyWith({
+    String? iconUrl,
+    AboutBilingualText? title,
     String? svgUrl,
     AboutBilingualText? description,
     String? attachEnUrl,
     String? attachArUrl,
   }) =>
       TermsSection(
+        iconUrl: iconUrl ?? this.iconUrl,
+        title: title ?? this.title,
         svgUrl: svgUrl ?? this.svgUrl,
         description: description ?? this.description,
         attachEnUrl: attachEnUrl ?? this.attachEnUrl,
@@ -527,12 +539,16 @@ class TermsOfServiceModel {
           'title': {'en': '', 'ar': ''}
         },
         'termsAndConditions': {
+          'iconUrl': '',
+          'title': {'en': '', 'ar': ''},
           'svgUrl': '',
           'description': {'en': '', 'ar': ''},
           'attachEnUrl': '',
           'attachArUrl': '',
         },
         'privacyPolicy': {
+          'iconUrl': '',
+          'title': {'en': '', 'ar': ''},
           'svgUrl': '',
           'description': {'en': '', 'ar': ''},
           'attachEnUrl': '',

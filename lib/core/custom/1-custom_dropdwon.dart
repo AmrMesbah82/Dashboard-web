@@ -133,7 +133,12 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>>
 
   @override
   void dispose() {
-    _closeOverlay();
+    // Remove the overlay IMMEDIATELY (no reverse animation): during route
+    // changes (e.g. navigation right after Publish) animating here leaves a
+    // stale overlay entry behind and can re-enter the mouse tracker while
+    // it is updating devices (mouse_tracker !_debugDuringDeviceUpdate).
+    _overlayEntry?.remove();
+    _overlayEntry = null;
     _animController.dispose();
     super.dispose();
   }
@@ -211,7 +216,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>>
   @override
   Widget build(BuildContext context) {
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
-    final radius = widget.borderRadius ?? BorderRadius.circular(8.r);
+    final radius = widget.borderRadius ?? BorderRadius.circular(4.r);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +348,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>>
                           child: Text(
                             _selectedItem!.label,
                             style: widget.valueStyle ??
-                                StyleText.fontSize14Weight400.copyWith(
+                                StyleText.fontSize12Weight400.copyWith(
                                   color: widget.enabled
                                       ? AppColors.text
                                       : AppColors.text.withOpacity(0.4),

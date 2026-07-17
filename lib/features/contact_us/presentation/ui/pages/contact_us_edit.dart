@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/theme/appcolors.dart';
 
 import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
@@ -28,8 +29,8 @@ import '../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/theme/text.dart';
 import '../../../../home/data/models/home_model.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../data/models/contact_us_model_location.dart';
 import '../../controller/contact_us_location_cubit.dart';
 import '../../controller/contact_us_location_state.dart';
@@ -88,7 +89,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
   bool _seeded    = false;
   bool _isSaving  = false;
 
-  // ── Footer social links (loaded from HomeCmsCubit) ──
+  // ── Footer social links (loaded from MainCmsCubit) ──
   List<SocialLinkModel> _footerSocialLinks = [];
 
   // ── Deferred seed: wait for BOTH cubits ──
@@ -100,7 +101,7 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
     super.initState();
     context.read<ContactUsCmsCubit>().load();
     // Load Home CMS to get footer social links
-    context.read<HomeCmsCubit>().load();
+    context.read<MainCmsCubit>().load();
   }
 
   @override
@@ -142,16 +143,9 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
     _subDescArCtrl.text = m.subDescription.ar;
     _emailCtrl.text     = m.email;
 
-    // Social icons
-    _socialIconItems.clear();
-    for (final s in m.socialIcons) {
-      final item = _SocialIconItem(id: s.id, counter: ++_socialIconCounter);
-      // Resolve saved URL back to its index in the footer links list
-      final idx = _footerSocialLinks.indexWhere((l) => l.url == s.link);
-      item.selectedIndex = idx >= 0 ? idx : null;
-      item.iconUrl       = s.iconUrl;
-      _socialIconItems.add(item);
-    }
+    // Social icons — AUTO-FILLED from the MAIN page social links
+    // (edit_sections2 → MainCmsCubit). No manual selection.
+    _autoFillSocialIcons(m);
 
     // Office locations
     _officeLocationItems.clear();
@@ -393,21 +387,30 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
     );
   }
 
-  // ── Add / remove ──────────────────────────────────────────────────────────
+  // ── Social icons auto-fill ────────────────────────────────────────────────
+  // One item per MAIN social link that has a URL. The link is fixed (index
+  // into _footerSocialLinks); the saved contact icon is matched back by URL.
+  void _autoFillSocialIcons(ContactUsCmsModel? m) {
+    _socialIconItems.clear();
+    for (var i = 0; i < _footerSocialLinks.length; i++) {
+      final link = _footerSocialLinks[i];
+      if (link.url.isEmpty) continue;
 
-  void _addSocialIcon() {
-    setState(() {
-      _socialIconItems.add(
-        _SocialIconItem(
-          id:      'social_${DateTime.now().millisecondsSinceEpoch}',
-          counter: ++_socialIconCounter,
-        ),
+      // Reuse the previously saved contact icon for this link, if any.
+      final saved = m?.socialIcons
+          .where((s) => s.link == link.url)
+          .toList();
+      final item = _SocialIconItem(
+        id: (saved != null && saved.isNotEmpty) ? saved.first.id : 'social_$i',
+        counter: ++_socialIconCounter,
       );
-    });
+      item.selectedIndex = i;
+      item.iconUrl = (saved != null && saved.isNotEmpty)
+          ? saved.first.iconUrl
+          : link.iconUrl;
+      _socialIconItems.add(item);
+    }
   }
-
-  void _removeSocialIcon(String id) =>
-      setState(() => _socialIconItems.removeWhere((s) => s.id == id));
 
   void _addOfficeLocation() {
     setState(() {
@@ -431,18 +434,21 @@ class _ContactUsCmsEditPageState extends State<ContactUsCmsEditPage> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        // ── Listen to HomeCmsCubit to get footer social links ──
-        BlocListener<HomeCmsCubit, HomeCmsState>(
+        // ── Listen to MainCmsCubit to get footer social links ──
+        BlocListener<MainCmsCubit, MainCmsState>(
           listener: (context, homeState) {
             final links = switch (homeState) {
-              HomeCmsLoaded(:final data) => data.socialLinks,
-              HomeCmsSaved(:final data)  => data.socialLinks,
+              MainCmsLoaded(:final data) => data.socialLinks,
+              MainCmsSaved(:final data)  => data.socialLinks,
               _                          => <SocialLinkModel>[],
             };
             if (links.isNotEmpty) {
               setState(() {
                 _footerSocialLinks = links;
                 _trySeed();
+                // Keep the auto-filled icons in sync when Main links change
+                // after the initial seed.
+                if (_seeded) _autoFillSocialIcons(_pendingModel);
               });
             }
           },

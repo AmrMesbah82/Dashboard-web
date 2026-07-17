@@ -330,7 +330,9 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
       // Navigate after dialog closes (postFrameCallback avoids navigator
       // assertion). Navigate to ServicesMainPageMaster on ANY successful save.
       if (mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
           if (!mounted) return;
 
           // Navigate to ServicesMainPageMaster, clearing the entire stack
@@ -402,7 +404,9 @@ class _BlogCreateEditPageState extends State<BlogCreateEditPage> {
           await cubit.load();
           if (mounted) {
             // Navigate to ServicesMainPageMaster after discarding draft as well
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
               if (!mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(

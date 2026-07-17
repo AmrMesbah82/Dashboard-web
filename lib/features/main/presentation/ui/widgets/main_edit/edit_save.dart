@@ -1,18 +1,19 @@
 // ******************* FILE INFO *******************
 // Part of: main_edit.dart
 // Contains: _seedFromModel, _save
+// SPLIT: Main data (branding/footer/social) comes from MainCmsCubit
+//        (MainPageModel / mainPage collection). Nav buttons belong to HOME
+//        and are read/written through HomeCmsCubit.
 
 part of '../../pages/main_edit.dart';
 
 extension _HomeEditSave on _MainEditPageState {
   // ─────────────────────────────────────────────────────────────────────────
-  //  SEED FROM MODEL
+  //  SEED FROM MODEL — main data (branding/footer/social) + home nav buttons
   // ─────────────────────────────────────────────────────────────────────────
-  void _seedFromModel(HomePageModel d) {
+  void _seedFromModel(MainPageModel d, HomePageModel h) {
     final modelHash = Object.hashAll([
-      d.title.en,
-      d.title.ar,
-      ...d.sections.map((s) => s.imageUrl + s.iconUrl),
+      ...h.navButtons.map((b) => b.id + b.name.en + b.route),
       ...d.socialLinks.map((s) => s.iconUrl),
       d.branding.logoUrl,
     ]);
@@ -37,15 +38,15 @@ extension _HomeEditSave on _MainEditPageState {
       link.text.removeListener(_onFieldChanged);
     }
 
-    // ── Nav buttons ─────────────────────────────────────────────────────────
-    while (_navBtns.length > d.navButtons.length) {
+    // ── Nav buttons (HOME data) ─────────────────────────────────────────────
+    while (_navBtns.length > h.navButtons.length) {
       final removed = _navBtns.removeLast();
       removed['nameEn']!.dispose();
       removed['nameAr']!.dispose();
       _navRoutes.removeLast();
       _navStatus.removeLast();
     }
-    while (_navBtns.length < d.navButtons.length) {
+    while (_navBtns.length < h.navButtons.length) {
       _navBtns.add({
         'nameEn': TextEditingController(),
         'nameAr': TextEditingController(),
@@ -53,28 +54,15 @@ extension _HomeEditSave on _MainEditPageState {
       _navRoutes.add(null);
       _navStatus.add(true);
     }
-    for (var i = 0; i < d.navButtons.length; i++) {
-      _navBtns[i]['nameEn']!.text = d.navButtons[i].name.en;
-      _navBtns[i]['nameAr']!.text = d.navButtons[i].name.ar;
+    for (var i = 0; i < h.navButtons.length; i++) {
+      _navBtns[i]['nameEn']!.text = h.navButtons[i].name.en;
+      _navBtns[i]['nameAr']!.text = h.navButtons[i].name.ar;
       _navRoutes[i] =
-          d.navButtons[i].route.isEmpty ? null : d.navButtons[i].route;
-      _navStatus[i] = d.navButtons[i].status;
+          h.navButtons[i].route.isEmpty ? null : h.navButtons[i].route;
+      _navStatus[i] = h.navButtons[i].status;
     }
 
-    // ── Sections ─────────────────────────────────────────────────────────────
-    for (var i = 0; i < _sections.length && i < d.sections.length; i++) {
-      _sections[i]['textBox']!.text = d.sections[i].textBoxColor;
-      _sections[i]['description']!.text = d.sections[i].description.en;
-      _sections[i]['descriptionAr']!.text = d.sections[i].description.ar;
-      _sectionImages[i]['image'] = d.sections[i].imageUrl.isNotEmpty
-          ? _PickedImage(url: d.sections[i].imageUrl)
-          : const _PickedImage();
-      _sectionImages[i]['icon'] = d.sections[i].iconUrl.isNotEmpty
-          ? _PickedImage(url: d.sections[i].iconUrl)
-          : const _PickedImage();
-    }
-
-    // ── Footer columns ───────────────────────────────────────────────────────
+    // ── Footer columns (MAIN data) ──────────────────────────────────────────
     while (_footerColumns.length > d.footerColumns.length) {
       final removed = _footerColumns.removeLast();
       _disposeColumn(removed);
@@ -108,7 +96,7 @@ extension _HomeEditSave on _MainEditPageState {
       }
     }
 
-    // ── Social links ─────────────────────────────────────────────────────────
+    // ── Social links (MAIN data) ────────────────────────────────────────────
     while (_links.length > d.socialLinks.length) _links.removeLast().dispose();
     while (_links.length < d.socialLinks.length) _links.add(_LinkItem());
     for (var i = 0; i < d.socialLinks.length; i++) {
@@ -119,7 +107,7 @@ extension _HomeEditSave on _MainEditPageState {
       _links[i].visibility = d.socialLinks[i].visibility;
     }
 
-    // ── Branding ─────────────────────────────────────────────────────────────
+    // ── Branding (MAIN data) ────────────────────────────────────────────────
     _primaryColor.text = d.branding.primaryColor;
     _secondaryColor.text = d.branding.secondaryColor;
     _bgColor.text = d.branding.backgroundColor.isNotEmpty
@@ -161,20 +149,24 @@ extension _HomeEditSave on _MainEditPageState {
 
   // ─────────────────────────────────────────────────────────────────────────
   //  SAVE / PUBLISH
+  //  Nav buttons → HomeCmsCubit (home doc). Everything else → MainCmsCubit.
   // ─────────────────────────────────────────────────────────────────────────
   Future<void> _save(MainCmsCubit cubit,
       {String publishStatus = 'published'}) async {
     try {
-      final snapshot = List<NavButtonModel>.from(cubit.current.navButtons);
+      // ── Nav buttons — belong to HOME ──────────────────────────────────────
+      final homeCubit = context.read<HomeCmsCubit>();
+
+      final snapshot = List<NavButtonModel>.from(homeCubit.current.navButtons);
       final routeToId = {for (final b in snapshot) b.route: b.id};
 
       for (var i = 0; i < _navBtns.length; i++) {
         final localRoute = _navRoutes[i] ?? '';
         if (localRoute.isEmpty) continue;
-        final currentIndex = cubit.current.navButtons
+        final currentIndex = homeCubit.current.navButtons
             .indexWhere((b) => b.route == localRoute);
         if (currentIndex != -1 && currentIndex != i) {
-          cubit.reorderNavButtonsSilent(currentIndex, i);
+          homeCubit.reorderNavButtonsSilent(currentIndex, i);
         }
       }
 
@@ -183,31 +175,21 @@ extension _HomeEditSave on _MainEditPageState {
         final id = routeToId[localRoute];
         if (id == null) continue;
 
-        cubit.updateNavButtonName(id,
+        homeCubit.updateNavButtonName(id,
             en: _navBtns[i]['nameEn']!.text,
             ar: _navBtns[i]['nameAr']!.text);
-        cubit.updateNavButtonRoute(id, localRoute);
+        homeCubit.updateNavButtonRoute(id, localRoute);
 
-        final modelStatus = cubit.current.navButtons
+        final modelStatus = homeCubit.current.navButtons
             .firstWhere((b) => b.id == id,
                 orElse: () => NavButtonModel(id: id))
             .status;
         if (modelStatus != _navStatus[i]) {
-          cubit.toggleNavButtonStatus(id);
+          homeCubit.toggleNavButtonStatus(id);
         }
       }
 
-      for (var i = 0; i < _sections.length; i++) {
-        cubit.updateSectionTextBoxColor(i, _sections[i]['textBox']!.text);
-        cubit.updateSectionDescription(i,
-            en: _sections[i]['description']!.text,
-            ar: _sections[i]['descriptionAr']!.text);
-        final img = _sectionImages[i]['image']!;
-        final icon = _sectionImages[i]['icon']!;
-        if (img.bytes != null) await cubit.uploadSectionImage(i, img.bytes!);
-        if (icon.bytes != null) await cubit.uploadSectionIcon(i, icon.bytes!);
-      }
-
+      // ── Footer columns — MAIN ─────────────────────────────────────────────
       while (cubit.current.footerColumns.length < _footerColumns.length) {
         cubit.addFooterColumn();
       }
@@ -240,6 +222,7 @@ extension _HomeEditSave on _MainEditPageState {
         }
       }
 
+      // ── Social links — MAIN ───────────────────────────────────────────────
       while (cubit.current.socialLinks.length < _links.length) {
         cubit.addSocialLink();
       }
@@ -255,6 +238,7 @@ extension _HomeEditSave on _MainEditPageState {
         }
       }
 
+      // ── Branding / Logo — MAIN ────────────────────────────────────────────
       if (_logoPicked.bytes != null) {
         await cubit.uploadLogo(_logoPicked.bytes!);
       }
@@ -266,9 +250,17 @@ extension _HomeEditSave on _MainEditPageState {
       cubit.updateEnglishFont(_engFont ?? 'Cairo');
       cubit.updateArabicFont(_arFont ?? 'Cairo');
 
+      // Save main data to the MAIN doc.
       await cubit.save(publishStatus: publishStatus);
-    } catch (e, st) {
-      // Errors surface via HomeCmsError state
+
+      // Nav buttons live in the HOME doc, but publishing Main must NOT
+      // upload the rest of the home content. Only when Main is PUBLISHED,
+      // write the Nav_Buttons_* keys alone (partial merge write).
+      if (publishStatus == 'published') {
+        await homeCubit.saveNavButtonsOnly();
+      }
+    } catch (e) {
+      // Errors surface via MainCmsError state
     }
   }
 }

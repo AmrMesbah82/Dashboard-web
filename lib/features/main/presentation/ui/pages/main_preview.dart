@@ -24,6 +24,7 @@ import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../controller/main_cubit.dart';
+import '../../controller/main_state.dart';
 import '../../../../home/presentation/controller/lang_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import 'main_main.dart';
@@ -67,6 +68,9 @@ class _MainPreviewPageState extends State<MainPreviewPage> {
     setState(() => _isSaving = true);
     try {
       await cubit.save(publishStatus: 'published');
+      // Nav buttons live in the HOME doc — write ONLY the Nav_Buttons_* keys
+      // (partial merge). Publishing Main never uploads home content.
+      await context.read<HomeCmsCubit>().saveNavButtonsOnly();
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -74,12 +78,12 @@ class _MainPreviewPageState extends State<MainPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MainCmsCubit, HomeCmsState>(
+    return BlocConsumer<MainCmsCubit, MainCmsState>(
       listener: (context, state) {},
       builder: (context, state) {
         final cubit = context.read<MainCmsCubit>();
 
-        if (state is HomeCmsInitial || state is HomeCmsLoading) {
+        if (state is MainCmsInitial || state is MainCmsLoading) {
           return const Scaffold(
             backgroundColor: ColorPick.background,
             body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),

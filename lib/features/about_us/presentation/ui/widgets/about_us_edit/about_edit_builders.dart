@@ -23,6 +23,20 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
         ),
         SizedBox(height: 24.h),
 
+
+
+
+        // ── Headings ──
+        _accordion(
+          title: 'Headings',
+          isOpen: _headingsOpen,
+          onToggle: () => setState(() => _headingsOpen = !_headingsOpen),
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: _headingsSection(),
+          ),
+        ),
+        SizedBox(height: 15.h),
         // ── Navigation Label ──
         _accordion(
           title: 'Navigation Label',
@@ -35,18 +49,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
           ),
         ),
 
-        SizedBox(height: 15.h),
 
-        // ── Headings ──
-        _accordion(
-          title: 'Headings',
-          isOpen: _headingsOpen,
-          onToggle: () => setState(() => _headingsOpen = !_headingsOpen),
-          child: Padding(
-            padding: EdgeInsets.only(top: 16.h),
-            child: _headingsSection(),
-          ),
-        ),
 
         SizedBox(height: 15.h),
 
@@ -370,9 +373,9 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
     return GestureDetector(
       onTap: _addValueItem,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: const Color(0xFF555555),
+          color: const Color(0xFF797979),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
@@ -381,7 +384,7 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
             Icon(Icons.add, color: Colors.white, size: 16.sp),
             SizedBox(width: 6.w),
             Text(
-              'Add Point',
+              'Add Value',
               style: StyleText.fontSize13Weight600.copyWith(color: Colors.white),
             ),
           ],
@@ -438,21 +441,25 @@ extension _AboutEditBuilders on _AboutEditPageMasterState {
             ],
           ),
           SizedBox(height: 16.h),
-          Row(
-            children: [
-              _fieldLabel('Title'),
-              Spacer(),
-              _fieldLabelAr("العنوان"),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          _bilingualRow(
-            enCtrl: v.titleEnCtrl,
-            arCtrl: v.titleArCtrl,
-            enHint: 'Text Here',
-            arHint: 'أدخل النص هنا',
-          ),
-          SizedBox(height: 16.h),
+          // Title (EN + AR) is NOT used for the Main Icon on the user site —
+          // only "Add Point" items show/need it.
+          if (!isMain) ...[
+            Row(
+              children: [
+                _fieldLabel('Title'),
+                Spacer(),
+                _fieldLabelAr("العنوان"),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            _bilingualRow(
+              enCtrl: v.titleEnCtrl,
+              arCtrl: v.titleArCtrl,
+              enHint: 'Text Here',
+              arHint: 'أدخل النص هنا',
+            ),
+            SizedBox(height: 16.h),
+          ],
           _fieldLabel('Short Description'),
           SizedBox(height: 8.h),
           CustomValidatedTextFieldMaster(

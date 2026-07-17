@@ -171,9 +171,6 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
 
   // ── Action buttons ────────────────────────────────────────────────────────────
   Widget _actionButtons() {
-    final isFormValid  = _isFormValid();
-    final isSaveEnabled = _hasChanges && isFormValid && !_isSaving;
-
     return Column(children: [
       Row(children: [
         Expanded(
@@ -193,34 +190,43 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
         ),
         SizedBox(width: 300.w),
         Expanded(
-          child: AbsorbPointer(
-            absorbing: !isSaveEnabled,
-            child: Opacity(
-              opacity: isSaveEnabled ? 1.0 : 0.5,
-              child: SizedBox(
-                height: 44.h,
-                child: ElevatedButton(
-                  onPressed: isSaveEnabled
-                      ? () => showPublishConfirmDialog(
-                    context: context,
-                    title: 'EDITING SERVICES DETAILS',
-                    subtitle:
-                    'Do you want to save the changes made to this Service Details?',
-                    confirmLabel: 'PUBLISHED',
-                    onConfirm: _onSave,
-                  )
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorPick.primary,
-                    disabledBackgroundColor: ColorPick.back,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r)),
-                  ),
-                  child: Text('Published',
+          child: SizedBox(
+            height: 44.h,
+            child: ElevatedButton(
+              // Always tappable (except while saving). On tap we validate and,
+              // if something is missing, tell the user exactly what — instead
+              // of leaving a silently-disabled button.
+              onPressed: _isSaving
+                  ? null
+                  : () {
+                      setState(() => _submitted = true);
+                      if (!_isFormValid()) {
+                        _showValidationError();
+                        return;
+                      }
+                      showPublishConfirmDialog(
+                        context: context,
+                        title: 'EDITING SERVICES DETAILS',
+                        subtitle:
+                            'Do you want to save the changes made to this Service Details?',
+                        confirmLabel: 'PUBLISHED',
+                        onConfirm: _onSave,
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorPick.primary,
+                disabledBackgroundColor: ColorPick.back,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r)),
+              ),
+              child: _isSaving
+                  ? SizedBox(
+                      width: 18.w, height: 18.w,
+                      child: const CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
+                  : Text('Published',
                       style: StyleText.fontSize14Weight600
                           .copyWith(color: Colors.white)),
-                ),
-              ),
             ),
           ),
         ),
@@ -245,6 +251,7 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
   }
 
   // ── Icon preview widget ───────────────────────────────────────────────────────
+  // Delegates to the single shared image-upload circle (core/custom).
   Widget _iconPreview(String url, {bool isLoading = false, VoidCallback? onPick}) {
     if (isLoading || url == 'loading') {
       return Container(
@@ -259,64 +266,11 @@ extension _DigitalEditUi on _ServicesDigitalJourneyEditPageState {
       );
     }
 
-    if (url.isNotEmpty && url.startsWith('http')) {
-      return Stack(clipBehavior: Clip.none, children: [
-        GestureDetector(
-          onTap: onPick,
-          child: Container(
-            width: 60.w, height: 60.h,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: ClipOval(
-              child: Padding(
-                padding: EdgeInsets.all(15.r),
-                child: NetworkImageView(url: url,
-                    width: 30.w, height: 30.h, fit: BoxFit.contain),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0, right: 0,
-          child: GestureDetector(
-            onTap: onPick,
-            child: Container(
-              width: 25.w, height: 25.h,
-              decoration: BoxDecoration(
-                color: ColorPick.primary, shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Center(child: Icon(Icons.camera_alt, size: 12.sp, color: Colors.white)),
-            ),
-          ),
-        ),
-      ]);
-    }
-
-    // Empty state
-    return Stack(clipBehavior: Clip.none, children: [
-      GestureDetector(
-        onTap: onPick,
-        child: Container(
-          width: 60.w, height: 60.h,
-          decoration: const BoxDecoration(color: Color(0xFFD9D9D9), shape: BoxShape.circle),
-          child: Center(child: Icon(Icons.add, color: Colors.grey, size: 22.sp)),
-        ),
-      ),
-      Positioned(
-        bottom: 0, right: 0,
-        child: GestureDetector(
-          onTap: onPick,
-          child: Container(
-            width: 25.w, height: 25.h,
-            decoration: BoxDecoration(
-              color: ColorPick.primary, shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-            child: Center(child: Icon(Icons.camera_alt, size: 12.sp, color: Colors.white)),
-          ),
-        ),
-      ),
-    ]);
+    return imageUploadCircleBare(
+      bytes: null,
+      url: (url.isNotEmpty && url.startsWith('http')) ? url : '',
+      onTap: onPick ?? () {},
+    );
   }
 
   TextStyle _labelStyle() =>

@@ -21,6 +21,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 import '../../features/services/presentation/ui/pages/services_main/services_main.dart';
 import '../theme/new_theme.dart';
 
@@ -146,11 +148,11 @@ class _AdminNavLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     const double sz = 40;
 
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, state) {
         final String logoUrl = switch (state) {
-          HomeCmsLoaded(:final data) => data.branding.logoUrl,
-          HomeCmsSaved(:final data)  => data.branding.logoUrl,
+          MainCmsLoaded(:final data) => data.branding.logoUrl,
+          MainCmsSaved(:final data)  => data.branding.logoUrl,
           _                          => '',
         };
 

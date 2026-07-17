@@ -7,6 +7,7 @@
 
 import 'dart:async';
 import 'dart:html' as html;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/custom/image_upload_circle.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_edit.dart';
 import 'package:web_app_admin/features/careers/presentation/ui/pages/why_join_preview.dart';
@@ -246,8 +248,14 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
   }
 
   Widget _internsBody() {
-    return BlocProvider(
-      create: (_) => InternCubit()..load(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => InternCubit()..load()),
+        BlocProvider(
+          create: (_) =>
+              CareersSectionCubit(sectionKey: 'ourInterns')..load(),
+        ),
+      ],
       child: _InternsTabBody(),
     );
   }
@@ -274,30 +282,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: cubit,
-                        child: CareersSectionPreviewPage(
-                          sectionKey: sectionKey, sectionTitle: sectionTitle,
-                        ),
-                      ),
-                    )),
-                    child: Container(
-                      width: 130.w, height: 36.h,
-                      decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
-                      child: Center(
-                        child: Text('Preview Screen',
-                            style: StyleText.fontSize14Weight500.copyWith(color: Colors.white)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 14.h),
+
               Row(
                 children: [
                   Container(
@@ -338,7 +323,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
                   ),
                 ],
               ),
-              SizedBox(height: 16.h),
+
               _accordion(
                 key: 'section_$sectionKey',
                 title: sectionTitle,
@@ -365,16 +350,19 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           SizedBox(height: 12.h),
         ] else
           SizedBox(height: 12.h),
-        Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
-        SizedBox(height: 6.h),
-        _imgCircle(item.iconUrl, isAdd: true),
-        SizedBox(height: 14.h),
-        Row(children: [
-          Expanded(child: _readField('Title', item.title.en)),
-          SizedBox(width: 16.w),
-          Expanded(child: _readFieldRtl('العنوان', item.title.ar)),
-        ]),
-        SizedBox(height: 14.h),
+        // Icon + Title belong only to the first item (the section header).
+        if (index == 0) ...[
+          Text('Icon', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
+          SizedBox(height: 6.h),
+          _imgCircle(item.iconUrl, isAdd: true),
+          SizedBox(height: 14.h),
+          Row(children: [
+            Expanded(child: _readField('Title', item.title.en)),
+            SizedBox(width: 16.w),
+            Expanded(child: _readFieldRtl('العنوان', item.title.ar)),
+          ]),
+          SizedBox(height: 14.h),
+        ],
         Text('SVG', style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
         _imgCircle(item.svgUrl),
@@ -469,7 +457,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
             ]),
           ],
         ),
-        SizedBox(height: 10.h),
+
 
         _accordion(
           key: 'statistics',
@@ -546,7 +534,7 @@ class _CareersMainPageMasterState extends State<CareersMainPageMaster> {
           ),
           if (isOpen)
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16.h),
+              padding: EdgeInsets.only(top: 16.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(6.r),

@@ -99,8 +99,6 @@ extension _HomeEditHelpers on _HomeEditPageMasterState {
       ...d.sections.map(
         (s) => s.imageUrl + s.iconUrl + s.visibility.toString(),
       ),
-      ...d.socialLinks.map((s) => s.iconUrl + s.visibility.toString()),
-      d.branding.logoUrl,
       d.scheduledPublishDate?.toIso8601String() ?? '',
     ]);
     if (_seededModelHash == modelHash) return;
@@ -135,83 +133,12 @@ extension _HomeEditHelpers on _HomeEditPageMasterState {
       _sections[i].visibility = d.sections[i].visibility;
     }
 
-    _primaryColor.text = d.branding.primaryColor;
-    _secondaryColor.text = d.branding.secondaryColor;
-    _engFont = d.branding.englishFont.isEmpty
-        ? 'Cairo'
-        : d.branding.englishFont;
-    _arFont = d.branding.arabicFont.isEmpty ? 'Cairo' : d.branding.arabicFont;
-    _logoPicked = d.branding.logoUrl.isNotEmpty
-        ? _PickedImage(url: d.branding.logoUrl)
-        : const _PickedImage();
-
-    while (_footerColumns.length > d.footerColumns.length)
-      _disposeColumn(_footerColumns.removeLast());
-    while (_footerColumns.length < d.footerColumns.length)
-      _footerColumns.add(_newFooterColumn());
-    for (var i = 0; i < d.footerColumns.length; i++) {
-      (_footerColumns[i]['titleEn'] as TextEditingController).text =
-          d.footerColumns[i].title.en;
-      (_footerColumns[i]['titleAr'] as TextEditingController).text =
-          d.footerColumns[i].title.ar;
-      _footerColumns[i]['route'] = d.footerColumns[i].route.isEmpty
-          ? null
-          : d.footerColumns[i].route;
-      final labels =
-          _footerColumns[i]['labels']
-              as List<Map<String, TextEditingController>>;
-      while (labels.length > d.footerColumns[i].labels.length)
-        _disposeLabel(labels.removeLast());
-      while (labels.length < d.footerColumns[i].labels.length)
-        labels.add(_newLabelRow());
-      for (var li = 0; li < d.footerColumns[i].labels.length; li++) {
-        labels[li]['en']!.text = d.footerColumns[i].labels[li].label.en;
-        labels[li]['ar']!.text = d.footerColumns[i].labels[li].label.ar;
-      }
-    }
-
-    for (final l in _links) (l['text'] as TextEditingController).dispose();
-    _links.clear();
-    for (final sl in d.socialLinks) {
-      _links.add({
-        'text': TextEditingController(text: sl.url),
-        'icon': sl.iconUrl.isNotEmpty
-            ? _PickedImage(url: sl.iconUrl)
-            : const _PickedImage(),
-        'visibility': sl.visibility,
-      });
-    }
+    // NOTE: footer/social/branding are seeded & edited on the MAIN page.
 
     _publishDate = d.scheduledPublishDate;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
-  }
-
-  Map<String, dynamic> _newFooterColumn() => {
-    'titleEn': TextEditingController(),
-    'titleAr': TextEditingController(),
-    'route': null as String?,
-    'labels': <Map<String, TextEditingController>>[_newLabelRow()],
-  };
-
-  Map<String, TextEditingController> _newLabelRow() => {
-    'en': TextEditingController(),
-    'ar': TextEditingController(),
-  };
-
-  void _disposeColumn(Map<String, dynamic> col) {
-    (col['titleEn'] as TextEditingController).dispose();
-    (col['titleAr'] as TextEditingController).dispose();
-    for (final l in col['labels'] as List<Map<String, TextEditingController>>) {
-      l['en']!.dispose();
-      l['ar']!.dispose();
-    }
-  }
-
-  void _disposeLabel(Map<String, TextEditingController> label) {
-    label['en']!.dispose();
-    label['ar']!.dispose();
   }
 
   String _ordinal(int n) {
@@ -270,63 +197,7 @@ extension _HomeEditHelpers on _HomeEditPageMasterState {
           await cubit.uploadSectionIcon(i, _sections[i].icon.bytes!);
       }
 
-      while (cubit.current.footerColumns.length < _footerColumns.length)
-        cubit.addFooterColumn();
-      while (cubit.current.footerColumns.length > _footerColumns.length)
-        cubit.removeFooterColumn(cubit.current.footerColumns.last.id);
-      for (var i = 0; i < _footerColumns.length; i++) {
-        final colId = cubit.current.footerColumns[i].id;
-        cubit.updateFooterColumnTitle(
-          colId,
-          en: (_footerColumns[i]['titleEn'] as TextEditingController).text,
-          ar: (_footerColumns[i]['titleAr'] as TextEditingController).text,
-        );
-        cubit.updateFooterColumnRoute(
-          colId,
-          _footerColumns[i]['route'] as String? ?? '',
-        );
-        final labels =
-            _footerColumns[i]['labels']
-                as List<Map<String, TextEditingController>>;
-        while (cubit.current.footerColumns[i].labels.length < labels.length)
-          cubit.addFooterLabel(colId);
-        while (cubit.current.footerColumns[i].labels.length > labels.length)
-          cubit.removeFooterLabel(
-            colId,
-            cubit.current.footerColumns[i].labels.last.id,
-          );
-        for (var li = 0; li < labels.length; li++) {
-          final lblId = cubit.current.footerColumns[i].labels[li].id;
-          cubit.updateFooterLabel(
-            colId,
-            lblId,
-            en: labels[li]['en']!.text,
-            ar: labels[li]['ar']!.text,
-          );
-        }
-      }
-
-      while (cubit.current.socialLinks.length < _links.length)
-        cubit.addSocialLink();
-      while (cubit.current.socialLinks.length > _links.length)
-        cubit.removeSocialLink(cubit.current.socialLinks.last.id);
-      for (var i = 0; i < _links.length; i++) {
-        final id = cubit.current.socialLinks[i].id;
-        cubit.updateSocialLink(
-          id,
-          url: (_links[i]['text'] as TextEditingController).text,
-          visibility: _links[i]['visibility'] as bool? ?? true,
-        );
-        final icon = _links[i]['icon'] as _PickedImage;
-        if (icon.bytes != null)
-          await cubit.uploadSocialLinkIcon(id, icon.bytes!);
-      }
-
-      if (_logoPicked.bytes != null) await cubit.uploadLogo(_logoPicked.bytes!);
-      cubit.updatePrimaryColor(_primaryColor.text);
-      cubit.updateSecondaryColor(_secondaryColor.text);
-      cubit.updateEnglishFont(_engFont ?? 'Cairo');
-      cubit.updateArabicFont(_arFont ?? 'Cairo');
+      // NOTE: footer/social/branding are saved from the MAIN page (MainCmsCubit).
 
       String finalStatus = publishStatus;
       DateTime? finalScheduleDate = scheduledPublishDate;

@@ -35,8 +35,8 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/job_listing_model.dart';
 import '../../controller/job_listing_cubit.dart';
@@ -153,10 +153,10 @@ class _JobListingEditPageState extends State<JobListingEditPage> {
   String? _editingJobId;
 
   Color _cmsPrimary(BuildContext context) {
-    final state = context.read<HomeCmsCubit>().state;
+    final state = context.read<MainCmsCubit>().state;
     return switch (state) {
-      HomeCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
-      HomeCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
+      MainCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
+      MainCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
       _                          => const Color(0xFF008037),
     };
   }

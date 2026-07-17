@@ -3,7 +3,7 @@
 // UPDATED: Footer background now reads from model.branding.headerFooterColor
 // FIXED: _socialIcons / _socialIconsRaw now filter by l.visibility ✅
 //        Toggling visibility OFF in admin hides the icon in the footer.
-// Description: AppFooter driven by HomePageModel via HomeCmsCubit.
+// Description: AppFooter driven by MainPageModel via MainCmsCubit.
 // Created by: Amr Mesbah
 
 import 'package:flutter/material.dart';
@@ -15,9 +15,12 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../features/home/data/models/home_model.dart';
+import '../../features/home/data/models/home_model.dart' show NavButtonModel, HomePageModel;
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/data/models/main_model.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 import '../../features/home/presentation/controller/lang_state.dart';
 import '../theme/app_wight.dart';
 import '../theme/appcolors.dart';
@@ -33,9 +36,10 @@ class _BP {
 const Color _kFallbackPrimary    = Color(0xFF008037);
 const Color _kFallbackFooterBg   = Color(0xFFF5F5F5); // fallback if headerFooterColor is empty
 
-List<FooterColumnModel> _syncedFooterColumns(HomePageModel model) {
+List<FooterColumnModel> _syncedFooterColumns(
+    MainPageModel model, List<NavButtonModel> navButtons) {
   final navByRoute = <String, NavButtonModel>{
-    for (final btn in model.navButtons)
+    for (final btn in navButtons)
       if (btn.route.isNotEmpty) btn.route: btn,
   };
   final List<FooterColumnModel> result = [];
@@ -76,18 +80,27 @@ class AppFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, state) {
-        final HomePageModel model = switch (state) {
-          HomeCmsLoaded(:final data) => data,
-          HomeCmsSaved(:final data)  => data,
-          _                          => HomePageModel.defaultModel,
+        final MainPageModel model = switch (state) {
+          MainCmsLoaded(:final data) => data,
+          MainCmsSaved(:final data)  => data,
+          _                          => MainPageModel.defaultModel,
         };
 
         final Color primary    = _hexColor(model.branding.primaryColor,      _kFallbackPrimary);
         // ✅ Footer background from CMS branding
         final Color footerBg   = _hexColor(model.branding.headerFooterColor, _kFallbackFooterBg);
-        final List<FooterColumnModel> columns = _syncedFooterColumns(model);
+
+        return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+            builder: (context, homeState) {
+        final List<NavButtonModel> navButtons = switch (homeState) {
+          HomeCmsLoaded(:final data) => data.navButtons,
+          HomeCmsSaved(:final data)  => data.navButtons,
+          _                          => HomePageModel.defaultModel.navButtons,
+        };
+        final List<FooterColumnModel> columns =
+            _syncedFooterColumns(model, navButtons);
 
         return BlocBuilder<LanguageCubit, LanguageState>(
           builder: (context, langState) {
@@ -118,6 +131,7 @@ class AppFooter extends StatelessWidget {
             );
           },
         );
+            });
       },
     );
   }
@@ -126,7 +140,7 @@ class AppFooter extends StatelessWidget {
 // ─── DESKTOP ──────────────────────────────────────────────────────────────────
 
 class _FooterDesktop extends StatelessWidget {
-  final HomePageModel model;
+  final MainPageModel model;
   final List<FooterColumnModel> columns;
   final Color primary;
   final Color footerBg; // ✅ from branding.headerFooterColor
@@ -215,7 +229,7 @@ class _FooterDesktop extends StatelessWidget {
 // ─── TABLET ───────────────────────────────────────────────────────────────────
 
 class _FooterTablet extends StatelessWidget {
-  final HomePageModel model;
+  final MainPageModel model;
   final List<FooterColumnModel> columns;
   final Color primary;
   final Color footerBg; // ✅ from branding.headerFooterColor
@@ -302,7 +316,7 @@ class _FooterTablet extends StatelessWidget {
 // ─── MOBILE ───────────────────────────────────────────────────────────────────
 
 class _FooterMobile extends StatelessWidget {
-  final HomePageModel model;
+  final MainPageModel model;
   final List<FooterColumnModel> columns;
   final Color primary;
   final Color footerBg; // ✅ from branding.headerFooterColor

@@ -124,8 +124,13 @@ extension _BlogEditSections on _BlogCreateEditPageState {
         ),
       ]),
 
-      ..._blocks.asMap().entries.map((e) => _blockWidget(idx: e.key, blk: e.value)),
+      ..._blocks.asMap().entries.map((e) => Padding(
+        padding:  EdgeInsets.only(top: 8.sp),
+        child: _blockWidget(idx: e.key, blk: e.value),
+      )),
 
+
+      SizedBox(height: 10.h),
       Wrap(spacing: 10.w, runSpacing: 8.h, children: [
         _addChip('+ Bullet Point', () => _addBlock(BlogBlockType.bulletPoint)),
         _addChip('+ Paragraph',    () => _addBlock(BlogBlockType.paragraph)),

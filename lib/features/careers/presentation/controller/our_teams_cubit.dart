@@ -137,6 +137,23 @@ class OurTeamsCubit extends Cubit<OurTeamsState> {
     emit(OurTeamsLoaded(_current));
   }
 
+  // ── Update section header title ──────────────────────────────────────────────
+  void updateHeader({required String en, required String ar}) {
+    _current = _current.copyWith(headerTitle: BilingualText(en: en, ar: ar));
+    emit(OurTeamsLoaded(_current));
+  }
+
+  // ── Upload section header icon ───────────────────────────────────────────────
+  Future<void> uploadHeaderIcon(Uint8List bytes) async {
+    try {
+      final url = await _repo.uploadIcon('header', bytes);
+      _current = _current.copyWith(headerIconUrl: url);
+      emit(OurTeamsLoaded(_current));
+    } catch (e) {
+      emit(OurTeamsError(e.toString()));
+    }
+  }
+
   // ── Upload icon ──────────────────────────────────────────────────────────────
   Future<void> uploadIcon(String itemId, Uint8List bytes) async {
     try {

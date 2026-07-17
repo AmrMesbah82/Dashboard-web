@@ -83,39 +83,7 @@ class _TermsMainViewState extends State<TermsMainView> {
             ),
             SizedBox(height: 16.h),
 
-            // ① Navigation Label
-            _accordion(
-              key: 'navigationLabel',
-              title: 'Navigation Label',
-              children: [
-                SizedBox(height: 15.h),
-                _iconPreviewCircle(
-                  label: 'Icon',
-                  url: model.navigationLabel.iconUrl,
-                  isSvg: true,
-                ),
-                SizedBox(height: 12.h),
-                Row(children: [
-                  Expanded(
-                    child: _readField(
-                      'Title',
-                      model.navigationLabel.title.en.isEmpty
-                          ? 'Text Here'
-                          : model.navigationLabel.title.en,
-                    ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: _readFieldRtl(
-                      'العنوان',
-                      model.navigationLabel.title.ar,
-                    ),
-                  ),
-                ]),
-                SizedBox(height: 12.h),
-              ],
-            ),
-            SizedBox(height: 12.h),
+
 
             // ② Terms and Conditions
             _accordion(
@@ -124,9 +92,27 @@ class _TermsMainViewState extends State<TermsMainView> {
               children: [
                 SizedBox(height: 15.h),
                 _iconPreviewCircle(
-                    label: 'SVG',
-                    url: model.termsAndConditions.svgUrl,
+                    label: 'Icon',
+                    url: model.termsAndConditions.iconUrl,
                     isSvg: true),
+                SizedBox(height: 12.h),
+                Row(children: [
+                  Expanded(
+                    child: _readField(
+                      'Title',
+                      model.termsAndConditions.title.en.isEmpty
+                          ? 'Text Here'
+                          : model.termsAndConditions.title.en,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: _readFieldRtl(
+                      'العنوان',
+                      model.termsAndConditions.title.ar,
+                    ),
+                  ),
+                ]),
                 SizedBox(height: 12.h),
                 _readField(
                     'Description',
@@ -162,9 +148,27 @@ class _TermsMainViewState extends State<TermsMainView> {
               children: [
                 SizedBox(height: 15.h),
                 _iconPreviewCircle(
-                    label: 'SVG',
-                    url: model.privacyPolicy.svgUrl,
+                    label: 'Icon',
+                    url: model.privacyPolicy.iconUrl,
                     isSvg: true),
+                SizedBox(height: 12.h),
+                Row(children: [
+                  Expanded(
+                    child: _readField(
+                      'Title',
+                      model.privacyPolicy.title.en.isEmpty
+                          ? 'Text Here'
+                          : model.privacyPolicy.title.en,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: _readFieldRtl(
+                      'العنوان',
+                      model.privacyPolicy.title.ar,
+                    ),
+                  ),
+                ]),
                 SizedBox(height: 12.h),
                 _readField(
                     'Description',
@@ -338,7 +342,7 @@ class _TermsMainViewState extends State<TermsMainView> {
               : null,
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.r),
@@ -355,6 +359,7 @@ class _TermsMainViewState extends State<TermsMainView> {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -375,7 +380,7 @@ class _TermsMainViewState extends State<TermsMainView> {
                             return Text(
                               sizeLabel,
                               style: StyleText.fontSize12Weight400.copyWith(
-                                color: _C.hintText,
+                                color: AppColors.text,
                               ),
                             );
                           },

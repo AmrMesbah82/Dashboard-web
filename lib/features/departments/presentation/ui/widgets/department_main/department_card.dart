@@ -67,11 +67,11 @@ class _DepartmentCardState extends State<_DepartmentCard> {
                 child: Row(
                   children: [
                     // ── Company logo ──
-                    BlocBuilder<HomeCmsCubit, HomeCmsState>(
+                    BlocBuilder<MainCmsCubit, MainCmsState>(
                       builder: (context, state) {
                         final String logoUrl = switch (state) {
-                          HomeCmsLoaded(:final data) => data.branding.logoUrl,
-                          HomeCmsSaved(:final data)  => data.branding.logoUrl,
+                          MainCmsLoaded(:final data) => data.branding.logoUrl,
+                          MainCmsSaved(:final data)  => data.branding.logoUrl,
                           _                          => '',
                         };
                         return Container(

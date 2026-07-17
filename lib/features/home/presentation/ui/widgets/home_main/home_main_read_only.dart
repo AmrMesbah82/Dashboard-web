@@ -87,21 +87,36 @@ extension _HomeMainReadOnly on _HomeMainPageMasterState {
           if (sec != null)
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               SizedBox(height: 6.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: sec.visibility ? ColorPick.primary.withValues(alpha: 0.12) : Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(sec.visibility ? Icons.visibility : Icons.visibility_off,
-                      size: 12.sp, color: sec.visibility ? ColorPick.primary : Colors.grey.shade600),
-                  SizedBox(width: 4.w),
-                  Text(sec.visibility ? 'Visible' : 'Hidden', style: TextStyle(
-                    fontSize: 11.sp, fontWeight: FontWeight.w600,
-                    color: sec.visibility ? ColorPick.primary : Colors.grey.shade600,
-                  )),
-                ]),
+              // Visibility shown as an on/off switch, matching main_main.dart.
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Visibility ',
+                      style: StyleText.fontSize11Weight400
+                          .copyWith(color: AppColors.text)),
+                  Container(
+                    width: 32.w,
+                    height: 18.h,
+                    decoration: BoxDecoration(
+                      color: sec.visibility
+                          ? ColorPick.primary
+                          : Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Align(
+                      alignment: sec.visibility
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: 14.w,
+                        height: 14.h,
+                        margin: EdgeInsets.symmetric(horizontal: 2.w),
+                        decoration: const BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ]),
         ]),

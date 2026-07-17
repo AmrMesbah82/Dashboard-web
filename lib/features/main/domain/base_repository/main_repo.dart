@@ -1,36 +1,29 @@
 // ******************* FILE INFO *******************
-// File Name: home_repo.dart
-// Description: Abstract repository for Home CMS.
-//              Supports dual-document architecture:
-//              - Published doc  → `cms/home_page`
-//              - Draft doc      → `cms/home_page_draft`
+// File Name: main_repo.dart
+// Description: Abstract repository for the MAIN page CMS (branding/theme,
+//              logo, footer columns, social links).
+//              Dual-document architecture:
+//              - Published doc → `mainPage/main`
+//              - Draft doc     → `mainPage/main_draft`
 // Created by: Amr Mesbah
-// Last Update: 20/04/2026
-// UPDATED: Added draft lifecycle methods (fetch, save, delete, promote) ✅
 
 import 'dart:typed_data';
 
-import '../../data/models/home_model.dart';
+import '../../data/models/main_model.dart';
 
-abstract class HomeRepository {
+abstract class MainRepository {
   // ── Published document ───────────────────────────────────────────────────
-  Future<HomePageModel> fetchHomePage();
-  Future<HomePageModel> fetchHomePageFresh();
-  Future<void> saveHomePage(HomePageModel model);
-  Stream<HomePageModel> watchHomePage();
-
-  /// Partial write: updates ONLY the Nav_Buttons_* keys of the published
-  /// home document. Used by the MAIN page (which edits nav buttons) so that
-  /// publishing Main never uploads the rest of the home content
-  /// (title / sections / descriptions / publish status).
-  Future<void> saveNavButtons(List<NavButtonModel> navButtons);
+  Future<MainPageModel> fetchMainPage();
+  Future<MainPageModel> fetchMainPageFresh();
+  Future<void> saveMainPage(MainPageModel model);
+  Stream<MainPageModel> watchMainPage();
 
   // ── Draft document ───────────────────────────────────────────────────────
   /// Fetch the draft version. Returns null if no draft exists.
-  Future<HomePageModel?> fetchDraft();
+  Future<MainPageModel?> fetchDraft();
 
   /// Save form edits as a draft (does NOT touch the published doc).
-  Future<void> saveDraft(HomePageModel model);
+  Future<void> saveDraft(MainPageModel model);
 
   /// Delete the draft document (e.g. after publish or discard).
   Future<void> deleteDraft();

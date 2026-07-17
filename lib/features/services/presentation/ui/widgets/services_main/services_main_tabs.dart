@@ -65,7 +65,7 @@ extension _ServicesMainTabs on _ServicesMainPageMasterState {
           key:   'headings',
           title: 'Headings',
           children: [
-            SizedBox(height: 16.w),
+
             Row(children: [
               Expanded(child: _readField('Title',
                   model.title.en.isEmpty ? 'Text Here' : model.title.en)),

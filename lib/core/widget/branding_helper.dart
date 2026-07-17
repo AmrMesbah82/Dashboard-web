@@ -1,15 +1,15 @@
 // ******************* FILE INFO *******************
 // File Name: branding_helper.dart
 // Description: Global helpers to read CMS branding colors/fonts from
-//              HomeCmsCubit state anywhere in the app.
+//              MainCmsCubit state anywhere in the app.
+//              (Branding belongs to the MAIN page CMS — mainPage collection.)
 // Created by: Amr Mesbah
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-import '../../features/home/presentation/controller/home_cubit.dart';
-import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 
 // ── Default fallback colors (used before CMS loads) ──────────────────────────
 const Color _kDefaultPrimary   = Color(0xFF008037);
@@ -24,17 +24,17 @@ Color hexToColor(String hex, {Color fallback = _kDefaultPrimary}) {
   return fallback;
 }
 
-// ── Extract branding from any HomeCmsState ────────────────────────────────────
-extension HomeCmsStateX on HomeCmsState {
+// ── Extract branding from any MainCmsState ────────────────────────────────────
+extension MainCmsStateX on MainCmsState {
   String get _primaryHex => switch (this) {
-    HomeCmsLoaded(:final data) => data.branding.primaryColor,
-    HomeCmsSaved(:final data)  => data.branding.primaryColor,
+    MainCmsLoaded(:final data) => data.branding.primaryColor,
+    MainCmsSaved(:final data)  => data.branding.primaryColor,
     _                          => '',
   };
 
   String get _secondaryHex => switch (this) {
-    HomeCmsLoaded(:final data) => data.branding.secondaryColor,
-    HomeCmsSaved(:final data)  => data.branding.secondaryColor,
+    MainCmsLoaded(:final data) => data.branding.secondaryColor,
+    MainCmsSaved(:final data)  => data.branding.secondaryColor,
     _                          => '',
   };
 
@@ -47,7 +47,7 @@ extension BrandingContext on BuildContext {
   /// Quick access: context.primaryBrandColor
   Color get primaryBrandColor {
     try {
-      final state = read<HomeCmsCubit>().state;
+      final state = read<MainCmsCubit>().state;
       return state.primaryColor;
     } catch (_) {
       return _kDefaultPrimary;
@@ -57,7 +57,7 @@ extension BrandingContext on BuildContext {
   /// Quick access: context.secondaryBrandColor
   Color get secondaryBrandColor {
     try {
-      final state = read<HomeCmsCubit>().state;
+      final state = read<MainCmsCubit>().state;
       return state.secondaryColor;
     } catch (_) {
       return _kDefaultSecondary;
@@ -78,9 +78,9 @@ class BrandingBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       buildWhen: (prev, next) =>
-      prev.primaryColor != next.primaryColor ||
+          prev.primaryColor != next.primaryColor ||
           prev.secondaryColor != next.secondaryColor,
       builder: (context, state) =>
           builder(context, state.primaryColor, state.secondaryColor),

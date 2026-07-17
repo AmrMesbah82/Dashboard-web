@@ -272,7 +272,7 @@ class _StrategyMainViewState extends State<StrategyMainView> {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text('Edit Details',
                     style: StyleText.fontSize14Weight500
-                        .copyWith(color: ColorPick.primary)),
+                        .copyWith(color: Colors.black)),
                 SizedBox(width: 6.w),
                 CustomSvg(
                     assetPath: "assets/control/edit_icon_pick.svg",
@@ -348,23 +348,26 @@ class _StrategyMainViewState extends State<StrategyMainView> {
             style: StyleText.fontSize12Weight500
                 .copyWith(color: AppColors.text)),
         SizedBox(height: 8.h),
-        Container(
+        // Rendered fully through the shared NetworkImageView
+        // (core/widget/network_image_view.dart) — its own placeholder
+        // handles the empty-URL state.
+        SizedBox(
           width: double.infinity,
           height: 200.h,
-          child: url.isEmpty
-              ? Center(
-              child: SvgPicture.asset(
-                'assets/images/null.svg',
-                width: 120.w,
-                height: 120.h,
-              ))
-              : ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
+          child: Center(
             child: NetworkImageView(
               url: url,
               width: 300.w,
               height: 200.h,
               fit: BoxFit.contain,
+              borderRadius: BorderRadius.circular(8.r),
+              placeholder: Center(
+                child: SvgPicture.asset(
+                  'assets/images/null.svg',
+                  width: 120.w,
+                  height: 120.h,
+                ),
+              ),
             ),
           ),
         ),
@@ -372,7 +375,9 @@ class _StrategyMainViewState extends State<StrategyMainView> {
     );
   }
 
-  // ── Icon preview circle — XHR safe ───────────────────────────────────────
+  // ── Icon preview circle ────────────────────────────────────────────────────
+  // Standard read-only icon circle — same UI everywhere via
+  // NetworkImageView.circle (core/widget/network_image_view.dart).
   Widget _iconPreviewCircle({
     required String label,
     required String url,
@@ -385,31 +390,7 @@ class _StrategyMainViewState extends State<StrategyMainView> {
             style: StyleText.fontSize12Weight500
                 .copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
-        Container(
-          width: 56.w,
-          height: 56.w,
-          decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFEEEEEE)),
-          child: url.isEmpty
-              ? Icon(
-              isSvg
-                  ? Icons.description_outlined
-                  : Icons.image_outlined,
-              color: Colors.grey[500],
-              size: 24.sp)
-              : ClipOval(
-            child: Padding(
-              padding: EdgeInsets.all(14.r),
-              child: NetworkImageView(
-                url: url,
-                width: 28.w,
-                height: 28.w,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
+        NetworkImageView.circle(url: url, diameter: 56.w),
       ],
     );
   }

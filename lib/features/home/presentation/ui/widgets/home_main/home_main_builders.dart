@@ -36,7 +36,7 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
   );
 
   Widget _body(HomePageModel data) {
-    final primary = _hexColor(data.branding.primaryColor);
+    final primary = context.primaryBrandColor;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final targetIndex = _statusIndexFromModel(data.publishStatus);
@@ -50,13 +50,13 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
       children: [
         Row(
           children: [
-            Text('Home', style: StyleText.fontSize45Weight600.copyWith(color: primary, fontWeight: FontWeight.w700)),
+            Text('Home', style: StyleText.fontSize45Weight600.copyWith(color: ColorPick.primary, fontWeight: FontWeight.w700)),
             const Spacer(),
             GestureDetector(
               onTap: () => navigateTo(context, HomePreviewPageMaster()),
               child: Container(
                 width: 130.w, height: 36.h,
-                decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(6.r)),
+                decoration: BoxDecoration(color: ColorPick.primary, borderRadius: BorderRadius.circular(6.r)),
                 child: Center(child: Text('Preview Screen',
                     style: StyleText.fontSize14Weight500.copyWith(color: Colors.white))),
               ),
@@ -97,7 +97,7 @@ extension _HomeMainBuilders on _HomeMainPageMasterState {
               decoration: BoxDecoration(color: ColorPick.white, borderRadius: BorderRadius.circular(4.r)),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Text(_buildLastUpdatedText(data),
-                    style: StyleText.fontSize13Weight500.copyWith(color: primary)),
+                    style: StyleText.fontSize13Weight500.copyWith(color: ColorPick.primary)),
               ]),
             ),
             const Spacer(),

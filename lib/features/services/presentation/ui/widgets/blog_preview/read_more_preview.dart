@@ -128,8 +128,7 @@ class _ReadMorePreview extends StatelessWidget {
             ),
             SizedBox(height: 20.h),
 
-            ...post.blocks.asMap().entries.map(
-                    (e) => _blockWidget(index: e.key, block: e.value)),
+            ..._buildBlockWidgets(post.blocks),
 
             SizedBox(height: 4.h),
           ],
@@ -197,58 +196,86 @@ class _ReadMorePreview extends StatelessWidget {
     );
   }
 
-  Widget _blockWidget(
-      {required int index, required BlogDescriptionBlock block}) {
-    final String text =
-    block.content.en.isNotEmpty ? block.content.en : '';
-    if (text.isEmpty) return const SizedBox.shrink();
+  // Builds the description blocks. Numbering/bullet blocks are split on line
+  // breaks so a multi-line paste (a list copied from Word, etc.) renders one
+  // numbered/bulleted line per row instead of a single prefix + mashed text.
+  // Numbering continues across consecutive numbering blocks and resets on a
+  // paragraph or bullet block.
+  List<Widget> _buildBlockWidgets(List<BlogDescriptionBlock> blocks) {
+    final widgets = <Widget>[];
+    var counter = 0; // running number for numbering rows
 
+    for (final block in blocks) {
+      final text = block.content.en.isNotEmpty ? block.content.en : '';
+
+      switch (block.type) {
+        case BlogBlockType.paragraph:
+          counter = 0;
+          if (text.trim().isEmpty) break;
+          widgets.add(Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: MarkdownBody(
+              data:       text,
+              selectable: true,
+              styleSheet: _mdStyle(),
+              shrinkWrap: true,
+            ),
+          ));
+
+        case BlogBlockType.numbering:
+          for (final line in _lines(text)) {
+            counter++;
+            widgets.add(_listRow(
+              prefix: '$counter.  ',
+              prefixColor: AppColors.text,
+              text: line,
+            ));
+          }
+
+        case BlogBlockType.bulletPoint:
+          counter = 0;
+          for (final line in _lines(text)) {
+            widgets.add(_listRow(
+              prefix: '•  ',
+              prefixColor: ColorPick.primary,
+              text: line,
+            ));
+          }
+      }
+    }
+    return widgets;
+  }
+
+  // Splits block text into non-empty trimmed lines.
+  List<String> _lines(String text) => text
+      .split('\n')
+      .map((l) => l.trim())
+      .where((l) => l.isNotEmpty)
+      .toList();
+
+  Widget _listRow({
+    required String prefix,
+    required Color prefixColor,
+    required String text,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
-      child: switch (block.type) {
-        BlogBlockType.paragraph => MarkdownBody(
-          data:       text,
-          selectable: true,
-          styleSheet: _mdStyle(),
-          shrinkWrap: true,
-        ),
-
-        BlogBlockType.numbering => Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${index + 1}.  ',
-                style: StyleText.fontSize13Weight500.copyWith(
-                    color:      AppColors.text,
-                    fontWeight: FontWeight.w600)),
-            Expanded(
-              child: MarkdownBody(
-                data:       text,
-                selectable: true,
-                styleSheet: _mdStyle(),
-                shrinkWrap: true,
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(prefix,
+              style: StyleText.fontSize13Weight500.copyWith(
+                  color: prefixColor, fontWeight: FontWeight.w600)),
+          Expanded(
+            child: MarkdownBody(
+              data:       text,
+              selectable: true,
+              styleSheet: _mdStyle(),
+              shrinkWrap: true,
             ),
-          ],
-        ),
-
-        BlogBlockType.bulletPoint => Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('•  ',
-                style: StyleText.fontSize13Weight500.copyWith(
-                    color:      ColorPick.primary,
-                    fontWeight: FontWeight.w700)),
-            Expanded(
-              child: MarkdownBody(
-                data:       text,
-                selectable: true,
-                styleSheet: _mdStyle(),
-                shrinkWrap: true,
-              ),
-            ),
-          ],
-        ),
-      },
+          ),
+        ],
+      ),
     );
   }
 }

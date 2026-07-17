@@ -135,6 +135,8 @@ extension _HomeEditSections2 on _MainEditPageState {
             Expanded(
               child: CustomTextField(
                 label: 'Label',
+                labelStyle:StyleText.fontSize14Weight500
+                    .copyWith(color: AppColors.text) ,
                 hint: 'Text Here',
                 required: true,
                 controller: label['en'] as TextEditingController,

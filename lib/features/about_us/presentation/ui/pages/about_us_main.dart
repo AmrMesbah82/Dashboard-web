@@ -7,15 +7,15 @@
 // UPDATED: Added Navigation Label accordion section to About Us tab
 
 // ignore_for_file: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web_app_admin/core/custom/circle_progress.dart';
 import 'package:web_app_admin/core/widget/format.dart';
+import 'package:web_app_admin/core/widget/network_image_view.dart';
 
 import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/features/about_us/presentation/ui/pages/terms_page/terms_main.dart';
@@ -81,7 +81,6 @@ class _AboutMainPageMasterDashboardState
   };
 
   // ── URL → bytes cache (avoids re-fetching on every rebuild) ──
-  final Map<String, Future<Uint8List>> _urlBytesCache = {};
 
   // ── Lifted cubits so Preview button can access them from any tab ──
   late final StrategyCubit _strategyCubit;
@@ -105,58 +104,10 @@ class _AboutMainPageMasterDashboardState
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // XHR loaders
+  // Network images — rendered through the shared NetworkImageView
+  // (core/widget/network_image_view.dart): browser <img> element, handles
+  // remote SVG + raster URLs identically. No manual XHR loading needed.
   // ══════════════════════════════════════════════════════════════════════════
-
-  Future<Uint8List> _cachedLoad(String url, {bool isSvg = false}) {
-    return _urlBytesCache.putIfAbsent(
-      url,
-          () => isSvg ? _loadSvg(url) : _loadImageBytes(url),
-    );
-  }
-
-  Future<Uint8List> _loadImageBytes(String url) async {
-    try {
-      final response = await html.HttpRequest.request(
-        url, method: 'GET', responseType: 'arraybuffer',
-      );
-      if (response.status == 200 && response.response != null) {
-        return (response.response as ByteBuffer).asUint8List();
-      }
-      throw Exception('HTTP ${response.status}');
-    } catch (e) {
-      throw Exception('Failed to load image: $e');
-    }
-  }
-
-  Future<Uint8List> _loadSvg(String url) async {
-    try {
-      final response = await html.HttpRequest.request(
-        url, method: 'GET', responseType: 'arraybuffer',
-        mimeType: 'image/svg+xml',
-      );
-      if (response.status == 200 && response.response != null) {
-        return (response.response as ByteBuffer).asUint8List();
-      }
-      throw Exception('HTTP ${response.status}');
-    } catch (e) {
-      throw Exception('Failed to load SVG: $e');
-    }
-  }
-
-  bool _isSvgBytes(Uint8List b) {
-    if (b.length < 5) return false;
-    final header = String.fromCharCodes(
-        b.sublist(0, b.length.clamp(0, 100))).trimLeft();
-    return header.startsWith('<svg') || header.startsWith('<?xml');
-  }
-
-  Widget _renderBytes(Uint8List b, {bool isSvg = false, BoxFit fit = BoxFit.cover}) {
-    if (isSvg || _isSvgBytes(b)) {
-      return SvgPicture.memory(b, fit: fit);
-    }
-    return Image.memory(b, fit: fit);
-  }
 
   Widget _networkImage({
     required String url,
@@ -170,29 +121,7 @@ class _AboutMainPageMasterDashboardState
         color: Colors.grey[500], size: iconSize.sp,
       );
     }
-
-    return FutureBuilder<Uint8List>(
-      future: _cachedLoad(url, isSvg: isSvg),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: SizedBox(
-              width: 16, height: 16,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: ColorPick.primary),
-            ),
-          );
-        }
-        if (snapshot.hasData) {
-          return _renderBytes(snapshot.data!, isSvg: isSvg, fit: fit);
-        }
-        return Icon(
-          isSvg ? Icons.description_outlined : Icons.broken_image,
-          color: isSvg ? Colors.grey[400] : Colors.red[300],
-          size: iconSize.sp,
-        );
-      },
-    );
+    return NetworkImageView(url: url, fit: fit);
   }
 
   // ── Preview button handler — respects active tab ──────────────────────────
@@ -256,7 +185,7 @@ class _AboutMainPageMasterDashboardState
         if (state is AboutLoading || state is AboutInitial) {
           return const Scaffold(
             backgroundColor: ColorPick.white,
-            body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
+            body: Center(child: CircleProgress()),
           );
         }
 
@@ -516,30 +445,15 @@ class _AboutMainPageMasterDashboardState
     required String url,
     bool isSvg = false,
   }) {
+    // Standard read-only icon circle — same UI everywhere via
+    // NetworkImageView.circle (core/widget/network_image_view.dart).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
             style: StyleText.fontSize12Weight500.copyWith(color: AppColors.text)),
         SizedBox(height: 6.h),
-        Container(
-          width: 56.w, height: 56.w,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-          ),
-          child: ClipOval(
-            child: Padding(
-              padding: EdgeInsets.all(14.r),
-              child: _networkImage(
-                url: url,
-                isSvg: isSvg,
-                fit: BoxFit.contain,
-                iconSize: 24,
-              ),
-            ),
-          ),
-        ),
+        NetworkImageView.circle(url: url, diameter: 56.w),
       ],
     );
   }

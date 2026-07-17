@@ -1,35 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:web_app_admin/core/constant/color.dart';
 import 'package:web_app_admin/core/widget/network_image_view.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 import '../../features/inquire/presentation/ui/pages/inquiry_main.dart';
 import '../../features/job/presentation/ui/pages/application_main.dart';
 import '../theme/app_wight.dart';
 import '../theme/appcolors.dart';
+// StyleText resolves the admin-selected English/Arabic font at runtime,
+// so navbar labels follow the CMS font choice instead of a hardcoded Cairo.
+import '../theme/new_theme.dart';
 
 class _BP {
   static const double mobile = 600;
   static const double tablet = 1024;
 }
 
-Color _primaryFromState(HomeCmsState state) {
+Color _primaryFromState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.primaryColor,
-    HomeCmsSaved(:final data)  => data.branding.primaryColor,
+    MainCmsLoaded(:final data) => data.branding.primaryColor,
+    MainCmsSaved(:final data)  => data.branding.primaryColor,
     _                          => '',
   };
   return _hexColor(hex, const Color(0xFF2E7D32));
 }
 
-Color _navbarBgFromState(HomeCmsState state) {
+Color _navbarBgFromState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.headerFooterColor,
-    HomeCmsSaved(:final data)  => data.branding.headerFooterColor,
+    MainCmsLoaded(:final data) => data.branding.headerFooterColor,
+    MainCmsSaved(:final data)  => data.branding.headerFooterColor,
     _                          => '',
   };
   return _hexColor(hex, AppColors.white);
@@ -86,7 +91,7 @@ class AppAdminNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, cmsState) {
         final Color  primary  = _primaryFromState(cmsState);
         final Color  navbarBg = _navbarBgFromState(cmsState);
@@ -154,7 +159,7 @@ class _AdminNavbarDesktop extends StatelessWidget {
         margin:  EdgeInsets.symmetric(vertical: 16.h),
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color:        navbarBg,
+          color:        ColorPick.white,
           borderRadius: BorderRadius.circular(4.r),
         ),
         child: Row(
@@ -171,11 +176,11 @@ class _AdminNavbarDesktop extends StatelessWidget {
                     label:       item.label,
                     page:        item.page,
                     activeLabel: activeLabel,
-                    primary:     primary,
+                    primary:     ColorPick.white,
                   )),
                 SizedBox(width: 12.w),
                 _WebPageButton(
-                  primary:  primary,
+                  primary:  ColorPick.primary,
                   isActive: activeLabel == 'Web Page',
                   onTap:    () => _pushPage(context, webPage),
                 ),
@@ -424,7 +429,7 @@ class _AdminMobileDrawer extends StatelessWidget {
                           ),
                           child: Text(
                             item.label,
-                            style: GoogleFonts.cairo(
+                            style: StyleText.fontSize14Weight400.copyWith(
                               fontSize:   14.sp,
                               fontWeight: isActive
                                   ? AppFontWeights.semiBold
@@ -458,7 +463,7 @@ class _AdminMobileDrawer extends StatelessWidget {
                       child: Text(
                         'Web Page',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.cairo(
+                        style: StyleText.fontSize14Weight600.copyWith(
                           fontSize:   14.sp,
                           fontWeight: AppFontWeights.semiBold,
                           color: activeLabel == 'Web Page'
@@ -492,11 +497,11 @@ class _AdminLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final double sz = rawSize ? 40.w : 36.w;
 
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, state) {
         final String logoUrl = switch (state) {
-          HomeCmsLoaded(:final data) => data.branding.logoUrl,
-          HomeCmsSaved(:final data)  => data.branding.logoUrl,
+          MainCmsLoaded(:final data) => data.branding.logoUrl,
+          MainCmsSaved(:final data)  => data.branding.logoUrl,
           _                          => '',
         };
 
@@ -566,41 +571,35 @@ class _AdminNavLinkState extends State<_AdminNavLink> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor:  _isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      onEnter: _isEnabled ? (_) => setState(() => _hovered = true)  : null,
-      onExit:  _isEnabled ? (_) => setState(() => _hovered = false) : null,
-      child: GestureDetector(
-        onTap: _isEnabled ? () => _pushPage(context, widget.page!) : null,
-        child: Opacity(
-          opacity: _isEnabled ? 1.0 : 0.45,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            margin: EdgeInsets.symmetric(
-                horizontal: widget.compact ? 2.w : 4.w),
-            padding: EdgeInsets.symmetric(
-              horizontal: widget.compact ? 8.w  : 14.w,
-              vertical:   widget.compact ? 6.h  : 7.h,
-            ),
-            decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: _isEnabled ? () => _pushPage(context, widget.page!) : null,
+      child: Opacity(
+        opacity: _isEnabled ? 1.0 : 0.45,
+        child: Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: widget.compact ? 2.w : 4.w),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.compact ? 8.w  : 14.w,
+            vertical:   widget.compact ? 6.h  : 7.h,
+          ),
+          decoration: BoxDecoration(
+            color: _isActive
+                ? ColorPick.primary
+                : (_hovered
+                ? widget.primary.withValues(alpha: 0.08)
+                : Colors.transparent),
+            borderRadius: BorderRadius.circular(4.r),
+          ),
+          child: Text(
+            widget.label,
+            style: StyleText.fontSize14Weight400.copyWith(
+              fontSize:   widget.compact ? 11.sp : 13.sp,
+              fontWeight: _isActive
+                  ? AppFontWeights.semiBold
+                  : AppFontWeights.regular,
               color: _isActive
-                  ? widget.primary
-                  : (_hovered
-                  ? widget.primary.withValues(alpha: 0.08)
-                  : Colors.transparent),
-              borderRadius: BorderRadius.circular(4.r),
-            ),
-            child: Text(
-              widget.label,
-              style: GoogleFonts.cairo(
-                fontSize:   widget.compact ? 11.sp : 13.sp,
-                fontWeight: _isActive
-                    ? AppFontWeights.semiBold
-                    : AppFontWeights.regular,
-                color: _isActive
-                    ? Colors.white
-                    : (_hovered ? widget.primary : AppColors.text),
-              ),
+                  ? Colors.white
+                  : (_hovered ? widget.primary : AppColors.text),
             ),
           ),
         ),
@@ -635,38 +634,34 @@ class _WebPageButtonState extends State<_WebPageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor:  SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit:  (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.compact ? 14.w : 20.w,
-            vertical:   widget.compact ? 7.h  : 9.h,
-          ),
-          decoration: BoxDecoration(
-            color: widget.isActive
-                ? widget.primary
-                : (_hovered
-                ? widget.primary.withValues(alpha: 0.08)
-                : Colors.transparent),
-            borderRadius: BorderRadius.circular(4.r),
-          ),
-          child: Text(
-            'Web Page',
-            style: GoogleFonts.cairo(
-              fontSize:   widget.compact ? 11.sp : 13.sp,
-              fontWeight: AppFontWeights.semiBold,
-              color: widget.isActive
-                  ? Colors.white
-                  : (_hovered ? widget.primary : AppColors.text),
-            ),
-          ),
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: EdgeInsets.symmetric(
+          horizontal: widget.compact ? 14.w : 20.w,
+          vertical:   widget.compact ? 7.h  : 9.h,
+        ),
+        decoration: BoxDecoration(
+          color: widget.isActive
+              ? widget.primary
+              : (_hovered
+              ? widget.primary.withValues(alpha: 0.08)
+              : Colors.transparent),
+          borderRadius: BorderRadius.circular(4.r),
+        ),
+        child: Text(
+          'Web Page',
+          style: StyleText.fontSize14Weight400.copyWith(
+        fontSize:   widget.compact ? 11.sp : 13.sp,
+          fontWeight: widget.isActive
+              ? AppFontWeights.semiBold
+              : AppFontWeights.regular,
+          color: widget.isActive
+              ? Colors.white
+              : (_hovered ? widget.primary : AppColors.text),
         ),
       ),
-    );
+    ));
   }
 }

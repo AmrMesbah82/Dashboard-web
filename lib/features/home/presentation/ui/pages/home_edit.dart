@@ -40,6 +40,7 @@ import 'package:web_app_admin/core/widget/navigator.dart';
 import 'package:web_app_admin/core/widget/textfield.dart';
 
 import '../../../../../core/constant/color.dart';
+import '../../../../../core/widget/branding_helper.dart';
 import '../../../../../core/custom/image_upload_circle.dart';
 import '../../../../../core/custom_dialog.dart';
 import '../../../../../core/main_widgets/admin_sub_navbar.dart';
@@ -92,11 +93,36 @@ const List<String> _kSectionTitles = [
 ];
 
 const List<Map<String, String>> _kNavRouteOptions = [
-  {'label': 'Home', 'route': '/'},
   {'label': 'Services', 'route': '/services'},
-  {'label': 'About', 'route': '/about'},
+  {'label': 'About Us', 'route': '/about'},
   {'label': 'Contact Us', 'route': '/contact'},
   {'label': 'Careers', 'route': '/careers'},
+  {'label': 'Our Strategy', 'route': '/about?tab=our-strategy'},
+  {'label': 'Terms & Conditions', 'route': '/about?tab=terms-and-conditions'},
+  {'label': 'Privacy Policy', 'route': '/about?tab=privacy-policy'},
+  {'label': 'Vision', 'route': '/about?tab=vision'},
+  {'label': 'Mission', 'route': '/about?tab=mission'},
+  {'label': 'Values', 'route': '/about?tab=values'},
+  {'label': 'Why Join Our Team', 'route': '/careers?tab=why-join-our-team'},
+  {'label': 'Our Interns', 'route': '/careers?tab=interns'},
+  {'label': 'Our Team', 'route': '/careers?tab=our-team'},
+
+];
+
+// ── Fixed "Navigate To" destinations — mirrors main_edit's _kLabelDestinations
+//    so the home nav-button dropdown offers the same choices as the Main page.
+const List<Map<String, String>> _kLabelDestinations = [
+  {'key': '',                                    'value': 'None'},
+  {'key': '/about?tab=our-strategy',             'value': 'Our Strategy'},
+  {'key': '/about?tab=terms-and-conditions',     'value': 'Terms & Conditions'},
+  {'key': '/about?tab=privacy-policy',           'value': 'Privacy Policy'},
+  {'key': '/about?tab=vision',                   'value': 'Vision'},
+  {'key': '/about?tab=mission',                  'value': 'Mission'},
+  {'key': '/about?tab=values',                   'value': 'Values'},
+  {'key': '/careers?tab=why-join-our-team',      'value': 'Why Join Our Team'},
+  {'key': '/careers?tab=interns',                'value': 'Our Interns'},
+  {'key': '/careers?tab=our-team',               'value': 'Our Team'},
+  {'key': '/contact',                            'value': 'Contact Form'},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -122,13 +148,8 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
   final _shortDescAr = TextEditingController();
   final List<_NavBtnItem> _navBtns = [];
   final List<_SectionItem> _sections = List.generate(4, (_) => _SectionItem());
-  late final List<Map<String, dynamic>> _footerColumns;
-  final List<Map<String, dynamic>> _links = [];
-  _PickedImage _logoPicked = const _PickedImage();
-  final _primaryColor = TextEditingController(text: '#008037');
-  final _secondaryColor = TextEditingController(text: '#4049B9');
-  String? _engFont = 'Cairo';
-  String? _arFont = 'Cairo';
+  // NOTE: footer columns, social links and branding/logo are edited on the
+  // MAIN page (MainCmsCubit) — they no longer belong to the Home CMS.
   final _copyRightEn = TextEditingController(
     text: 'COPYRIGHT © 2025 BAYANATZ. ALL-RIGHT RESERVED',
   );
@@ -148,13 +169,7 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
 
   int? _seededModelHash;
 
-  Color get _resolvedPrimary {
-    try {
-      final hex = _primaryColor.text.replaceAll('#', '');
-      if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {}
-    return ColorPick.primary;
-  }
+  Color get _resolvedPrimary => context.primaryBrandColor;
 
   bool get _isFormValid {
     if (_titleEn.text.trim().isEmpty || _titleAr.text.trim().isEmpty)
@@ -173,7 +188,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
   @override
   void initState() {
     super.initState();
-    _footerColumns = List.generate(3, (_) => _newFooterColumn());
     for (final ctrl in [_titleEn, _titleAr, _shortDescEn, _shortDescAr])
       ctrl.addListener(_onFieldChanged);
     for (final sec in _sections) {
@@ -193,10 +207,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
       s.descAr.removeListener(_onFieldChanged);
       s.dispose();
     }
-    for (final col in _footerColumns) _disposeColumn(col);
-    for (final l in _links) (l['text'] as TextEditingController).dispose();
-    _primaryColor.dispose();
-    _secondaryColor.dispose();
     _copyRightEn.dispose();
     _copyRightAr.dispose();
     super.dispose();
@@ -209,7 +219,9 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
 
         // ── Published successfully ──────────────────────────────────────
         if (state is HomeCmsSaved) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const HomeMainPageMaster()),
@@ -237,7 +249,9 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
               ),
             );
           }
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const HomeMainPageMaster()),
@@ -249,7 +263,9 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
 
         // ── Draft deleted (discard) ─────────────────────────────────────
         if (state is HomeCmsDraftDeleted) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const HomeMainPageMaster()),
@@ -357,17 +373,14 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                               ),
                             ),
                           ),
-                        SizedBox(height: 16.h),
 
                         _accordion(
                           key: 'headings',
                           title: 'Headings',
                           children: [
-                            SizedBox(height: 16.h),
                             _headingsSection(),
                           ],
                         ),
-                        _gap(),
                         _accordion(
                           key: 'navButtons',
                           title: 'Navigation Button',
@@ -375,7 +388,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                             _navButtonsSection(),
                           ],
                         ),
-                        _gap(),
                         ...List.generate(
                           4,
                           (i) => Column(
@@ -385,7 +397,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                                 title: _kSectionTitles[i],
                                 children: [_sectionEdit(i)],
                               ),
-                              _gap(),
                             ],
                           ),
                         ),
@@ -394,7 +405,6 @@ class _HomeEditPageMasterState extends State<HomeEditPageMaster> {
                           title: 'Publish Schedule',
                           children: [_publishScheduleSection()],
                         ),
-                        _gap(),
                         _bottomButtons(cubit),
                         SizedBox(height: 40.h),
                       ],

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../features/home/presentation/controller/home_cubit.dart';
-import '../../features/home/presentation/controller/home_state.dart';
 import '../custom/2-custom_textfield.dart';
 import '../theme/app_theme.dart';
 import '../theme/appcolors.dart';
 import '../theme/text.dart';
 
 class AppSearchTextField extends StatelessWidget {
-  AppSearchTextField({
+  const AppSearchTextField({
     required this.controller,
     required this.onChanged,
     super.key,
@@ -24,60 +21,37 @@ class AppSearchTextField extends StatelessWidget {
   final dynamic Function(String)? onChanged;
   final String? hintText;
 
-  Color _cmsHexColor(String hex) {
-    try {
-      final clean = hex.replaceAll('#', '');
-      if (clean.length == 6) return Color(int.parse('FF$clean', radix: 16));
-    } catch (_) {}
-    return AppColors.primary;
-  }
-
-  Color _primaryFromState(HomeCmsState state) {
-    return switch (state) {
-      HomeCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
-      HomeCmsSaved(:final data) => _cmsHexColor(data.branding.primaryColor),
-      _ => AppColors.primary,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
-      builder: (context, cmsState) {
-        // Kept so the CMS branding state still rebuilds the field.
-        _primaryFromState(cmsState);
-
-        return Expanded(
-          child: CustomTextField(
-            controller: controller,
-            onChanged: (v) => onChanged?.call(v),
-            hint: hintText ?? "search",
-            maxLines: 1,
-            height: 36,
-            borderRadius: BorderRadius.circular(8.r),
-            fillColor: fillColor ?? AppColors.card,
-            hintStyle: AppTextStyles.font14SecondaryBlackCairo.copyWith(
-              height: 1,
-              color: AppTheme.isDark
-                  ? AppColors.lightGrey
-                  : AppColors.secondaryBlack,
-            ),
-            prefixIcon: SvgPicture.asset(
-              "assets/images/search_icon.svg",
-              width: 24.w,
-              height: 24.h,
-              fit: BoxFit.contain,
-              color: AppTheme.isDark
-                  ? AppColors.lightGrey
-                  : AppColors.secondaryBlack,
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 8.w,
-              vertical: 8.h,
-            ),
-          ),
-        );
-      },
+    return Expanded(
+      child: CustomTextField(
+        controller: controller,
+        onChanged: (v) => onChanged?.call(v),
+        hint: hintText ?? "search",
+        maxLines: 1,
+        height: 36,
+        borderRadius: BorderRadius.circular(8.r),
+        fillColor: fillColor ?? AppColors.card,
+        hintStyle: AppTextStyles.font14SecondaryBlackCairo.copyWith(
+          height: 1,
+          color: AppTheme.isDark
+              ? AppColors.lightGrey
+              : AppColors.secondaryBlack,
+        ),
+        prefixIcon: SvgPicture.asset(
+          "assets/images/search_icon.svg",
+          width: 24.w,
+          height: 24.h,
+          fit: BoxFit.contain,
+          color: AppTheme.isDark
+              ? AppColors.lightGrey
+              : AppColors.secondaryBlack,
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 8.w,
+          vertical: 8.h,
+        ),
+      ),
     );
   }
 }

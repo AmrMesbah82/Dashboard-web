@@ -112,7 +112,7 @@ extension _AddInternWidgets on _AddInternPageState {
             width: double.infinity, height: 40.h,
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F2ED),
+              color:  AppColors.white,
               borderRadius: BorderRadius.circular(6.r),
               border: Border.all(color: hasError ? Colors.red : Colors.transparent, width: hasError ? 1.5 : 0),
             ),

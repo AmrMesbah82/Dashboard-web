@@ -50,26 +50,24 @@ class TermsEditPage extends StatefulWidget {
 }
 
 class _TermsEditPageState extends State<TermsEditPage> {
-  // Navigation Label
-  final _navTitleEnCtrl = TextEditingController();
-  final _navTitleArCtrl = TextEditingController();
-  final _navIcon = _PickedImage();
-
-  // Terms and Conditions
+  // Terms and Conditions (icon + title now belong to this section)
+  final _termsTitleEnCtrl = TextEditingController();
+  final _termsTitleArCtrl = TextEditingController();
+  final _termsIcon = _PickedImage();
   final _termsDescEnCtrl = TextEditingController();
   final _termsDescArCtrl = TextEditingController();
-  final _termsSvg = _PickedImage();
   final _termsDocEn = _DocItem();
   final _termsDocAr = _DocItem();
 
-  // Privacy Policy
+  // Privacy Policy (now has its own icon + title too)
+  final _privacyTitleEnCtrl = TextEditingController();
+  final _privacyTitleArCtrl = TextEditingController();
+  final _privacyIcon = _PickedImage();
   final _privacyDescEnCtrl = TextEditingController();
   final _privacyDescArCtrl = TextEditingController();
-  final _privacySvg = _PickedImage();
   final _privacyDocEn = _DocItem();
   final _privacyDocAr = _DocItem();
 
-  bool _navLabelOpen = true;
   bool _termsOpen = true;
   bool _privacyOpen = true;
   bool _isSaving = false;
@@ -77,15 +75,16 @@ class _TermsEditPageState extends State<TermsEditPage> {
   bool _seeded = false;
 
   // Store original values to track changes
-  String _originalNavTitleEn = '';
-  String _originalNavTitleAr = '';
-  String _originalNavIconUrl = '';
-  String _originalTermsSvgUrl = '';
+  String _originalTermsTitleEn = '';
+  String _originalTermsTitleAr = '';
+  String _originalTermsIconUrl = '';
   String _originalTermsDescEn = '';
   String _originalTermsDescAr = '';
   String _originalTermsDocEnUrl = '';
   String _originalTermsDocArUrl = '';
-  String _originalPrivacySvgUrl = '';
+  String _originalPrivacyTitleEn = '';
+  String _originalPrivacyTitleAr = '';
+  String _originalPrivacyIconUrl = '';
   String _originalPrivacyDescEn = '';
   String _originalPrivacyDescAr = '';
   String _originalPrivacyDocEnUrl = '';
@@ -96,20 +95,24 @@ class _TermsEditPageState extends State<TermsEditPage> {
     super.initState();
     context.read<TermsCubit>().load();
 
-    _navTitleEnCtrl.addListener(_checkForChanges);
-    _navTitleArCtrl.addListener(_checkForChanges);
+    _termsTitleEnCtrl.addListener(_checkForChanges);
+    _termsTitleArCtrl.addListener(_checkForChanges);
     _termsDescEnCtrl.addListener(_checkForChanges);
     _termsDescArCtrl.addListener(_checkForChanges);
+    _privacyTitleEnCtrl.addListener(_checkForChanges);
+    _privacyTitleArCtrl.addListener(_checkForChanges);
     _privacyDescEnCtrl.addListener(_checkForChanges);
     _privacyDescArCtrl.addListener(_checkForChanges);
   }
 
   @override
   void dispose() {
-    _navTitleEnCtrl.dispose();
-    _navTitleArCtrl.dispose();
+    _termsTitleEnCtrl.dispose();
+    _termsTitleArCtrl.dispose();
     _termsDescEnCtrl.dispose();
     _termsDescArCtrl.dispose();
+    _privacyTitleEnCtrl.dispose();
+    _privacyTitleArCtrl.dispose();
     _privacyDescEnCtrl.dispose();
     _privacyDescArCtrl.dispose();
     super.dispose();
@@ -119,20 +122,20 @@ class _TermsEditPageState extends State<TermsEditPage> {
     if (!_seeded) return;
 
     final bool hasTextChanges =
-        _navTitleEnCtrl.text != _originalNavTitleEn ||
-            _navTitleArCtrl.text != _originalNavTitleAr ||
+        _termsTitleEnCtrl.text != _originalTermsTitleEn ||
+            _termsTitleArCtrl.text != _originalTermsTitleAr ||
             _termsDescEnCtrl.text != _originalTermsDescEn ||
             _termsDescArCtrl.text != _originalTermsDescAr ||
+            _privacyTitleEnCtrl.text != _originalPrivacyTitleEn ||
+            _privacyTitleArCtrl.text != _originalPrivacyTitleAr ||
             _privacyDescEnCtrl.text != _originalPrivacyDescEn ||
             _privacyDescArCtrl.text != _originalPrivacyDescAr;
 
     final bool hasImageChanges =
-        (_navIcon.url ?? '') != _originalNavIconUrl ||
-            (_termsSvg.url ?? '') != _originalTermsSvgUrl ||
-            (_privacySvg.url ?? '') != _originalPrivacySvgUrl ||
-            _navIcon.bytes != null ||
-            _termsSvg.bytes != null ||
-            _privacySvg.bytes != null;
+        (_termsIcon.url ?? '') != _originalTermsIconUrl ||
+            (_privacyIcon.url ?? '') != _originalPrivacyIconUrl ||
+            _termsIcon.bytes != null ||
+            _privacyIcon.bytes != null;
 
     final bool hasDocChanges =
         _termsDocEn.bytes != null ||
@@ -158,23 +161,23 @@ class _TermsEditPageState extends State<TermsEditPage> {
   }
 
   void _resetChangesTracking() {
-    _originalNavTitleEn = _navTitleEnCtrl.text;
-    _originalNavTitleAr = _navTitleArCtrl.text;
-    _originalNavIconUrl = _navIcon.url ?? '';
-    _originalTermsSvgUrl = _termsSvg.url ?? '';
+    _originalTermsTitleEn = _termsTitleEnCtrl.text;
+    _originalTermsTitleAr = _termsTitleArCtrl.text;
+    _originalTermsIconUrl = _termsIcon.url ?? '';
     _originalTermsDescEn = _termsDescEnCtrl.text;
     _originalTermsDescAr = _termsDescArCtrl.text;
     _originalTermsDocEnUrl = _termsDocEn.existingUrl;
     _originalTermsDocArUrl = _termsDocAr.existingUrl;
-    _originalPrivacySvgUrl = _privacySvg.url ?? '';
+    _originalPrivacyTitleEn = _privacyTitleEnCtrl.text;
+    _originalPrivacyTitleAr = _privacyTitleArCtrl.text;
+    _originalPrivacyIconUrl = _privacyIcon.url ?? '';
     _originalPrivacyDescEn = _privacyDescEnCtrl.text;
     _originalPrivacyDescAr = _privacyDescArCtrl.text;
     _originalPrivacyDocEnUrl = _privacyDocEn.existingUrl;
     _originalPrivacyDocArUrl = _privacyDocAr.existingUrl;
 
-    _navIcon.bytes = null;
-    _termsSvg.bytes = null;
-    _privacySvg.bytes = null;
+    _termsIcon.bytes = null;
+    _privacyIcon.bytes = null;
     _termsDocEn.bytes = null;
     _termsDocAr.bytes = null;
     _privacyDocEn.bytes = null;
@@ -269,24 +272,29 @@ class _TermsEditPageState extends State<TermsEditPage> {
     _seeded = true;
 
     setState(() {
-      _originalNavTitleEn = m.navigationLabel.title.en;
-      _originalNavTitleAr = m.navigationLabel.title.ar;
-      _originalNavIconUrl = m.navigationLabel.iconUrl;
+      // Terms icon + title now live on the terms section itself. Fall back to
+      // the legacy navigationLabel so existing data migrates seamlessly.
+      _originalTermsTitleEn = m.termsAndConditions.title.en.isNotEmpty
+          ? m.termsAndConditions.title.en
+          : m.navigationLabel.title.en;
+      _originalTermsTitleAr = m.termsAndConditions.title.ar.isNotEmpty
+          ? m.termsAndConditions.title.ar
+          : m.navigationLabel.title.ar;
+      _originalTermsIconUrl = m.termsAndConditions.iconUrl.isNotEmpty
+          ? m.termsAndConditions.iconUrl
+          : m.navigationLabel.iconUrl;
 
-      _navTitleEnCtrl.text = _originalNavTitleEn;
-      _navTitleArCtrl.text = _originalNavTitleAr;
-      _navIcon.url = _originalNavIconUrl.isNotEmpty ? _originalNavIconUrl : null;
-      _navIcon.bytes = null;
-      _navIcon.fileName = '';
+      _termsTitleEnCtrl.text = _originalTermsTitleEn;
+      _termsTitleArCtrl.text = _originalTermsTitleAr;
+      _termsIcon.url = _originalTermsIconUrl.isNotEmpty ? _originalTermsIconUrl : null;
+      _termsIcon.bytes = null;
+      _termsIcon.fileName = '';
 
-      _originalTermsSvgUrl = m.termsAndConditions.svgUrl;
       _originalTermsDescEn = m.termsAndConditions.description.en;
       _originalTermsDescAr = m.termsAndConditions.description.ar;
       _originalTermsDocEnUrl = m.termsAndConditions.attachEnUrl;
       _originalTermsDocArUrl = m.termsAndConditions.attachArUrl;
 
-      _termsSvg.url = _originalTermsSvgUrl.isNotEmpty ? _originalTermsSvgUrl : null;
-      _termsSvg.bytes = null;
       _termsDescEnCtrl.text = _originalTermsDescEn;
       _termsDescArCtrl.text = _originalTermsDescAr;
       _termsDocEn.bytes = null;
@@ -296,14 +304,21 @@ class _TermsEditPageState extends State<TermsEditPage> {
       _termsDocAr.fileName = '';
       _termsDocAr.existingUrl = _originalTermsDocArUrl;
 
-      _originalPrivacySvgUrl = m.privacyPolicy.svgUrl;
+      _originalPrivacyTitleEn = m.privacyPolicy.title.en;
+      _originalPrivacyTitleAr = m.privacyPolicy.title.ar;
+      _originalPrivacyIconUrl = m.privacyPolicy.iconUrl;
+
+      _privacyTitleEnCtrl.text = _originalPrivacyTitleEn;
+      _privacyTitleArCtrl.text = _originalPrivacyTitleAr;
+      _privacyIcon.url = _originalPrivacyIconUrl.isNotEmpty ? _originalPrivacyIconUrl : null;
+      _privacyIcon.bytes = null;
+      _privacyIcon.fileName = '';
+
       _originalPrivacyDescEn = m.privacyPolicy.description.en;
       _originalPrivacyDescAr = m.privacyPolicy.description.ar;
       _originalPrivacyDocEnUrl = m.privacyPolicy.attachEnUrl;
       _originalPrivacyDocArUrl = m.privacyPolicy.attachArUrl;
 
-      _privacySvg.url = _originalPrivacySvgUrl.isNotEmpty ? _originalPrivacySvgUrl : null;
-      _privacySvg.bytes = null;
       _privacyDescEnCtrl.text = _originalPrivacyDescEn;
       _privacyDescArCtrl.text = _originalPrivacyDescAr;
       _privacyDocEn.bytes = null;
@@ -320,15 +335,22 @@ class _TermsEditPageState extends State<TermsEditPage> {
   // ── Build model ───────────────────────────────────────────────────────────
   TermsOfServiceModel _buildModel(String status) => TermsOfServiceModel(
     publishStatus: status,
+    // navigationLabel kept in sync with the Terms section for backward
+    // compatibility with any older readers.
     navigationLabel: AboutNavigationLabel(
-      iconUrl: _navIcon.url ?? '',
+      iconUrl: _termsIcon.url ?? '',
       title: AboutBilingualText(
-        en: _navTitleEnCtrl.text.trim(),
-        ar: _navTitleArCtrl.text.trim(),
+        en: _termsTitleEnCtrl.text.trim(),
+        ar: _termsTitleArCtrl.text.trim(),
       ),
     ),
     termsAndConditions: TermsSection(
-      svgUrl: _termsSvg.url ?? '',
+      iconUrl: _termsIcon.url ?? '',
+      title: AboutBilingualText(
+        en: _termsTitleEnCtrl.text.trim(),
+        ar: _termsTitleArCtrl.text.trim(),
+      ),
+      svgUrl: '',
       description: AboutBilingualText(
         en: _termsDescEnCtrl.text.trim(),
         ar: _termsDescArCtrl.text.trim(),
@@ -337,7 +359,12 @@ class _TermsEditPageState extends State<TermsEditPage> {
       attachArUrl: _termsDocAr.existingUrl,
     ),
     privacyPolicy: TermsSection(
-      svgUrl: _privacySvg.url ?? '',
+      iconUrl: _privacyIcon.url ?? '',
+      title: AboutBilingualText(
+        en: _privacyTitleEnCtrl.text.trim(),
+        ar: _privacyTitleArCtrl.text.trim(),
+      ),
+      svgUrl: '',
       description: AboutBilingualText(
         en: _privacyDescEnCtrl.text.trim(),
         ar: _privacyDescArCtrl.text.trim(),
@@ -350,9 +377,8 @@ class _TermsEditPageState extends State<TermsEditPage> {
   // ── Collect uploads ───────────────────────────────────────────────────────
   Map<String, Uint8List> _collectImageUploads() {
     final u = <String, Uint8List>{};
-    if (_navIcon.bytes != null)   u['terms_cms/navLabel/icon'] = _navIcon.bytes!;
-    if (_termsSvg.bytes != null)  u['terms_cms/terms/svg']     = _termsSvg.bytes!;
-    if (_privacySvg.bytes != null) u['terms_cms/privacy/svg']  = _privacySvg.bytes!;
+    if (_termsIcon.bytes != null)   u['terms_cms/terms/icon']   = _termsIcon.bytes!;
+    if (_privacyIcon.bytes != null) u['terms_cms/privacy/icon'] = _privacyIcon.bytes!;
     return u;
   }
 
@@ -556,57 +582,25 @@ class _TermsEditPageState extends State<TermsEditPage> {
         SizedBox(height: 24.h),
 
         _accordion(
-          title: 'Navigation Label',
-          isOpen: _navLabelOpen,
-          onToggle: () => setState(() => _navLabelOpen = !_navLabelOpen),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20.h),
-              _fieldLabel('Icon'),
-              SizedBox(height: 8.h),
-              _imgBox(
-                picked: _navIcon,
-                onPick: () async {
-                  final b = await _pickSvgOnly();
-                  if (b != null) setState(() {
-                    _navIcon.bytes = b;
-                    _navIcon.url = null;
-                    _checkForChanges();
-                  });
-                },
-              ),
-              SizedBox(height: 16.h),
-              _fieldLabel('Title'),
-              SizedBox(height: 8.h),
-              _bilingualRow(
-                enCtrl: _navTitleEnCtrl,
-                arCtrl: _navTitleArCtrl,
-                enHint: 'Text Here',
-                arHint: 'أدخل النص هنا',
-              ),
-            ],
-          ),
-        ),
-
-        _accordion(
           title: 'Terms and Conditions',
           isOpen: _termsOpen,
           onToggle: () => setState(() => _termsOpen = !_termsOpen),
           child: _sectionEditor(
-            svgPicked: _termsSvg,
+            iconPicked: _termsIcon,
+            titleEnCtrl: _termsTitleEnCtrl,
+            titleArCtrl: _termsTitleArCtrl,
+            onPickIcon: () async {
+              final b = await _pickSvgOnly();
+              if (b != null) setState(() {
+                _termsIcon.bytes = b;
+                _termsIcon.url = null;
+                _checkForChanges();
+              });
+            },
             descEnCtrl: _termsDescEnCtrl,
             descArCtrl: _termsDescArCtrl,
             docEn: _termsDocEn,
             docAr: _termsDocAr,
-            onPickSvg: () async {
-              final b = await _pickSvgOnly();
-              if (b != null) setState(() {
-                _termsSvg.bytes = b;
-                _termsSvg.url = null;
-                _checkForChanges();
-              });
-            },
             onPickDocEn: () => _pickDoc(_termsDocEn),
             onPickDocAr: () => _pickDoc(_termsDocAr),
           ),
@@ -618,19 +612,21 @@ class _TermsEditPageState extends State<TermsEditPage> {
           isOpen: _privacyOpen,
           onToggle: () => setState(() => _privacyOpen = !_privacyOpen),
           child: _sectionEditor(
-            svgPicked: _privacySvg,
+            iconPicked: _privacyIcon,
+            titleEnCtrl: _privacyTitleEnCtrl,
+            titleArCtrl: _privacyTitleArCtrl,
+            onPickIcon: () async {
+              final b = await _pickSvgOnly();
+              if (b != null) setState(() {
+                _privacyIcon.bytes = b;
+                _privacyIcon.url = null;
+                _checkForChanges();
+              });
+            },
             descEnCtrl: _privacyDescEnCtrl,
             descArCtrl: _privacyDescArCtrl,
             docEn: _privacyDocEn,
             docAr: _privacyDocAr,
-            onPickSvg: () async {
-              final b = await _pickSvgOnly();
-              if (b != null) setState(() {
-                _privacySvg.bytes = b;
-                _privacySvg.url = null;
-                _checkForChanges();
-              });
-            },
             onPickDocEn: () => _pickDoc(_privacyDocEn),
             onPickDocAr: () => _pickDoc(_privacyDocAr),
           ),

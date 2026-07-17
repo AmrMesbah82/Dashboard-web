@@ -20,15 +20,21 @@ abstract class AppTextStyles {
 
   // ✅ CHANGED: Made font families getters that read from storage
   static String get englishFontFamily => _storage.read('font') ?? 'Cairo';
-  static String get arabicFontFamily => _storage.read('font_arabic') ?? 'CairoArabic';
+  static String get arabicFontFamily => _storage.read('font_arabic') ?? 'Cairo';
 
-  // Helper method to apply font family based on locale
+  // Helper method to apply the selected font family based on locale.
+  // Uses GoogleFonts.getFont so the chosen family (Roboto, Poppins, Tajawal,
+  // Almarai, Noto Sans, …) is actually downloaded/loaded at runtime rather than
+  // only overriding the fontFamily string (which would fall back to default).
   static TextStyle _withFontFamily(TextStyle style) {
-    return style.copyWith(
-      fontFamily: Get.locale?.languageCode == 'en'
-          ? englishFontFamily
-          : arabicFontFamily,
-    );
+    final family = Get.locale?.languageCode == 'en'
+        ? englishFontFamily
+        : arabicFontFamily;
+    try {
+      return GoogleFonts.getFont(family, textStyle: style);
+    } catch (_) {
+      return style;
+    }
   }
 
   // --------------------- REGULAR Text Styles - w400 ---------------------

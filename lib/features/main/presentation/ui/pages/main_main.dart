@@ -11,6 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:web_app_admin/core/widget/network_image_view.dart';
+import 'package:web_app_admin/features/main/data/models/main_model.dart';
 
 import '../../../../../core/custom_svg.dart';
 import '../../../../../core/constant/color.dart';
@@ -23,6 +24,7 @@ import '../../../../home/data/models/home_model.dart';
 import '../../../../home/presentation/controller/home_cubit.dart';
 import '../../../../home/presentation/controller/home_state.dart';
 import '../../controller/main_cubit.dart';
+import '../../controller/main_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 
 // class _C {
@@ -99,18 +101,24 @@ class _MainMainPageState extends State<MainMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MainCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, state) {
-        if (state is HomeCmsInitial || state is HomeCmsLoading) {
+        if (state is MainCmsInitial || state is MainCmsLoading) {
           return const Scaffold(
             backgroundColor: ColorPick.background,
             body: Center(child: CircularProgressIndicator(color: ColorPick.primary)),
           );
         }
 
-        HomePageModel? data;
-        if (state is HomeCmsLoaded) data = state.data;
-        if (state is HomeCmsSaved)  data = state.data;
+        MainPageModel? data;
+        if (state is MainCmsLoaded) data = state.data;
+        if (state is MainCmsSaved)  data = state.data;
+
+        return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+            builder: (context, homeState) {
+        HomePageModel? homeData;
+        if (homeState is HomeCmsLoaded) homeData = homeState.data;
+        if (homeState is HomeCmsSaved)  homeData = homeState.data;
 
         return Scaffold(
           backgroundColor: ColorPick.background,
@@ -226,7 +234,10 @@ class _MainMainPageState extends State<MainMainPage> {
                             _accordion(
                               key: 'nav',
                               title: 'Navigation Items',
-                              children: [_readOnlyNavSection(data)],
+                              children: [
+                                _readOnlyNavSection(
+                                    homeData ?? HomePageModel.defaultModel)
+                              ],
                             ),
                             SizedBox(height: 10.h),
                             _accordion(
@@ -254,6 +265,7 @@ class _MainMainPageState extends State<MainMainPage> {
             ),
           ),
         );
+            });
       },
     );
   }
@@ -304,7 +316,7 @@ class _MainMainPageState extends State<MainMainPage> {
   }
 
   // ── Read-only Logo / Theme section ──────────────────────────────────────────
-  Widget _readOnlyLogoSection(HomePageModel data) {
+  Widget _readOnlyLogoSection(MainPageModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +467,7 @@ class _MainMainPageState extends State<MainMainPage> {
   }
 
   // ── Read-only Footer section ─────────────────────────────────────────────────
-  Widget _readOnlyFooterSection(HomePageModel data) {
+  Widget _readOnlyFooterSection(MainPageModel data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: data.footerColumns.asMap().entries.map((entry) {
@@ -526,7 +538,7 @@ class _MainMainPageState extends State<MainMainPage> {
   }
 
   // ── Read-only Links section ──────────────────────────────────────────────────
-  Widget _readOnlyLinksSection(HomePageModel data) {
+  Widget _readOnlyLinksSection(MainPageModel data) {
     final rows = (data.socialLinks.length / 2).ceil();
     return Column(
       children: List.generate(rows, (rowIndex) {

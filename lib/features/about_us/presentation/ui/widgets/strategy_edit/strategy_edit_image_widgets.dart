@@ -68,9 +68,9 @@ class _NavIconUploadWidget extends StatelessWidget {
                                 ? Image.memory(b, fit: BoxFit.cover)
                                 : SvgPicture.memory(
                                     b,
-                                    fit: BoxFit.cover,
+                                    fit: BoxFit.scaleDown,
                                     placeholderBuilder: (context) => const Center(
-                                      child: CircularProgressIndicator(),
+                                      child: CircleProgress(),
                                     ),
                                   );
                           }
@@ -81,13 +81,13 @@ class _NavIconUploadWidget extends StatelessWidget {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return const Center(
-                                    child: CircularProgressIndicator(),
+                                    child: CircleProgress(),
                                   );
                                 }
                                 if (snapshot.hasData) {
                                   return SvgPicture.memory(
                                     snapshot.data!,
-                                    fit: BoxFit.cover,
+                                    fit: BoxFit.scaleDown,
                                   );
                                 }
                                 return Icon(
@@ -270,10 +270,7 @@ class _StrategicHouseDisplayWidget extends StatelessWidget {
         curve: Curves.easeInOut,
         width: _getPreviewWidth(),
         height: 220.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.r),
-          color: Colors.grey[100],
-        ),
+
         child: hasImage
             ? ClipRRect(
           borderRadius: BorderRadius.circular(8.r),
@@ -305,7 +302,7 @@ class _StrategicHouseDisplayWidget extends StatelessWidget {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
-                        child: CircularProgressIndicator(),
+                        child: CircleProgress()
                       );
                     }
                     if (snapshot.hasData) {

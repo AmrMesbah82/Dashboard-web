@@ -73,7 +73,9 @@ class _ServicesMainPreviewPageState extends State<ServicesMainPreviewPage> {
     // 3. Navigate AFTER the dialog closes itself (dialog pops in finally block)
     //    Use addPostFrameCallback so the navigator stack is stable
     if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
         if (mounted) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(

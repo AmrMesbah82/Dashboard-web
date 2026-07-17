@@ -13,7 +13,7 @@ extension _CareersEditWidgets on _CareersEditPageState {
       textDirection: TextDirection.rtl,
       child: CustomTextField(
         label: label, hint: hint, controller: ctrl,
-        maxLines: maxLines, maxLength: 500,
+        maxLines: maxLines, maxLength: 100000,
         height: maxLines > 1 ? null : height,
         fillColor: Colors.white,
         textDirection: TextDirection.rtl, textAlign: TextAlign.right,
@@ -32,7 +32,7 @@ extension _CareersEditWidgets on _CareersEditPageState {
   }) {
     return CustomTextField(
       label: label, hint: hint, controller: ctrl,
-      maxLines: maxLines, maxLength: 500,
+      maxLines: maxLines, maxLength: 100000,
       height: maxLines > 1 ? null : height,
       fillColor: Colors.white,
       textDirection: TextDirection.ltr, textAlign: TextAlign.left,

@@ -145,7 +145,7 @@ class CustomTextField extends StatelessWidget {
     final bool hasError = errorText != null && errorText!.isNotEmpty;
 
     final TextStyle resolvedLabelStyle = labelStyle ??
-        StyleText.fontSize12Weight500.copyWith(
+        StyleText.fontSize14Weight500.copyWith(
           color: hasError
               ? AppColors.red
               : !enabled

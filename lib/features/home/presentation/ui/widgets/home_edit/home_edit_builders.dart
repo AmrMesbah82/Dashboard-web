@@ -77,6 +77,7 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
       ...List.generate(_navBtns.length, (i) {
         final btn = _navBtns[i];
         return Column(
+          key: ValueKey(btn),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -144,28 +145,31 @@ extension _HomeEditBuilders on _HomeEditPageMasterState {
               children: [
                 Expanded(
                   child: CustomDropdown<String>(
-                    label: 'Button Navigation',
+                    valueStyle: StyleText.fontSize12Weight400.copyWith(
+                      color: AppColors.text
+                    ),
+                    label: 'Navigate To',
                     value:
-                        _kNavRouteOptions.any((o) => o['route'] == btn.route)
-                            ? btn.route
-                            : null,
+                    _kNavRouteOptions.any((o) => o['route'] == btn.route)
+                        ? btn.route
+                        : null,
                     items: _kNavRouteOptions
                         .map((opt) => DropdownItem<String>(
-                            value: opt['route']!, label: opt['label']!))
+                        value: opt['route']!, label: opt['label']!))
                         .toList(),
                     onChanged: (val) => setState(() => btn.route = val),
-                    hint: 'Select',
+                    hint: 'Select destination',
                   ),
                 ),
                 SizedBox(width: 15.w),
                 Expanded(child: SizedBox()),
               ],
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: 10.h),
           ],
         );
       }),
-      if (_navBtns.length < 5)
+      if (_navBtns.length < 6)
         GestureDetector(
           onTap: () => setState(() => _navBtns.add(_NavBtnItem())),
           child: Container(

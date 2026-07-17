@@ -220,6 +220,14 @@ class TermsCubit extends Cubit<TermsState> {
             updated = updated.copyWith(
                 navigationLabel:
                 updated.navigationLabel.copyWith(iconUrl: url));
+          } else if (entry.key.contains('terms/icon')) {
+            updated = updated.copyWith(
+                termsAndConditions:
+                updated.termsAndConditions.copyWith(iconUrl: url));
+          } else if (entry.key.contains('privacy/icon')) {
+            updated = updated.copyWith(
+                privacyPolicy:
+                updated.privacyPolicy.copyWith(iconUrl: url));
           } else if (entry.key.contains('terms/svg')) {
             updated = updated.copyWith(
                 termsAndConditions:

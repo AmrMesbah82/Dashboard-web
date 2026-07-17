@@ -3,7 +3,7 @@ part of '../../pages/home_preview.dart';
 extension _HomePreviewCards on _HomePreviewPageMasterState {
   Widget _buildTabletCards(HomePageModel data, bool isAr) {
     const Color sectionBg = Color(0xFFF2F6EF);
-    final Color primary = _hexColor(data.branding.primaryColor);
+    final Color primary = context.primaryBrandColor;
     final double cardW = 130.w;
     final double imageH = 150.h;
     final double textH = 110.h;
@@ -83,7 +83,7 @@ extension _HomePreviewCards on _HomePreviewPageMasterState {
 
   Widget _buildMobileCards(HomePageModel data, bool isAr) {
     const Color sectionBg = Color(0xFFF2F6EF);
-    final Color primary = _hexColor(data.branding.primaryColor);
+    final Color primary = context.primaryBrandColor;
     final sec = data.sections;
 
     String secDesc(int i) => i < sec.length

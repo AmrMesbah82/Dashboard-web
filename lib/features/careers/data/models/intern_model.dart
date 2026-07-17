@@ -10,7 +10,7 @@ class InternModel {
   final String degrees;
   final DateTime? joinedDate;
   final String whatHaveILearned;
-  final List<String> tags;
+  // final List<String> tags;
 
   const InternModel({
     required this.id,
@@ -21,7 +21,7 @@ class InternModel {
     this.degrees = '',
     this.joinedDate,
     required this.whatHaveILearned,
-    this.tags = const [],
+    // this.tags = const [],
   });
 
   String get fullName => '$firstName $lastName'.trim();
@@ -44,7 +44,7 @@ class InternModel {
     String? degrees,
     DateTime? joinedDate,
     String? whatHaveILearned,
-    List<String>? tags,
+    // List<String>? tags,
   }) {
     return InternModel(
       id:               id               ?? this.id,
@@ -55,7 +55,7 @@ class InternModel {
       degrees:          degrees          ?? this.degrees,
       joinedDate:       joinedDate       ?? this.joinedDate,
       whatHaveILearned: whatHaveILearned ?? this.whatHaveILearned,
-      tags:             tags             ?? this.tags,
+      // tags:             tags             ?? this.tags,
     );
   }
 
@@ -68,7 +68,7 @@ class InternModel {
     'degrees':          degrees,
     'joinedDate':       joinedDate?.toIso8601String(),
     'whatHaveILearned': whatHaveILearned,
-    'tags':             tags,
+    // 'tags':             tags,
   };
 
   /// Nested template for [FlatCodec.decode]. `tags` is a string list, so it
@@ -82,7 +82,7 @@ class InternModel {
         'degrees': '',
         'joinedDate': '',
         'whatHaveILearned': '',
-        'tags': [''],
+        // 'tags': [''],
       };
 
   factory InternModel.fromMap(Map<String, dynamic> map) => InternModel(
@@ -96,9 +96,9 @@ class InternModel {
         ? DateTime.tryParse(map['joinedDate'] as String)
         : null,
     whatHaveILearned: map['whatHaveILearned'] as String? ?? '',
-    tags:             (map['tags'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList() ?? [],
+    // tags:             (map['tags'] as List<dynamic>?)
+    //     ?.map((e) => e as String)
+    //     .toList() ?? [],
   );
 
   factory InternModel.empty() => InternModel(

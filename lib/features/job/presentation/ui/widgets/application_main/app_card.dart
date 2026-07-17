@@ -48,11 +48,11 @@ class _AppCard extends StatelessWidget {
             // ── Job Title (was Department) ──
             Row(
               children: [
-                BlocBuilder<HomeCmsCubit, HomeCmsState>(
+                BlocBuilder<MainCmsCubit, MainCmsState>(
                   builder: (context, cmsState) {
                     final String logoUrl = switch (cmsState) {
-                      HomeCmsLoaded(:final data) => data.branding.logoUrl,
-                      HomeCmsSaved(:final data)  => data.branding.logoUrl,
+                      MainCmsLoaded(:final data) => data.branding.logoUrl,
+                      MainCmsSaved(:final data)  => data.branding.logoUrl,
                       _                          => '',
                     };
 

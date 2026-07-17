@@ -17,8 +17,8 @@ import 'package:web_app_admin/core/widget/custom_dropdwon.dart';
 import 'package:web_app_admin/core/widget/date_pic.dart';
 import 'package:web_app_admin/core/widget/date_picker.dart';
 
-import '../../features/home/presentation/controller/home_cubit.dart';
-import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 
 
 
@@ -40,10 +40,10 @@ Color _cmsHexColor(String hex) {
   return const Color(0xFF008037);
 }
 
-Color _primaryFromState(HomeCmsState state) {
+Color _primaryFromState(MainCmsState state) {
   return switch (state) {
-    HomeCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
-    HomeCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
+    MainCmsLoaded(:final data) => _cmsHexColor(data.branding.primaryColor),
+    MainCmsSaved(:final data)  => _cmsHexColor(data.branding.primaryColor),
     _                          => const Color(0xFF008037),
   };
 }
@@ -240,7 +240,7 @@ class _JobListingFilterDialogState
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, cmsState) {
         final Color primary = _primaryFromState(cmsState);
 

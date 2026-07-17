@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: inquiry_details.dart (Detail / Edit Page)
 // Path: lib/features/inquire/presentation/ui/pages/inquiry_details.dart
-// UPDATED: Status dropdown primaryColor driven by HomeCmsCubit (same
+// UPDATED: Status dropdown primaryColor driven by MainCmsCubit (same
 //          logic as AppNavbar) instead of a hardcoded constant.
 // ═══════════════════════════════════════════════════════════════════
 
@@ -18,8 +18,8 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../../core/custom/2-custom_textfield.dart';
 import '../../../../../core/widget/custom_dropdwon.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../../job/presentation/ui/pages/job_listing_main.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/inquiry_model.dart';
@@ -30,10 +30,10 @@ import '../../controller/inquiry_state.dart';
 
 
 // ── Same helper used in AppNavbar ─────────────────────────────────────────────
-Color _primaryFromCmsState(HomeCmsState state) {
+Color _primaryFromCmsState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.primaryColor,
-    HomeCmsSaved(:final data)  => data.branding.primaryColor,
+    MainCmsLoaded(:final data) => data.branding.primaryColor,
+    MainCmsSaved(:final data)  => data.branding.primaryColor,
     _                          => '',
   };
   try {
@@ -181,7 +181,7 @@ class _InquiryDetailPageState extends State<InquiryDetailPage> {
   @override
   Widget build(BuildContext context) {
     // ── Read CMS primary color (same source as AppNavbar) ────────────────────
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, cmsState) {
         final Color cmsPrimary = _primaryFromCmsState(cmsState);
 

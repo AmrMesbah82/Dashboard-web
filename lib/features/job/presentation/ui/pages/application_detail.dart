@@ -25,8 +25,8 @@ import '../../../../../core/main_widgets/app_admin_navbar.dart';
 import '../../../../../core/theme/appcolors.dart';
 import '../../../../../core/theme/new_theme.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/application_model.dart';
 import '../../controller/application_cubit.dart';
@@ -60,10 +60,10 @@ const Map<String, Color> _kTagColors = {
 };
 
 // ── Helper: extract CMS primary color ─────────────────────────────────────────
-Color _primaryFromCmsState(HomeCmsState state) {
+Color _primaryFromCmsState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.primaryColor,
-    HomeCmsSaved(:final data) => data.branding.primaryColor,
+    MainCmsLoaded(:final data) => data.branding.primaryColor,
+    MainCmsSaved(:final data) => data.branding.primaryColor,
     _ => '',
   };
   try {
@@ -479,7 +479,7 @@ class _ApplicationDetailPageState extends State<ApplicationDetailPage> {
           _currentApp = state.application;
         }
       },
-      child: BlocBuilder<HomeCmsCubit, HomeCmsState>(
+      child: BlocBuilder<MainCmsCubit, MainCmsState>(
         builder: (context, cmsState) {
           // ── Extract dynamic primary color from CMS/Firebase ──
           final Color cmsPrimary = _primaryFromCmsState(cmsState);

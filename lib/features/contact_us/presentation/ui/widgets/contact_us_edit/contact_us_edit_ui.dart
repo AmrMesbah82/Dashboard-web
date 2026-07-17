@@ -23,14 +23,14 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
           onToggle: () => setState(() => _infoOpen = !_infoOpen),
           child:    _infoSection(),
         ),
-
+        _infoOpen ? SizedBox() :  SizedBox(height: 16.h),
         _accordion(
           title:    'Office Locations',
           isOpen:   _officesOpen,
           onToggle: () => setState(() => _officesOpen = !_officesOpen),
           child:    _officeLocationsSection(),
         ),
-        SizedBox(height: 16.h),
+         SizedBox(height: 16.h),
 
         _accordion(
           title:    'Confirm Message',
@@ -115,7 +115,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
           controller:    _subDescEnCtrl,
           height:        100,
           maxLines:      4,
-          maxLength:     300,
+          maxLength:     10000,
           showCharCount: false,
           submitted:     _submitted,
           textDirection: TextDirection.ltr,
@@ -131,7 +131,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
           fillColor: Colors.white,
           height:        100,
           maxLines:      4,
-          maxLength:     300,
+          maxLength:     10000,
           showCharCount: false,
           submitted:     _submitted,
           textDirection: TextDirection.rtl,
@@ -155,7 +155,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                     controller:    _emailCtrl,
                     height:        42,
                     maxLines:      1,
-                    maxLength:     100,
+                    maxLength:     10000,
                     submitted:     _submitted,
                     textDirection: TextDirection.ltr,
                     textAlign:     TextAlign.start,
@@ -180,34 +180,17 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                 physics:    const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount:  2,
-                  crossAxisSpacing: 16.w,
-                  mainAxisSpacing:  20.h,
-                  mainAxisExtent:   100.sp,
+                  crossAxisSpacing: 10.w,
+                  mainAxisSpacing:  10.h,
+                  mainAxisExtent:   80.sp,
                 ),
                 itemCount:    _socialIconItems.length,
                 itemBuilder:  (context, index) =>
                     _socialIconWidget(_socialIconItems[index]),
               ),
 
-            SizedBox(height: 16.h),
-
-            GestureDetector(
-              onTap: _addSocialIcon,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
-                decoration: BoxDecoration(
-                    color: const Color(0xFF797979),
-                    borderRadius: BorderRadius.circular(4.r)),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.add, size: 14.sp, color: Colors.white),
-                  SizedBox(width: 4.w),
-                  Text('Icon',
-                      style: StyleText.fontSize12Weight500
-                          .copyWith(color: Colors.white)),
-                ]),
-              ),
-            ),
-
+            // NOTE: "Add Icon" removed — icons are auto-filled from the
+            // MAIN page social links; manage them on the Main edit page.
             SizedBox(height: 16.h),
           ],
         ),
@@ -218,6 +201,21 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
   // ── Social Icon Widget ────────────────────────────────────────────────────
 
   Widget _socialIconWidget(_SocialIconItem s) {
+    // AUTO-FILLED from the MAIN page social links (edit_sections2 →
+    // MainCmsCubit) — read-only, no selection, no add/remove.
+    final link = (s.selectedIndex != null &&
+            s.selectedIndex! < _footerSocialLinks.length)
+        ? _footerSocialLinks[s.selectedIndex!]
+        : null;
+
+    String truncateUrl(String url) {
+      final clean = url
+          .replaceAll('https://', '')
+          .replaceAll('http://', '')
+          .replaceAll('www.', '');
+      return clean.length > 38 ? '${clean.substring(0, 38)}…' : clean;
+    }
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
@@ -225,36 +223,48 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Link Dropdown ──────────────────────────────────────────────
-          Row(
-            children: [
-              _fieldLabel('Select Link'),
-              Spacer(),
-              GestureDetector(
-                onTap: () => _removeSocialIcon(s.id),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 14.w, vertical: 7.h),
+          _fieldLabel('Link'),
+          SizedBox(height: 8.h),
+          Container(
+            height: 48.h,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36.w,
+                  height: 36.w,
                   decoration: BoxDecoration(
-                    color:        ColorPick.red,
+                    color: const Color(0xFFE8F5EE),
                     borderRadius: BorderRadius.circular(6.r),
                   ),
+                  child: Center(
+                    child: (link != null && link.iconUrl.isNotEmpty)
+                        ? NetworkImageView(
+                            url: link.iconUrl,
+                            width: 20.w, height: 20.w, fit: BoxFit.contain,
+                          )
+                        : Icon(Icons.link,
+                            size: 16.sp, color: ColorPick.primary),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
                   child: Text(
-                    'Remove',
-                    style: StyleText.fontSize12Weight600.copyWith(
-                      color: Colors.white,
+                    link != null ? truncateUrl(link.url) : '—',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 12.sp,
+                      color: Colors.black87,
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          _SocialLinkDropdown(
-            footerLinks:   _footerSocialLinks,
-            selectedIndex: s.selectedIndex,
-            onChanged:     (idx) => setState(() => s.selectedIndex = idx),
-            submitted:     _submitted,
+              ],
+            ),
           ),
         ],
       ),
@@ -348,7 +358,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                       height:        42,
                       maxLines:      1,
                       fillColor: Colors.white,
-                      maxLength:     200,
+                      maxLength:     10000,
                       submitted:     _submitted,
                       textDirection: TextDirection.ltr,
                       textAlign:     TextAlign.start,
@@ -370,7 +380,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                       fillColor: Colors.white,
                       height:        42,
                       maxLines:      1,
-                      maxLength:     200,
+                      maxLength:     10000,
                       submitted:     _submitted,
                       textDirection: TextDirection.rtl,
                       textAlign:     TextAlign.right,
@@ -398,7 +408,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                       controller:    o.text1EnCtrl,
                       height:        42,
                       maxLines:      1,
-                      maxLength:     200,
+                      maxLength:     10000,
                       submitted:     _submitted,
                       textDirection: TextDirection.ltr,
                       textAlign:     TextAlign.start,
@@ -420,7 +430,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                       controller:    o.text1ArCtrl,
                       height:        42,
                       maxLines:      1,
-                      maxLength:     200,
+                      maxLength:     10000,
                       submitted:     _submitted,
                       textDirection: TextDirection.rtl,
                       textAlign:     TextAlign.right,
@@ -443,7 +453,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                   height:        42,
                   fillColor: Colors.white,
                   maxLines:      1,
-                  maxLength:     500,
+                  maxLength:     10000,
                   submitted:     false,
                   textDirection: TextDirection.ltr,
                   textAlign:     TextAlign.start,
@@ -491,7 +501,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                     controller:    _confirmTitleEnCtrl,
                     height:        42,
                     maxLines:      1,
-                    maxLength:     200,
+                    maxLength:     10000,
                     submitted:     _submitted,
                     textDirection: TextDirection.ltr,
                     textAlign:     TextAlign.start,
@@ -513,7 +523,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                     height:        42,
                     fillColor: Colors.white,
                     maxLines:      1,
-                    maxLength:     200,
+                    maxLength:     10000,
                     submitted:     _submitted,
                     textDirection: TextDirection.rtl,
                     textAlign:     TextAlign.right,
@@ -524,7 +534,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
             ),
           ],
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 10.h),
 
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -537,7 +547,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
               height:        100,
               fillColor: Colors.white,
               maxLines:      4,
-              maxLength:     500,
+              maxLength:     10000,
               showCharCount: false,
               submitted:     _submitted,
               textDirection: TextDirection.ltr,
@@ -580,7 +590,7 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
                 onTap:  () => context.goNamed('contact-cms-preview'),
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 400.w),
             Expanded(
               child: _btn(
                 label:  'Publish',
@@ -596,11 +606,11 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
             Expanded(
               child: _btn(
                 label:  'Discard',
-                color:  const Color(0xFF797979),
+                color:  Color(0xFF797979),
                 onTap:  () => context.goNamed('contact-cms'),
               ),
             ),
-            SizedBox(width: 15.sp),
+            SizedBox(width: 400.sp),
             Expanded(child: Container()),
           ],
         ),
@@ -681,13 +691,12 @@ extension _ContactUsEditUi on _ContactUsCmsEditPageState {
         height: 48.h,
         decoration: BoxDecoration(
           color:        color,
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Center(
           child: Text(
             label,
             style: StyleText.fontSize15Weight600.copyWith(
-              fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),

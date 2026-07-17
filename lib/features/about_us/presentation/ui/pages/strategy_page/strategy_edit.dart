@@ -23,6 +23,7 @@ import 'package:web_app_admin/core/widget/textfield.dart';
 import 'package:web_app_admin/features/about_us/presentation/ui/pages/strategy_page/strategy_preview.dart';
 
 import '../../../../../../core/constant/color.dart';
+import '../../../../../../core/custom/circle_progress.dart';
 import '../../../../../../core/custom_dialog.dart';
 import '../../../../../../core/main_widgets/admin_sub_navbar.dart';
 import '../../../../../../core/theme/appcolors.dart';
@@ -879,14 +880,16 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display preview selector
-              Container(
-                width: 300.w,
-                child: _deviceDisplayTabBar(
-                  selected: _strategicHouseEnDisplayTab,
-                  onChanged: (tab) =>
-                      setState(() => _strategicHouseEnDisplayTab = tab),
-                ),
+              // Device selector tabs - aligned to the right (same as main page)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _deviceDisplayTabBar(
+                    selected: _strategicHouseEnDisplayTab,
+                    onChanged: (tab) =>
+                        setState(() => _strategicHouseEnDisplayTab = tab),
+                  ),
+                ],
               ),
               SizedBox(height: 16.h),
 
@@ -933,14 +936,16 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display preview selector
-              Container(
-                width: 300.w,
-                child: _deviceDisplayTabBar(
-                  selected: _strategicHouseArDisplayTab,
-                  onChanged: (tab) =>
-                      setState(() => _strategicHouseArDisplayTab = tab),
-                ),
+              // Device selector tabs - aligned to the right (same as main page)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _deviceDisplayTabBar(
+                    selected: _strategicHouseArDisplayTab,
+                    onChanged: (tab) =>
+                        setState(() => _strategicHouseArDisplayTab = tab),
+                  ),
+                ],
               ),
               SizedBox(height: 16.h),
 
@@ -996,7 +1001,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           onTap: _onPreview,
         ),
       ),
-      SizedBox(width: 300.w),
+      SizedBox(width: 400.w),
       Expanded(
         child: AbsorbPointer(
           absorbing: !canPublish,
@@ -1040,7 +1045,7 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
           },
         ),
       ),
-      SizedBox(width: 300.w),
+      SizedBox(width: 400.w),
       Expanded(child: Column())
     ]);
   }
@@ -1092,32 +1097,29 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
   }
 
   // ── Device Display Tab Bar ────────────────────────────────────────────────
+  // Same UI as _deviceSelector on strategy_main.dart — compact white pill,
+  // right-aligned at the call sites.
   Widget _deviceDisplayTabBar({
     required DisplayDeviceTab selected,
     required ValueChanged<DisplayDeviceTab> onChanged,
   }) {
     Widget tab(String label, DisplayDeviceTab value) {
-      final isActive = selected == value;
-      return Expanded(
-        child: GestureDetector(
-          onTap: () => onChanged(value),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(vertical: 10.h),
-            decoration: BoxDecoration(
-              color: isActive ? ColorPick.primary : Colors.transparent,
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Center(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize: 13.sp,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: isActive ? Colors.white : Colors.black54,
-                ),
-              ),
+      final isSelected = selected == value;
+      return GestureDetector(
+        onTap: () => onChanged(value),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: isSelected ? ColorPick.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isSelected ? Colors.white : Colors.black87,
             ),
           ),
         ),
@@ -1127,15 +1129,14 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.circular(10.r),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           tab('Desktop', DisplayDeviceTab.largeScreen),
-          SizedBox(width: 4.w),
           tab('Tablet', DisplayDeviceTab.tablet),
-          SizedBox(width: 4.w),
           tab('Mobile', DisplayDeviceTab.mobile),
         ],
       ),
@@ -1185,11 +1186,11 @@ class _StrategyEditPageState extends State<StrategyEditPage> {
   }
 
   Widget _fieldLabel(String t) => Text(t,
-      style: TextStyle(
-          fontFamily: 'Cairo',
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87));
+      style: StyleText.fontSize13Weight400.copyWith(
+        color: AppColors.text
+      )
+
+  );
 
   Widget _btn({
     required String label,

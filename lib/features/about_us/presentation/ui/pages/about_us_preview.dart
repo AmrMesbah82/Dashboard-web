@@ -156,7 +156,9 @@ class _AboutPreviewPageLastState extends State<AboutPreviewPageLast> {
     return BlocListener<AboutCubit, AboutState>(
       listener: (context, state) {
         if (state is AboutSaved) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Defer navigation OUT of the frame (fixes mouse_tracker
+          // !_debugDuringDeviceUpdate assertion on Flutter web debug).
+          Future.delayed(Duration.zero, () {
             if (mounted) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(

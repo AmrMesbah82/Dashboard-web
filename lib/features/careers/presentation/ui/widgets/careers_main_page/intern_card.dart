@@ -68,17 +68,17 @@ class _InternCardState extends State<_InternCard> {
                   style: StyleText.fontSize11Weight400.copyWith(
                       fontSize: 9.sp, color: Colors.black45, height: 1.4)),
               SizedBox(height: 8.h),
-              Wrap(
-                spacing: 4.w, runSpacing: 3.h, alignment: WrapAlignment.center,
-                children: intern.tags.map((tag) => Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                      color: ColorPick.primary, borderRadius: BorderRadius.circular(4.r)),
-                  child: Text(tag,
-                      style: StyleText.fontSize10Weight700.copyWith(
-                          fontSize: 9.sp, fontWeight: FontWeight.w600, color: Colors.white)),
-                )).toList(),
-              ),
+              // Wrap(
+              //   spacing: 4.w, runSpacing: 3.h, alignment: WrapAlignment.center,
+              //   children: intern.tags.map((tag) => Container(
+              //     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+              //     decoration: BoxDecoration(
+              //         color: ColorPick.primary, borderRadius: BorderRadius.circular(4.r)),
+              //     child: Text(tag,
+              //         style: StyleText.fontSize10Weight700.copyWith(
+              //             fontSize: 9.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+              //   )).toList(),
+              // ),
             ],
           ),
         ),

@@ -60,8 +60,24 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
 
   final List<_TeamItemEdit> _items = [];
 
+  // ── Section header (icon + title) that drives the "Our Team" tab ────────────
+  final _headerTitleEnCtrl = TextEditingController();
+  final _headerTitleArCtrl = TextEditingController();
+  _PickedImage _headerIcon = const _PickedImage();
+  bool _headerSeeded = false;
+
   // ── Seed from model ─────────────────────────────────────────────────────────
   void _seedFromModel(OurTeamsModel data) {
+    // Seed the section header once (independent of item-level dirty state).
+    if (!_headerSeeded) {
+      _headerSeeded = true;
+      _headerTitleEnCtrl.text = data.headerTitle.en;
+      _headerTitleArCtrl.text = data.headerTitle.ar;
+      if (data.headerIconUrl.isNotEmpty) {
+        _headerIcon = _PickedImage(url: data.headerIconUrl);
+      }
+    }
+
     // If the user has made local structural changes (add/remove items or
     // deliverables), don't let the cubit wipe those changes on rebuild.
     if (_isDirty) return;
@@ -224,6 +240,14 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         }
       }
 
+      // Persist the section header (icon + title)
+      cubit.updateHeader(
+          en: _headerTitleEnCtrl.text.trim(),
+          ar: _headerTitleArCtrl.text.trim());
+      if (_headerIcon.bytes != null) {
+        await cubit.uploadHeaderIcon(_headerIcon.bytes!);
+      }
+
       await cubit.save();
 
       if (mounted) {
@@ -290,6 +314,8 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
 
   @override
   void dispose() {
+    _headerTitleEnCtrl.dispose();
+    _headerTitleArCtrl.dispose();
     for (final item in _items) item.dispose();
     super.dispose();
   }
@@ -325,7 +351,7 @@ class _OurTeamsEditPageState extends State<OurTeamsEditPage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: ColorPick.white,
+
               body: SingleChildScrollView(
                 child: SizedBox(
                   width: double.infinity,

@@ -29,8 +29,8 @@ import '../../../../../core/theme/new_theme.dart';
 import '../../../../about_us/presentation/ui/pages/about_us_company_main.dart';
 import '../../../../careers/presentation/ui/pages/careers_main.dart';
 import '../../../../departments/presentation/ui/pages/department_main.dart';
-import '../../../../home/presentation/controller/home_cubit.dart';
-import '../../../../home/presentation/controller/home_state.dart';
+import '../../../../main/presentation/controller/main_cubit.dart';
+import '../../../../main/presentation/controller/main_state.dart';
 import '../../../../main/presentation/ui/pages/main_main.dart';
 import '../../../data/models/job_listing_model.dart';
 import '../../controller/job_listing_cubit.dart';
@@ -78,9 +78,9 @@ class _JobListingMainPageState extends State<JobListingMainPage> {
 
   String _getLogoUrl(BuildContext context) {
     try {
-      final homeState = context.read<HomeCmsCubit>().state;
-      if (homeState is HomeCmsLoaded) return homeState.data.branding.logoUrl;
-      if (homeState is HomeCmsSaved) return homeState.data.branding.logoUrl;
+      final homeState = context.read<MainCmsCubit>().state;
+      if (homeState is MainCmsLoaded) return homeState.data.branding.logoUrl;
+      if (homeState is MainCmsSaved) return homeState.data.branding.logoUrl;
     } catch (_) {}
     return '';
   }

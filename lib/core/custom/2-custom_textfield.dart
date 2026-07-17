@@ -266,10 +266,63 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   @override
+  void didUpdateWidget(covariant CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // ── Controller swapped by the parent ────────────────────────────────────
+    // Some pages dispose their controllers and create NEW ones when
+    // re-seeding from a freshly loaded model. We must follow the new
+    // instance — keeping the cached (now disposed) one crashes with
+    // "A TextEditingController was used after being disposed".
+    if (widget.controller != oldWidget.controller) {
+      if (_needsTextListener) {
+        try {
+          _controller.removeListener(_onTextChange);
+        } catch (_) {
+          // old controller may already be disposed by the parent
+        }
+      }
+      if (_ownsController) _controller.dispose();
+      _ownsController = false;
+      if (widget.controller != null) {
+        _controller = widget.controller!;
+      } else {
+        _controller = TextEditingController(text: widget.initialValue);
+        _ownsController = true;
+      }
+      if (_needsTextListener) _controller.addListener(_onTextChange);
+    }
+
+    // ── Focus node swapped by the parent ────────────────────────────────────
+    if (widget.focusNode != oldWidget.focusNode) {
+      try {
+        _focusNode.removeListener(_onFocusChange);
+      } catch (_) {}
+      if (_ownsFocusNode) _focusNode.dispose();
+      _ownsFocusNode = false;
+      if (widget.focusNode != null) {
+        _focusNode = widget.focusNode!;
+      } else {
+        _focusNode = FocusNode();
+        _ownsFocusNode = true;
+      }
+      _focusNode.addListener(_onFocusChange);
+    }
+  }
+
+  @override
   void dispose() {
-    _focusNode.removeListener(_onFocusChange);
+    // The external controller/focus node may have been disposed by its owner
+    // before this widget unmounts (e.g. page re-seed + navigation) — guard.
+    try {
+      _focusNode.removeListener(_onFocusChange);
+    } catch (_) {}
     if (_ownsFocusNode) _focusNode.dispose();
-    if (_needsTextListener) _controller.removeListener(_onTextChange);
+    if (_needsTextListener) {
+      try {
+        _controller.removeListener(_onTextChange);
+      } catch (_) {}
+    }
     if (_ownsController) _controller.dispose();
     super.dispose();
   }

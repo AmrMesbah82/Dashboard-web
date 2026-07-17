@@ -24,6 +24,7 @@ import 'features/departments/data/repository/department_repo_impl.dart';
 import 'features/departments/presentation/controller/department_cubit.dart';
 import 'features/home/data/repository/home_repository_impl.dart';
 import 'features/home/presentation/controller/home_cubit.dart';
+import 'features/main/data/repository/main_repository_impl.dart';
 import 'features/main/presentation/controller/main_cubit.dart';
 import 'features/home/presentation/controller/lang_state.dart';
 import 'features/inquire/data/repository/inquiry_repo_impl.dart';
@@ -136,15 +137,11 @@ class BayanatzApp extends StatelessWidget {
                 repository: HomeRepositoryImpl(),
               )..load(),
             ),
-            // Main page CMS — SEPARATE Firestore collection ('mainPage') so
-            // Main and Home data are never read from the same document.
+            // Main page CMS — its OWN model + repository + Firestore
+            // collection ('mainPage'): branding/theme, logo, footer, social.
             BlocProvider<MainCmsCubit>(
               create: (_) => MainCmsCubit(
-                repository: HomeRepositoryImpl(
-                  collection: 'mainPage',
-                  publishedDoc: 'main',
-                  draftDoc: 'main_draft',
-                ),
+                repository: MainRepositoryImpl(),
               )..load(),
             ),
             BlocProvider<ServiceCmsCubit>(

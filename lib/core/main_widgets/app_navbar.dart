@@ -26,6 +26,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../features/home/data/models/home_model.dart';
 import '../../features/home/presentation/controller/home_cubit.dart';
 import '../../features/home/presentation/controller/home_state.dart';
+import '../../features/main/presentation/controller/main_cubit.dart';
+import '../../features/main/presentation/controller/main_state.dart';
 import '../../features/home/presentation/controller/lang_state.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_wight.dart';
@@ -53,20 +55,20 @@ const Map<String, String> _kSvgMap = {
 };
 
 // ── Extract primary color from CMS state ─────────────────────────────────────
-Color _primaryFromState(HomeCmsState state) {
+Color _primaryFromState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.primaryColor,
-    HomeCmsSaved(:final data)  => data.branding.primaryColor,
+    MainCmsLoaded(:final data) => data.branding.primaryColor,
+    MainCmsSaved(:final data)  => data.branding.primaryColor,
     _                          => '',
   };
   return _hexColor(hex, _WebColors.primary);
 }
 
 // ✅ Extract navbar background color from CMS state (headerFooterColor)
-Color _navbarBgFromState(HomeCmsState state) {
+Color _navbarBgFromState(MainCmsState state) {
   final String hex = switch (state) {
-    HomeCmsLoaded(:final data) => data.branding.headerFooterColor,
-    HomeCmsSaved(:final data)  => data.branding.headerFooterColor,
+    MainCmsLoaded(:final data) => data.branding.headerFooterColor,
+    MainCmsSaved(:final data)  => data.branding.headerFooterColor,
     _                          => '',
   };
   return _hexColor(hex, AppColors.white);
@@ -85,11 +87,12 @@ Color _lightTint(Color primary) => primary.withValues(alpha: 0.12);
 // ── CMS-driven nav items, filtered by status ──────────────────────────────────
 List<({String label, String route, String svgAsset})> _getVisibleNavItems(
     String languageCode, HomeCmsState cmsState) {
-  final List<NavButtonModel> navButtons = switch (cmsState) {
-    HomeCmsLoaded(:final data) => data.navButtons,
-    HomeCmsSaved(:final data)  => data.navButtons,
-    _                          => HomePageModel.defaultModel.navButtons,
-  };
+  // The top navbar is intentionally FIXED to the standard tabs and their
+  // standard routes (Home → /, Services → /services, About → /about,
+  // Contact → /contact, Careers → /careers). Editing a nav button's
+  // "Navigate To" route only changes the middle hero buttons — it must NOT
+  // move or duplicate the navbar tabs. Kept in sync with website_app.
+  final List<NavButtonModel> navButtons = HomePageModel.defaultModel.navButtons;
 
   final bool isAr = languageCode == 'ar';
 
@@ -126,10 +129,12 @@ class AppNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
-      builder: (context, cmsState) {
-        final Color primary  = _primaryFromState(cmsState);
-        final Color navbarBg = _navbarBgFromState(cmsState);
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
+      builder: (context, mainState) {
+        final Color primary  = _primaryFromState(mainState);
+        final Color navbarBg = _navbarBgFromState(mainState);
+        return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+          builder: (context, cmsState) {
         final double w       = MediaQuery.of(context).size.width;
 
         if (w >= _BP.tablet)
@@ -154,6 +159,8 @@ class AppNavbar extends StatelessWidget {
           navbarBg:     navbarBg,
           cmsState:     cmsState,
           onItemTap:    onItemTap,
+        );
+          },
         );
       },
     );
@@ -519,11 +526,11 @@ class _BayanatzLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final double sz = rawSize ? 40.w : 36.w;
 
-    return BlocBuilder<HomeCmsCubit, HomeCmsState>(
+    return BlocBuilder<MainCmsCubit, MainCmsState>(
       builder: (context, state) {
         final String logoUrl = switch (state) {
-          HomeCmsLoaded(:final data) => data.branding.logoUrl,
-          HomeCmsSaved(:final data)  => data.branding.logoUrl,
+          MainCmsLoaded(:final data) => data.branding.logoUrl,
+          MainCmsSaved(:final data)  => data.branding.logoUrl,
           _                          => '',
         };
 
